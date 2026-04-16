@@ -46,6 +46,10 @@ function componentFor(tool) {
             {{ t('tools.inDevelopment') }}
           </span>
           <span
+            v-else-if="tool.featured && tool.inDev"
+            class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-amber-100 text-amber-800"
+          >{{ t('tools.inDevelopment') }}</span>
+          <span
             v-else-if="tool.featured"
             class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-primary/10 text-primary"
           >{{ t('tools.new') }}</span>

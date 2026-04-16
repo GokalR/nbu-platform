@@ -305,16 +305,16 @@ const threatLevelClass = (level) => {
             </span>
           </div>
         </div>
-        <table class="da-table">
+        <table class="da-table auto-layout">
           <thead>
             <tr>
-              <th>#</th>
-              <th>{{ t('district.table.colName') }}</th>
-              <th>{{ t('district.table.colType') }}</th>
-              <th class="text-right">{{ t('district.table.colPopulation') }}</th>
-              <th class="text-right">{{ t('district.table.colArea') }}</th>
-              <th class="text-right">{{ t('district.table.colDensity') }}</th>
-              <th></th>
+              <th style="width:5%">#</th>
+              <th style="width:22%">{{ t('district.table.colName') }}</th>
+              <th style="width:10%">{{ t('district.table.colType') }}</th>
+              <th class="text-right" style="width:18%">{{ t('district.table.colPopulation') }}</th>
+              <th class="text-right" style="width:15%">{{ t('district.table.colArea') }}</th>
+              <th class="text-right" style="width:15%">{{ t('district.table.colDensity') }}</th>
+              <th style="width:15%"></th>
             </tr>
           </thead>
           <tbody>
@@ -461,14 +461,14 @@ const threatLevelClass = (level) => {
               <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
                 <div>
                   <div class="da-kpi-label mb-1">{{ t('district.cards.import') }}</div>
-                  <div class="medium-number">${{ analytics.economic.trade.importMln }}M</div>
+                  <div class="medium-number">{{ analytics.economic.trade.importMln }} {{ t('district.units.bnSum') }}</div>
                 </div>
                 <AppIcon name="download" class="text-slate-300 text-2xl" />
               </div>
               <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
                 <div>
                   <div class="da-kpi-label mb-1">{{ t('district.cards.export') }}</div>
-                  <div class="medium-number text-emerald-600">${{ analytics.economic.trade.exportMln }}M</div>
+                  <div class="medium-number text-emerald-600">{{ analytics.economic.trade.exportMln }} {{ t('district.units.bnSum') }}</div>
                   <span class="da-chip tone-green mt-1">▲ {{ analytics.economic.trade.exportGrowth }}</span>
                 </div>
                 <AppIcon name="upload" class="text-emerald-300 text-2xl" />
@@ -476,7 +476,7 @@ const threatLevelClass = (level) => {
               <div class="flex items-end justify-between">
                 <div>
                   <div class="da-kpi-label mb-1">{{ t('district.cards.balance') }}</div>
-                  <div class="medium-number text-red-600">{{ analytics.economic.trade.deficitMln }}M</div>
+                  <div class="medium-number text-red-600">{{ analytics.economic.trade.deficitMln }} {{ t('district.units.bnSum') }}</div>
                 </div>
                 <AppIcon name="trending_down" class="text-red-300 text-2xl" />
               </div>
@@ -628,7 +628,7 @@ const threatLevelClass = (level) => {
         <div class="da-ai">
           <div class="da-ai-icon"><AppIcon name="psychology" /></div>
           <div class="flex-1">
-            <div class="da-ai-title">AI Recommendation · NBU</div>
+            <div class="da-ai-title">{{ t('district.cards.aiRecTitle') }}</div>
             <p>{{ analytics.economic.aiNote }}</p>
           </div>
         </div>
@@ -725,7 +725,7 @@ const threatLevelClass = (level) => {
         <div class="da-ai">
           <div class="da-ai-icon"><AppIcon name="psychology" /></div>
           <div class="flex-1">
-            <div class="da-ai-title">AI Recommendation · NBU</div>
+            <div class="da-ai-title">{{ t('district.cards.aiRecTitle') }}</div>
             <p>{{ analytics.infra.aiNote }}</p>
           </div>
         </div>
@@ -859,8 +859,8 @@ const threatLevelClass = (level) => {
             <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.topMahallasTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.topMahallasSub') }}</div>
           </div>
-          <table class="da-table">
-            <thead><tr><th>#</th><th>{{ t('district.cards.mahalla') }}</th><th class="text-right">{{ t('district.cards.credits') }}</th><th class="text-right">{{ t('district.cards.score') }}</th></tr></thead>
+          <table class="da-table auto-layout">
+            <thead><tr><th style="width:8%">#</th><th style="width:42%">{{ t('district.cards.mahalla') }}</th><th class="text-right" style="width:25%">{{ t('district.cards.credits') }}</th><th class="text-right" style="width:25%">{{ t('district.cards.score') }}</th></tr></thead>
             <tbody>
               <tr v-for="(m, i) in analytics.mahalla.topMahallas" :key="m.name">
                 <td class="da-mono text-slate-400 font-bold">{{ i + 1 }}</td>
@@ -959,7 +959,7 @@ const threatLevelClass = (level) => {
         <div class="da-ai">
           <div class="da-ai-icon"><AppIcon name="psychology" /></div>
           <div class="flex-1">
-            <div class="da-ai-title">AI Recommendation · Strategic Pivot</div>
+            <div class="da-ai-title">{{ t('district.cards.aiRecTitle') }}</div>
             <p>{{ analytics.opportunities.aiRecommendation }}</p>
           </div>
         </div>
@@ -1021,8 +1021,8 @@ const threatLevelClass = (level) => {
             <div class="da-card-title"><span class="dot"></span>{{ title }} <span class="text-slate-400 font-normal">{{ t('district.cards.vs') }}</span> {{ t('district.cards.regionAverage') }}</div>
             <div class="da-card-sub">{{ t('district.cards.perCapitaThousand') }}</div>
           </div>
-          <table class="da-table">
-            <thead><tr><th>{{ t('district.cards.indicator') }}</th><th class="text-right">{{ t('district.cards.district') }}</th><th class="text-right">{{ t('district.cards.mean') }}</th><th class="text-right">{{ t('district.cards.diff') }}</th></tr></thead>
+          <table class="da-table auto-layout">
+            <thead><tr><th style="width:40%">{{ t('district.cards.indicator') }}</th><th class="text-right" style="width:20%">{{ t('district.cards.district') }}</th><th class="text-right" style="width:20%">{{ t('district.cards.mean') }}</th><th class="text-right" style="width:20%">{{ t('district.cards.diff') }}</th></tr></thead>
             <tbody>
               <tr v-for="row in analytics.summary.comparison" :key="row.metric">
                 <td class="font-semibold">{{ row.metric }}</td>

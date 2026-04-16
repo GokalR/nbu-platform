@@ -11,7 +11,7 @@
     "ai": "AI Maslahatchi",
     "tools": "Biznes AI vositalari",
     "education": "NBU Education",
-    "regionalStrategist": "Ҳудудий стратег",
+    "regionalStrategist": "Hududiy strateg",
     "support": "Yordam",
     "signOut": "Chiqish"
   },
@@ -236,7 +236,8 @@
       "actionPlanTitle": "2026–2028 harakat rejasi",
       "actionPlanSub": "NBU ustuvorliklari bo'yicha yo'l xaritasi",
       "step": "Qadam",
-      "budget": "Byudjet"
+      "budget": "Byudjet",
+      "aiRecTitle": "AI Tavsiya · NBU"
     },
     "legends": {
       "grp": "YaRP, mlrd so'm",

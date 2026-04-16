@@ -52,7 +52,7 @@ export const bankBars = [
 ]
 
 export const tools = [
-  { key: 'fincontrol', icon: 'account_balance_wallet', accent: 'bg-primary', to: '/tools/fincontrol', featured: true },
+  { key: 'fincontrol', icon: 'account_balance_wallet', accent: 'bg-primary', to: '/tools/fincontrol', featured: true, inDev: true },
   { key: 'strategy', icon: 'rocket_launch', accent: 'bg-tertiary', to: '/tools/regional-strategist', featured: true },
   { key: 'forecast', icon: 'query_stats', accent: 'bg-primary', comingSoon: true },
   { key: 'credit', icon: 'credit_score', accent: 'bg-secondary', comingSoon: true },
