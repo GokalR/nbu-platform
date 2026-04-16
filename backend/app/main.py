@@ -95,3 +95,60 @@ async def health():
 @app.get("/api/health", tags=["meta"])
 async def api_health():
     return {"status": "ok"}
+
+
+@app.post("/api/seed", tags=["meta"])
+async def run_seed():
+    """One-time endpoint to seed education data. Remove after use."""
+    from .db_async import async_session
+    from .models_education import Course, Video, LearningContent
+
+    # Import seed data
+    import sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    from seed import COURSE_1, COURSE_1_VIDEOS, make_quiz, make_flashcards, make_mind_map, make_test
+
+    async with async_session() as db:
+        # Check if already seeded
+        from sqlalchemy import select, func
+        count = (await db.execute(select(func.count()).select_from(Course))).scalar()
+        if count > 0:
+            return {"status": "already_seeded", "courses": count}
+
+        course = Course(
+            title=COURSE_1["title"],
+            description=COURSE_1["description"],
+            thumbnail_url=COURSE_1["thumbnail_url"],
+            category=COURSE_1["category"],
+            educator_name=COURSE_1["educator_name"],
+            is_published=True,
+            sort_order=0,
+        )
+        db.add(course)
+        await db.flush()
+
+        for i, ep in enumerate(COURSE_1_VIDEOS):
+            video = Video(
+                course_id=course.id,
+                title=ep["title"],
+                description=ep["description"],
+                video_url=ep["video_url"],
+                duration_sec=ep["duration_sec"],
+                sort_order=i,
+            )
+            db.add(video)
+            await db.flush()
+
+            topic_ru = ep["title"]["ru"].split(": ", 1)[-1] if ": " in ep["title"]["ru"] else ep["title"]["ru"]
+            topic_uz = ep["title"]["uz"].split(": ", 1)[-1] if ": " in ep["title"]["uz"] else ep["title"]["uz"]
+
+            for content_type, content_fn in [
+                ("quiz", make_quiz),
+                ("flashcards", make_flashcards),
+                ("mental_map", make_mind_map),
+                ("test", make_test),
+            ]:
+                db.add(LearningContent(video_id=video.id, content_type=content_type, content=content_fn(topic_ru, topic_uz)))
+
+        await db.commit()
+        return {"status": "seeded", "courses": 1, "videos": len(COURSE_1_VIDEOS)}
