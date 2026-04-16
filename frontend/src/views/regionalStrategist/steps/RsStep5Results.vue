@@ -780,12 +780,12 @@ const onDownload = () => {
           {{ lang === 'uz' ? 'Toʻliq ekranda ochish' : 'Открыть на весь экран' }}
         </button>
       </div>
-      <!-- Inline map preview — scrolled to show actual map, not the header -->
+      <!-- Inline map preview — scrolled past header/toolbar to show actual Yandex map -->
       <div class="relative cursor-pointer group overflow-hidden" style="height: 480px;" @click="showMap = true">
         <iframe
           src="/maps/fergana-education/index.html"
           class="w-full border-0 pointer-events-none absolute left-0"
-          style="height: 900px; top: -220px;"
+          style="height: 1100px; top: -380px;"
           loading="lazy"
           tabindex="-1"
           :title="t.section7MapTitle"

@@ -299,10 +299,10 @@ async function loadErkinSamples() {
           type="button"
           @click="loadErkinSamples"
           class="inline-flex items-center gap-2 text-[12px] font-semibold text-navy-900 border border-gold-500/40 bg-gold-500/[0.06] hover:bg-gold-500/[0.14] rounded-[8px] py-[6px] px-3 transition-colors"
-          :title="lang === 'uz' ? 'ERKIN PARVOZ намуна файлларини юклаш' : 'Загрузить образцы ERKIN PARVOZ (баланс + ОПиУ)'"
+          :title="lang === 'uz' ? 'ERKIN PARVOZ namuna fayllarini yuklash' : 'Загрузить образцы ERKIN PARVOZ (баланс + ОПиУ)'"
         >
           <RsIcon name="file-check" :size="13" class="text-gold-500" />
-          {{ lang === 'uz' ? 'Намуна: ERKIN PARVOZ (2 файл)' : 'Образцы: ERKIN PARVOZ (2 файла)' }}
+          {{ lang === 'uz' ? 'Namuna: ERKIN PARVOZ (2 fayl)' : 'Образцы: ERKIN PARVOZ (2 файла)' }}
         </button>
       </div>
 
