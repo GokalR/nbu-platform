@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+import { BACKEND_URL } from '@/services/api'
+
 const { locale } = useI18n()
 const courseId = computed(() => route.params.id)
 
@@ -16,8 +18,8 @@ async function loadData() {
   loading.value = true
   try {
     const [courseRes, videosRes] = await Promise.all([
-      fetch(`/api/courses/${courseId.value}?lang=${locale.value}`),
-      fetch(`/api/courses/${courseId.value}/videos?lang=${locale.value}`),
+      fetch(`${BACKEND_URL}/api/courses/${courseId.value}?lang=${locale.value}`),
+      fetch(`${BACKEND_URL}/api/courses/${courseId.value}/videos?lang=${locale.value}`),
     ])
     if (courseRes.ok) course.value = await courseRes.json()
     if (videosRes.ok) videos.value = await videosRes.json()

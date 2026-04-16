@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+import { BACKEND_URL } from '@/services/api'
+
 const { t, locale } = useI18n()
 const courses = ref([])
 const loading = ref(true)
@@ -13,7 +15,7 @@ async function loadCourses() {
   loading.value = true
   error.value = null
   try {
-    const res = await fetch(`/api/courses?lang=${locale.value}`)
+    const res = await fetch(`${BACKEND_URL}/api/courses?lang=${locale.value}`)
     if (res.ok) {
       const data = await res.json()
       courses.value = Array.isArray(data) ? data : data.courses || []

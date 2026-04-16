@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { BACKEND_URL } from '@/services/api'
 
 export const useEduAuthStore = defineStore('eduAuth', () => {
   const user = ref(null)
@@ -19,7 +20,7 @@ export const useEduAuthStore = defineStore('eduAuth', () => {
   async function login(email, password) {
     loading.value = true
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -38,7 +39,7 @@ export const useEduAuthStore = defineStore('eduAuth', () => {
   async function register(email, password, fullName) {
     loading.value = true
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, full_name: fullName }),
@@ -56,7 +57,7 @@ export const useEduAuthStore = defineStore('eduAuth', () => {
   async function fetchMe() {
     if (!token.value) return
     try {
-      const res = await fetch('/api/auth/me', {
+      const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token.value}` },
       })
       if (res.ok) {

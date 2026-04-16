@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import { useEduAuthStore } from '@/stores/eduAuth'
 
 const router = useRouter()
+import { BACKEND_URL } from '@/services/api'
+
 const auth = useEduAuthStore()
 const dashboard = ref(null)
 const loading = ref(true)
@@ -11,7 +13,7 @@ const loading = ref(true)
 onMounted(async () => {
   if (!auth.token) { router.push('/education/login'); return }
   try {
-    const res = await fetch('/api/me/dashboard', {
+    const res = await fetch(`${BACKEND_URL}/api/me/dashboard`, {
       headers: { Authorization: `Bearer ${auth.token}` },
     })
     if (res.ok) dashboard.value = await res.json()

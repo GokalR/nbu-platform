@@ -10,6 +10,8 @@ import EduTest from '@/components/education/EduTest.vue'
 
 const route = useRoute()
 const router = useRouter()
+import { BACKEND_URL } from '@/services/api'
+
 const { locale } = useI18n()
 
 const courseId = computed(() => route.params.courseId)
@@ -42,9 +44,9 @@ async function loadData() {
   try {
     const lang = locale.value
     const [videoRes, contentRes, videosRes] = await Promise.all([
-      fetch(`/api/videos/${videoId.value}?lang=${lang}`),
-      fetch(`/api/videos/${videoId.value}/content?lang=${lang}`),
-      fetch(`/api/courses/${courseId.value}/videos?lang=${lang}`),
+      fetch(`${BACKEND_URL}/api/videos/${videoId.value}?lang=${lang}`),
+      fetch(`${BACKEND_URL}/api/videos/${videoId.value}/content?lang=${lang}`),
+      fetch(`${BACKEND_URL}/api/courses/${courseId.value}/videos?lang=${lang}`),
     ])
     if (videoRes.ok) video.value = await videoRes.json()
     if (contentRes.ok) content.value = await contentRes.json()

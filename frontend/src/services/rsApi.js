@@ -5,7 +5,11 @@
  * app keeps working in static/demo mode.
  */
 
-const BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || ''
+import { BACKEND_URL } from '@/services/api'
+
+const BASE = (import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '').startsWith('/')
+  ? BACKEND_URL + (import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '')
+  : import.meta.env.VITE_API_URL?.replace(/\/$/, '') || ''
 
 // Once a network failure happens, stop trying to reach the backend for the
 // rest of this session — UI treats the app as unconfigured and uses local mode.
