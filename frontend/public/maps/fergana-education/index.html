@@ -1017,23 +1017,16 @@
     .zone-flag {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      padding: 10px 14px;
-      min-width: 180px;
-      max-width: 240px;
-      border-radius: 10px;
+      gap: 2px;
+      padding: 6px 10px;
+      max-width: 170px;
+      border-radius: 8px;
       background: #fff;
       border: 1px solid rgba(0, 0, 0, 0.08);
-      border-left: 4px solid var(--text-faint);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
+      border-left: 3px solid var(--text-faint);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
       font-family: "Manrope", sans-serif;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
       pointer-events: none;
-    }
-
-    .zone-flag.is-active {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
     .zone-flag--gap {
@@ -1049,10 +1042,9 @@
     }
 
     .zone-flag__title {
-      font-size: 16px;
+      font-size: 11px;
       font-weight: 800;
-      line-height: 1.3;
-      letter-spacing: 0.01em;
+      line-height: 1.2;
     }
 
     .zone-flag--gap .zone-flag__title {
@@ -1068,9 +1060,9 @@
     }
 
     .zone-flag__body {
-      font-size: 15px;
+      font-size: 10px;
       font-weight: 500;
-      line-height: 1.45;
+      line-height: 1.3;
       color: var(--text-soft);
       margin: 0;
     }
@@ -2062,10 +2054,9 @@
       );
 
       const zoneFlagLayout = ymaps.templateLayoutFactory.createClass(
-        '<div class="zone-flag zone-flag--$[properties.tag] $[properties.stateClass]">' +
+        '<div class="zone-flag zone-flag--$[properties.tag]">' +
           '<div class="zone-flag__title">$[properties.flagTitle]</div>' +
           '<p class="zone-flag__body">$[properties.flagBody]</p>' +
-          '<div class="zone-flag__name">$[properties.zoneName]</div>' +
         '</div>'
       );
 
@@ -2634,10 +2625,10 @@
             stateClass: recommendation.id === activeRecommendationId ? "is-active" : "",
           }, {
             iconLayout: zoneFlagLayout,
-            iconOffset: [-100, -60],
+            iconOffset: [-85, -40],
             iconShape: {
               type: "Rectangle",
-              coordinates: [[-120, -70], [120, 10]],
+              coordinates: [[-90, -45], [90, 5]],
             },
             zIndex: 700,
           });
