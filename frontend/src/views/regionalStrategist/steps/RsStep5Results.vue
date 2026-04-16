@@ -213,8 +213,8 @@ const formatRatio = (v) => (v == null || isNaN(v) ? '—' : Number(v).toFixed(2)
 const formatUzs = (v) => {
   if (v == null || isNaN(v)) return '—'
   const n = Number(v)
-  if (Math.abs(n) >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)} ${lang.value === 'uz' ? 'млрд' : 'млрд'}`
-  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} ${lang.value === 'uz' ? 'млн' : 'млн'}`
+  if (Math.abs(n) >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)} ${lang.value === 'uz' ? 'mlrd' : 'млрд'}`
+  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} ${lang.value === 'uz' ? 'mln' : 'млн'}`
   return n.toLocaleString('ru-RU')
 }
 
@@ -225,14 +225,14 @@ const financialMetrics = computed(() => {
   const a = f.absolutes || {}
   const L = lang.value
   return [
-    { key: 'revenue',      label: L === 'uz' ? 'Тушум'            : 'Выручка',             value: formatUzs(a.revenue),      kind: 'abs' },
-    { key: 'netProfit',    label: L === 'uz' ? 'Соф фойда'         : 'Чистая прибыль',      value: formatUzs(a.netProfit),    kind: 'abs' },
-    { key: 'grossMargin',  label: L === 'uz' ? 'Ялпи маржа'        : 'Валовая маржа',       value: formatPct(r.grossMargin),  kind: 'pct' },
-    { key: 'netMargin',    label: L === 'uz' ? 'Соф маржа'         : 'Чистая маржа',        value: formatPct(r.netMargin),    kind: 'pct' },
+    { key: 'revenue',      label: L === 'uz' ? 'Tushum'            : 'Выручка',             value: formatUzs(a.revenue),      kind: 'abs' },
+    { key: 'netProfit',    label: L === 'uz' ? 'Sof foyda'         : 'Чистая прибыль',      value: formatUzs(a.netProfit),    kind: 'abs' },
+    { key: 'grossMargin',  label: L === 'uz' ? 'Yalpi marja'        : 'Валовая маржа',       value: formatPct(r.grossMargin),  kind: 'pct' },
+    { key: 'netMargin',    label: L === 'uz' ? 'Sof marja'         : 'Чистая маржа',        value: formatPct(r.netMargin),    kind: 'pct' },
     { key: 'roa',          label: 'ROA',                                                    value: formatPct(r.roa),          kind: 'pct' },
     { key: 'roe',          label: 'ROE',                                                    value: formatPct(r.roe),          kind: 'pct' },
-    { key: 'currentRatio', label: L === 'uz' ? 'Жорий ликвидлик'   : 'Текущ. ликвидность',  value: formatRatio(r.currentRatio), kind: 'ratio' },
-    { key: 'debtToEquity', label: L === 'uz' ? 'Қарз/капитал'      : 'Долг/капитал',        value: formatRatio(r.debtToEquity), kind: 'ratio' },
+    { key: 'currentRatio', label: L === 'uz' ? 'Joriy likvidlik'   : 'Текущ. ликвидность',  value: formatRatio(r.currentRatio), kind: 'ratio' },
+    { key: 'debtToEquity', label: L === 'uz' ? 'Qarz/kapital'      : 'Долг/капитал',        value: formatRatio(r.debtToEquity), kind: 'ratio' },
   ].filter((m) => m.value !== '—')
 })
 
@@ -245,7 +245,7 @@ const kindLabel = (kind) => {
     ru: { balance: 'Баланс', pnl: 'ОПиУ', cashflow: 'ДДС' },
     uz: { balance: 'Balans', pnl: 'FZH', cashflow: 'PH' },
   }
-  return map[lang.value]?.[kind] || kind || (lang.value === 'uz' ? 'Файл' : 'Файл')
+  return map[lang.value]?.[kind] || kind || (lang.value === 'uz' ? 'Fayl' : 'Файл')
 }
 
 const formatSize = (bytes) => {
@@ -261,14 +261,14 @@ const absoluteHighlights = computed(() => {
   const a = f.absolutes || {}
   const L = lang.value
   const items = [
-    { key: 'revenue',     raw: a.revenue,     label: L === 'uz' ? 'Йиллик тушум'  : 'Годовая выручка', icon: 'trending-up',  color: '#0054A6', tint: '#EEF4FF',
-      hint: L === 'uz' ? 'ОПиУ: жами тушум' : 'ОПиУ: итого выручка' },
-    { key: 'netProfit',   raw: a.netProfit,   label: L === 'uz' ? 'Соф фойда'      : 'Чистая прибыль',  icon: 'sparkles',     color: '#10B981', tint: '#E6F7EE',
-      hint: L === 'uz' ? 'Солиқдан сўнг'    : 'После налогов' },
-    { key: 'totalAssets', raw: a.totalAssets, label: L === 'uz' ? 'Жами активлар'  : 'Итого активов',   icon: 'briefcase',    color: '#8B5CF6', tint: '#F3E8FF',
-      hint: L === 'uz' ? 'Баланс якуни'     : 'Итог баланса' },
-    { key: 'equity',      raw: a.equity,      label: L === 'uz' ? 'Ўз капитал'     : 'Собственный капитал', icon: 'shield',  color: '#F59E0B', tint: '#FEF3C7',
-      hint: L === 'uz' ? 'Пассив: III бўлим': 'Пассив: раздел III' },
+    { key: 'revenue',     raw: a.revenue,     label: L === 'uz' ? 'Yillik tushum'  : 'Годовая выручка', icon: 'trending-up',  color: '#0054A6', tint: '#EEF4FF',
+      hint: L === 'uz' ? 'OPiU: jami tushum' : 'ОПиУ: итого выручка' },
+    { key: 'netProfit',   raw: a.netProfit,   label: L === 'uz' ? 'Sof foyda'      : 'Чистая прибыль',  icon: 'sparkles',     color: '#10B981', tint: '#E6F7EE',
+      hint: L === 'uz' ? 'Soliqdan soʻng'    : 'После налогов' },
+    { key: 'totalAssets', raw: a.totalAssets, label: L === 'uz' ? 'Jami aktivlar'  : 'Итого активов',   icon: 'briefcase',    color: '#8B5CF6', tint: '#F3E8FF',
+      hint: L === 'uz' ? 'Balans yakuni'     : 'Итог баланса' },
+    { key: 'equity',      raw: a.equity,      label: L === 'uz' ? 'Oʻz kapital'     : 'Собственный капитал', icon: 'shield',  color: '#F59E0B', tint: '#FEF3C7',
+      hint: L === 'uz' ? 'Passiv: III boʻlim': 'Пассив: раздел III' },
   ]
   return items
     .filter((m) => m.raw != null && !isNaN(m.raw))
@@ -285,12 +285,12 @@ const ratioBars = computed(() => {
   const r = f.ratios || {}
   const L = lang.value
   const defs = [
-    { key: 'grossMargin',  label: L === 'uz' ? 'Ялпи маржа'      : 'Валовая маржа',      max: 0.6,  pct: true,  higherBetter: true },
-    { key: 'netMargin',    label: L === 'uz' ? 'Соф маржа'       : 'Чистая маржа',       max: 0.25, pct: true,  higherBetter: true },
+    { key: 'grossMargin',  label: L === 'uz' ? 'Yalpi marja'      : 'Валовая маржа',      max: 0.6,  pct: true,  higherBetter: true },
+    { key: 'netMargin',    label: L === 'uz' ? 'Sof marja'       : 'Чистая маржа',       max: 0.25, pct: true,  higherBetter: true },
     { key: 'roa',          label: 'ROA',                                                  max: 0.2,  pct: true,  higherBetter: true },
     { key: 'roe',          label: 'ROE',                                                  max: 0.35, pct: true,  higherBetter: true },
-    { key: 'currentRatio', label: L === 'uz' ? 'Жорий ликвидлик' : 'Текущ. ликвидность', max: 3,    pct: false, higherBetter: true },
-    { key: 'debtToEquity', label: L === 'uz' ? 'Қарз/капитал'    : 'Долг/капитал',       max: 3,    pct: false, higherBetter: false },
+    { key: 'currentRatio', label: L === 'uz' ? 'Joriy likvidlik' : 'Текущ. ликвидность', max: 3,    pct: false, higherBetter: true },
+    { key: 'debtToEquity', label: L === 'uz' ? 'Qarz/kapital'    : 'Долг/капитал',       max: 3,    pct: false, higherBetter: false },
   ]
   const clamp = (v, max) => Math.max(0, Math.min(100, (v / max) * 100))
   const fmtV = (v, pct) => (pct ? formatPct(v) : formatRatio(v))
@@ -303,9 +303,9 @@ const ratioBars = computed(() => {
       const ratio = diff / Math.max(Math.abs(peer), 0.01)
       const verdictTone = ratio >= 0.1 ? 'good' : ratio >= -0.15 ? 'warn' : 'bad'
       const verdictLabel = verdictTone === 'good'
-        ? (L === 'uz' ? 'яхши' : 'выше')
-        : verdictTone === 'warn' ? (L === 'uz' ? 'ўртача' : 'средне')
-        : (L === 'uz' ? 'паст' : 'ниже')
+        ? (L === 'uz' ? 'yaxshi' : 'выше')
+        : verdictTone === 'warn' ? (L === 'uz' ? 'oʻrtacha' : 'средне')
+        : (L === 'uz' ? 'past' : 'ниже')
       return {
         key: d.key,
         label: d.label,
@@ -329,25 +329,25 @@ const excelInsight = computed(() => {
   const weak = []
 
   if (r.netMargin != null) {
-    if (r.netMargin >= 0.10) strong.push(L === 'uz' ? `соф маржа ${(r.netMargin*100).toFixed(1)}% — яхши даражада` : `чистая маржа ${(r.netMargin*100).toFixed(1)}% — хороший уровень`)
-    else if (r.netMargin >= 0.05) strong.push(L === 'uz' ? `соф маржа ${(r.netMargin*100).toFixed(1)}%` : `чистая маржа ${(r.netMargin*100).toFixed(1)}%`)
-    else weak.push(L === 'uz' ? `соф маржа паст (${(r.netMargin*100).toFixed(1)}%)` : `чистая маржа низкая (${(r.netMargin*100).toFixed(1)}%)`)
+    if (r.netMargin >= 0.10) strong.push(L === 'uz' ? `sof marja ${(r.netMargin*100).toFixed(1)}% — yaxshi darajada` : `чистая маржа ${(r.netMargin*100).toFixed(1)}% — хороший уровень`)
+    else if (r.netMargin >= 0.05) strong.push(L === 'uz' ? `sof marja ${(r.netMargin*100).toFixed(1)}%` : `чистая маржа ${(r.netMargin*100).toFixed(1)}%`)
+    else weak.push(L === 'uz' ? `sof marja past (${(r.netMargin*100).toFixed(1)}%)` : `чистая маржа низкая (${(r.netMargin*100).toFixed(1)}%)`)
   }
   if (r.currentRatio != null) {
-    if (r.currentRatio >= 1.5) strong.push(L === 'uz' ? 'ликвидлик соғлом (>1.5)' : 'ликвидность здоровая (>1.5)')
-    else if (r.currentRatio >= 1.0) weak.push(L === 'uz' ? `жорий ликвидлик чегарада (${r.currentRatio.toFixed(2)}) — қисқа муддатли мажбуриятлар чекланган` : `текущая ликвидность на границе (${r.currentRatio.toFixed(2)}) — ограниченный запас по краткосрочным обязательствам`)
-    else weak.push(L === 'uz' ? 'ликвидлик хавфли (<1.0)' : 'ликвидность в зоне риска (<1.0)')
+    if (r.currentRatio >= 1.5) strong.push(L === 'uz' ? 'likvidlik sogʻlom (>1.5)' : 'ликвидность здоровая (>1.5)')
+    else if (r.currentRatio >= 1.0) weak.push(L === 'uz' ? `joriy likvidlik chegarada (${r.currentRatio.toFixed(2)}) — qisqa muddatli majburiyatlar cheklangan` : `текущая ликвидность на границе (${r.currentRatio.toFixed(2)}) — ограниченный запас по краткосрочным обязательствам`)
+    else weak.push(L === 'uz' ? 'likvidlik xavfli (<1.0)' : 'ликвидность в зоне риска (<1.0)')
   }
   if (r.debtToEquity != null) {
-    if (r.debtToEquity > 2) weak.push(L === 'uz' ? 'қарз юки юқори (D/E>2)' : 'высокая долговая нагрузка (D/E>2)')
-    else if (r.debtToEquity > 1.5) weak.push(L === 'uz' ? `D/E ${r.debtToEquity.toFixed(2)} — юқори` : `D/E ${r.debtToEquity.toFixed(2)} — повышенный`)
+    if (r.debtToEquity > 2) weak.push(L === 'uz' ? 'qarz yuki yuqori (D/E>2)' : 'высокая долговая нагрузка (D/E>2)')
+    else if (r.debtToEquity > 1.5) weak.push(L === 'uz' ? `D/E ${r.debtToEquity.toFixed(2)} — yuqori` : `D/E ${r.debtToEquity.toFixed(2)} — повышенный`)
   }
-  if (r.roe != null && r.roe > 0.12) strong.push(L === 'uz' ? `ROE ${(r.roe*100).toFixed(1)}% — капитал самарали ишлатилмоқда` : `ROE ${(r.roe*100).toFixed(1)}% — капитал работает эффективно`)
-  if (r.roa != null && r.roa < 0.03) weak.push(L === 'uz' ? 'активлар рентабеллиги паст (ROA<3%)' : 'рентабельность активов низкая (ROA<3%)')
+  if (r.roe != null && r.roe > 0.12) strong.push(L === 'uz' ? `ROE ${(r.roe*100).toFixed(1)}% — kapital samarali ishlatilmoqda` : `ROE ${(r.roe*100).toFixed(1)}% — капитал работает эффективно`)
+  if (r.roa != null && r.roa < 0.03) weak.push(L === 'uz' ? 'aktivlar rentabelligi past (ROA<3%)' : 'рентабельность активов низкая (ROA<3%)')
 
   if (!strong.length && !weak.length) return null
-  const good = strong.length ? (L === 'uz' ? `Кучли томонлар: ${strong.join('; ')}.` : `Сильные стороны: ${strong.join('; ')}.`) : ''
-  const bad = weak.length ? (L === 'uz' ? ` Эътибор берилиши керак: ${weak.join('; ')}.` : ` Требует внимания: ${weak.join('; ')}.`) : ''
+  const good = strong.length ? (L === 'uz' ? `Kuchli tomonlar: ${strong.join('; ')}.` : `Сильные стороны: ${strong.join('; ')}.`) : ''
+  const bad = weak.length ? (L === 'uz' ? ` Eʻtibor berilishi kerak: ${weak.join('; ')}.` : ` Требует внимания: ${weak.join('; ')}.`) : ''
   return (good + bad).trim()
 })
 
@@ -455,9 +455,9 @@ const scoreColor = computed(() =>
 )
 const verdictLabel = computed(() => {
   const map = {
-    good: { ru: 'Xoroshiy potentsial', uz: 'Yaxshi potentsial', cls: 'text-emerald-600 bg-emerald-50' },
-    fair: { ru: 'Sredniy potentsial', uz: 'Oʻrta potentsial', cls: 'text-amber-600 bg-amber-50' },
-    weak: { ru: 'Trebuet dorabotki', uz: 'Takomillashtirish kerak', cls: 'text-red-600 bg-red-50' },
+    good: { ru: 'Хороший потенциал', uz: 'Yaxshi potentsial', cls: 'text-emerald-600 bg-emerald-50' },
+    fair: { ru: 'Средний потенциал', uz: 'Oʻrta potentsial', cls: 'text-amber-600 bg-amber-50' },
+    weak: { ru: 'Требует доработки', uz: 'Takomillashtirish kerak', cls: 'text-red-600 bg-red-50' },
   }
   return map[scoreResult.value.verdict]
 })
@@ -521,7 +521,7 @@ const onDownload = () => {
               class="font-mono text-[11px] font-bold uppercase tracking-[1.5px] mb-1"
               :class="isPilotCity ? 'text-gold-400' : 'text-amber-700'"
             >
-              {{ lang === 'uz' ? 'Сиз танлаган ҳудуд' : 'Выбранный вами регион' }}
+              {{ lang === 'uz' ? 'Siz tanlagan hudud' : 'Выбранный вами регион' }}
             </div>
             <h3
               class="font-sans text-[22px] font-bold leading-tight truncate"
@@ -529,7 +529,7 @@ const onDownload = () => {
             >
               <template v-if="profile.viloyat">{{ profile.viloyat }}</template>
               <template v-else-if="isPilotCity">{{ selectedCity.name[lang] }}</template>
-              <template v-else>{{ lang === 'uz' ? 'Ҳудуд кўрсатилмаган' : 'Регион не указан' }}</template>
+              <template v-else>{{ lang === 'uz' ? 'Hudud koʻrsatilmagan' : 'Регион не указан' }}</template>
             </h3>
             <div
               class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 font-sans text-[13px]"
@@ -542,7 +542,7 @@ const onDownload = () => {
               <span v-if="profile.hudud && profile.mahalla" :class="isPilotCity ? 'text-white/30' : 'text-gray-300'">·</span>
               <span v-if="profile.mahalla" class="inline-flex items-center gap-1.5">
                 <RsIcon name="user" :size="13" />
-                {{ lang === 'uz' ? 'маҳалла' : 'махалля' }}: {{ profile.mahalla }}
+                {{ lang === 'uz' ? 'mahalla' : 'махалля' }}: {{ profile.mahalla }}
               </span>
             </div>
           </div>
@@ -554,21 +554,21 @@ const onDownload = () => {
             class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.5px] rounded-full py-1.5 px-3 bg-emerald-500/15 text-emerald-300 border border-emerald-400/30"
           >
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            {{ lang === 'uz' ? 'Тўлиқ маълумот' : 'Полные данные' }}
+            {{ lang === 'uz' ? 'Toʻliq maʻlumot' : 'Полные данные' }}
           </span>
           <span
             v-else-if="isPilotCity"
             class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.5px] rounded-full py-1.5 px-3 bg-gold-500/15 text-gold-300 border border-gold-400/30"
           >
             <span class="w-1.5 h-1.5 rounded-full bg-gold-400"></span>
-            {{ lang === 'uz' ? 'Пилот шаҳар' : 'Пилотный город' }}
+            {{ lang === 'uz' ? 'Pilot shahar' : 'Пилотный город' }}
           </span>
           <span
             v-else
             class="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.5px] rounded-full py-1.5 px-3 bg-amber-100 text-amber-800 border border-amber-200"
           >
             <RsIcon name="alert-triangle" :size="12" />
-            {{ lang === 'uz' ? 'Маълумотлар чекланган' : 'Данные ограничены' }}
+            {{ lang === 'uz' ? 'Maʻlumotlar cheklangan' : 'Данные ограничены' }}
           </span>
         </div>
       </div>
@@ -582,14 +582,14 @@ const onDownload = () => {
           <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-gold-500 shrink-0 font-mono text-[15px] font-bold text-white">A</span>
           <div>
             <h2 class="font-sans text-[20px] font-bold text-carbon">
-              {{ lang === 'uz' ? 'Сиз тўлдирган маълумотлар' : 'Ваши ответы' }}
+              {{ lang === 'uz' ? 'Siz toʻldirgan maʻlumotlar' : 'Ваши ответы' }}
               <span class="font-normal text-steel-500 text-[15px]">
-                · {{ lang === 'uz' ? '1- ва 2-қадам' : 'Шаг 1 и Шаг 2' }}
+                · {{ lang === 'uz' ? '1- va 2-qadam' : 'Шаг 1 и Шаг 2' }}
               </span>
             </h2>
             <p class="font-sans text-[13px] text-gray-600 mt-1">
               {{ lang === 'uz'
-                ? 'Қуйидаги балл, SWOT ва тавсиялар сиз бёрган жавоблар асосида ҳисобланган'
+                ? 'Quyidagi ball, SWOT va tavsiyalar siz byorgan javoblar asosida hisoblangan'
                 : 'Балл, SWOT и рекомендации ниже рассчитаны на основании ваших ответов в анкете' }}
             </p>
           </div>
@@ -609,18 +609,18 @@ const onDownload = () => {
             <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-emerald-500 shrink-0 font-mono text-[15px] font-bold text-white">B</span>
             <div>
               <h2 class="font-sans text-[20px] font-bold text-carbon">
-                {{ lang === 'uz' ? 'Excel файлдан агрегат маълумотлар' : 'Агрегаты из вашего Excel' }}
+                {{ lang === 'uz' ? 'Excel fayldan agregat maʻlumotlar' : 'Агрегаты из вашего Excel' }}
               </h2>
               <p class="font-sans text-[13px] text-gray-600 mt-1">
                 {{ lang === 'uz'
-                  ? 'Стандарт 1С / Документы.uz шакллари бўйича автоматик ҳисобланди'
+                  ? 'Standart 1S / Dokumenti.uz shakllari boʻyicha avtomatik hisoblandi'
                   : 'Автоматически посчитано по стандартным формам 1С / Документы.uz' }}
               </p>
             </div>
           </div>
           <span v-if="uploadedFiles.length"
                 class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-[6px] py-1 px-2">
-            {{ uploadedFiles.length }} {{ lang === 'uz' ? 'файл' : 'файл(ов)' }}
+            {{ uploadedFiles.length }} {{ lang === 'uz' ? 'fayl' : 'файл(ов)' }}
           </span>
         </div>
       </div>
@@ -632,11 +632,11 @@ const onDownload = () => {
         </span>
         <div class="max-w-[560px]">
           <div class="font-sans text-[15px] font-semibold text-carbon">
-            {{ lang === 'uz' ? 'Excel файл юкланмаган' : 'Excel файл не загружен' }}
+            {{ lang === 'uz' ? 'Excel fayl yuklanmagan' : 'Excel файл не загружен' }}
           </div>
           <p class="font-sans text-[13px] text-gray-600 mt-1 leading-[1.6]">
             {{ lang === 'uz'
-              ? 'Молия кўрсаткичлари фақат Шаг 2 да қўлда киритилган даромад/харажатга асосланади. 1С ёки Документы.uz дан Баланс ва Фойда ва зарар ҳисоботини юкласангиз, таҳлил аниқроқ бўлади.'
+              ? 'Moliya koʻrsatkichlari faqat Shag 2 da qoʻlda kiritilgan daromad/xarajatga asoslanadi. 1S yoki Dokumenti.uz dan Balans va Foyda va zarar hisobotini yuklasangiz, tahlil aniqroq boʻladi.'
               : 'Финансовые показатели взяты только из введённых вручную на Шаге 2 сумм дохода и расходов. Загрузите Баланс и Отчёт о прибылях из 1С или Документы.uz — тогда анализ будет точнее.' }}
           </p>
         </div>
@@ -653,7 +653,7 @@ const onDownload = () => {
             </span>
             <div class="min-w-0 flex-1">
               <div class="font-sans text-[13px] font-semibold text-carbon truncate">
-                {{ u.original_filename || (lang === 'uz' ? 'Файл' : 'Файл') }}
+                {{ u.original_filename || (lang === 'uz' ? 'Fayl' : 'Файл') }}
               </div>
               <div class="flex items-center gap-2 mt-[2px]">
                 <span class="text-[10px] font-bold uppercase tracking-[0.5px] rounded-[4px] py-[2px] px-[6px]"
@@ -690,7 +690,7 @@ const onDownload = () => {
         <div v-if="ratioBars.length">
           <div class="flex items-center justify-between gap-3 mb-3">
             <div class="font-sans text-[12px] font-semibold uppercase tracking-[1px] text-steel-500">
-              {{ lang === 'uz' ? 'Молиявий коэффициентлар' : 'Финансовые коэффициенты' }}
+              {{ lang === 'uz' ? 'Moliyaviy koeffitsientlar' : 'Финансовые коэффициенты' }}
             </div>
           </div>
           <div class="border border-rs-border rounded-[10px] divide-y divide-rs-border">
@@ -716,7 +716,7 @@ const onDownload = () => {
           <RsIcon name="sparkles" :size="16" class="text-emerald-600 mt-[2px] shrink-0" />
           <div>
             <div class="font-sans text-[13px] font-bold text-emerald-700 mb-1">
-              {{ lang === 'uz' ? 'Хулоса' : 'Вывод по финансам' }}
+              {{ lang === 'uz' ? 'Xulosa' : 'Вывод по финансам' }}
             </div>
             <div class="font-sans text-[14px] font-medium text-carbon leading-[1.6]">{{ excelInsight }}</div>
           </div>
@@ -729,11 +729,11 @@ const onDownload = () => {
 
     <div v-else-if="analysisStatus === 'analyzing'"
          class="bg-white border border-rs-border rounded-[12px] py-6 px-8 text-center text-[13px] text-steel-500 italic">
-      {{ lang === 'uz' ? 'AI таҳлил қиляпти…' : 'AI анализирует…' }}
+      {{ lang === 'uz' ? 'AI tahlil qilyapti…' : 'AI анализирует…' }}
     </div>
     <div v-else-if="analysisStatus === 'error'"
          class="bg-red-50 border border-red-200 rounded-[12px] py-5 px-6 text-[13px] text-red-700">
-      {{ lang === 'uz' ? 'Таҳлил хатоси:' : 'Ошибка анализа:' }} {{ store.analysisError }}
+      {{ lang === 'uz' ? 'Tahlil xatosi:' : 'Ошибка анализа:' }} {{ store.analysisError }}
     </div>
 
     <!-- ═══ CITY CONTEXT — only for pilot cities (Fergana, Margilan) ═══ -->
@@ -751,79 +751,79 @@ const onDownload = () => {
         </div>
         <span v-if="!isCityDataReal"
               class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-[6px] py-1 px-2 self-start"
-              :title="lang === 'uz' ? 'Шаҳар бўйича батафсил маълумотлар тайёрланмоқда — қуйида вилоят бўйича' : 'Детальные данные по городу в разработке — ниже показаны областные'">
-          {{ lang === 'uz' ? 'Данные по области' : 'Данные по области' }}
+              :title="lang === 'uz' ? 'Shahar boʻyicha batafsil maʻlumotlar tayyorlanmoqda — quyida viloyat boʻyicha' : 'Детальные данные по городу в разработке — ниже показаны областные'">
+          {{ lang === 'uz' ? 'Viloyat boʻyicha maʻlumotlar' : 'Данные по области' }}
         </span>
       </div>
       <div class="px-8 py-7 grid grid-cols-2 md:grid-cols-4 gap-5">
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Аҳоли' : 'Население' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Aholi' : 'Население' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">
             {{ selectedCity.populationK.toLocaleString('ru-RU') }}
-            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'минг' : 'тыс.' }}</span>
+            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'ming' : 'тыс.' }}</span>
           </div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'шаҳар маркази' : 'жители города' }}</div>
+          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'shahar markazi' : 'жители города' }}</div>
         </div>
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Саноат' : 'Промышленность' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Sanoat' : 'Промышленность' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">
             {{ Math.round(selectedCity.industryBlnUzs).toLocaleString('ru-RU') }}
-            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'млрд сўм' : 'млрд сум' }}</span>
+            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'mlrd soʻm' : 'млрд сум' }}</span>
           </div>
           <div class="text-[11px] text-steel-500 mt-0.5">2024 · +104.3%</div>
         </div>
         <div>
           <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">
-            {{ selectedCity.id === 'margilan' ? (lang === 'uz' ? 'Экспорт' : 'Экспорт') : (lang === 'uz' ? 'Инвестиция' : 'Инвестиции') }}
+            {{ selectedCity.id === 'margilan' ? (lang === 'uz' ? 'Eksport' : 'Экспорт') : (lang === 'uz' ? 'Investitsiya' : 'Инвестиции') }}
           </div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">
             {{ (selectedCity.exportsBlnUzs ?? selectedCity.investmentsBlnUzs).toLocaleString('ru-RU') }}
-            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'млрд' : 'млрд' }}</span>
+            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
           </div>
           <div class="text-[11px] text-steel-500 mt-0.5">{{ selectedCity.id === 'margilan' ? (lang === 'uz' ? '2023' : '2023') : (lang === 'uz' ? '2023 · +29.4%' : '2023 · +29.4%') }}</div>
         </div>
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Маҳаллалар' : 'Махаллей' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Mahallalar' : 'Махаллей' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">
             {{ selectedCity.mahallas.toLocaleString('ru-RU') }}
           </div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'ўзини ўзи бошқариш' : 'самоуправления' }}</div>
+          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'oʻzini oʻzi boshqarish' : 'самоуправления' }}</div>
         </div>
       </div>
 
       <!-- Regional demographic + social context row -->
       <div class="px-8 pb-2 grid grid-cols-2 md:grid-cols-4 gap-5 border-t border-rs-border/50 pt-5">
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Туғилиш (вилоят)' : 'Рождаемость (область)' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Tugʻilish (viloyat)' : 'Рождаемость (область)' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">98 319</div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? '2025 · янги оилалар' : '2025 · новорождённые' }}</div>
+          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? '2025 · yangi oilalar' : '2025 · новорождённые' }}</div>
         </div>
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Никоҳлар (вилоят)' : 'Браки (область)' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Nikohlar (viloyat)' : 'Браки (область)' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">28 896</div>
           <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? '2025' : '2025' }}</div>
         </div>
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Шаҳар улуши' : 'Городское население' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Shahar ulushi' : 'Городское население' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">56.7<span class="text-[13px] font-medium text-steel-500">%</span></div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'вилоят бўйича' : 'по области' }}</div>
+          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'viloyat boʻyicha' : 'по области' }}</div>
         </div>
         <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Туман ва шаҳарлар' : 'Районов и городов' }}</div>
+          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Tuman va shaharlar' : 'Районов и городов' }}</div>
           <div class="font-mono text-[20px] font-bold text-carbon mt-1">15 + 4</div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'маъмурий бирликлар' : 'административных единиц' }}</div>
+          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'maʻmuriy birliklar' : 'административных единиц' }}</div>
         </div>
       </div>
 
       <div class="px-8 pb-7 pt-5">
         <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500 mb-2">
-          {{ lang === 'uz' ? 'Тавсия этилган соҳалар' : 'Рекомендуемые отрасли' }}
+          {{ lang === 'uz' ? 'Tavsiya etilgan sohalar' : 'Рекомендуемые отрасли' }}
         </div>
         <div class="flex flex-wrap gap-2">
           <span v-for="sec in selectedCity.topSectors || selectedCity.industries" :key="sec.key"
                 class="inline-flex items-center gap-2 text-[13px] font-medium text-navy-900 bg-navy-900/[0.05] rounded-[8px] py-[6px] px-3">
             {{ lang === 'uz' ? sec.nameUz : sec.nameRu }}
-            <span class="font-mono text-[12px] text-steel-500">{{ sec.blnUzs }} {{ lang === 'uz' ? 'млрд' : 'млрд' }}</span>
+            <span class="font-mono text-[12px] text-steel-500">{{ sec.blnUzs }} {{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
           </span>
         </div>
 
@@ -834,31 +834,31 @@ const onDownload = () => {
             <span class="shrink-0 mt-[2px] inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white text-[12px] font-bold">ДОУ</span>
             <div class="min-w-0">
               <div class="text-[13px] font-bold text-emerald-800 mb-1">
-                {{ lang === 'uz' ? 'Мактабгача таълим сегменти — шаҳар хусусиятлари' : 'Сегмент дошкольного образования — специфика города' }}
+                {{ lang === 'uz' ? 'Maktabgacha taʻlim segmenti — shahar xususiyatlari' : 'Сегмент дошкольного образования — специфика города' }}
               </div>
               <ul class="space-y-[6px]">
                 <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
                   <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
                   {{ lang === 'uz'
-                    ? 'Фарғона шаҳарда давлат боғчаларида ўринлар танқислиги; хусусий сегмент йиллик ~10–12% ўсмоқда.'
+                    ? 'Fargʻona shaharda davlat bogʻchalarida oʻrinlar tanqisligi; xususiy segment yillik ~10–12% oʻsmoqda.'
                     : 'В Фарғона шаҳар хронический дефицит мест в госсадах; частный сегмент растёт на ~10–12% в год.' }}
                 </li>
                 <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
                   <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
                   {{ lang === 'uz'
-                    ? 'Вилоят бўйича 2025 йил 98 319 туғилиш → келгуси 2–4 йилда ясли (2–3 ёш) талаби кескин ортади.'
+                    ? 'Viloyat boʻyicha 2025 yil 98 319 tugʻilish → kelgusi 2–4 yilda yasli (2–3 yosh) talabi keskin ortadi.'
                     : 'По области 98 319 рождений в 2025 → спрос на ясли (2–3 года) в ближайшие 2–4 года резко растёт.' }}
                 </li>
                 <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
                   <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
                   {{ lang === 'uz'
-                    ? 'Ўртача тўлов 600 000 – 1 200 000 сўм/ой; ўрта синф оилалар учун маҳалла ичидаги боғча устувор.'
+                    ? 'Oʻrtacha toʻlov 600 000 – 1 200 000 soʻm/oy; oʻrta sinf oilalar uchun mahalla ichidagi bogʻcha ustuvor.'
                     : 'Средняя плата 600 000 – 1 200 000 сум/мес; для семей среднего класса приоритетен сад в своей маҳалле.' }}
                 </li>
                 <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
                   <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
                   {{ lang === 'uz'
-                    ? 'Давлат дастури «Илк қадам» — хусусий ДОУ учун имтиёз ва қисман молиялаштириш.'
+                    ? 'Davlat dasturi «Ilk qadam» — xususiy DOU uchun imtiyoz va qisman moliyalashtirish.'
                     : 'Госпрограмма «Илк қадам» — льготы и частичное софинансирование для частных ДОУ.' }}
                 </li>
               </ul>
@@ -877,16 +877,16 @@ const onDownload = () => {
         <div class="min-w-0">
           <h2 class="font-sans text-[18px] font-bold text-amber-900">
             {{ lang === 'uz'
-              ? 'Бу ҳудуд бўйича батафсил маълумотлар ҳозирча мавжуд эмас'
+              ? 'Bu hudud boʻyicha batafsil maʻlumotlar hozircha mavjud emas'
               : 'Детальные данные по этому региону пока недоступны' }}
           </h2>
           <p class="font-sans text-[13px] text-amber-800 mt-1 leading-[1.5]">
             {{ lang === 'uz'
-              ? 'Пилот шаҳарлар: Фарғона ва Марғилон. AI таҳлили сизнинг профил ва молиявий маълумотларингиз асосида умумий тавсия беради.'
+              ? 'Pilot shaharlar: Fargʻona va Margʻilon. AI tahlili sizning profil va moliyaviy maʻlumotlaringiz asosida umumiy tavsiya beradi.'
               : 'Пилотные города: Фергана и Маргилан. AI-анализ даст общую рекомендацию по вашему профилю и финансам без опоры на региональные показатели.' }}
           </p>
           <p v-if="userPickedLabel" class="font-sans text-[12px] text-amber-700 mt-2">
-            {{ lang === 'uz' ? 'Сиз танлаган ҳудуд:' : 'Ваш выбор:' }}
+            {{ lang === 'uz' ? 'Siz tanlagan hudud:' : 'Ваш выбор:' }}
             <span class="font-semibold">{{ userPickedLabel }}</span>
           </p>
         </div>
@@ -930,7 +930,7 @@ const onDownload = () => {
               {{ verdictLabel[lang] }}
             </span>
             <p class="text-[11px] text-steel-500 text-center max-w-[160px] leading-[1.4]">
-              {{ lang === 'uz' ? 'Ҳар бир омилни очиб, қандай ҳисобланганини кўринг' : 'Раскройте любой фактор, чтобы увидеть как он посчитан' }}
+              {{ lang === 'uz' ? 'Har bir omilni ochib, qanday hisoblanganini koʻring' : 'Раскройте любой фактор, чтобы увидеть как он посчитан' }}
             </p>
           </div>
 
@@ -995,12 +995,12 @@ const onDownload = () => {
               <h2 class="font-sans text-[20px] font-bold text-carbon">
                 {{ isMargilan
                   ? t.section3Title
-                  : (lang === 'uz' ? 'Фарғона вилояти — имкониятлар харитаси' : 'Ферганская область — карта возможностей') }}
+                  : (lang === 'uz' ? 'Fargʻona viloyati — imkoniyatlar xaritasi' : 'Ферганская область — карта возможностей') }}
               </h2>
               <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">
                 {{ isMargilan
                   ? t.section3Sub
-                  : (lang === 'uz' ? 'Ҳар бир туман учун балл, аҳоли, рақобат ва вердикт' : 'По каждому району — балл, население, конкуренция и вердикт') }}
+                  : (lang === 'uz' ? 'Har bir tuman uchun ball, aholi, raqobat va verdikt' : 'По каждому району — балл, население, конкуренция и вердикт') }}
               </p>
             </div>
           </div>
@@ -1017,10 +1017,10 @@ const onDownload = () => {
           {{ t.locationInsightText }}
         </RsInsightBox>
         <RsInsightBox v-else variant="info"
-          :title="lang === 'uz' ? 'Ферғона вилояти учун тавсия' : 'Что это значит для вашего бизнеса в Фергане'"
+          :title="lang === 'uz' ? 'Fergʻona viloyati uchun tavsiya' : 'Что это значит для вашего бизнеса в Фергане'"
         >
           {{ lang === 'uz'
-            ? 'Фарғона шаҳри — вилоят маркази, 328 409 аҳоли, саноат маҳсулоти 8 587 млрд сўм (2024). Вилоят бўйича 2025 йилда 98 319 туғилиш, 28 896 никоҳ — истеъмол бозори барқарор ўсмоқда. Ўз бизнесингиз жойлашган туманни юқоридаги рейтингда кўринг.'
+            ? 'Fargʻona shahri — viloyat markazi, 328 409 aholi, sanoat mahsuloti 8 587 mlrd soʻm (2024). Viloyat boʻyicha 2025 yilda 98 319 tugʻilish, 28 896 nikoh — isteʻmol bozori barqaror oʻsmoqda. Oʻz biznesingiz joylashgan tumanni yuqoridagi reytingda koʻring.'
             : 'Фарғона шаҳар — столица области с 328 409 жителей и промышленной продукцией 8 587 млрд сум (2024). За 2025 год в области 98 319 рождений и 28 896 браков — потребительский рынок стабильно растёт. Найдите ваш район в рейтинге выше — он учитывает население, плотность бизнеса и конкуренцию.' }}
         </RsInsightBox>
       </div>
@@ -1148,11 +1148,11 @@ const onDownload = () => {
           <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0 bg-gold-500">5</span>
           <div>
             <h2 class="font-sans text-[20px] font-bold text-carbon">
-              {{ lang === 'uz' ? 'Сизга тавсия қилинган NBU маҳсулотлари' : 'Рекомендуемые продукты NBU для вас' }}
+              {{ lang === 'uz' ? 'Sizga tavsiya qilingan NBU mahsulotlari' : 'Рекомендуемые продукты NBU для вас' }}
             </h2>
             <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">
               {{ lang === 'uz'
-                ? 'Сиз киритган профил, молиявий ҳолат ва Excel маълумотлари асосида танланган'
+                ? 'Siz kiritgan profil, moliyaviy holat va Excel maʻlumotlari asosida tanlangan'
                 : 'Подобрано по вашему профилю, финансам и данным из загруженных Excel-файлов' }}
             </p>
           </div>
@@ -1167,7 +1167,7 @@ const onDownload = () => {
           <div class="px-6 py-5 flex items-center justify-between">
             <div>
               <div class="font-sans text-[11px] font-semibold text-gold-500 uppercase tracking-[0.5px] mb-1">
-                {{ primaryMatch.product.tier === 'easy' ? (lang === 'uz' ? 'Енгил маҳсулот' : 'Облегчённый продукт') : (lang === 'uz' ? 'Стандарт маҳсулот' : 'Стандартный продукт') }}
+                {{ primaryMatch.product.tier === 'easy' ? (lang === 'uz' ? 'Engil mahsulot' : 'Облегчённый продукт') : (lang === 'uz' ? 'Standart mahsulot' : 'Стандартный продукт') }}
               </div>
               <h3 class="font-sans text-[20px] font-bold text-carbon">
                 {{ primaryMatch.product.name[lang] }}
@@ -1224,7 +1224,7 @@ const onDownload = () => {
             >
               <div class="font-sans text-[15px] font-semibold text-carbon">{{ m.product.name[lang] }}</div>
               <div class="font-sans text-[12px] font-normal text-gray-600 mt-[2px]">
-                {{ m.product.tier === 'easy' ? (lang === 'uz' ? 'Енгил' : 'Облегчённый') : (lang === 'uz' ? 'Стандарт' : 'Стандартный') }}
+                {{ m.product.tier === 'easy' ? (lang === 'uz' ? 'Engil' : 'Облегчённый') : (lang === 'uz' ? 'Standart' : 'Стандартный') }}
               </div>
               <div class="mt-3 space-y-1">
                 <div class="font-sans text-[12px] text-steel-500">
