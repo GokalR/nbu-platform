@@ -658,7 +658,7 @@ const threatLevelClass = (level) => {
                   <td>
                     <span class="da-status" :class="`status-${m.status}`">
                       <span class="light"></span>
-                      {{ m.status === 'ok' ? 'OK' : m.status === 'warn' ? 'WARN' : 'BAD' }}
+                      {{ m.status === 'ok' ? t('district.cards.statusOk') : m.status === 'warn' ? t('district.cards.statusWarn') : t('district.cards.statusBad') }}
                     </span>
                   </td>
                   <td class="text-slate-500">{{ m.note }}</td>
@@ -971,7 +971,7 @@ const threatLevelClass = (level) => {
           <div class="col-span-12 lg:col-span-6 da-card">
             <div class="flex items-center justify-between gap-6">
               <div class="flex-1">
-                <div class="sub-header-eyebrow text-primary">Executive Pass</div>
+                <div class="sub-header-eyebrow text-primary">{{ t('district.cards.executivePass') }}</div>
                 <h3 class="text-3xl font-black leading-tight mt-2" style="font-family:'Manrope',sans-serif;letter-spacing:-0.02em">{{ title }}</h3>
                 <p class="text-sm text-slate-500 mt-3 leading-relaxed max-w-sm">
                   {{ t('district.cards.integralScoreDesc') }}
