@@ -331,6 +331,7 @@
   "regionInfo": {
     "population": "Население",
     "districts": "Районы",
+    "cities": "Города",
     "area": "Площадь",
     "status": "Статус",
     "active": "Активен",

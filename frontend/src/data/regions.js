@@ -188,6 +188,7 @@ export const regions = {
     population: '3.92 mln',
     populationRaw: 3.92,
     districts: 15,
+    cities: 4,
     area: '6,760 km²',
     status: 'active',
     gdpGrowth: '8.7%',

@@ -287,7 +287,7 @@
 .da-root .status-bad { background: #FEF2F2; color: #DC2626; }
 
 /* ========== Table ========== */
-.da-root .da-table { width: 100%; font-size: 16px; border-collapse: collapse; }
+.da-root .da-table { width: 100%; font-size: 16px; border-collapse: collapse; table-layout: fixed; }
 .da-root .da-table th {
   text-align: left;
   font-weight: 800;
@@ -297,15 +297,21 @@
   letter-spacing: 0.1em;
   padding: 16px 20px;
   border-bottom: 1px solid rgba(194, 198, 211, 0.5);
+  white-space: nowrap;
 }
 .da-root .da-table td {
   padding: 18px 20px;
   border-bottom: 1px solid rgba(194, 198, 211, 0.3);
   color: #191c1e;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .da-root .da-table tr:last-child td { border-bottom: none; }
 .da-root .da-table tr:hover td { background: rgba(236, 238, 240, 0.4); }
+/* Allow auto-sizing for tables that need it (overview summary, mahalla) */
+.da-root .da-table.auto-layout { table-layout: auto; }
 .da-root .da-kind-row td:first-child { border-left: 3px solid transparent; padding-left: 17px; }
 .da-root .da-kind-row.is-city td:first-child { border-left-color: #0054A6; }
 .da-root .da-kind-row.is-district td:first-child { border-left-color: #059669; }

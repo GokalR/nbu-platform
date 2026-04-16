@@ -378,6 +378,7 @@ const sortedRegions = computed(() =>
         </h3>
         <span class="text-xs text-on-surface-variant">
           · {{ t('regionInfo.districts') }}: {{ current.districts }}
+          <template v-if="current.cities">· {{ t('regionInfo.cities') }}: {{ current.cities }}</template>
           · {{ t('regionInfo.area') }}: {{ current.area }}
         </span>
       </header>
