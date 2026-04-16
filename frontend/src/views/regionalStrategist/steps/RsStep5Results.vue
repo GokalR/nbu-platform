@@ -1393,37 +1393,24 @@ const onDownload = () => {
     <Transition name="rs-map-overlay">
       <div
         v-if="showMap"
-        class="fixed inset-0 z-[9999] flex flex-col"
+        class="fixed inset-0 z-[9999]"
         style="background: #f1f2f7;"
       >
-        <!-- Top bar -->
-        <div class="shrink-0 flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shadow-sm">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="inline-flex items-center justify-center w-9 h-9 rounded-[10px] shrink-0" style="background:rgba(20,159,168,0.12);">
-              <RsIcon name="map-pin" :size="18" style="color:#149fa8" />
-            </span>
-            <div class="min-w-0">
-              <h2 class="font-sans text-[18px] font-bold text-carbon truncate">{{ t.section7MapTitle }}</h2>
-              <p class="font-sans text-[12px] text-gray-500 truncate">{{ t.section7MapSub }}</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            @click="showMap = false"
-            class="inline-flex items-center gap-2 text-[14px] font-semibold text-gray-600 hover:text-carbon bg-gray-100 hover:bg-gray-200 rounded-[10px] py-2.5 px-4 transition-colors"
-          >
-            <RsIcon name="x" :size="18" />
-            {{ lang === 'uz' ? 'Yopish' : 'Закрыть' }}
-          </button>
-        </div>
-        <!-- Map iframe fills the rest -->
-        <div class="flex-1 min-h-0">
-          <iframe
-            src="/maps/fergana-education/index.html"
-            class="w-full h-full border-0"
-            :title="t.section7MapTitle"
-          />
-        </div>
+        <!-- Floating close button -->
+        <button
+          type="button"
+          @click="showMap = false"
+          class="absolute top-4 right-4 z-10 inline-flex items-center gap-2 text-[13px] font-semibold text-gray-600 hover:text-carbon bg-white/95 hover:bg-white border border-gray-200 rounded-[10px] py-2 px-3.5 shadow-lg backdrop-blur-sm transition-colors"
+        >
+          <RsIcon name="x" :size="16" />
+          {{ lang === 'uz' ? 'Yopish' : 'Закрыть' }}
+        </button>
+        <!-- Map iframe fills full screen -->
+        <iframe
+          src="/maps/fergana-education/index.html"
+          class="w-full h-full border-0"
+          :title="t.section7MapTitle"
+        />
       </div>
     </Transition>
   </Teleport>
