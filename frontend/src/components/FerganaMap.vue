@@ -253,7 +253,7 @@ const tooltipDistrict = computed(() => (hovered.value ? districtByKey[hovered.va
       >
         <div class="font-bold">{{ t(`districtsList.${hovered}`) }}</div>
         <div class="text-[10px] text-on-surface-variant mt-0.5">
-          {{ tooltipDistrict.population }} тыс · {{ tooltipDistrict.area }} км²
+          {{ tooltipDistrict.population }} {{ t('district.units.thousand') }} · {{ tooltipDistrict.area }} {{ t('district.units.kmSq') }}
         </div>
       </div>
     </transition>
