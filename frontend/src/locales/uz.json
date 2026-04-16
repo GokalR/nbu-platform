@@ -31,7 +31,9 @@
       "population": "Aholi soni",
       "gdpGrowth": "YaIM oʻsishi",
       "exports": "Eksport hajmi",
-      "mahallas": "Mahallalar"
+      "mahallas": "Mahallalar",
+      "target": "Maqsad",
+      "total": "Jami"
     },
     "districts": {
       "title": "Hududlar",

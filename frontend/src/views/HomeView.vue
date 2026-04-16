@@ -81,14 +81,14 @@ const kpis = computed(() => [
     key: 'exports',
     icon: 'payments',
     value: current.value.exports,
-    delta: 'Target',
+    delta: t('home.kpi.target'),
     tone: 'positive',
   },
   {
     key: 'mahallas',
     icon: 'location_city',
     value: current.value.mahallas.toLocaleString(),
-    delta: 'Total',
+    delta: t('home.kpi.total'),
     tone: 'neutral',
   },
 ])

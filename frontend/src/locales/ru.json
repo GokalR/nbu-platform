@@ -31,7 +31,9 @@
       "population": "Население",
       "gdpGrowth": "Рост ВВП",
       "exports": "Объём экспорта",
-      "mahallas": "Махалли"
+      "mahallas": "Махалли",
+      "target": "Цель",
+      "total": "Всего"
     },
     "districts": {
       "title": "Регионы",
