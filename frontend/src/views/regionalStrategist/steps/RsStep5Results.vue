@@ -758,23 +758,22 @@ const onDownload = () => {
     <!-- ═══ EDUCATION MAP — preview + click to expand fullscreen ═══ -->
     <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
       <div
-        class="px-6 py-5 flex items-center justify-between gap-4"
-        style="background: linear-gradient(135deg, #149fa8 0%, #0d7a82 100%); border-bottom: none;"
+        class="px-8 py-6 flex items-center justify-between gap-4"
+        style="background: rgba(25,63,114,0.03); border-bottom: 1px solid rgba(25,63,114,0.08);"
       >
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="inline-flex items-center justify-center w-11 h-11 rounded-[12px] shrink-0" style="background:rgba(255,255,255,0.18);">
-            <RsIcon name="map-pin" :size="22" style="color:#fff" />
+        <div class="flex items-center gap-4 min-w-0">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-navy-900 shrink-0">
+            <RsIcon name="map-pin" :size="16" class="text-white" />
           </span>
           <div class="min-w-0">
-            <h3 class="font-sans text-[18px] font-bold text-white leading-tight">{{ t.section7MapTitle }}</h3>
-            <p class="font-sans text-[13px] text-white/70 mt-0.5">{{ t.section7MapSub }}</p>
+            <h3 class="font-sans text-[20px] font-bold text-carbon leading-tight">{{ t.section7MapTitle }}</h3>
+            <p class="font-sans text-[13px] text-gray-600 mt-1">{{ t.section7MapSub }}</p>
           </div>
         </div>
         <button
           type="button"
           @click="showMap = true"
-          class="shrink-0 inline-flex items-center gap-2 text-[13px] font-semibold text-white rounded-[10px] py-2.5 px-5 transition-all hover:shadow-lg"
-          style="background: linear-gradient(135deg, #149fa8, #0d7a82);"
+          class="shrink-0 inline-flex items-center gap-2 text-[13px] font-semibold text-white rounded-[10px] py-2.5 px-5 transition-all hover:shadow-lg bg-navy-900 hover:bg-navy-800"
         >
           <RsIcon name="maximize-2" :size="15" />
           {{ lang === 'uz' ? 'Toʻliq ekranda ochish' : 'Открыть на весь экран' }}
