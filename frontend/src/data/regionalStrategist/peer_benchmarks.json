@@ -1,0 +1,209 @@
+{
+  "source": "SME-companies sample (n=4, Fergana region, 2025)",
+  "currency": "UZS thousand",
+  "note": "Peer medians/quartiles from 4 Uzbek-form accounting reports. Ratios are dimensionless; absolutes in thousand UZS.",
+  "benchmarks": {
+    "grossMargin": {
+      "q1": 0.3248491702141857,
+      "median": 0.3838843021548701,
+      "q3": 0.46207203877203495,
+      "n": 4
+    },
+    "operatingMargin": {
+      "q1": 0.20381646965338596,
+      "median": 0.23405204090943024,
+      "q3": 0.26932522770494743,
+      "n": 4
+    },
+    "netMargin": {
+      "q1": 0.077797727455429,
+      "median": 0.1059957323932777,
+      "q3": 0.1719263051371821,
+      "n": 4
+    },
+    "roa": {
+      "q1": 0.04492564325024142,
+      "median": 0.14639841776671114,
+      "q3": 0.24104856119625034,
+      "n": 4
+    },
+    "roe": {
+      "q1": 0.12068720382467074,
+      "median": 0.20166228792281832,
+      "q3": 0.2857962641713808,
+      "n": 4
+    },
+    "currentRatio": {
+      "q1": 1.4499529132913638,
+      "median": 2.0192264125298234,
+      "q3": 2.730200784794424,
+      "n": 4
+    },
+    "quickRatio": {
+      "q1": 0.877272316910321,
+      "median": 1.0350053155706866,
+      "q3": 1.2140646425184678,
+      "n": 4
+    },
+    "debtToEquity": {
+      "q1": 0.0,
+      "median": 0.0,
+      "q3": 0.45352024212145614,
+      "n": 4
+    },
+    "debtToAssets": {
+      "q1": 0.0,
+      "median": 0.0,
+      "q3": 0.15814239101205746,
+      "n": 4
+    },
+    "assetTurnover": {
+      "q1": 0.4251239288075416,
+      "median": 0.6090867440035894,
+      "q3": 1.2600807411478843,
+      "n": 4
+    },
+    "inventoryTurn": {
+      "q1": 3.3433564797705806,
+      "median": 4.203106402164112,
+      "q3": 15.66319653126181,
+      "n": 3
+    },
+    "interestCoverage": {
+      "q1": 11.454439842746543,
+      "median": 13.467703214904851,
+      "q3": 15.480966587063158,
+      "n": 2
+    }
+  },
+  "companies": [
+    {
+      "id": "amirshoh",
+      "name": "AMIRSHOH JANNATXON",
+      "sector": "wholesale",
+      "revenue": 267500.0,
+      "grossProfit": 116000.0,
+      "operatingProfit": 64200.0,
+      "netProfit": 23680.0,
+      "totalAssets": 99160.0,
+      "equity": 59540.0,
+      "totalLiabilities": 39620.0,
+      "totalDebt": 0.0,
+      "currentAssets": 99160.0,
+      "currentLiabilities": 39620.0,
+      "inventory": 61000.0,
+      "receivables": 5110.0,
+      "cash": 33050.0,
+      "ratios": {
+        "grossMargin": 0.4336448598130841,
+        "operatingMargin": 0.24,
+        "netMargin": 0.0885233644859813,
+        "roa": 0.23880597014925373,
+        "roe": 0.3977158212966073,
+        "currentRatio": 2.502776375567895,
+        "quickRatio": 0.9631499242806664,
+        "debtToEquity": 0.0,
+        "debtToAssets": 0.0,
+        "assetTurnover": 2.6976603469140783,
+        "inventoryTurn": 2.4836065573770494,
+        "interestCoverage": 9.441176470588236
+      }
+    },
+    {
+      "id": "erkin",
+      "name": "ERKIN PARVOZ NURI OLTIN",
+      "sector": "services",
+      "revenue": 3444401.42,
+      "grossProfit": 1150856.2999999998,
+      "operatingProfit": 451056.8799999998,
+      "netProfit": 425273.6999999998,
+      "totalAssets": 7876771.32,
+      "equity": 2746628.12,
+      "totalLiabilities": 5130143.2,
+      "totalDebt": 4982605.8,
+      "currentAssets": 175980.0,
+      "currentLiabilities": 147537.4,
+      "inventory": 84560.0,
+      "receivables": 25460.0,
+      "cash": 42310.0,
+      "ratios": {
+        "grossMargin": 0.3341237444966562,
+        "operatingMargin": 0.13095363315696223,
+        "netMargin": 0.12346810030057408,
+        "roa": 0.05399086538416857,
+        "roe": 0.15483483071599796,
+        "currentRatio": 1.1927823046902006,
+        "quickRatio": 0.6196394947992848,
+        "debtToEquity": 1.8140809684858246,
+        "debtToAssets": 0.6325695640482298,
+        "assetTurnover": 0.4372859487813593,
+        "inventoryTurn": 27.123286660359508,
+        "interestCoverage": 17.494229959221467
+      }
+    },
+    {
+      "id": "osiyo",
+      "name": "OSIYO NAV NIXOL FAYZ",
+      "sector": "production",
+      "revenue": 132614.9,
+      "grossProfit": 39390.0,
+      "operatingProfit": 30250.0,
+      "netProfit": 6050.0,
+      "totalAssets": 341230.0,
+      "equity": 331610.0,
+      "totalLiabilities": 9620.0,
+      "totalDebt": 0.0,
+      "currentAssets": 32828.0,
+      "currentLiabilities": 9620.0,
+      "inventory": 22180.0,
+      "receivables": 4210.0,
+      "cash": 1438.0,
+      "ratios": {
+        "grossMargin": 0.29702544736677405,
+        "operatingMargin": 0.2281040818188605,
+        "netMargin": 0.0456208163637721,
+        "roa": 0.017729976848459984,
+        "roe": 0.01824432315068906,
+        "currentRatio": 3.4124740124740125,
+        "quickRatio": 1.1068607068607068,
+        "debtToEquity": 0.0,
+        "debtToAssets": 0.0,
+        "assetTurnover": 0.38863786888608853,
+        "inventoryTurn": 4.203106402164112,
+        "interestCoverage": null
+      }
+    },
+    {
+      "id": "turkiston",
+      "name": "TURKISTON OBOD KELAJAGI",
+      "sector": "services",
+      "revenue": 906287.95,
+      "grossProfit": 496059.95,
+      "operatingProfit": 323817.51,
+      "netProfit": 287566.0,
+      "totalAssets": 1160587.03011,
+      "equity": 1157255.0,
+      "totalLiabilities": 3332.0299999999997,
+      "totalDebt": 0.0,
+      "currentAssets": 5116.92,
+      "currentLiabilities": 3332.0299999999997,
+      "inventory": 0.0,
+      "receivables": 3266.16,
+      "cash": 1850.76,
+      "ratios": {
+        "grossMargin": 0.5473535756488873,
+        "operatingMargin": 0.3573009108197897,
+        "netMargin": 0.31730091964700624,
+        "roa": 0.2477763343372402,
+        "roe": 0.24848974512963867,
+        "currentRatio": 1.5356764494917514,
+        "quickRatio": 1.5356764494917514,
+        "debtToEquity": 0.0,
+        "debtToAssets": 0.0,
+        "assetTurnover": 0.7808875392258195,
+        "inventoryTurn": null,
+        "interestCoverage": null
+      }
+    }
+  ]
+}

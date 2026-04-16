@@ -1,0 +1,96 @@
+/* Regional Strategist module — scoped styles under .rs-app */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+.rs-app {
+  --rs-navy-900: #193F72;
+  --rs-navy-800: #12305C;
+  --rs-navy-700: #2957A2;
+  --rs-gold-500: #D7B56D;
+  --rs-gold-600: #C4A35A;
+  --rs-gold-400: #E0C17A;
+  --rs-carbon: #2B2A29;
+  --rs-steel-500: #7688A1;
+  --rs-gray-100: #F1F2F7;
+  --rs-gray-600: #898989;
+  --rs-border: #D9DADA;
+  --rs-border-muted: #B2B3B3;
+  --rs-white: #FEFEFE;
+  --rs-green-50: #ECFDF5;
+  --rs-green-600: #059669;
+  --rs-red-50: #FEF2F2;
+  --rs-red-600: #DC2626;
+  --rs-amber-50: #FFFBEB;
+  --rs-amber-600: #D97706;
+  --rs-blue-50: #EFF6FF;
+
+  color: var(--rs-carbon);
+  background: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+.rs-app * {
+  box-sizing: border-box;
+}
+
+/* Sidebar scrollbar style */
+.rs-app .rs-sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.rs-app .rs-sidebar-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+.rs-app .rs-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+.rs-app .rs-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Reveal grid for conditional sections */
+.rs-app .rs-reveal-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rs-app .rs-reveal-grid.open {
+  grid-template-rows: 1fr;
+}
+.rs-app .rs-reveal-grid > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Subtle text pulse for loading states */
+.rs-app .rs-subtle-pulse {
+  animation: rs-subtle-pulse 1.5s ease-in-out infinite;
+}
+@keyframes rs-subtle-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Input baseline — keep consistent regardless of browser defaults */
+.rs-app input,
+.rs-app select,
+.rs-app textarea {
+  font-family: inherit;
+}
+.rs-app button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Hide native select arrow on custom selects */
+.rs-app .rs-select-native {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237688A1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  padding-right: 38px;
+}

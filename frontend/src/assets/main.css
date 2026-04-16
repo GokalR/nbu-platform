@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #app {
+    @apply h-full;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    @apply bg-background text-on-surface antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  .display-lg,
+  .headline {
+    font-family: 'Manrope', sans-serif;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .custom-glass {
+    backdrop-filter: blur(20px);
+  }
+}

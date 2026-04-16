@@ -1,0 +1,393 @@
+/* ── Education Module CSS Variables ──────────────────────────────────
+   Design tokens for the NBU Education platform pages.
+   Imported in main.js alongside main.css.
+   ──────────────────────────────────────────────────────────────────── */
+
+:root {
+  --edu-accent: #003d7c;
+  --edu-accent-hover: #0054a6;
+  --edu-accent-light: #d6e3ff;
+  --edu-gold: #d7b56d;
+  --edu-success: #059669;
+  --edu-error: #dc2626;
+  --edu-warning: #d97706;
+  --edu-border: #dde3ee;
+  --edu-text: #191c1e;
+  --edu-text-secondary: #424751;
+  --edu-text-muted: #727783;
+  --edu-bg: #f7f9fb;
+  --edu-bg-card: #ffffff;
+  --edu-radius: 12px;
+  --edu-radius-lg: 16px;
+  --edu-shadow: 0 1px 3px rgba(0, 27, 61, 0.06);
+  --edu-shadow-hover: 0 4px 12px rgba(25, 63, 114, 0.1);
+}
+
+/* ── Shimmer skeleton ─────────── */
+@keyframes edu-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.edu-skeleton {
+  background: linear-gradient(90deg, #eceef0 25%, #fff 50%, #eceef0 75%);
+  background-size: 200% 100%;
+  animation: edu-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--edu-radius);
+}
+
+/* ── Shared education component styles ─── */
+.edu-card {
+  background: var(--edu-bg-card);
+  border: 1px solid var(--edu-border);
+  border-radius: var(--edu-radius);
+  box-shadow: var(--edu-shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.edu-card:hover {
+  box-shadow: var(--edu-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.edu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  border: none;
+}
+.edu-btn--primary {
+  background: var(--edu-accent);
+  color: white;
+}
+.edu-btn--primary:hover { background: var(--edu-accent-hover); }
+.edu-btn--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.edu-btn--outline {
+  background: transparent;
+  color: var(--edu-accent);
+  border: 1px solid var(--edu-border);
+}
+.edu-btn--outline:hover { background: var(--edu-accent-light); }
+
+.edu-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── Video player ─────────────── */
+.edu-player {
+  position: relative;
+  width: 100%;
+  background: #000;
+  border-radius: var(--edu-radius);
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+.edu-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.edu-player__controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 32px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.edu-player:hover .edu-player__controls,
+.edu-player--controls-visible .edu-player__controls {
+  opacity: 1;
+}
+.edu-player__seekbar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.edu-player__seekbar:hover { height: 6px; }
+.edu-player__seekbar-fill {
+  height: 100%;
+  background: var(--edu-accent-light);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.edu-player__seekbar-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.edu-player__seekbar:hover .edu-player__seekbar-thumb { opacity: 1; }
+.edu-player__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-size: 13px;
+}
+.edu-player__btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+.edu-player__btn:hover { opacity: 0.8; }
+.edu-player__time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.edu-player__volume {
+  width: 80px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.edu-player__volume-fill {
+  height: 100%;
+  background: white;
+  border-radius: 2px;
+}
+.edu-player__center-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.edu-player__center-play svg {
+  width: 64px;
+  height: 64px;
+  color: white;
+  opacity: 0.85;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+}
+.edu-player__speed-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: rgba(0,0,0,0.9);
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 64px;
+}
+.edu-player__speed-option {
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  background: none;
+}
+.edu-player__speed-option:hover { background: rgba(255,255,255,0.15); }
+.edu-player__speed-option--active { background: var(--edu-accent); }
+
+/* ── Quiz / Test shared ──────── */
+.edu-progress-bar {
+  height: 6px;
+  background: #eceef0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.edu-progress-bar__fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.edu-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--edu-radius);
+  border: 1px solid var(--edu-border);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  text-align: left;
+  background: var(--edu-bg-card);
+}
+.edu-option:hover { border-color: var(--edu-accent); background: #f0f4ff; }
+.edu-option--selected { border-color: var(--edu-accent); background: var(--edu-accent-light); }
+.edu-option--correct { border-color: var(--edu-success); background: #ecfdf5; }
+.edu-option--incorrect { border-color: var(--edu-error); background: #fef2f2; }
+.edu-option--disabled { cursor: default; opacity: 0.7; }
+.edu-option__key {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #eceef0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--edu-text-secondary);
+  flex-shrink: 0;
+}
+
+/* ── Flashcard ───────────────── */
+.edu-flashcard-scene {
+  perspective: 800px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.edu-flashcard {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.edu-flashcard--flipped { transform: rotateY(180deg); }
+.edu-flashcard__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--edu-radius-lg);
+  border: 1px solid var(--edu-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+.edu-flashcard__front { background: var(--edu-bg-card); }
+.edu-flashcard__back {
+  background: var(--edu-accent);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+/* ── Mind map (tree layout) ──── */
+.edu-mindmap {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  overflow: auto;
+  background: var(--edu-bg);
+  border: 1px solid var(--edu-border);
+  border-radius: var(--edu-radius);
+}
+.edu-mindmap__canvas {
+  position: relative;
+  padding: 32px;
+}
+.edu-mindmap__node {
+  position: absolute;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 1px solid var(--edu-border);
+  background: var(--edu-bg-card);
+}
+.edu-mindmap__node:hover { transform: scale(1.05); box-shadow: var(--edu-shadow-hover); }
+.edu-mindmap__node--root {
+  background: var(--edu-accent);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  border-color: var(--edu-accent);
+}
+.edu-mindmap__node--branch {
+  background: var(--edu-accent-light);
+  color: var(--edu-accent);
+  font-weight: 600;
+  border-color: var(--edu-accent);
+}
+.edu-mindmap__node--selected {
+  box-shadow: 0 0 0 3px rgba(0,61,124,0.2);
+}
+.edu-mindmap__edge {
+  stroke: var(--edu-border);
+  stroke-width: 2;
+  fill: none;
+}
+.edu-mindmap__detail {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 260px;
+  background: var(--edu-bg-card);
+  border: 1px solid var(--edu-border);
+  border-radius: var(--edu-radius);
+  padding: 20px;
+  box-shadow: var(--edu-shadow-hover);
+}
+
+/* ── Tabs ─────────────────────── */
+.edu-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #eceef0;
+  border-radius: 10px;
+}
+.edu-tab {
+  flex: 1;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--edu-text-secondary);
+  transition: background 0.15s, color 0.15s;
+}
+.edu-tab:hover { color: var(--edu-text); }
+.edu-tab--active {
+  background: var(--edu-bg-card);
+  color: var(--edu-accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ── Score ring ──────────────── */
+.edu-score-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.edu-score-ring svg { transform: rotate(-90deg); }
