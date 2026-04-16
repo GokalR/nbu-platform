@@ -1012,6 +1012,79 @@
       flex: 0 0 auto;
     }
 
+    .zone-flag {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 14px;
+      min-width: 180px;
+      max-width: 240px;
+      border-radius: 12px;
+      background: rgba(254, 254, 254, 0.97);
+      border: 1.5px solid var(--line);
+      box-shadow: 0 12px 28px rgba(43, 42, 41, 0.14);
+      backdrop-filter: blur(12px);
+      font-family: "Manrope", sans-serif;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      pointer-events: none;
+    }
+
+    .zone-flag.is-active {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 34px rgba(43, 42, 41, 0.18);
+    }
+
+    .zone-flag--gap {
+      border-color: rgba(20, 159, 168, 0.3);
+      background: rgba(20, 159, 168, 0.06);
+    }
+
+    .zone-flag--hot {
+      border-color: rgba(193, 110, 103, 0.3);
+      background: rgba(193, 110, 103, 0.06);
+    }
+
+    .zone-flag--mid {
+      border-color: rgba(215, 181, 109, 0.35);
+      background: rgba(215, 181, 109, 0.08);
+    }
+
+    .zone-flag__title {
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+    }
+
+    .zone-flag--gap .zone-flag__title {
+      color: #0d7a82;
+    }
+
+    .zone-flag--hot .zone-flag__title {
+      color: #a3524b;
+    }
+
+    .zone-flag--mid .zone-flag__title {
+      color: #8f6d29;
+    }
+
+    .zone-flag__body {
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.45;
+      color: var(--text-soft);
+      margin: 0;
+    }
+
+    .zone-flag__name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+
     .cluster-count {
       width: 64px;
       height: 64px;
@@ -1431,6 +1504,8 @@
         tag: "gap",
         title: "Sharqiy turar-joy massivi",
         subtitle: "Bolalar soni koʻp, oʻquv markazlari kam",
+        flagTitle: "✅ Tavsiya etamiz",
+        flagBody: "Bolalar koʻp, markaz yoʻq. Ijara arzon — eng qulay zona.",
         body: "Bu hududda yangi turar-joy massivlari qurilmoqda, oila va bolalar soni koʻpaymoqda. Ammo yaqin atrofda bolalar uchun oʻquv markazlari deyarli yoʻq. Maktablar toʻla, qoʻshimcha taʻlimga talab yuqori.",
         recommendation: "5-14 yosh bolalar uchun IT, ingliz tili yoki matematika yoʻnalishida oʻquv markazi ochish maqsadga muvofiq. Ijara narxi past, aholi oqimi barqaror.",
         explanation: "Eng yaqin oʻquv markazi 2+ km uzoqda. Turar-joy binolari orasida qulay joy topish oson. Ota-onalar bolalarini yaqin joyda oʻqitishni afzal koʻradi.",
@@ -1449,6 +1524,8 @@
         tag: "gap",
         title: "Fargʻona — Margʻilon yoʻl boʻyi",
         subtitle: "Ikki shahar orasida xizmat boʻshligi",
+        flagTitle: "✅ Tavsiya etamiz",
+        flagBody: "Yoʻl boʻyida oilalar koʻp, taʻlim xizmati yoʻq.",
         body: "Shaharlararo yoʻl boʻyida yashovchi oilalar uchun bolalar taʻlim xizmatlari juda kam. Transport yoʻnalishi qulay, ota-onalar ishdan qaytishda bolalarni olib ketishi mumkin.",
         recommendation: "Yoʻlga yaqin, qulay kirish-chiqishli joyda sport va ijodiy yoʻnalishdagi bolalar markazi ochish mumkin. Katta avtoturargoh afzallik.",
         explanation: "Magistral boʻylab 2000 m radiusda faqat 1 ta oʻquv markazi mavjud. Tranzit oilalar segmenti katta imkoniyat yaratadi.",
@@ -1467,6 +1544,8 @@
         tag: "gap",
         title: "Janubiy yangi turar-joy hududi",
         subtitle: "Rivojlanayotgan mahallalar, taʻlim xizmatlari yoʻq",
+        flagTitle: "✅ Tavsiya etamiz",
+        flagBody: "Yangi turar-joy, 0 ta markaz. Arzon ijara.",
         body: "Yangi qurilayotgan turar-joy massivlarida yosh oilalar koʻp. Maktabgacha va boshlangʻich taʻlimga talab kuchli, lekin xususiy oʻquv markazlari umuman yoʻq.",
         recommendation: "Maktabgacha tayyorlov, ingliz tili va robototexnika yoʻnalishlarida oʻquv markazi ochish tavsiya etiladi. Arzon ijara va oʻsib borayotgan aholi — kuchli omillar.",
         explanation: "2025 yilda bu hududda 3000+ yangi kvartira topshirilgan. Bolalar bogʻchalari toʻla, ota-onalar xususiy taʻlim izlamoqda.",
@@ -1485,6 +1564,8 @@
         tag: "hot",
         title: "Mustaqillik — markaziy hudud",
         subtitle: "Koʻp oʻquv markazlari, raqobat zich",
+        flagTitle: "⚠️ Tavsiya etmaymiz",
+        flagBody: "5+ markaz mavjud, raqobat juda yuqori. Faqat premium.",
         body: "Shahar markazida oʻquv markazlari toʻplanganl. Raqobat juda yuqori — yangi markaz ochish uchun aniq farqlanish va premium xizmat kerak. Ijara narxi ham baland.",
         recommendation: "Bu hududga faqat kuchli brend, noyob yoʻnalish (AI, robototexnika) yoki premium servis bilan kirishni tavsiya etamiz. Oddiy til kurslari raqobatga bardosh bermaydi.",
         explanation: "1 km\u00B2 da 5+ oʻquv markazi bor. Ammo yuqori piyoda oqimi va koʻrinish — kuchli brend uchun imkoniyat.",
@@ -1503,6 +1584,8 @@
         tag: "hot",
         title: "Margʻilon markazi",
         subtitle: "Raqobat yuqori, bozor toʻyingan",
+        flagTitle: "⚠️ Tavsiya etmaymiz",
+        flagBody: "Bozor toʻyingan, narx raqobati kuchli.",
         body: "Margʻilon markazida mavjud oʻquv markazlari koʻp va ular oʻrtasida narx raqobati kuchli. Yangi markaz faqat yangi yoʻnalish yoki yuqori sifat bilan ajralib chiqishi mumkin.",
         recommendation: "STEM, dasturlash yoki milliy hunarmandchilik (ipak toʻqish) yoʻnalishida ixtisoslashgan markaz ochish mumkin — turistik oqim qoʻshimcha daromad keltiradi.",
         explanation: "Margʻilonda turist oqimi (380 ming/yil) bolalar uchun master-klasslar va workshop formatini qoʻllab-quvvatlaydi.",
@@ -1521,6 +1604,8 @@
         tag: "mid",
         title: "Al-Fargʻoniy bogʻi atrofi",
         subtitle: "Muvozanatli hudud, oilaviy oqim bor",
+        flagTitle: "🔶 Ehtiyotkorlik bilan",
+        flagBody: "Oilaviy oqim bor, lekin 2-3 raqobatchi mavjud.",
         body: "Bogʻ atrofi oilaviy dam olish maskani. Bolalar oʻyin maydonchalari va oilaviy infratuzilma mavjud. Raqobat oʻrtacha — yangi markaz oʻz joyini topishi mumkin.",
         recommendation: "Bolalar uchun sanʻat, musiqa yoki sport studiyasi ochish tavsiya etiladi. Dam olish maskani yaqinida ota-onalar bolalarini mashgʻulotga qoʻyib, bogʻda dam olishlari mumkin.",
         explanation: "Hafta oxiri va kechqurun oilaviy oqim kuchayadi. Bogʻ yaqinida 2-3 ta oʻquv markazi bor, lekin ijodiy yoʻnalish kam.",
@@ -1973,6 +2058,14 @@
         '<div class="recommendation-pin $[properties.stateClass]">' +
           '<span class="recommendation-pin__label">$[properties.iconContent]</span>' +
         "</div>"
+      );
+
+      const zoneFlagLayout = ymaps.templateLayoutFactory.createClass(
+        '<div class="zone-flag zone-flag--$[properties.tag] $[properties.stateClass]">' +
+          '<div class="zone-flag__title">$[properties.flagTitle]</div>' +
+          '<p class="zone-flag__body">$[properties.flagBody]</p>' +
+          '<div class="zone-flag__name">$[properties.zoneName]</div>' +
+        '</div>'
       );
 
       const recommendationHintLayout = ymaps.templateLayoutFactory.createClass(
@@ -2530,6 +2623,27 @@
           circle.events.add("mouseenter", () => setActiveRecommendation(recommendation.id));
           hintsGroup.add(circle);
           objects.push(circle);
+
+          // Zone flag — always-visible banner with recommendation summary
+          const flagPoint = projectPoint(center, 315, radius * 0.55);
+          const zoneFlag = new ymaps.Placemark(flagPoint, {
+            tag: recommendation.tag,
+            flagTitle: recommendation.flagTitle || recommendation.title,
+            flagBody: recommendation.flagBody || recommendation.subtitle,
+            zoneName: recommendation.title,
+            stateClass: recommendation.id === activeRecommendationId ? "is-active" : "",
+          }, {
+            iconLayout: zoneFlagLayout,
+            iconOffset: [-100, -60],
+            iconShape: {
+              type: "Rectangle",
+              coordinates: [[-120, -70], [120, 10]],
+            },
+            zIndex: 700,
+          });
+          zoneFlag.events.add("click", () => setActiveRecommendation(recommendation.id, { focusMap: true }));
+          hintsGroup.add(zoneFlag);
+          objects.push(zoneFlag);
 
           if (pointData) {
             const hoverReasons = getRecommendationHoverReasons(recommendation, pointData);
