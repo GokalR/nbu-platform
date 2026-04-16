@@ -9,7 +9,7 @@ const props = defineProps({
 
 const L = {
   ru: { weight: 'Вес', contribution: 'Вклад в балл', inputsLabel: 'Что мы учли', impact: 'Влияние', expand: 'Развернуть', collapse: 'Свернуть' },
-  uz: { weight: 'Vazn', contribution: 'Ball hissasi', inputsLabel: 'Hisobga olindi', impact: 'Ta'sir', expand: 'Ochish', collapse: 'Yig'ish' },
+  uz: { weight: 'Vazn', contribution: 'Ball hissasi', inputsLabel: 'Hisobga olindi', impact: 'Taʻsir', expand: 'Ochish', collapse: 'Yigʻish' },
 }
 const t = () => L[props.lang] ?? L.ru
 

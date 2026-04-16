@@ -12,7 +12,7 @@ const { lang } = useRsLang()
 
 const T = {
   ru: { home: 'Главная', businessTest: 'Бизнес-тест', about: 'О платформе', logoAlt: 'NBU — Национальный банк Узбекистана', backToHub: 'В NBU AI Hub' },
-  uz: { home: 'Bosh sahifa', businessTest: 'Biznes-test', about: 'Platforma haqida', logoAlt: 'NBU — O'zbekiston Milliy banki', backToHub: 'NBU AI Hub-ga' },
+  uz: { home: 'Bosh sahifa', businessTest: 'Biznes-test', about: 'Platforma haqida', logoAlt: 'NBU — Oʻzbekiston Milliy banki', backToHub: 'NBU AI Hub-ga' },
 }
 const t = computed(() => T[lang.value])
 

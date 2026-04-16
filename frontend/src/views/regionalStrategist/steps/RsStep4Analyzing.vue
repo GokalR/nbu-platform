@@ -14,7 +14,7 @@ const T = {
   },
   uz: {
     title: 'AI tahlil bajarilmoqda',
-    sub: 'Ma'lumotlaringiz qayta ishlanmoqda — bir oz kuting',
+    sub: 'Maʻlumotlaringiz qayta ishlanmoqda — bir oz kuting',
     back: 'Tavsiyalarga qaytish',
   },
 }

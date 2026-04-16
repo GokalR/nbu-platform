@@ -24,9 +24,9 @@ const T = {
     stepBadge: '3-QADAM (5 TADAN)',
     title: 'AI Tavsiyalar',
     sub: 'Javoblaringizga asoslanib asosiy kuzatuvlar va maslahatlarni tayyorladik',
-    typing: 'AI ma'lumotlarni tahlil qilmoqda...',
+    typing: 'AI maʻlumotlarni tahlil qilmoqda...',
     back: 'Orqaga',
-    next: 'To'liq tahlilni boshlash',
+    next: 'Toʻliq tahlilni boshlash',
   },
 }
 
@@ -47,14 +47,14 @@ const ITEMS_BY_SECTOR = {
       { type: 'recommendation', title: 'Подходящий кредитный продукт NBU', text: '«Развивайся» (до 3,5 млрд сум, 23% годовых, срок до 48 мес., залог — недвижимость). Под расширение мощностей с залогом здания — оптимальный вариант. Альтернатива: «Кредит оборотный» под закупку мебели/оборудования новых групп.' },
     ],
     uz: [
-      { type: 'strength', title: 'Demografik baza', text: 'Farg'ona viloyatida 2025 yilda 98 319 bola tug'ilgan (50 683 o'g'il, 47 636 qiz). Aholisi 4,22 mln, shahar ulushi 56,7% — aynan ERKIN PARVOZ joylashgan shahar mahallalarida maktabgacha yoshdagi bolalar oqimi barqaror.' },
-      { type: 'strength', title: 'Kredit tarixi', text: 'Amaldagi kreditlar yo'q (Forma 1 uzoq muddatli majburiyatlar = 0). ROE 15,5% bilan nol kredit yuki — bank yangi qarzni xizmat qilish qobiliyatini ko'radi.' },
-      { type: 'market', title: 'To'lovga qodir talab', text: 'Farg'ona shahri — viloyatning eng yirik iqtisodiy markazi: sanoat mahsuloti 8 587 mlrd so'm (2024). Oilalarning o'rtacha daromadi xususiy bolalar bog'chasiga (300–600 ming so'm/oy) haq to'lashga imkon beradi.' },
-      { type: 'market', title: 'Regulyativ qo'llab-quvvatlash', text: '2019 yildan maktabgacha ta'lim davlat dasturi faol rivojlanmoqda: xususiy bog'chalar uchun subsidiyalar, IFUT 85100 bo'yicha soliq imtiyozlari. MChJ sifatida allaqachon talablarga mos kelasiz.' },
-      { type: 'warning', title: 'Likvidlik cheklangan', text: 'Forma 1 bo'yicha joriy likvidlik = 1,19 (norma 1,5+). Har bir so'm qisqa muddatli majburiyatga 1,19 so'm aylanma aktiv — zaxira kam. Kredit qarzni oshiradi → likvidlik 1,05 gacha tushishi mumkin.' },
-      { type: 'warning', title: 'Mavsumiylik', text: 'Bog'chaga qabul sentyabrga bog'liq: iyun–avgust — cash-flow bo'shligi (40–50% oilalar yozga chiqadi). 2–3 oylik zaxara yoki bank bilan iyul–avgust greys-muddatini kelishib oling.' },
-      { type: 'recommendation', title: '2 ta yangi guruh (2–3 yosh)', text: 'Yasli guruhlariga talab 3–6 yoshdan yuqori: mahallada davlat yasli yo'q, ota-onalar dekreti 2 yoshda tugaydi. Guruhdagi o'rtacha son — 18–22 bola → +36–44 o'rin = +1,2–1,5 mlrd so'm yillik tushum.' },
-      { type: 'recommendation', title: 'Mos NBU kredit mahsuloti', text: '«Razvivaysya» (3,5 mlrd so'mgacha, 23% yillik, 48 oygacha, garov — ko'chmas mulk). Bino garovida kengaytirish uchun optimal. Muqobil: «Kredit oborotniy» — yangi guruhlar uchun mebel/jihozlar xarid qilish.' },
+      { type: 'strength', title: 'Demografik baza', text: 'Fargʻona viloyatida 2025 yilda 98 319 bola tugʻilgan (50 683 oʻgʻil, 47 636 qiz). Aholisi 4,22 mln, shahar ulushi 56,7% — aynan ERKIN PARVOZ joylashgan shahar mahallalarida maktabgacha yoshdagi bolalar oqimi barqaror.' },
+      { type: 'strength', title: 'Kredit tarixi', text: 'Amaldagi kreditlar yoʻq (Forma 1 uzoq muddatli majburiyatlar = 0). ROE 15,5% bilan nol kredit yuki — bank yangi qarzni xizmat qilish qobiliyatini koʻradi.' },
+      { type: 'market', title: 'Toʻlovga qodir talab', text: 'Fargʻona shahri — viloyatning eng yirik iqtisodiy markazi: sanoat mahsuloti 8 587 mlrd soʻm (2024). Oilalarning oʻrtacha daromadi xususiy bolalar bogʻchasiga (300–600 ming soʻm/oy) haq toʻlashga imkon beradi.' },
+      { type: 'market', title: 'Regulyativ qoʻllab-quvvatlash', text: '2019 yildan maktabgacha taʻlim davlat dasturi faol rivojlanmoqda: xususiy bogʻchalar uchun subsidiyalar, IFUT 85100 boʻyicha soliq imtiyozlari. MChJ sifatida allaqachon talablarga mos kelasiz.' },
+      { type: 'warning', title: 'Likvidlik cheklangan', text: 'Forma 1 boʻyicha joriy likvidlik = 1,19 (norma 1,5+). Har bir soʻm qisqa muddatli majburiyatga 1,19 soʻm aylanma aktiv — zaxira kam. Kredit qarzni oshiradi → likvidlik 1,05 gacha tushishi mumkin.' },
+      { type: 'warning', title: 'Mavsumiylik', text: 'Bogʻchaga qabul sentyabrga bogʻliq: iyun–avgust — cash-flow boʻshligi (40–50% oilalar yozga chiqadi). 2–3 oylik zaxara yoki bank bilan iyul–avgust greys-muddatini kelishib oling.' },
+      { type: 'recommendation', title: '2 ta yangi guruh (2–3 yosh)', text: 'Yasli guruhlariga talab 3–6 yoshdan yuqori: mahallada davlat yasli yoʻq, ota-onalar dekreti 2 yoshda tugaydi. Guruhdagi oʻrtacha son — 18–22 bola → +36–44 oʻrin = +1,2–1,5 mlrd soʻm yillik tushum.' },
+      { type: 'recommendation', title: 'Mos NBU kredit mahsuloti', text: '«Razvivaysya» (3,5 mlrd soʻmgacha, 23% yillik, 48 oygacha, garov — koʻchmas mulk). Bino garovida kengaytirish uchun optimal. Muqobil: «Kredit oborotniy» — yangi guruhlar uchun mebel/jihozlar xarid qilish.' },
     ],
   },
   services: {
@@ -65,7 +65,7 @@ const ITEMS_BY_SECTOR = {
     ],
     uz: [
       { type: 'strength', title: 'Biznes barqarorligi', text: 'MChJ 3–5 yillik tajriba bilan — bank tarixni qadrlaydi.' },
-      { type: 'market', title: 'Farg'ona viloyatida talab', text: 'Aholisi 4,22 mln, 56,7% shahar — ta'lim va xizmat ko'rsatish uchun potentsial katta.' },
+      { type: 'market', title: 'Fargʻona viloyatida talab', text: 'Aholisi 4,22 mln, 56,7% shahar — taʻlim va xizmat koʻrsatish uchun potentsial katta.' },
       { type: 'recommendation', title: 'NBU krediti', text: '«Razvivaysya» yoki «Biznes progress» — xizmat biznesini kengaytirish uchun optimal.' },
     ],
   },
@@ -76,8 +76,8 @@ const ITEMS_BY_SECTOR = {
       { type: 'recommendation', title: 'Следующий шаг', text: 'Приложите финансовые отчёты (Форма 1 и 2) для расчёта точных коэффициентов рентабельности и ликвидности.' },
     ],
     uz: [
-      { type: 'strength', title: 'Tuzilgan profil', text: 'Javoblaringiz bankka to'liq tasvir beradi — bu arizani tez ko'rib chiqishga yordam beradi.' },
-      { type: 'market', title: 'Mintaqaviy kontekst', text: 'Farg'ona viloyati: 4,22 mln aholi, sanoat 45,9 trln so'm (+104,3% 2024), investitsiya 19,96 trln so'm (2023). Biznes uchun faol bozor.' },
+      { type: 'strength', title: 'Tuzilgan profil', text: 'Javoblaringiz bankka toʻliq tasvir beradi — bu arizani tez koʻrib chiqishga yordam beradi.' },
+      { type: 'market', title: 'Mintaqaviy kontekst', text: 'Fargʻona viloyati: 4,22 mln aholi, sanoat 45,9 trln soʻm (+104,3% 2024), investitsiya 19,96 trln soʻm (2023). Biznes uchun faol bozor.' },
       { type: 'recommendation', title: 'Keyingi qadam', text: 'Aniq rentabellik va likvidlik koeffitsientlari uchun moliyaviy hisobotlarni (Forma 1 va 2) ilova qiling.' },
     ],
   },
@@ -93,7 +93,7 @@ const TYPE_CONFIG = {
   uz: {
     strength: { label: 'KUChLI TOMON', borderClass: 'border-l-emerald-500', bgClass: 'bg-emerald-50/80', iconBgClass: 'bg-emerald-100', iconClass: 'text-emerald-600', labelClass: 'text-emerald-700' },
     market: { label: 'BOZOR', borderClass: 'border-l-blue-500', bgClass: 'bg-blue-50/80', iconBgClass: 'bg-blue-100', iconClass: 'text-blue-600', labelClass: 'text-blue-700' },
-    warning: { label: 'E'TIBOR BERING', borderClass: 'border-l-amber-500', bgClass: 'bg-amber-50/80', iconBgClass: 'bg-amber-100', iconClass: 'text-amber-600', labelClass: 'text-amber-700' },
+    warning: { label: 'EʻTIBOR BERING', borderClass: 'border-l-amber-500', bgClass: 'bg-amber-50/80', iconBgClass: 'bg-amber-100', iconClass: 'text-amber-600', labelClass: 'text-amber-700' },
     recommendation: { label: 'TAVSIYa', borderClass: 'border-l-navy-900', bgClass: 'bg-navy-900/[0.05]', iconBgClass: 'bg-navy-900/10', iconClass: 'text-navy-900', labelClass: 'text-navy-900' },
   },
 }

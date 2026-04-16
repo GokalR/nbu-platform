@@ -41,16 +41,16 @@ const T = {
   uz: {
     badge: 'AI BIZNES-MASLAHATChI',
     heading: 'Nimadan boshlaymiz?',
-    sub: 'O'z yo'lingizni tanlang — va biz sizga aniq tahlil berish uchun to'g'ri savollar beramiz',
+    sub: 'Oʻz yoʻlingizni tanlang — va biz sizga aniq tahlil berish uchun toʻgʻri savollar beramiz',
     cta: 'Boshlash',
-    trust: 'Ma'lumotlaringiz uchinchi shaxslarga berilmaydi va faqat tahlil uchun ishlatiladi',
+    trust: 'Maʻlumotlaringiz uchinchi shaxslarga berilmaydi va faqat tahlil uchun ishlatiladi',
     paths: [
       {
         title: 'Biznes boshlamoqchiman',
-        subtitle: 'Menda g'oya bor va tushunmoqchiman — boshlashga arziydimi',
+        subtitle: 'Menda gʻoya bor va tushunmoqchiman — boshlashga arziydimi',
         bullets: [
           'Hududingizdagi bozor tahlili',
-          'Boshlang'ich xarajatlar hisobi',
+          'Boshlangʻich xarajatlar hisobi',
           'Raqobat bahosi',
           'NBU kredit mahsulotlarini tanlash',
           'Bosqichma-bosqich harakat rejasi',
@@ -61,8 +61,8 @@ const T = {
         subtitle: 'Rivojlantirish, kengaytirish yoki muammoni hal qilmoqchiman',
         bullets: [
           'Joriy holatni tashxislash',
-          'Moliyaviy ko'rsatkichlar tahlili',
-          'O'sish nuqtalarini aniqlash',
+          'Moliyaviy koʻrsatkichlar tahlili',
+          'Oʻsish nuqtalarini aniqlash',
           'NBU mos kreditlarini tanlash',
           'Kengaytirish strategiyasi',
         ],

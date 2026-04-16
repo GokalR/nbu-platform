@@ -1351,8 +1351,7 @@
       "registerLink": "Зарегистрироваться",
       "hasAccount": "Уже есть аккаунт?",
       "loginLink": "Войти"
-    },
-    "lessonsCount": "уроков"
+    }
   },
   "regionAnalytics": {
     "units": {

@@ -86,7 +86,7 @@ function factorExperience(profile) {
     inputs,
     hint: {
       ru: 'Учитываем стаж, опыт в отрасли, образование, обучение и наличие ментора.',
-      uz: 'Tajriba, sohadagi ish, ta'lim, o'qitish va mentor mavjudligini hisobga olamiz.',
+      uz: 'Tajriba, sohadagi ish, taʻlim, oʻqitish va mentor mavjudligini hisobga olamiz.',
     },
   }
 }
@@ -138,7 +138,7 @@ function factorFinance(finance, financials = null) {
       inputs,
       hint: {
         ru: 'По данным Excel: чистая маржа, текущая ликвидность, D/E, ROE и наличие залога.',
-        uz: 'Excel bo'yicha: sof marja, joriy likvidlik, D/E, ROE va garov mavjudligi.',
+        uz: 'Excel boʻyicha: sof marja, joriy likvidlik, D/E, ROE va garov mavjudligi.',
       },
     }
   }
@@ -203,7 +203,7 @@ function factorFinance(finance, financials = null) {
     inputs,
     hint: {
       ru: 'Маржа дохода, доля собственных средств, наличие залога и текущая долговая нагрузка.',
-      uz: 'Daromad marjasi, o'z mablag'lari ulushi, garov mavjudligi va hozirgi qarz yuki.',
+      uz: 'Daromad marjasi, oʻz mablagʻlari ulushi, garov mavjudligi va hozirgi qarz yuki.',
     },
   }
 }
@@ -251,7 +251,7 @@ function factorMarket(finance, city) {
     inputs,
     hint: {
       ru: 'Соответствие вашего направления рекомендованным отраслям города и отраслевым трендам.',
-      uz: 'Yo'nalishingizning shahar tavsiya etilgan sohalari va soha trendlariga mosligi.',
+      uz: 'Yoʻnalishingizning shahar tavsiya etilgan sohalari va soha trendlariga mosligi.',
     },
   }
 }
@@ -288,7 +288,7 @@ function factorLocation(profile, city) {
     inputs,
     hint: {
       ru: 'Пилотные города (Фергана, Маргилан) дают полный анализ. Городские локации — выше плотность рынка.',
-      uz: 'Pilot shaharlarda (Farg'ona, Marg'ilon) to'liq tahlil. Shahar joylashuvlarida — bozor zichligi yuqori.',
+      uz: 'Pilot shaharlarda (Fargʻona, Margʻilon) toʻliq tahlil. Shahar joylashuvlarida — bozor zichligi yuqori.',
     },
   }
 }
@@ -328,7 +328,7 @@ function factorCompetition(finance, city) {
     inputs,
     hint: {
       ru: 'Оценка насыщенности вашей отрасли в выбранном городе на основе данных дашбордов.',
-      uz: 'Tanlangan shaharda sohangiz to'yinganligi — dashbord ma'lumotlari asosida.',
+      uz: 'Tanlangan shaharda sohangiz toʻyinganligi — dashbord maʻlumotlari asosida.',
     },
   }
 }
@@ -360,7 +360,7 @@ function factorBusinessModel(finance) {
     inputs,
     hint: {
       ru: 'Проработанность идеи: план, описание, целевой клиент, сроки, ресурсы.',
-      uz: 'G'oyaning pishikligi: reja, tavsif, maqsadli mijoz, muddatlar, resurslar.',
+      uz: 'Gʻoyaning pishikligi: reja, tavsif, maqsadli mijoz, muddatlar, resurslar.',
     },
   }
 }

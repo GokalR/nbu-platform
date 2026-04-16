@@ -40,7 +40,7 @@ const L = {
   },
   uz: {
     title: 'Moliyaviy hisobotlarni yuklang (ixtiyoriy)',
-    hint: '1S yoki Dokumenti.uz dan ikkita standart hisobot korxonaning to'liq moliyaviy profilini qamraydi: Forma 1 sanadagi aktivlar va majburiyatlar tuzilmasini, Forma 2 esa davr uchun aylanma va foydani ko'rsatadi. Boshqa fayllar kerak emas — barcha asosiy koeffitsientlar (marja, likvidlik, qarz yuki, ROA/ROE) shu ikkitadan hisoblanadi.',
+    hint: '1S yoki Dokumenti.uz dan ikkita standart hisobot korxonaning toʻliq moliyaviy profilini qamraydi: Forma 1 sanadagi aktivlar va majburiyatlar tuzilmasini, Forma 2 esa davr uchun aylanma va foydani koʻrsatadi. Boshqa fayllar kerak emas — barcha asosiy koeffitsientlar (marja, likvidlik, qarz yuki, ROA/ROE) shu ikkitadan hisoblanadi.',
     balanceTitle: 'Forma 1 — Buxgalteriya balansi',
     balanceDesc: 'Hisobot sanasidagi aktivlar, majburiyatlar va kapital.',
     pnlTitle: 'Forma 2 — Moliyaviy natijalar hisoboti',

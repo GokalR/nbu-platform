@@ -27,22 +27,22 @@ const L = {
     methodology: 'Методология: взвешенная оценка 5 факторов (профиль 25%, финансы 30%, локация 15%, идея 20%, готовность 10%). Данные: ваши ответы + загруженная финансовая отчётность + stat.uz по Фарғона вилояти.',
   },
   uz: {
-    title: 'Ariza bo'yicha batafsil AI-tahlil',
+    title: 'Ariza boʻyicha batafsil AI-tahlil',
     subtitle: 'Profil, Excel moliya va mintaqa kontekstidan birgalikdagi xulosa',
     badge: 'Yakuniy tahlil',
-    verdict: { good: 'Yaxshi potentsial', fair: 'O'rta potentsial', weak: 'Takomillashtirish kerak' },
+    verdict: { good: 'Yaxshi potentsial', fair: 'Oʻrta potentsial', weak: 'Takomillashtirish kerak' },
     verdictHint: {
       good: 'Ariza kuchli — NBU standart mahsulotlariga tayyor.',
       fair: 'Takomillashtirish kerak — quyidagi zaif joylarni yoping.',
-      weak: 'Taqdim etishdan oldin asosiy bo'shliqlarni yoping — aks holda yuqori xatar bilan ko'riladi.',
+      weak: 'Taqdim etishdan oldin asosiy boʻshliqlarni yoping — aks holda yuqori xatar bilan koʻriladi.',
     },
     sections: {
-      summary: 'Biznes bo'yicha xulosa', strengths: 'Kuchli tomonlar', weaknesses: 'Zaif joylar',
+      summary: 'Biznes boʻyicha xulosa', strengths: 'Kuchli tomonlar', weaknesses: 'Zaif joylar',
       peer: 'Soha medianasi bilan qiyoslash', cityFit: 'Lokatsiyaga moslik',
       product: 'Tavsiya etilgan NBU mahsuloti', nextSteps: '30–90 kunlik harakat rejasi', risks: 'Xatarlar va ularni yumshatish',
     },
-    peerCols: { metric: 'Ko'rsatkich', user: 'Sizning biznes', median: 'Soha medianasi', comment: 'Izoh' },
-    methodology: 'Metodologiya: 5 omil bo'yicha vaznli baho (profil 25%, moliya 30%, lokatsiya 15%, g'oya 20%, tayyorlik 10%). Manba: javoblar + yuklangan hisobot + stat.uz.',
+    peerCols: { metric: 'Koʻrsatkich', user: 'Sizning biznes', median: 'Soha medianasi', comment: 'Izoh' },
+    methodology: 'Metodologiya: 5 omil boʻyicha vaznli baho (profil 25%, moliya 30%, lokatsiya 15%, gʻoya 20%, tayyorlik 10%). Manba: javoblar + yuklangan hisobot + stat.uz.',
   },
 }
 const t = computed(() => L[props.lang] ?? L.ru)
