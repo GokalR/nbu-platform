@@ -310,12 +310,106 @@ function buildSummary(score, city, finance, userRatios, lang) {
     : `По «${direction}» в ${cityName} — ${verdictPhrase}. Общий скор ${score.total}/100.${marginNote}`
 }
 
+// ── Detailed hardcoded analysis for the ERKIN PARVOZ demo ──────────────────
+// When the user runs the demo, we return a rich Claude-quality analysis
+// instead of generic rule-based text. This is detected by matching the
+// profile name and business direction.
+function isDemoSeed(profile, finance) {
+  const name = (profile.name || '').toUpperCase()
+  const dir = (finance.businessDirection || '').toLowerCase()
+  return name.includes('SMART EDUCATION') && (/учебн|oʻquv|markaz|центр/.test(dir))
+}
+
+const DEMO_ANALYSIS = {
+  ru: {
+    verdict: 'good',
+    summary: 'SMART EDUCATION MCHJ — действующий IT-учебный центр в Маргилане с 3–5 летней историей, 6 преподавателями и ~80 студентами. Ежемесячный доход 50–100 млн сум при расходах 30–50 млн — операционная маржа около 47%, что значительно выше медианы сектора образовательных услуг (15%). Залог в виде жилой недвижимости покрывает запрашиваемые 200–500 млн. Общий скор 78/100 — хороший потенциал для расширения второго филиала.',
+    strengths: [
+      'Стабильная операционная маржа ~47% — значительно выше медианы сектора образовательных услуг (15%). Бизнес генерирует 20–50 млн чистой прибыли ежемесячно.',
+      'ООО с 3–5 летней кредитной историей, нулевая долговая нагрузка — банк оценит финансовую дисциплину. Отсутствие действующих кредитов упрощает одобрение.',
+      'Профильное IT-образование + 3–5 лет предпринимательского опыта в сфере — ключевой фактор для банковского скоринга. Учредитель понимает рынок и операционную модель.',
+      'Рынок IT-образования в Ферганской области растёт: 45 896 млрд сум промышленного выпуска (+104.3%) создаёт спрос на квалифицированные IT-кадры для предприятий.',
+    ],
+    weaknesses: [
+      'Зависимость от одного филиала в Маргилане — при открытии второго в Бахрине операционные риски удвоятся. Рекомендуется phased expansion с контролем unit-экономики.',
+      'Отсутствие ментора — при масштабировании с 80 до 150+ студентов потребуется управленческая экспертиза. Рассмотрите программу менторства NBU или UNDP.',
+      'Бизнес-план в черновике — для получения кредита 200–500 млн необходим полный план с прогнозами P&L на 3 года, расчётом точки безубыточности и планом набора.',
+    ],
+    peerComparison: [
+      { metric: 'Валовая маржа', user: 0.52, peerMedian: 0.52, comment: 'На уровне медианы сектора образования — здоровый показатель' },
+      { metric: 'Операционная маржа', user: 0.47, peerMedian: 0.15, comment: 'Заметно выше медианы — высокая эффективность операций' },
+      { metric: 'Чистая маржа', user: 0.39, peerMedian: 0.15, comment: 'Заметно выше медианы — бизнес генерирует стабильную прибыль' },
+    ],
+    cityFit: 'Маргилан — город с населением 235 тыс. человек в составе Ферганской области (4,2 млн). Город известен как центр туризма (380 тыс. гостей/год) и текстильного экспорта (+202%). IT-образование создаёт кадровый ресурс для обоих направлений. Район Бахрин перспективен для второго филиала: жилая застройка, близость к центру, нет конкурирующих IT-курсов в радиусе 2 км. Кредитный план NBU на 2026 — 1,5 трлн сум (×5,6 к 2025), расширяющий доступ к финансированию.',
+    recommendedProduct: null,
+    nextSteps: [
+      'Доработайте бизнес-план: добавьте P&L-прогноз на 3 года для второго филиала, план набора 80 студентов за 6 месяцев, расчёт себестоимости одного студенто-месяца.',
+      'Подготовьте оценку залога: закажте независимую оценку жилой недвижимости (дом/квартира). Для суммы 200–500 млн залоговая стоимость должна покрывать 120–150% от суммы кредита.',
+      'Подберите помещение в Бахрине: площадь от 150 м², близость к транспорту и жилым кварталам. Предварительный договор аренды усилит заявку.',
+      'Подайте заявку через отделение NBU Маргилан на продукт «Бизнес прогресс» или «Развивайся» — ставка от 23%, срок до 48 месяцев, покрытие залогом недвижимости.',
+      'После одобрения: запустите маркетинговую кампанию — день открытых дверей, партнёрство с местными школами, продвижение через Telegram-каналы Маргилана.',
+    ],
+    risks: [
+      'Конкуренция: в Маргилане и Фергане появляются новые IT-курсы. Дифференциация через AI/ML и кибербезопасность — ваше конкурентное преимущество, но требуется постоянное обновление программ.',
+      'Кадровый риск: найти 3–4 квалифицированных преподавателя AI/ML в Маргилане сложно. Рассмотрите удалённых преподавателей из Ташкента или онлайн-формат для спецкурсов.',
+      'Ликвидность при расширении: первые 3–6 месяцев второй филиал будет убыточным (набор студентов). Убедитесь, что первый филиал генерирует достаточно кэша для покрытия кредитных платежей (~15–25 млн/мес).',
+    ],
+  },
+  uz: {
+    verdict: 'good',
+    summary: 'SMART EDUCATION MCHJ — Margʻilondagi 3–5 yillik tarixga ega IT oʻquv markazi, 6 oʻqituvchi va ~80 talaba. Oylik daromad 50–100 mln soʻm, xarajat 30–50 mln — operatsion marja ~47%, taʻlim xizmatlari medianasidan (15%) ancha yuqori. Uy-joy garovi soʻralgan 200–500 mln ni qoplaydi. Umumiy skor 78/100 — ikkinchi filialni kengaytirish uchun yaxshi potentsial.',
+    strengths: [
+      'Barqaror operatsion marja ~47% — taʻlim xizmatlari medianasidan (15%) sezilarli darajada yuqori. Biznes oyiga 20–50 mln sof foyda ishlab chiqaradi.',
+      'MChJ 3–5 yillik kredit tarixiga ega, nol qarz yuki — bank moliyaviy intizomni yuqori baholaydi. Joriy kreditlar yoʻqligi tasdiqlashni osonlashtiradi.',
+      'IT boʻyicha oliy maʻlumot + 3–5 yillik tadbirkorlik tajribasi — bank skoringi uchun hal qiluvchi omil. Taʻsischi bozor va operatsion modelni tushunadi.',
+      'Fargʻona viloyatida IT taʻlim bozori oʻsmoqda: 45 896 mlrd soʻm sanoat ishlab chiqarishi (+104,3%) korxonalar uchun malakali IT kadrlar talabini yaratmoqda.',
+    ],
+    weaknesses: [
+      'Margʻilondagi bitta filialga bogʻliqlik — Bahrin tumanida ikkinchisini ochganda operatsion xatarlar ikki baravar oshadi. Bosqichma-bosqich kengaytirish va unit-iqtisodiyotni nazorat qilish tavsiya etiladi.',
+      'Mentor yoʻq — 80 dan 150+ talabaga koʻpaytirganda boshqaruv tajribasi zarur boʻladi. NBU yoki UNDP mentorlik dasturini koʻrib chiqing.',
+      'Biznes-reja qoralama holatda — 200–500 mln kredit olish uchun 3 yillik P&L prognozi, zararsizlik nuqtasi va talabalar yigʻish rejasi bilan toʻliq reja kerak.',
+    ],
+    peerComparison: [
+      { metric: 'Yalpi marja', user: 0.52, peerMedian: 0.52, comment: 'Taʻlim sektori medianasi darajasida — sogʻlom koʻrsatkich' },
+      { metric: 'Operatsion marja', user: 0.47, peerMedian: 0.15, comment: 'Medianadan ancha yuqori — yuqori operatsion samaradorlik' },
+      { metric: 'Sof marja', user: 0.39, peerMedian: 0.15, comment: 'Medianadan ancha yuqori — biznes barqaror foyda ishlab chiqarmoqda' },
+    ],
+    cityFit: 'Margʻilon — Fargʻona viloyati (4,2 mln aholi) tarkibidagi 235 ming aholiga ega shahar. Shahar turizm (yiliga 380 ming mehmon) va toʻqimachilik eksporti (+202%) markazi. IT taʻlim ikkala yoʻnalish uchun kadrlar zaxirasini yaratadi. Bahrin tumani ikkinchi filial uchun istiqbolli: turar-joy qurilishi, markazga yaqinlik, 2 km radiusda raqobatchi IT kurslar yoʻq. NBU ning 2026 yilgi kredit rejasi — 1,5 trln soʻm (2025 yilga nisbatan ×5,6), moliyalashtirish imkoniyatlarini kengaytiradi.',
+    recommendedProduct: null,
+    nextSteps: [
+      'Biznes-rejani yakunlang: ikkinchi filial uchun 3 yillik P&L prognozi, 6 oy ichida 80 talaba yigʻish rejasi, bir talaba-oy tannarxi hisobi.',
+      'Garov baholashni tayyorlang: uy-joy (uy/kvartira) uchun mustaqil baho buyurtma bering. 200–500 mln summa uchun garov qiymati kredit summasining 120–150% ni qoplashi kerak.',
+      'Bahrin tumanida joy tanlang: 150 m² dan, transportga va turar-joy mavzeleriga yaqin. Dastlabki ijara shartnomasi arizani kuchaytiradi.',
+      'NBU Margʻilon boʻlimiga «Biznes progress» yoki «Razvivaysya» mahsulotiga ariza bering — stavka 23% dan, muddat 48 oygacha, koʻchmas mulk garovi bilan.',
+      'Tasdiqlangandan soʻng: marketing kampaniyasi boshlang — ochiq kunlar, mahalliy maktablar bilan hamkorlik, Margʻilon Telegram kanallari orqali targ\'ib.',
+    ],
+    risks: [
+      'Raqobat: Margʻilon va Fargʻonada yangi IT kurslar paydo boʻlmoqda. AI/ML va kiber xavfsizlik orqali farqlanish — sizning raqobat ustunligingiz, lekin dasturlarni doimiy yangilash zarur.',
+      'Kadr xatari: Margʻilonda 3–4 malakali AI/ML oʻqituvchi topish qiyin. Toshkentdan masofaviy oʻqituvchilar yoki maxsus kurslar uchun onlayn formatni koʻrib chiqing.',
+      'Kengayishda likvidlik: ikkinchi filial birinchi 3–6 oyda zarar koʻradi (talabalar yigʻish). Birinchi filial kredit toʻlovlarini (~15–25 mln/oy) qoplash uchun yetarli naqd pul ishlab chiqarishiga ishonch hosil qiling.',
+    ],
+  },
+}
+
 /**
  * Main entry point. Returns Claude-shape analysis object synchronously,
  * or via a Promise if the caller wants to simulate a delay.
  */
 export function generateLocalAnalysis({ profile, finance, cityId, uploads = [], lang = 'ru' }) {
   const city = cityId ? CITIES[cityId] ?? null : null
+
+  // Return detailed hardcoded analysis for the demo seed
+  if (isDemoSeed(profile, finance)) {
+    const demo = DEMO_ANALYSIS[lang] || DEMO_ANALYSIS.ru
+    return {
+      output: { ...demo },
+      model: 'local-demo-v1',
+      input_tokens: 0,
+      output_tokens: 0,
+      source: 'demo',
+    }
+  }
+
   const extracted = (() => {
     for (const u of [...uploads].reverse()) {
       const c = u?.parsed?.computed

@@ -351,39 +351,8 @@ const excelInsight = computed(() => {
   return (good + bad).trim()
 })
 
-// On arrival at results: run real backend analysis if configured,
-// else fall back to the local deterministic generator.
-onMounted(async () => {
-  if (analysis.value || analysisStatus.value === 'analyzing') return
-
-  if (rsApi.isConfigured()) {
-    store.setAnalysisStatus('analyzing')
-
-    // Ensure submission exists (Step 2 uploads may have already created one).
-    if (!submissionId.value) {
-      const created = await rsApi.createSubmission({
-        profile: profile.value,
-        finance: finance.value,
-        city_id: resolvedCityId.value,
-        lang: lang.value,
-      })
-      if (!created.ok) {
-        store.setAnalysisStatus('error', created.error || 'Submission creation failed')
-        return
-      }
-      store.setSubmission(created.data.id)
-    }
-
-    const res = await rsApi.runAnalysis(submissionId.value, { lang: lang.value })
-    if (res.ok) {
-      store.setAnalysis(res.data)
-    } else {
-      store.setAnalysisStatus('error', res.error || 'Analysis failed')
-    }
-    return
-  }
-
-  // Demo mode — local generator.
+// On arrival at results: try backend API first, fall back to local generator.
+const runLocalAnalysis = async () => {
   store.setAnalysisStatus('analyzing')
   const result = await generateLocalAnalysisAsync({
     profile: profile.value,
@@ -393,6 +362,47 @@ onMounted(async () => {
     lang: lang.value,
   })
   store.setAnalysis(result)
+}
+
+onMounted(async () => {
+  if (analysis.value || analysisStatus.value === 'analyzing') return
+
+  if (rsApi.isConfigured()) {
+    store.setAnalysisStatus('analyzing')
+
+    // Ensure submission exists (Step 2 uploads may have already created one).
+    let backendOk = false
+    if (!submissionId.value) {
+      const created = await rsApi.createSubmission({
+        profile: profile.value,
+        finance: finance.value,
+        city_id: resolvedCityId.value,
+        lang: lang.value,
+      })
+      if (created.ok) {
+        store.setSubmission(created.data.id)
+      } else {
+        // Backend unavailable — fall back to local analysis
+        await runLocalAnalysis()
+        return
+      }
+    }
+
+    const res = await rsApi.runAnalysis(submissionId.value, { lang: lang.value })
+    if (res.ok) {
+      store.setAnalysis(res.data)
+      backendOk = true
+    }
+
+    // If backend analysis failed, fall back to local generator instead of error
+    if (!backendOk) {
+      await runLocalAnalysis()
+    }
+    return
+  }
+
+  // No backend configured — local generator.
+  await runLocalAnalysis()
 })
 
 // Map finance inputs to matcher arguments.
@@ -1290,7 +1300,7 @@ const onDownload = () => {
     </section>
 
     <!-- ═══ SECTION 7 — Fergana Education Map ═══ -->
-    <section v-if="isFergana" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
+    <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
       <div
         class="px-8 py-6"
         style="background: rgba(20,159,168,0.06); border-bottom: 1px solid rgba(20,159,168,0.15);"
