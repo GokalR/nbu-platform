@@ -2578,16 +2578,16 @@
         });
       }
 
-      function getAreaStyle(tag, isActive) {
+      function getAreaStyle(tag) {
         const status = STATUS_META[tag] || STATUS_META.mid;
         return {
-          fillColor: isActive ? status.activeFill : status.fill,
-          strokeColor: isActive ? status.activeStroke : status.stroke,
-          strokeWidth: isActive ? 4 : 2,
-          strokeOpacity: isActive ? 0.98 : 0.82,
-          fillOpacity: isActive ? 0.52 : 0.31,
+          fillColor: status.fill,
+          strokeColor: status.stroke,
+          strokeWidth: 2,
+          strokeOpacity: 0.82,
+          fillOpacity: 0.31,
           strokeStyle: "solid",
-          zIndex: isActive ? 620 : 420,
+          zIndex: 420,
         };
       }
 
@@ -2619,9 +2619,8 @@
           const circle = new ymaps.Circle([center, radius], {
             balloonContent,
             hintContent: recommendation.title,
-          }, getAreaStyle(recommendation.tag, recommendation.id === activeRecommendationId));
+          }, getAreaStyle(recommendation.tag));
           circle.events.add("click", () => setActiveRecommendation(recommendation.id));
-          circle.events.add("mouseenter", () => setActiveRecommendation(recommendation.id));
           hintsGroup.add(circle);
           objects.push(circle);
 
@@ -2670,7 +2669,6 @@
               },
             });
             recommendationMarker.events.add("click", () => setActiveRecommendation(recommendation.id, { focusMap: true }));
-            recommendationMarker.events.add("mouseenter", () => setActiveRecommendation(recommendation.id));
             hintsGroup.add(recommendationMarker);
             objects.push(recommendationMarker);
           }
@@ -2687,7 +2685,7 @@
             if (object.geometry && object.geometry.getType && object.geometry.getType() === "Point") {
               object.properties.set("stateClass", isActive ? "is-active" : "");
             } else {
-              object.options.set(getAreaStyle(entry.recommendation.tag, isActive));
+              object.options.set(getAreaStyle(entry.recommendation.tag));
             }
           });
         });
@@ -2721,7 +2719,6 @@
         activeRecommendationId = id;
         updateSelectedRecommendation(getScopedPlaces());
         renderRecommendationList(getScopedPlaces());
-        rebuildRecommendationsOverlay();
         syncRecommendationStyles();
         if (options.focusMap) {
           focusRecommendationOnMap(next);
