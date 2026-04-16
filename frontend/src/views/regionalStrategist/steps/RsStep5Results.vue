@@ -1075,8 +1075,7 @@ const onDownload = () => {
         </div>
       </div>
       <div class="px-8 py-8 space-y-6">
-        <RsMargilanHeatmap v-if="isMargilan" :ranking="t.MAHALLA_RANKING" />
-        <RsFerganaHeatmap v-else :direction="finance.businessDirection" />
+        <RsFerganaHeatmap :direction="finance.businessDirection" />
 
         <RsInsightBox v-if="isMargilan || useFerganaKgOverride" variant="info" :title="t.locationInsightTitle">
           {{ t.locationInsightText }}
