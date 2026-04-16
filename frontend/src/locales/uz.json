@@ -1272,7 +1272,87 @@
     "noCoursesYet": "Kurslar hali qo'shilmagan",
     "min": "min",
     "hours": "soat",
-    "approx": "taxm."
+    "approx": "taxm.",
+    "fc": {
+      "allDone": "Barcha kartochkalar o'rganildi!",
+      "reviewed": "{total} dan {done} tasi ko'rib chiqildi",
+      "restart": "Qaytadan",
+      "question": "Savol",
+      "answer": "Javob",
+      "tapHint": "Kartochkani bosing, teskari tomonini ko'ring",
+      "again": "Yana",
+      "hard": "Qiyin",
+      "good": "Yaxshi",
+      "easy": "Oson"
+    },
+    "quiz": {
+      "questionOf": "{total} dan {current}-savol",
+      "correctPct": "{pct}% to'g'ri",
+      "retryQuiz": "Qaytadan o'tish",
+      "check": "Tekshirish",
+      "next": "Keyingi",
+      "results": "Natijalar"
+    },
+    "test": {
+      "passed": "O'TDI",
+      "failed": "O'TMADI",
+      "scoreOf": "{earned}/{total} ball (o'tish: {passing}%)",
+      "reviewAnswers": "Javoblarni ko'rish",
+      "correctAnswer": "To'g'ri javob:",
+      "true": "To'g'ri",
+      "false": "Noto'g'ri",
+      "retryTest": "Qaytadan topshirish",
+      "answeredOf": "{done}/{total} javob berildi",
+      "submit": "Testni topshirish ({done}/{total})"
+    },
+    "mindmap": {
+      "leafHint": "Barg — ichki elementlar yo'q"
+    },
+    "player": {
+      "videoError": "Videoni yuklab bo'lmadi"
+    },
+    "dash": {
+      "myProgress": "Mening taraqqiyotim",
+      "myCourses": "Mening kurslarim",
+      "noEnrollments": "Siz hali kurslarga yozilmagansiz",
+      "findCourses": "Kurslarni topish",
+      "lessonsProgress": "{done}/{total} dars · {pct}%",
+      "recentScores": "So'nggi natijalar",
+      "quiz": "Viktorina",
+      "test": "Test",
+      "passed": "O'tdi",
+      "notPassed": "O'tmadi",
+      "loadError": "Ma'lumotlarni yuklab bo'lmadi",
+      "justNow": "hozirgina",
+      "minsAgo": "{n} min oldin",
+      "hrsAgo": "{n} soat oldin",
+      "daysAgo": "{n} kun oldin"
+    },
+    "auth": {
+      "login": "Kirish",
+      "register": "Ro'yxatdan o'tish",
+      "loginTitle": "Tizimga kirish",
+      "registerTitle": "Akkaunt yaratish",
+      "loginSubtitle": "Kurslarga kirish uchun tizimga kiring",
+      "registerSubtitle": "O'qishni boshlash uchun ro'yxatdan o'ting",
+      "wrongCredentials": "Email yoki parol noto'g'ri",
+      "passwordMinLength": "Parol kamida 6 belgidan iborat bo'lishi kerak",
+      "passwordsMismatch": "Parollar mos kelmaydi",
+      "registerError": "Ro'yxatdan o'tishda xatolik",
+      "password": "Parol",
+      "loggingIn": "Kirish...",
+      "loginBtn": "Kirish",
+      "fullName": "To'liq ism",
+      "minChars": "(kamida 6 belgi)",
+      "confirmPassword": "Parolni tasdiqlang",
+      "registering": "Ro'yxatdan o'tilmoqda...",
+      "registerBtn": "Ro'yxatdan o'tish",
+      "noAccount": "Akkauntingiz yo'qmi?",
+      "registerLink": "Ro'yxatdan o'tish",
+      "hasAccount": "Akkauntingiz bormi?",
+      "loginLink": "Kirish"
+    },
+    "lessonsCount": "darslar"
   },
   "regionAnalytics": {
     "units": {

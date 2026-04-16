@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   questions: { type: Array, required: true },
@@ -83,12 +86,12 @@ const ringOffset = computed(() => ringCircumference - ((score.value / total.valu
           {{ score }}/{{ total }}
         </div>
         <div style="font-size: 14px; color: var(--edu-text-muted); margin-top: 4px;">
-          {{ Math.round((score / total) * 100) }}% правильных
+          {{ t('education.quiz.correctPct', { pct: Math.round((score / total) * 100) }) }}
         </div>
       </div>
     </div>
     <button class="edu-btn edu-btn--primary" style="margin-top: 24px;" @click="restart">
-      Пройти ещё раз
+      {{ t('education.quiz.retryQuiz') }}
     </button>
   </div>
 
@@ -99,7 +102,7 @@ const ringOffset = computed(() => ringCircumference - ((score.value / total.valu
       <div class="edu-progress-bar__fill" :style="{ width: progressPct + '%', background: 'var(--edu-accent)' }" />
     </div>
     <div style="font-size: 13px; color: var(--edu-text-muted); margin-bottom: 16px;">
-      Вопрос {{ currentIndex + 1 }} из {{ total }}
+      {{ t('education.quiz.questionOf', { current: currentIndex + 1, total }) }}
     </div>
 
     <!-- Question -->
@@ -136,10 +139,10 @@ const ringOffset = computed(() => ringCircumference - ((score.value / total.valu
     <!-- Actions -->
     <div style="display: flex; gap: 10px; margin-top: 24px;">
       <button v-if="!checked" class="edu-btn edu-btn--primary" :disabled="selectedIndex === null" @click="check">
-        Проверить
+        {{ t('education.quiz.check') }}
       </button>
       <button v-else class="edu-btn edu-btn--primary" @click="next">
-        {{ currentIndex < total - 1 ? 'Далее' : 'Результаты' }}
+        {{ currentIndex < total - 1 ? t('education.quiz.next') : t('education.quiz.results') }}
       </button>
     </div>
   </div>

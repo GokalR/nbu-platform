@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   cards: { type: Array, required: true },
@@ -15,6 +18,13 @@ const total = computed(() => props.cards.length)
 const current = computed(() => props.cards[currentIndex.value])
 const done = computed(() => reviewed.value >= total.value)
 const progressPct = computed(() => (reviewed.value / total.value) * 100)
+
+const ratingLabels = computed(() => [
+  t('education.fc.again'),
+  t('education.fc.hard'),
+  t('education.fc.good'),
+  t('education.fc.easy'),
+])
 
 function flipCard() {
   if (isAdvancing.value) return
@@ -51,9 +61,9 @@ function restart() {
   <!-- Completion -->
   <div v-if="done" style="text-align: center; padding: 48px 20px;">
     <span class="material-symbols-outlined" style="font-size: 56px; color: var(--edu-success);">check_circle</span>
-    <h3 style="font-family: 'Manrope', sans-serif; font-size: 20px; margin: 16px 0 8px;">Все карточки изучены!</h3>
-    <p style="color: var(--edu-text-muted); font-size: 14px;">{{ total }} из {{ total }} карточек просмотрено</p>
-    <button class="edu-btn edu-btn--primary" style="margin-top: 20px;" @click="restart">Повторить</button>
+    <h3 style="font-family: 'Manrope', sans-serif; font-size: 20px; margin: 16px 0 8px;">{{ t('education.fc.allDone') }}</h3>
+    <p style="color: var(--edu-text-muted); font-size: 14px;">{{ t('education.fc.reviewed', { done: total, total }) }}</p>
+    <button class="edu-btn edu-btn--primary" style="margin-top: 20px;" @click="restart">{{ t('education.fc.restart') }}</button>
   </div>
 
   <!-- Flashcard flow -->
@@ -74,11 +84,11 @@ function restart() {
 
       <div class="edu-flashcard" :class="{ 'edu-flashcard--flipped': isFlipped }" @click="flipCard">
         <div class="edu-flashcard__face edu-flashcard__front">
-          <div style="font-size: 12px; color: var(--edu-text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Вопрос</div>
+          <div style="font-size: 12px; color: var(--edu-text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">{{ t('education.fc.question') }}</div>
           <div style="font-size: 17px; font-weight: 600; color: var(--edu-text);">{{ current.front }}</div>
         </div>
         <div class="edu-flashcard__face edu-flashcard__back">
-          <div style="font-size: 12px; opacity: 0.7; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Ответ</div>
+          <div style="font-size: 12px; opacity: 0.7; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">{{ t('education.fc.answer') }}</div>
           <div style="font-size: 16px; line-height: 1.5;">{{ current.back }}</div>
         </div>
       </div>
@@ -86,13 +96,13 @@ function restart() {
 
     <!-- Tap hint -->
     <p v-if="!isFlipped" style="text-align: center; font-size: 13px; color: var(--edu-text-muted); margin-top: 16px;">
-      Нажмите на карточку чтобы перевернуть
+      {{ t('education.fc.tapHint') }}
     </p>
 
     <!-- Rating buttons -->
     <div v-if="isFlipped" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">
       <button
-        v-for="label in ['Ещё раз', 'Трудно', 'Хорошо', 'Легко']"
+        v-for="label in ratingLabels"
         :key="label"
         class="edu-btn edu-btn--outline"
         style="font-size: 13px; padding: 8px 16px;"

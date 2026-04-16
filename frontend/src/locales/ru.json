@@ -1272,7 +1272,87 @@
     "noCoursesYet": "Курсы пока не добавлены",
     "min": "мин",
     "hours": "ч",
-    "approx": "~"
+    "approx": "~",
+    "fc": {
+      "allDone": "Все карточки изучены!",
+      "reviewed": "{done} из {total} карточек просмотрено",
+      "restart": "Повторить",
+      "question": "Вопрос",
+      "answer": "Ответ",
+      "tapHint": "Нажмите на карточку чтобы перевернуть",
+      "again": "Ещё раз",
+      "hard": "Трудно",
+      "good": "Хорошо",
+      "easy": "Легко"
+    },
+    "quiz": {
+      "questionOf": "Вопрос {current} из {total}",
+      "correctPct": "{pct}% правильных",
+      "retryQuiz": "Пройти ещё раз",
+      "check": "Проверить",
+      "next": "Далее",
+      "results": "Результаты"
+    },
+    "test": {
+      "passed": "СДАНО",
+      "failed": "НЕ СДАНО",
+      "scoreOf": "{earned}/{total} баллов (проходной: {passing}%)",
+      "reviewAnswers": "Обзор ответов",
+      "correctAnswer": "Правильный ответ:",
+      "true": "Верно",
+      "false": "Неверно",
+      "retryTest": "Пройти заново",
+      "answeredOf": "{done}/{total} отвечено",
+      "submit": "Отправить тест ({done}/{total})"
+    },
+    "mindmap": {
+      "leafHint": "Лист — нет дочерних элементов"
+    },
+    "player": {
+      "videoError": "Не удалось загрузить видео"
+    },
+    "dash": {
+      "myProgress": "Мой прогресс",
+      "myCourses": "Мои курсы",
+      "noEnrollments": "Вы ещё не записаны на курсы",
+      "findCourses": "Найти курсы",
+      "lessonsProgress": "{done}/{total} уроков · {pct}%",
+      "recentScores": "Последние результаты",
+      "quiz": "Квиз",
+      "test": "Тест",
+      "passed": "Сдано",
+      "notPassed": "Не сдано",
+      "loadError": "Не удалось загрузить данные",
+      "justNow": "только что",
+      "minsAgo": "{n} мин назад",
+      "hrsAgo": "{n} ч назад",
+      "daysAgo": "{n} д назад"
+    },
+    "auth": {
+      "login": "Вход",
+      "register": "Регистрация",
+      "loginTitle": "Вход в систему",
+      "registerTitle": "Создать аккаунт",
+      "loginSubtitle": "Войдите для доступа к курсам",
+      "registerSubtitle": "Зарегистрируйтесь для начала обучения",
+      "wrongCredentials": "Неверный email или пароль",
+      "passwordMinLength": "Пароль должен быть не менее 6 символов",
+      "passwordsMismatch": "Пароли не совпадают",
+      "registerError": "Ошибка регистрации",
+      "password": "Пароль",
+      "loggingIn": "Вход...",
+      "loginBtn": "Войти",
+      "fullName": "Полное имя",
+      "minChars": "(мин. 6 символов)",
+      "confirmPassword": "Подтвердите пароль",
+      "registering": "Регистрация...",
+      "registerBtn": "Зарегистрироваться",
+      "noAccount": "Нет аккаунта?",
+      "registerLink": "Зарегистрироваться",
+      "hasAccount": "Уже есть аккаунт?",
+      "loginLink": "Войти"
+    },
+    "lessonsCount": "уроков"
   },
   "regionAnalytics": {
     "units": {

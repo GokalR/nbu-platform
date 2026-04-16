@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   root: { type: Object, required: true },
@@ -117,7 +120,7 @@ function edgePath(edge) {
             {{ child.label }}
           </div>
         </div>
-        <p v-else style="font-size: 13px; color: var(--edu-text-muted);">Лист — нет дочерних элементов</p>
+        <p v-else style="font-size: 13px; color: var(--edu-text-muted);">{{ t('education.mindmap.leafHint') }}</p>
       </div>
     </transition>
   </div>

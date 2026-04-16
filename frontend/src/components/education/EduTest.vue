@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   questions: { type: Array, required: true },
@@ -102,14 +105,14 @@ function restart() {
       class="edu-badge"
       :style="{ background: results.passed ? 'rgba(5,150,105,0.12)' : 'rgba(220,38,38,0.12)', color: results.passed ? 'var(--edu-success)' : 'var(--edu-error)', fontSize: '16px', padding: '10px 24px', marginBottom: '16px' }"
     >
-      {{ results.passed ? 'СДАНО' : 'НЕ СДАНО' }}
+      {{ results.passed ? t('education.test.passed') : t('education.test.failed') }}
     </div>
 
     <div style="font-size: 32px; font-weight: 700; font-family: 'Manrope', sans-serif; color: var(--edu-text);">
       {{ results.scorePercent }}%
     </div>
     <div style="font-size: 14px; color: var(--edu-text-muted); margin: 8px 0 24px;">
-      {{ results.earned }}/{{ results.total }} баллов (проходной: {{ passingScore }}%)
+      {{ t('education.test.scoreOf', { earned: results.earned, total: results.total, passing: passingScore }) }}
     </div>
 
     <!-- Score bar -->
@@ -119,7 +122,7 @@ function restart() {
 
     <!-- Question review -->
     <div style="max-width: 700px; margin: 0 auto;">
-      <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 16px;">Обзор ответов</h3>
+      <h3 style="font-size: 16px; font-weight: 600; margin: 0 0 16px;">{{ t('education.test.reviewAnswers') }}</h3>
       <div v-for="(q, idx) in questions" :key="idx" class="edu-card" style="padding: 16px; margin-bottom: 10px;">
         <div style="display: flex; gap: 12px; align-items: start;">
           <span class="material-symbols-outlined" :style="{ color: results.corrections[idx].correct ? 'var(--edu-success)' : 'var(--edu-error)', fontSize: '22px' }">
@@ -128,8 +131,8 @@ function restart() {
           <div style="flex: 1;">
             <div style="font-size: 14px; font-weight: 500; color: var(--edu-text);">{{ q.question }}</div>
             <div v-if="!results.corrections[idx].correct" style="font-size: 13px; color: var(--edu-success); margin-top: 6px;">
-              Правильный ответ:
-              <template v-if="q.type === 'true_false'">{{ q.correctAnswer ? 'Верно' : 'Неверно' }}</template>
+              {{ t('education.test.correctAnswer') }}
+              <template v-if="q.type === 'true_false'">{{ q.correctAnswer ? t('education.test.true') : t('education.test.false') }}</template>
               <template v-else>
                 {{ q.answerOptions?.find(o => o.isCorrect)?.text || '—' }}
               </template>
@@ -139,7 +142,7 @@ function restart() {
       </div>
     </div>
 
-    <button class="edu-btn edu-btn--primary" style="margin-top: 24px;" @click="restart">Пройти заново</button>
+    <button class="edu-btn edu-btn--primary" style="margin-top: 24px;" @click="restart">{{ t('education.test.retryTest') }}</button>
   </div>
 
   <!-- Test form -->
@@ -152,7 +155,7 @@ function restart() {
           {{ formatTimer(timeRemaining) }}
         </span>
         <span style="font-size: 13px; color: var(--edu-text-muted);">
-          {{ answeredCount }}/{{ totalQuestions }} отвечено
+          {{ t('education.test.answeredOf', { done: answeredCount, total: totalQuestions }) }}
         </span>
       </div>
       <div class="edu-progress-bar">
@@ -187,19 +190,19 @@ function restart() {
           class="edu-btn"
           :class="answers[idx] === true ? 'edu-btn--primary' : 'edu-btn--outline'"
           @click="selectTF(idx, true)"
-        >Верно</button>
+        >{{ t('education.test.true') }}</button>
         <button
           class="edu-btn"
           :class="answers[idx] === false ? 'edu-btn--primary' : 'edu-btn--outline'"
           @click="selectTF(idx, false)"
-        >Неверно</button>
+        >{{ t('education.test.false') }}</button>
       </div>
     </div>
 
     <!-- Submit -->
     <div style="text-align: center; padding: 24px 0;">
       <button class="edu-btn edu-btn--primary" style="padding: 12px 32px; font-size: 15px;" @click="submitTest">
-        Отправить тест ({{ answeredCount }}/{{ totalQuestions }})
+        {{ t('education.test.submit', { done: answeredCount, total: totalQuestions }) }}
       </button>
     </div>
   </div>

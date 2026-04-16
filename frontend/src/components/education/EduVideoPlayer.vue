@@ -1,5 +1,8 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   src: String,
@@ -205,7 +208,7 @@ onBeforeUnmount(() => {
     <!-- Error overlay -->
     <div v-if="hasError" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.8); color: white; gap: 12px;">
       <span class="material-symbols-outlined" style="font-size: 48px; color: var(--edu-error);">error</span>
-      <p style="font-size: 14px;">Не удалось загрузить видео</p>
+      <p style="font-size: 14px;">{{ t('education.player.videoError') }}</p>
     </div>
 
     <!-- Center play button when paused -->
