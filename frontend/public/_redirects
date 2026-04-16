@@ -1,3 +1,3 @@
-/api/*   https://RAILWAY_URL_PLACEHOLDER/api/:splat   200
-/health  https://RAILWAY_URL_PLACEHOLDER/health       200
-/*       /index.html                                  200
+/api/*   https://nbu-platform-production.up.railway.app/api/:splat   200
+/health  https://nbu-platform-production.up.railway.app/health       200
+/*       /index.html                                                  200
