@@ -857,28 +857,32 @@
       font-weight: 800;
     }
 
-    .map-marker--restaurant .map-marker__dot {
-      background: var(--accent);
-    }
-
-    .map-marker--cafe .map-marker__dot {
-      background: var(--accent-strong);
-    }
-
     .map-marker--education_center .map-marker__dot {
-      background: #193f72;
+      background: linear-gradient(135deg, #193f72, #2957a2);
+      width: 14px;
+      height: 14px;
+      box-shadow: 0 0 0 4px rgba(25, 63, 114, 0.18), 0 0 0 5px rgba(254, 254, 254, 0.92);
+    }
+
+    .map-marker--education_center {
+      border-color: rgba(25, 63, 114, 0.25);
+      font-weight: 700;
     }
 
     .map-marker--bookstore .map-marker__dot {
-      background: #2957a2;
+      background: #6366f1;
     }
 
     .map-marker--stationery_store .map-marker__dot {
-      background: #b79042;
+      background: #d7b56d;
     }
 
     .map-marker--grocery_store .map-marker__dot {
       background: #149fa8;
+    }
+
+    .map-marker--cafe .map-marker__dot {
+      background: #f59e0b;
     }
 
     .recommendation-pin {
@@ -922,14 +926,14 @@
       top: calc(100% + 10px);
       left: 50%;
       transform: translateX(-50%);
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 999px;
       background: linear-gradient(135deg, #d7b56d, #c9a85f);
       border: 1px solid rgba(215, 181, 109, 0.5);
       box-shadow: 0 10px 18px rgba(43, 42, 41, 0.12);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: #193f72;
       white-space: nowrap;
@@ -1330,11 +1334,11 @@
     };
 
     const PLACE_META = {
-      education_center: { label: "O'quv markazlari", singular: "O'quv markazi", short: "EDU" },
-      bookstore: { label: "Kitob do'konlari", singular: "Kitob do'koni", short: "BOOK" },
-      stationery_store: { label: "Kanselyariya do'konlari", singular: "Kanselyariya", short: "STAT" },
-      grocery_store: { label: "Mahsulot do'konlari", singular: "Mahsulot do'koni", short: "SHOP" },
-      cafe: { label: "Kafe / kofexonalar", singular: "Kafe", short: "CAFE" },
+      education_center: { label: "Oʻquv markazlari", singular: "Oʻquv markazi", short: "MARKAZ" },
+      bookstore: { label: "Kitob doʻkonlari", singular: "Kitob doʻkoni", short: "KITOB" },
+      stationery_store: { label: "Kanselyariya doʻkonlari", singular: "Kanselyariya", short: "KANS" },
+      grocery_store: { label: "Doʻkonlar", singular: "Doʻkon", short: "DOʻKON" },
+      cafe: { label: "Kafe va choyxonalar", singular: "Kafe", short: "KAFE" },
     };
 
     const STATUS_META = {
@@ -1376,47 +1380,41 @@
     }
 
     const FALLBACK_PLACES = [
-      { n: "Chorsu Restaurant", c: "restaurant", p: [40.3842, 71.7843], r: 4.5 },
-      { n: "Oshxona Registon", c: "restaurant", p: [40.3858, 71.7828], r: 4.3 },
-      { n: "Sharq Taronasi", c: "restaurant", p: [40.3835, 71.7867], r: 4.1 },
-      { n: "Milliy Taomlar", c: "restaurant", p: [40.3871, 71.7851], r: 4.4 },
-      { n: "Xon Saroy", c: "restaurant", p: [40.3819, 71.7819], r: 4.6 },
-      { n: "Beshqozon", c: "restaurant", p: [40.3890, 71.7889], r: 4.2 },
-      { n: "Cafe Aroma", c: "cafe", p: [40.3847, 71.7854], r: 4.7 },
-      { n: "Coffee Point", c: "cafe", p: [40.3863, 71.7840], r: 4.5 },
-      { n: "Sweet Bakery", c: "cafe", p: [40.3838, 71.7872], r: 4.3 },
-      { n: "Cappuccino House", c: "cafe", p: [40.3852, 71.7812], r: 4.4 },
-      { n: "Morning Brew", c: "cafe", p: [40.3878, 71.7835], r: 4.2 },
-      { n: "Park Restaurant", c: "restaurant", p: [40.3795, 71.7895], r: 4.3 },
-      { n: "Green Garden", c: "restaurant", p: [40.3780, 71.7870], r: 4.0 },
-      { n: "Parkovka Cafe", c: "cafe", p: [40.3802, 71.7905], r: 4.1 },
-      { n: "Ice Cream Park", c: "cafe", p: [40.3788, 71.7882], r: 4.4 },
-      { n: "Mustaqillik Grill", c: "restaurant", p: [40.3921, 71.7805], r: 4.2 },
-      { n: "Golden Kazan", c: "restaurant", p: [40.3955, 71.7812], r: 4.5 },
-      { n: "Laziz Shashlik", c: "restaurant", p: [40.3988, 71.7820], r: 4.1 },
-      { n: "Tea Garden", c: "cafe", p: [40.3935, 71.7800], r: 4.3 },
-      { n: "Urban Coffee", c: "cafe", p: [40.3970, 71.7815], r: 4.6 },
-      { n: "Osiyo Restaurant", c: "restaurant", p: [40.3720, 71.7825], r: 4.0 },
-      { n: "Do'stlik Choyxona", c: "restaurant", p: [40.3695, 71.7790], r: 3.9 },
-      { n: "Lunch Break", c: "cafe", p: [40.3710, 71.7810], r: 4.0 },
-      { n: "Edge Diner", c: "restaurant", p: [40.3810, 71.8050], r: 3.8 },
-      { n: "Family Restaurant", c: "restaurant", p: [40.4050, 71.7680], r: 4.2 },
-      { n: "Quick Bite", c: "cafe", p: [40.4020, 71.7720], r: 3.9 },
-      { n: "Roadside Choyxona", c: "restaurant", p: [40.3480, 71.7620], r: 3.7 },
-      { n: "Grand Dining", c: "restaurant", p: [40.3870, 71.7920], r: 4.7 },
-      { n: "Business Lunch", c: "restaurant", p: [40.3882, 71.7935], r: 4.3 },
-      { n: "Lobby Cafe", c: "cafe", p: [40.3875, 71.7925], r: 4.6 },
-      { n: "Espresso Bar", c: "cafe", p: [40.3890, 71.7940], r: 4.5 },
-      { n: "Kumtepa Oshxona", c: "restaurant", p: [40.4690, 71.7250], r: 4.3 },
-      { n: "Bazaar Cafe", c: "cafe", p: [40.4705, 71.7240], r: 4.0 },
-      { n: "Market Lunch", c: "cafe", p: [40.4695, 71.7260], r: 3.9 },
-      { n: "Yodgorlik Restaurant", c: "restaurant", p: [40.4712, 71.7239], r: 4.5 },
-      { n: "Ipak Yo'li", c: "restaurant", p: [40.4730, 71.7280], r: 4.4 },
-      { n: "Atlas Cafe", c: "cafe", p: [40.4725, 71.7265], r: 4.6 },
-      { n: "Silk Road Coffee", c: "cafe", p: [40.4740, 71.7250], r: 4.3 },
-      { n: "Margilan Plov", c: "restaurant", p: [40.4700, 71.7220], r: 4.7 },
-      { n: "Highway Grill", c: "restaurant", p: [40.4280, 71.7500], r: 3.8 },
-      { n: "Neighborhood Cafe", c: "cafe", p: [40.4150, 71.7800], r: 3.9 },
+      // Fergana shahar — oʻquv markazlari
+      { n: "Smart Kids Academy", c: "education_center", p: [40.3842, 71.7843], r: 4.5 },
+      { n: "Ziyo Oʻquv Markazi", c: "education_center", p: [40.3858, 71.7828], r: 4.3 },
+      { n: "English First Fergana", c: "education_center", p: [40.3835, 71.7867], r: 4.6 },
+      { n: "IT Academy Fergana", c: "education_center", p: [40.3871, 71.7851], r: 4.4 },
+      { n: "Matematika Plus", c: "education_center", p: [40.3819, 71.7819], r: 4.1 },
+      { n: "Bilim Maskani", c: "education_center", p: [40.3890, 71.7889], r: 4.2 },
+      { n: "Progress Education", c: "education_center", p: [40.3921, 71.7805], r: 4.5 },
+      { n: "Robototexnika Markazi", c: "education_center", p: [40.3955, 71.7812], r: 4.7 },
+      { n: "Al-Fargʻoniy Akademiya", c: "education_center", p: [40.3795, 71.7895], r: 4.3 },
+      { n: "Yoshlar Markazi", c: "education_center", p: [40.3870, 71.7920], r: 4.0 },
+      // Margʻilon — oʻquv markazlari
+      { n: "Margʻilon IT Hub", c: "education_center", p: [40.4690, 71.7250], r: 4.3 },
+      { n: "Ipak Yoʻli Academy", c: "education_center", p: [40.4730, 71.7280], r: 4.4 },
+      { n: "Yodgorlik Taʻlim", c: "education_center", p: [40.4712, 71.7239], r: 4.5 },
+      { n: "Atlas Study Center", c: "education_center", p: [40.4725, 71.7265], r: 4.2 },
+      // Kitob doʻkonlari
+      { n: "Kitob Olami", c: "bookstore", p: [40.3847, 71.7854], r: 4.7 },
+      { n: "Bilim Kutubxonasi", c: "bookstore", p: [40.3863, 71.7840], r: 4.5 },
+      { n: "Sharq Kitoblari", c: "bookstore", p: [40.4705, 71.7240], r: 4.0 },
+      // Kanselyariya
+      { n: "Qalam Doʻkoni", c: "stationery_store", p: [40.3838, 71.7872], r: 4.3 },
+      { n: "Maktab Mollari", c: "stationery_store", p: [40.3852, 71.7812], r: 4.4 },
+      { n: "Kanselyariya Markazi", c: "stationery_store", p: [40.4695, 71.7260], r: 3.9 },
+      // Doʻkonlar (bolalar mahsulotlari)
+      { n: "Bolalar Kiyimlari", c: "grocery_store", p: [40.3878, 71.7835], r: 4.2 },
+      { n: "Kids Market", c: "grocery_store", p: [40.3802, 71.7905], r: 4.1 },
+      { n: "Oʻyinchoqlar Doʻkoni", c: "grocery_store", p: [40.3788, 71.7882], r: 4.4 },
+      { n: "Mini Bozor", c: "grocery_store", p: [40.3935, 71.7800], r: 4.3 },
+      { n: "Mahalla Market", c: "grocery_store", p: [40.3780, 71.7870], r: 4.0 },
+      // Kafe (bolalar yaqinida)
+      { n: "Family Cafe", c: "cafe", p: [40.3970, 71.7815], r: 4.6 },
+      { n: "Park Kafe", c: "cafe", p: [40.3710, 71.7810], r: 4.0 },
+      { n: "Choyxona Margʻilon", c: "cafe", p: [40.4740, 71.7250], r: 4.3 },
+      { n: "Issiq Non Kafe", c: "cafe", p: [40.3875, 71.7925], r: 4.6 },
     ].map((place) => ({
       ...place,
       region: "fergana_region",
@@ -2536,7 +2534,7 @@
           if (pointData) {
             const hoverReasons = getRecommendationHoverReasons(recommendation, pointData);
             const recommendationMarker = new ymaps.Placemark(pointData.point, {
-              iconContent: "TAVSIYA",
+              iconContent: "OCHISH JOYI",
               stateClass: recommendation.id === activeRecommendationId ? "is-active" : "",
               balloonContent: buildRecommendationPointBalloon(recommendation, pointData),
               hintContent: pointData.address,
