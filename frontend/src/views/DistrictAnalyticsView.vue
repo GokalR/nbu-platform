@@ -859,8 +859,8 @@ const threatLevelClass = (level) => {
             <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.topMahallasTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.topMahallasSub') }}</div>
           </div>
-          <table class="da-table auto-layout">
-            <thead><tr><th style="width:8%">#</th><th style="width:42%">{{ t('district.cards.mahalla') }}</th><th style="width:25%; text-align:right">{{ t('district.cards.credits') }}</th><th style="width:25%; text-align:right">{{ t('district.cards.score') }}</th></tr></thead>
+          <table class="da-table" style="table-layout:fixed">
+            <thead><tr><th style="width:8%">#</th><th style="width:52%">{{ t('district.cards.mahalla') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.credits') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.score') }}</th></tr></thead>
             <tbody>
               <tr v-for="(m, i) in analytics.mahalla.topMahallas" :key="m.name">
                 <td class="da-mono text-slate-400 font-bold">{{ i + 1 }}</td>
@@ -1021,7 +1021,7 @@ const threatLevelClass = (level) => {
             <div class="da-card-title"><span class="dot"></span>{{ title }} <span class="text-slate-400 font-normal">{{ t('district.cards.vs') }}</span> {{ t('district.cards.regionAverage') }}</div>
             <div class="da-card-sub">{{ t('district.cards.perCapitaThousand') }}</div>
           </div>
-          <table class="da-table auto-layout">
+          <table class="da-table" style="table-layout:fixed">
             <thead><tr><th style="width:40%">{{ t('district.cards.indicator') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.district') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.mean') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.diff') }}</th></tr></thead>
             <tbody>
               <tr v-for="row in analytics.summary.comparison" :key="row.metric">
