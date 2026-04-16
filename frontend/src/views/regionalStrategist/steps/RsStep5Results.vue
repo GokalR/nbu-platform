@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRsLang } from '@/composables/useRsLang'
 import { useRegionalStrategistStore } from '@/stores/regionalStrategist'
@@ -17,10 +17,19 @@ import { matchCreditProducts, collateralLabel } from '@/data/regionalStrategist/
 import { computeScore, peerMediansFor } from '@/data/regionalStrategist/scoring'
 import { rsApi } from '@/services/rsApi'
 import { generateLocalAnalysisAsync } from '@/services/rsLocalAnalysis'
-import { onMounted } from 'vue'
 
 const emit = defineEmits(['restart'])
 const { lang } = useRsLang()
+const showMap = ref(false)
+watch(showMap, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+const onEsc = (e) => { if (e.key === 'Escape') showMap.value = false }
+if (typeof window !== 'undefined') window.addEventListener('keydown', onEsc)
+onUnmounted(() => {
+  window.removeEventListener('keydown', onEsc)
+  document.body.style.overflow = ''
+})
 
 const store = useRegionalStrategistStore()
 const { profile, finance, submissionId, uploads, analysis, analysisStatus } = storeToRefs(store)
@@ -746,6 +755,28 @@ const onDownload = () => {
       {{ lang === 'uz' ? 'Tahlil xatosi:' : 'Ошибка анализа:' }} {{ store.analysisError }}
     </div>
 
+    <!-- ═══ EDUCATION MAP CARD — clickable, opens fullscreen overlay ═══ -->
+    <button
+      v-if="isPilotCity"
+      type="button"
+      @click="showMap = true"
+      class="w-full text-left bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card hover:shadow-lg hover:border-[#149fa8]/40 transition-all duration-200 group"
+    >
+      <div class="flex items-center gap-5 px-8 py-6" style="background: linear-gradient(90deg, rgba(20,159,168,0.06), rgba(20,159,168,0.02));">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-[12px] shrink-0" style="background:rgba(20,159,168,0.12);">
+          <RsIcon name="map-pin" :size="22" style="color:#149fa8" />
+        </span>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-sans text-[18px] font-bold text-carbon group-hover:text-[#149fa8] transition-colors">{{ t.section7MapTitle }}</h3>
+          <p class="font-sans text-[13px] text-gray-500 mt-1 leading-[1.5]">{{ t.section7MapSub }}</p>
+        </div>
+        <div class="shrink-0 flex items-center gap-2 text-[13px] font-semibold" style="color:#149fa8">
+          {{ lang === 'uz' ? 'Xaritani ochish' : 'Открыть карту' }}
+          <RsIcon name="arrow-right" :size="16" class="group-hover:translate-x-1 transition-transform" />
+        </div>
+      </div>
+    </button>
+
     <!-- ═══ CITY CONTEXT — only for pilot cities (Fergana, Margilan) ═══ -->
     <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
       <div class="px-8 py-6 flex items-start justify-between gap-4"
@@ -1299,32 +1330,7 @@ const onDownload = () => {
       </div>
     </section>
 
-    <!-- ═══ SECTION 7 — Fergana Education Map ═══ -->
-    <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
-      <div
-        class="px-8 py-6"
-        style="background: rgba(20,159,168,0.06); border-bottom: 1px solid rgba(20,159,168,0.15);"
-      >
-        <div class="flex items-center gap-4">
-          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0" style="background:#149fa8">7</span>
-          <div>
-            <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section7MapTitle }}</h2>
-            <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section7MapSub }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="p-2">
-        <iframe
-          src="/maps/fergana-education/index.html"
-          class="w-full rounded-[8px] border-0"
-          style="height: 700px;"
-          loading="lazy"
-          :title="t.section7MapTitle"
-        />
-      </div>
-    </section>
-
-    <!-- ═══ SECTION 8 — CTA ═══ -->
+    <!-- ═══ SECTION 7 — CTA ═══ -->
     <section
       class="rounded-[16px] py-14 px-10 text-center"
       style="background: linear-gradient(135deg, #0F2847, #193F72);"
@@ -1357,6 +1363,46 @@ const onDownload = () => {
       </button>
     </section>
   </div>
+
+  <!-- ═══ FULLSCREEN MAP OVERLAY ═══ -->
+  <Teleport to="body">
+    <Transition name="rs-map-overlay">
+      <div
+        v-if="showMap"
+        class="fixed inset-0 z-[9999] flex flex-col"
+        style="background: #f1f2f7;"
+      >
+        <!-- Top bar -->
+        <div class="shrink-0 flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shadow-sm">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-[10px] shrink-0" style="background:rgba(20,159,168,0.12);">
+              <RsIcon name="map-pin" :size="18" style="color:#149fa8" />
+            </span>
+            <div class="min-w-0">
+              <h2 class="font-sans text-[18px] font-bold text-carbon truncate">{{ t.section7MapTitle }}</h2>
+              <p class="font-sans text-[12px] text-gray-500 truncate">{{ t.section7MapSub }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="showMap = false"
+            class="inline-flex items-center gap-2 text-[14px] font-semibold text-gray-600 hover:text-carbon bg-gray-100 hover:bg-gray-200 rounded-[10px] py-2.5 px-4 transition-colors"
+          >
+            <RsIcon name="x" :size="18" />
+            {{ lang === 'uz' ? 'Yopish' : 'Закрыть' }}
+          </button>
+        </div>
+        <!-- Map iframe fills the rest -->
+        <div class="flex-1 min-h-0">
+          <iframe
+            src="/maps/fergana-education/index.html"
+            class="w-full h-full border-0"
+            :title="t.section7MapTitle"
+          />
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style>
@@ -1383,4 +1429,10 @@ const onDownload = () => {
 .rs-step5-root .font-normal    { font-weight: 500 !important; }
 .rs-step5-root .font-medium    { font-weight: 600 !important; }
 .rs-step5-root .font-semibold  { font-weight: 700 !important; }
+
+/* Map overlay transition */
+.rs-map-overlay-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.rs-map-overlay-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.rs-map-overlay-enter-from   { opacity: 0; transform: translateY(12px) scale(0.98); }
+.rs-map-overlay-leave-to     { opacity: 0; transform: translateY(12px) scale(0.98); }
 </style>
