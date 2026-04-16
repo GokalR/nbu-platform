@@ -758,16 +758,16 @@ const onDownload = () => {
     <!-- ═══ EDUCATION MAP — preview + click to expand fullscreen ═══ -->
     <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
       <div
-        class="px-6 py-4 flex items-center justify-between gap-4"
-        style="background: linear-gradient(90deg, rgba(20,159,168,0.06), rgba(20,159,168,0.02)); border-bottom: 1px solid rgba(20,159,168,0.12);"
+        class="px-6 py-5 flex items-center justify-between gap-4"
+        style="background: linear-gradient(135deg, #149fa8 0%, #0d7a82 100%); border-bottom: none;"
       >
         <div class="flex items-center gap-3 min-w-0">
-          <span class="inline-flex items-center justify-center w-10 h-10 rounded-[10px] shrink-0" style="background:rgba(20,159,168,0.12);">
-            <RsIcon name="map-pin" :size="20" style="color:#149fa8" />
+          <span class="inline-flex items-center justify-center w-11 h-11 rounded-[12px] shrink-0" style="background:rgba(255,255,255,0.18);">
+            <RsIcon name="map-pin" :size="22" style="color:#fff" />
           </span>
           <div class="min-w-0">
-            <h3 class="font-sans text-[17px] font-bold text-carbon leading-tight">{{ t.section7MapTitle }}</h3>
-            <p class="font-sans text-[12px] text-gray-500 mt-0.5">{{ t.section7MapSub }}</p>
+            <h3 class="font-sans text-[18px] font-bold text-white leading-tight">{{ t.section7MapTitle }}</h3>
+            <p class="font-sans text-[13px] text-white/70 mt-0.5">{{ t.section7MapSub }}</p>
           </div>
         </div>
         <button
