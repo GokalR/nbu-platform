@@ -311,9 +311,9 @@ const threatLevelClass = (level) => {
               <th style="width:5%">#</th>
               <th style="width:22%">{{ t('district.table.colName') }}</th>
               <th style="width:10%">{{ t('district.table.colType') }}</th>
-              <th style="width:18%; text-align:right">{{ t('district.table.colPopulation') }}</th>
-              <th style="width:15%; text-align:right">{{ t('district.table.colArea') }}</th>
-              <th style="width:15%; text-align:right">{{ t('district.table.colDensity') }}</th>
+              <th style="width:18%; text-align:center">{{ t('district.table.colPopulation') }}</th>
+              <th style="width:15%; text-align:center">{{ t('district.table.colArea') }}</th>
+              <th style="width:15%; text-align:center">{{ t('district.table.colDensity') }}</th>
               <th style="width:15%"></th>
             </tr>
           </thead>
@@ -332,10 +332,10 @@ const threatLevelClass = (level) => {
                   {{ t(`district.kind.${d.kind}`) }}
                 </span>
               </td>
-              <td class="text-right da-mono font-bold">{{ d.population.toFixed(1) }} {{ t('district.units.thousand') }}</td>
-              <td class="text-right da-mono">{{ d.area.toLocaleString('ru-RU') }} {{ t('district.units.kmSq') }}</td>
-              <td class="text-right da-mono text-slate-500">{{ Math.round((d.population * 1000) / d.area).toLocaleString('ru-RU') }}{{ t('district.units.perKmSq') }}</td>
-              <td class="text-right">
+              <td style="text-align:center" class="da-mono font-bold">{{ d.population.toFixed(1) }} {{ t('district.units.thousand') }}</td>
+              <td style="text-align:center" class="da-mono">{{ d.area.toLocaleString('ru-RU') }} {{ t('district.units.kmSq') }}</td>
+              <td style="text-align:center" class="da-mono text-slate-500">{{ Math.round((d.population * 1000) / d.area).toLocaleString('ru-RU') }}{{ t('district.units.perKmSq') }}</td>
+              <td style="text-align:center">
                 <span class="text-primary font-bold text-xs hover:underline">{{ t('district.viewDetails') }} →</span>
               </td>
             </tr>
@@ -860,13 +860,13 @@ const threatLevelClass = (level) => {
             <div class="da-card-sub">{{ t('district.cards.topMahallasSub') }}</div>
           </div>
           <table class="da-table" style="table-layout:fixed">
-            <thead><tr><th style="width:8%">#</th><th style="width:52%">{{ t('district.cards.mahalla') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.credits') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.score') }}</th></tr></thead>
+            <thead><tr><th style="width:8%">#</th><th style="width:52%">{{ t('district.cards.mahalla') }}</th><th style="width:20%; text-align:center">{{ t('district.cards.credits') }}</th><th style="width:20%; text-align:center">{{ t('district.cards.score') }}</th></tr></thead>
             <tbody>
               <tr v-for="(m, i) in analytics.mahalla.topMahallas" :key="m.name">
                 <td class="da-mono text-slate-400 font-bold">{{ i + 1 }}</td>
                 <td class="font-bold text-base">{{ m.name }}</td>
-                <td class="text-right da-mono font-bold text-base">{{ m.loans }}</td>
-                <td class="text-right">
+                <td style="text-align:center" class="da-mono font-bold text-base">{{ m.loans }}</td>
+                <td style="text-align:center">
                   <span class="da-chip" :class="m.score >= 8.5 ? 'tone-green' : m.score >= 8 ? 'tone-blue' : 'tone-amber'">★ {{ m.score }}</span>
                 </td>
               </tr>
@@ -1022,13 +1022,13 @@ const threatLevelClass = (level) => {
             <div class="da-card-sub">{{ t('district.cards.perCapitaThousand') }}</div>
           </div>
           <table class="da-table" style="table-layout:fixed">
-            <thead><tr><th style="width:40%">{{ t('district.cards.indicator') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.district') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.mean') }}</th><th style="width:20%; text-align:right">{{ t('district.cards.diff') }}</th></tr></thead>
+            <thead><tr><th style="width:40%">{{ t('district.cards.indicator') }}</th><th style="width:20%; text-align:center">{{ t('district.cards.district') }}</th><th style="width:20%; text-align:center">{{ t('district.cards.mean') }}</th><th style="width:20%; text-align:center">{{ t('district.cards.diff') }}</th></tr></thead>
             <tbody>
               <tr v-for="row in analytics.summary.comparison" :key="row.metric">
                 <td class="font-semibold">{{ row.metric }}</td>
-                <td class="text-right da-mono font-bold text-base text-primary">{{ row.region.toLocaleString('ru-RU') }}</td>
-                <td class="text-right da-mono text-cyan-700">{{ row.provincial.toLocaleString('ru-RU') }}</td>
-                <td class="text-right">
+                <td style="text-align:center" class="da-mono font-bold text-base text-primary">{{ row.region.toLocaleString('ru-RU') }}</td>
+                <td style="text-align:center" class="da-mono text-cyan-700">{{ row.provincial.toLocaleString('ru-RU') }}</td>
+                <td style="text-align:center">
                   <span class="da-chip" :class="row.region >= row.provincial ? 'tone-green' : 'tone-red'">
                     {{ row.region >= row.provincial ? '▲' : '▼' }}
                     {{ Math.abs(Math.round(((row.region - row.provincial) / Math.max(1, row.provincial)) * 100)) }}%
