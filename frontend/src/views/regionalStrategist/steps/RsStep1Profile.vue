@@ -53,10 +53,10 @@ const loadErkinDemo = () => {
         type="button"
         @click="loadErkinDemo"
         class="shrink-0 inline-flex items-center gap-2 text-[12px] font-semibold text-navy-900 border border-gold-500/40 bg-gold-500/[0.06] hover:bg-gold-500/[0.14] rounded-[8px] py-2 px-3 transition-colors duration-200"
-        :title="lang === 'uz' ? 'ERKIN PARVOZ maʻlumotlarini yuklash (demo)' : 'Загрузить демо-ответы (ERKIN PARVOZ, Фергана)'"
+        :title="lang === 'uz' ? 'ERKIN PARVOZ maʻlumotlarini yuklash (namuna)' : 'Загрузить шаблон (ERKIN PARVOZ, Фергана)'"
       >
         <RsIcon name="sparkles" :size="14" class="text-gold-500" />
-        {{ lang === 'uz' ? 'Demo: ERKIN PARVOZ' : 'Демо: ERKIN PARVOZ' }}
+        {{ lang === 'uz' ? 'Namuna: ERKIN PARVOZ' : 'Шаблон: ERKIN PARVOZ' }}
       </button>
     </div>
 

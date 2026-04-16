@@ -762,7 +762,9 @@ const onDownload = () => {
         style="background: linear-gradient(90deg, rgba(20,159,168,0.06), rgba(20,159,168,0.02)); border-bottom: 1px solid rgba(20,159,168,0.12);"
       >
         <div class="flex items-center gap-3 min-w-0">
-          <img src="/nbu_logo.png" alt="NBU" class="h-9 w-auto shrink-0" />
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-[10px] shrink-0" style="background:rgba(20,159,168,0.12);">
+            <RsIcon name="map-pin" :size="20" style="color:#149fa8" />
+          </span>
           <div class="min-w-0">
             <h3 class="font-sans text-[17px] font-bold text-carbon leading-tight">{{ t.section7MapTitle }}</h3>
             <p class="font-sans text-[12px] text-gray-500 mt-0.5">{{ t.section7MapSub }}</p>
@@ -778,12 +780,12 @@ const onDownload = () => {
           {{ lang === 'uz' ? 'Toʻliq ekranda ochish' : 'Открыть на весь экран' }}
         </button>
       </div>
-      <!-- Inline map preview — shows the Yandex map, click opens fullscreen -->
-      <div class="relative cursor-pointer group" @click="showMap = true">
+      <!-- Inline map preview — scrolled to show actual map, not the header -->
+      <div class="relative cursor-pointer group overflow-hidden" style="height: 480px;" @click="showMap = true">
         <iframe
           src="/maps/fergana-education/index.html"
-          class="w-full border-0 pointer-events-none"
-          style="height: 520px;"
+          class="w-full border-0 pointer-events-none absolute left-0"
+          style="height: 900px; top: -220px;"
           loading="lazy"
           tabindex="-1"
           :title="t.section7MapTitle"
@@ -1398,7 +1400,9 @@ const onDownload = () => {
         <!-- Top bar -->
         <div class="shrink-0 flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shadow-sm">
           <div class="flex items-center gap-3 min-w-0">
-            <img src="/nbu_logo.png" alt="NBU" class="h-9 w-auto shrink-0" />
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-[10px] shrink-0" style="background:rgba(20,159,168,0.12);">
+              <RsIcon name="map-pin" :size="18" style="color:#149fa8" />
+            </span>
             <div class="min-w-0">
               <h2 class="font-sans text-[18px] font-bold text-carbon truncate">{{ t.section7MapTitle }}</h2>
               <p class="font-sans text-[12px] text-gray-500 truncate">{{ t.section7MapSub }}</p>
