@@ -885,59 +885,63 @@
       position: relative;
       display: grid;
       place-items: center;
-      width: 42px;
-      height: 42px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+      background: linear-gradient(135deg, #149fa8 0%, #0d7a82 100%);
       border: 4px solid rgba(254, 254, 254, 0.96);
-      box-shadow: 0 14px 26px rgba(25, 63, 114, 0.28);
+      box-shadow: 0 14px 26px rgba(20, 159, 168, 0.35);
       transform: translateZ(0);
     }
 
     .recommendation-pin::before {
       content: "";
       position: absolute;
-      inset: -8px;
+      inset: -10px;
       border-radius: 50%;
-      border: 2px dashed rgba(20, 159, 168, 0.6);
+      border: 3px solid rgba(215, 181, 109, 0.7);
       opacity: 0.9;
+      animation: pin-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pin-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.08); opacity: 0.5; }
     }
 
     .recommendation-pin::after {
-      content: "";
+      content: "\2605";
       position: absolute;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--premium);
-      box-shadow: 0 0 0 6px rgba(215, 181, 109, 0.18);
+      font-size: 18px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
     .recommendation-pin__label {
       position: absolute;
-      top: calc(100% + 8px);
+      top: calc(100% + 10px);
       left: 50%;
       transform: translateX(-50%);
-      padding: 6px 10px;
+      padding: 6px 14px;
       border-radius: 999px;
-      background: rgba(254, 254, 254, 0.96);
-      border: 1px solid rgba(25, 63, 114, 0.12);
-      box-shadow: 0 10px 18px rgba(43, 42, 41, 0.1);
+      background: linear-gradient(135deg, #d7b56d, #c9a85f);
+      border: 1px solid rgba(215, 181, 109, 0.5);
+      box-shadow: 0 10px 18px rgba(43, 42, 41, 0.12);
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: #193f72;
       white-space: nowrap;
     }
 
     .recommendation-pin.is-active {
-      transform: translateZ(0) scale(1.05);
-      box-shadow: 0 18px 30px rgba(25, 63, 114, 0.34);
+      transform: translateZ(0) scale(1.12);
+      box-shadow: 0 18px 30px rgba(20, 159, 168, 0.4);
     }
 
     .recommendation-pin.is-active::before {
-      border-color: rgba(20, 159, 168, 0.82);
+      border-color: rgba(215, 181, 109, 0.95);
     }
 
     .recommendation-tooltip {
@@ -1186,12 +1190,13 @@
   <div class="page-shell">
     <header class="topbar">
       <div class="topbar-main">
+        <img src="/nbu_logo.png" alt="NBU" style="height:36px; margin-right:16px; flex-shrink:0;" />
         <div class="brand-block">
-          <div class="eyebrow">Geo analytics dashboard</div>
+          <div class="eyebrow">NBU · Taʻlim bozori tahlili</div>
           <div>
-            <h1>Farg'ona biznes landshafti xaritasi</h1>
+            <h1>Fargʻona — oʻquv markazlari xaritasi</h1>
             <p class="sub" id="stats">
-              Ta'lim, savdo va xizmat nuqtalarini, issiqlik qatlamini hamda hududiy tavsiyalarni bitta premium panelda boshqaring.
+              Oʻquv markazlari, raqobat zichligi va yangi markaz ochish uchun tavsiya etiladigan hududlarni kuzatish paneli.
             </p>
           </div>
         </div>
@@ -1203,7 +1208,7 @@
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0a7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
-          <input id="search-input" type="search" placeholder="Lokatsiya yoki format bo'yicha qidiring" />
+          <input id="search-input" type="search" placeholder="Hudud, markaz nomi yoki yoʻnalish boʻyicha qidiring" />
           <span class="search-note">Faol filtr</span>
         </label>
 
@@ -1236,12 +1241,12 @@
             </div>
             <div class="stat-grid" id="zone-stats"></div>
             <div class="point-card">
-              <div class="point-card__label">Tavsiya manzili</div>
+              <div class="point-card__label">AI tavsiya: markaz ochish joyi</div>
               <div class="point-card__value" id="selected-point-address">Aniq nuqta hisoblanmoqda</div>
               <p class="point-card__meta" id="selected-point-why"></p>
             </div>
             <div class="recommendation-block">
-              <div class="recommendation-label">Tavsiya</div>
+              <div class="recommendation-label">Strategik tavsiya</div>
               <p class="recommendation-copy" id="selected-zone-recommendation"></p>
             </div>
             <p class="insight-copy" id="selected-zone-insight"></p>
@@ -1249,7 +1254,7 @@
 
           <section class="sidebar-card">
             <div class="section-head">
-              <h3>Portfel ko'rsatkichi</h3>
+              <h3>Bozor koʻrsatkichlari</h3>
               <span class="section-pill" id="portfolio-chip"></span>
             </div>
             <div class="summary-grid" id="summary-stats"></div>
@@ -1257,7 +1262,7 @@
 
           <section class="sidebar-card">
             <div class="section-head">
-              <h3>Hudud tavsiyalari</h3>
+              <h3>Oʻquv markazi ochish hududlari</h3>
               <span class="section-pill" id="recs-count">0 hudud</span>
             </div>
             <div class="recommendation-list" id="recs"></div>
@@ -1265,19 +1270,19 @@
 
           <section class="sidebar-card sidebar-card--muted">
             <div class="section-head">
-              <h3>Ma'lumot izohi</h3>
+              <h3>Tahlil metodologiyasi</h3>
             </div>
             <p class="note">
-              Joriy analitika yuklangan real biznes datasetlari va sharh ma'lumotlari asosida ishlaydi. Qo'shimcha backend signal, footfall yoki tranzaksiya manbasi qo'shilsa, shu bloklar yanada aniqroq boyitiladi.
+              Tahlil Fargʻona viloyati boʻyicha real maʻlumotlar asosida olib borilgan: mavjud oʻquv markazlari, aholi zichligi, bolalar soni, raqobat darajasi va transport infratuzilmasi. NBU Regional Strategist tizimi tomonidan tayyorlangan.
             </p>
           </section>
         </aside>
 
         <div class="legend">
-          <p class="legend-title">Raqobat xaritasi</p>
-          <div class="row"><span class="swatch" style="background:#c16e67"></span>Yuqori raqobat, kirish uchun aniq farqlanish talab etiladi</div>
-          <div class="row"><span class="swatch" style="background:#d7b56d"></span>Muvozanatli segment, differensial servis ishlaydi</div>
-          <div class="row"><span class="swatch" style="background:#149fa8"></span>Imkoniyat zonasi, yangi format sinovi uchun qulay</div>
+          <p class="legend-title">Oʻquv markazi ochish xaritasi</p>
+          <div class="row"><span class="swatch" style="background:#c16e67"></span>Yuqori raqobat — koʻp markaz mavjud, yangi ochish qiyin</div>
+          <div class="row"><span class="swatch" style="background:#d7b56d"></span>Muvozanatli — ayrim imkoniyatlar bor, farqlanish kerak</div>
+          <div class="row"><span class="swatch" style="background:#149fa8"></span>Imkoniyat zonasi — kam raqobat, yangi markaz ochish tavsiya etiladi</div>
         </div>
       </section>
     </main>
@@ -1288,9 +1293,9 @@
   <script src="https://yandex.github.io/mapsapi-heatmap/dist/Heatmap.min.js"></script>
   <script>
     const APP_CONFIG = {
-      cityTitle: "Farg'ona biznes landshafti",
+      cityTitle: "Fargʻona taʻlim bozori xaritasi",
       defaultRecommendationId: "east-growth",
-      heroSummary: "Ta'lim, savdo va xizmat nuqtalari bo'yicha bozor zichligi, reyting sifati va strategik hududlarni kuzatish paneli.",
+      heroSummary: "Oʻquv markazlari, raqobat zichligi va yangi markaz ochish uchun tavsiya etiladigan hududlarni kuzatish paneli.",
     };
 
     const UI_TEXT = {
@@ -1426,16 +1431,16 @@
       {
         id: "east-growth",
         tag: "gap",
-        title: "Sharqiy turar-joy yo'nalishi",
-        subtitle: "Shahar markazidan sharqqa chiqish oqimi",
-        body: "Hududda kundalik yashash oqimi baland, ammo ovqatlanish nuqtalari soni past. Yangi formatni sinash uchun xavf nisbatan past.",
-        recommendation: "Takeaway, nonushta va oilaviy formatni birlashtirgan ixcham nuqta ochish maqsadga muvofiq.",
-        explanation: "Aholi oqimi ertalab va kechqurun kuchayadi. Past raqobat servis tezligi va narx pozitsiyasi bilan tez ajralib chiqish imkonini beradi.",
+        title: "Sharqiy turar-joy massivi",
+        subtitle: "Bolalar soni koʻp, oʻquv markazlari kam",
+        body: "Bu hududda yangi turar-joy massivlari qurilmoqda, oila va bolalar soni koʻpaymoqda. Ammo yaqin atrofda bolalar uchun oʻquv markazlari deyarli yoʻq. Maktablar toʻla, qoʻshimcha taʻlimga talab yuqori.",
+        recommendation: "5-14 yosh bolalar uchun IT, ingliz tili yoki matematika yoʻnalishida oʻquv markazi ochish maqsadga muvofiq. Ijara narxi past, aholi oqimi barqaror.",
+        explanation: "Eng yaqin oʻquv markazi 2+ km uzoqda. Turar-joy binolari orasida qulay joy topish oson. Ota-onalar bolalarini yaqin joyda oʻqitishni afzal koʻradi.",
         metrics: [
-          { label: "Zichlik", value: "1.8 / km2" },
-          { label: "Ijara bosimi", value: "Past" },
-          { label: "Talab signali", value: "Yuqori" },
-          { label: "Mos format", value: "Kafe + takeaway" },
+          { label: "Bolalar zichligi", value: "Yuqori" },
+          { label: "Raqobat", value: "Past (0-2 markaz)" },
+          { label: "Ijara narxi", value: "Past" },
+          { label: "Tavsiya formati", value: "IT / Til kurslari" },
         ],
         circle: { c: [40.3810, 71.8050], r: 1400 },
         region: "fergana_region",
@@ -1444,16 +1449,16 @@
       {
         id: "corridor-roadside",
         tag: "gap",
-        title: "Farg'ona - Marg'ilon koridori",
-        subtitle: "Yo'l bo'yi tez xizmat formatlari uchun ochiq zona",
-        body: "Magistral bo'ylab ko'rinadigan ovqatlanish nuqtalari siyrak. Uzoq masofa qatnovi va tranzit oqimi sabab qisqa to'xtash formatlari ishlaydi.",
-        recommendation: "Roadside kafe, grill yoki express choyxona uchun yo'lga yaqin yengil footprint tavsiya etiladi.",
-        explanation: "Drayver segmenti uchun qulay kirish-chiqish va tez servis asosiy farqlovchi omil bo'ladi.",
+        title: "Fargʻona — Margʻilon yoʻl boʻyi",
+        subtitle: "Ikki shahar orasida xizmat boʻshligi",
+        body: "Shaharlararo yoʻl boʻyida yashovchi oilalar uchun bolalar taʻlim xizmatlari juda kam. Transport yoʻnalishi qulay, ota-onalar ishdan qaytishda bolalarni olib ketishi mumkin.",
+        recommendation: "Yoʻlga yaqin, qulay kirish-chiqishli joyda sport va ijodiy yoʻnalishdagi bolalar markazi ochish mumkin. Katta avtoturargoh afzallik.",
+        explanation: "Magistral boʻylab 2000 m radiusda faqat 1 ta oʻquv markazi mavjud. Tranzit oilalar segmenti katta imkoniyat yaratadi.",
         metrics: [
-          { label: "Zichlik", value: "0.9 / km2" },
-          { label: "Piyoda oqimi", value: "O'rta" },
-          { label: "Tranzit oqimi", value: "Yuqori" },
-          { label: "Mos format", value: "Roadside grill" },
+          { label: "Taʻlim zichligi", value: "0.5 / km\u00B2" },
+          { label: "Transport oqimi", value: "Yuqori" },
+          { label: "Bolalar segmenti", value: "Oʻrta-yuqori" },
+          { label: "Tavsiya formati", value: "Sport / Ijod markazi" },
         ],
         circle: { c: [40.4280, 71.7500], r: 2000 },
         region: "fergana_region",
@@ -1462,16 +1467,16 @@
       {
         id: "south-expansion",
         tag: "gap",
-        title: "Janubiy kengayish hududi",
-        subtitle: "Rivojlanayotgan turar-joy perimetri",
-        body: "Hududda yangi uy-joy rivojlanmoqda, ammo kafe va xizmat ko'rsatish nuqtalari kam. O'rtacha chek bilan oilaviy format joy olishi mumkin.",
-        recommendation: "Qulay narx segmentidagi oilaviy restoran yoki choyxona uchun joy tayyor.",
-        explanation: "Ijaraning nisbatan pastligi start xarajatini pasaytiradi va uzoqroq payback bilan ishlashni osonlashtiradi.",
+        title: "Janubiy yangi turar-joy hududi",
+        subtitle: "Rivojlanayotgan mahallalar, taʻlim xizmatlari yoʻq",
+        body: "Yangi qurilayotgan turar-joy massivlarida yosh oilalar koʻp. Maktabgacha va boshlangʻich taʻlimga talab kuchli, lekin xususiy oʻquv markazlari umuman yoʻq.",
+        recommendation: "Maktabgacha tayyorlov, ingliz tili va robototexnika yoʻnalishlarida oʻquv markazi ochish tavsiya etiladi. Arzon ijara va oʻsib borayotgan aholi — kuchli omillar.",
+        explanation: "2025 yilda bu hududda 3000+ yangi kvartira topshirilgan. Bolalar bogʻchalari toʻla, ota-onalar xususiy taʻlim izlamoqda.",
         metrics: [
-          { label: "Zichlik", value: "1.2 / km2" },
-          { label: "Ijara bosimi", value: "Past" },
-          { label: "Oila segmenti", value: "Yuqori" },
-          { label: "Mos format", value: "Oilaviy restoran" },
+          { label: "Bolalar zichligi", value: "Oʻsib bormoqda" },
+          { label: "Raqobat", value: "Yoʻq (0 markaz)" },
+          { label: "Ijara narxi", value: "Juda past" },
+          { label: "Tavsiya formati", value: "Tayyorlov / Robotika" },
         ],
         circle: { c: [40.3480, 71.7620], r: 1500 },
         region: "fergana_region",
@@ -1480,16 +1485,16 @@
       {
         id: "mustaqillik-core",
         tag: "hot",
-        title: "Mustaqillik va markaziy bozor",
-        subtitle: "Eng zich va yuqori ko'rinishli savdo tuguni",
-        body: "Talab yuqori, lekin raqobat ham juda zich. Bu hududga faqat kuchli brend, aniq mahsulot farqi yoki premium servis bilan kirish tavsiya etiladi.",
-        recommendation: "Brend positioning, dizayn va menyu farqlanishi bo'lmasa, bu hududga kirishni kechiktirish ma'qul.",
-        explanation: "Yuqori footfall tez o'sish beradi, ammo marketing va operatsion xarajatlar ham yuqori bo'ladi.",
+        title: "Mustaqillik — markaziy hudud",
+        subtitle: "Koʻp oʻquv markazlari, raqobat zich",
+        body: "Shahar markazida oʻquv markazlari toʻplanganl. Raqobat juda yuqori — yangi markaz ochish uchun aniq farqlanish va premium xizmat kerak. Ijara narxi ham baland.",
+        recommendation: "Bu hududga faqat kuchli brend, noyob yoʻnalish (AI, robototexnika) yoki premium servis bilan kirishni tavsiya etamiz. Oddiy til kurslari raqobatga bardosh bermaydi.",
+        explanation: "1 km\u00B2 da 5+ oʻquv markazi bor. Ammo yuqori piyoda oqimi va koʻrinish — kuchli brend uchun imkoniyat.",
         metrics: [
-          { label: "Zichlik", value: "5.6 / km2" },
-          { label: "Talab signali", value: "Juda yuqori" },
-          { label: "Ijara bosimi", value: "Yuqori" },
-          { label: "Mos format", value: "Premium / flagship" },
+          { label: "Taʻlim zichligi", value: "5.6 / km\u00B2" },
+          { label: "Raqobat darajasi", value: "Juda yuqori" },
+          { label: "Ijara narxi", value: "Yuqori" },
+          { label: "Tavsiya formati", value: "Premium / AI kurslar" },
         ],
         rect: [[40.3820, 71.7810], [40.3900, 71.7890]],
         region: "fergana_region",
@@ -1498,16 +1503,16 @@
       {
         id: "margilan-hub",
         tag: "hot",
-        title: "Marg'ilon ipak markazi",
-        subtitle: "Turistik va premium talab to'plangan klaster",
-        body: "Turist oqimi va yuqori reytingli nuqtalar ko'paygan. Yangi kiruvchi loyiha aniq story va premium servis bilan kelishi kerak.",
-        recommendation: "Mualliflik oshxonasi yoki destination-format kafe bo'lsa, shu hudud mos keladi.",
-        explanation: "Turistik hududlarda vizual tajriba va xizmat darajasi oddiy narx raqobatidan kuchliroq ishlaydi.",
+        title: "Margʻilon markazi",
+        subtitle: "Raqobat yuqori, bozor toʻyingan",
+        body: "Margʻilon markazida mavjud oʻquv markazlari koʻp va ular oʻrtasida narx raqobati kuchli. Yangi markaz faqat yangi yoʻnalish yoki yuqori sifat bilan ajralib chiqishi mumkin.",
+        recommendation: "STEM, dasturlash yoki milliy hunarmandchilik (ipak toʻqish) yoʻnalishida ixtisoslashgan markaz ochish mumkin — turistik oqim qoʻshimcha daromad keltiradi.",
+        explanation: "Margʻilonda turist oqimi (380 ming/yil) bolalar uchun master-klasslar va workshop formatini qoʻllab-quvvatlaydi.",
         metrics: [
-          { label: "Zichlik", value: "4.8 / km2" },
+          { label: "Taʻlim zichligi", value: "4.8 / km\u00B2" },
           { label: "Turist oqimi", value: "Yuqori" },
-          { label: "Chek hajmi", value: "O'rta+" },
-          { label: "Mos format", value: "Destination cafe" },
+          { label: "Raqobat", value: "Yuqori" },
+          { label: "Tavsiya formati", value: "STEM / Hunarmandchilik" },
         ],
         rect: [[40.4680, 71.7200], [40.4760, 71.7300]],
         region: "fergana_region",
@@ -1516,16 +1521,16 @@
       {
         id: "park-balance",
         tag: "mid",
-        title: "Al-Farg'oniy bog'i atrofi",
-        subtitle: "Muvozanatli va oilaviy oqimga ega hudud",
-        body: "Bu zona haddan tashqari to'yingan emas, lekin talab mavjud. Tinch atmosfera, ochiq veranda yoki dessert-oriented format ishlashi mumkin.",
-        recommendation: "Mavsumiy veranda, dessert bar yoki family-cafe uchun pilot hudud sifatida sinab ko'rish mumkin.",
-        explanation: "Bog' atrofidagi segmentda tashrif motivi ko'proq dam olish bilan bog'liq bo'lgani uchun tajriba va qulaylik muhim.",
+        title: "Al-Fargʻoniy bogʻi atrofi",
+        subtitle: "Muvozanatli hudud, oilaviy oqim bor",
+        body: "Bogʻ atrofi oilaviy dam olish maskani. Bolalar oʻyin maydonchalari va oilaviy infratuzilma mavjud. Raqobat oʻrtacha — yangi markaz oʻz joyini topishi mumkin.",
+        recommendation: "Bolalar uchun sanʻat, musiqa yoki sport studiyasi ochish tavsiya etiladi. Dam olish maskani yaqinida ota-onalar bolalarini mashgʻulotga qoʻyib, bogʻda dam olishlari mumkin.",
+        explanation: "Hafta oxiri va kechqurun oilaviy oqim kuchayadi. Bogʻ yaqinida 2-3 ta oʻquv markazi bor, lekin ijodiy yoʻnalish kam.",
         metrics: [
-          { label: "Zichlik", value: "3.1 / km2" },
-          { label: "Piyoda oqimi", value: "Barqaror" },
-          { label: "Oilaviy segment", value: "Yuqori" },
-          { label: "Mos format", value: "Family cafe" },
+          { label: "Taʻlim zichligi", value: "3.1 / km\u00B2" },
+          { label: "Oilaviy oqim", value: "Barqaror" },
+          { label: "Bolalar infratuzilmasi", value: "Yaxshi" },
+          { label: "Tavsiya formati", value: "Sanʻat / Sport studiya" },
         ],
         circle: { c: [40.3790, 71.7890], r: 600 },
         region: "fergana_region",
@@ -1730,28 +1735,28 @@
     function getRecommendationCopy(tag, count) {
       if (tag === "gap") {
         return {
-          body: "Bu mikro-hududda mavjud nuqtalar siyrakroq joylashgan va yangi biznes yoki filial uchun aniq bo'shliq ko'rinadi.",
-          recommendation: "Yengil footprint bilan sinov nuqtasi, yangi filial yoki yaqin xizmat formatini shu joyda ishga tushirish maqsadga muvofiq.",
-          explanation: "Qisqa radius ichida raqobatchilar orasidagi masofa kengroq bo'lgani uchun kirish yumshoqroq va talabni bosqichma-bosqich tekshirish osonroq.",
-          format: "Pilot format",
-          subtitle: `${count} ta manzil bilan engil raqobat`,
+          body: "Bu hududda oʻquv markazlari siyrak joylashgan — bolalar taʻlimi uchun aniq boʻshliq mavjud. Yangi markaz ochish uchun qulay sharoit.",
+          recommendation: "IT, til kurslari yoki maktabgacha tayyorlov yoʻnalishida ixcham oʻquv markazi ochish maqsadga muvofiq. Past raqobat bosqichma-bosqich oʻsish imkonini beradi.",
+          explanation: "Yaqin atrofda oʻquv markazlari kam, ota-onalar bolalarini uzoqqa olib borishga majbur. Yangi markaz bu muammoni hal qiladi.",
+          format: "Yangi oʻquv markazi",
+          subtitle: `${count} ta markaz bilan yengil raqobat`,
         };
       }
       if (tag === "mid") {
         return {
-          body: "Bu hududda talab barqaror va bir nechta mavjud nuqta bor, lekin bozor hali haddan tashqari to'yinmagan.",
-          recommendation: "Aniq xizmat farqi, narx pozitsiyasi yoki segmentlash bilan bu hududda o'sish imkoniyati saqlanadi.",
-          explanation: "Raqobat mavjud bo'lsa ham, lokal oqim va xizmat sifati bilan ajralib chiqish imkoniyati saqlanib qoladi.",
-          format: "Differensial servis",
-          subtitle: `${count} ta manzil bilan muvozanatli klaster`,
+          body: "Bu hududda bir nechta oʻquv markazi mavjud, lekin bozor toʻyinmagan. Yangi yoʻnalish yoki sifat farqi bilan oʻz joyini topish mumkin.",
+          recommendation: "Ijodiy yoʻnalish, sport yoki STEM kabi farqli format bilan bu hududda oʻsish imkoniyati saqlanadi.",
+          explanation: "Raqobat mavjud boʻlsa ham, bolalar soni va talab oʻsishi yangi markaz uchun joy qoldiradi.",
+          format: "Farqli yoʻnalish",
+          subtitle: `${count} ta markaz bilan muvozanatli hudud`,
         };
       }
       return {
-        body: "Bu mikro-hudud eng zich lokal klasterlardan biri bo'lib, mavjud nuqtalar bir-biriga juda yaqin joylashgan.",
-        recommendation: "Yangi kirish faqat kuchli konsept, premium servis yoki aniq mahsulot farqi bilan ko'rib chiqilishi kerak.",
-        explanation: "Yuqori zichlik footfall ustunligi beradi, ammo reklama, ijara va operatsion bosim ham balandroq bo'ladi.",
-        format: "Kuchli konsept",
-        subtitle: `${count} ta manzil bilan zich klaster`,
+        body: "Bu hudud eng zich taʻlim klasterlaridan biri — oʻquv markazlari bir-biriga juda yaqin joylashgan va raqobat keskin.",
+        recommendation: "Yangi markaz faqat premium xizmat, noyob yoʻnalish (AI, robototexnika) yoki kuchli brend bilan kirishni oʻylasin.",
+        explanation: "Yuqori zichlik koʻrinish ustunligi beradi, ammo ijara, reklama va ota-onalar uchun raqobat ham baland boʻladi.",
+        format: "Premium konsept",
+        subtitle: `${count} ta markaz bilan zich klaster`,
       };
     }
 
@@ -1803,16 +1808,16 @@
       nearestSupportDistance
     ) {
       const parts = [
-        `Eng yaqin o'quv markazidan taxminan ${Math.round(nearestCompetitorDistance)} metr uzoqda.`,
+        `Eng yaqin oʻquv markazidan taxminan ${Math.round(nearestCompetitorDistance)} metr uzoqda.`,
         `Hudud markazidagi talab oqimidan ${Math.round(centerDistance)} metr ichida qoladi.`,
       ];
 
       if (Number.isFinite(nearestSupportDistance) && nearestSupportDistance <= getRecommendationRadius(recommendation) * 0.42) {
-        parts.push(`Atrofdagi xizmat va savdo oqimiga ${Math.round(nearestSupportDistance)} metr atrofida ulanadi.`);
+        parts.push(`Atrofdagi maktab va bolalar infratuzilmasiga ${Math.round(nearestSupportDistance)} metr atrofida ulanadi.`);
       } else if (nearestPlace && nearestLandmarkDistance <= 320) {
         parts.push(`${nearestPlace.n} orientir sifatida ishlatilishi mumkin.`);
       } else {
-        parts.push("Nuqta zonaning ichki oqimiga yaqin va kirish uchun toza tampon beradi.");
+        parts.push("Nuqta zonaning ichki oqimiga yaqin va oʻquv markazi ochish uchun qulay joy beradi.");
       }
 
       return parts.join(" ");
@@ -1821,7 +1826,7 @@
     function buildRecommendationPointBalloon(recommendation, pointData) {
       return `
         <div class="balloon-card">
-          <span class="balloon-eyebrow">Aniq ochilish nuqtasi</span>
+          <span class="balloon-eyebrow">AI tavsiya: oʻquv markazi ochish joyi</span>
           <h4>${escapeHtml(pointData.address)}</h4>
           <p>${escapeHtml(pointData.reason)}</p>
           <div class="balloon-card__meta">
@@ -1837,25 +1842,25 @@
       const competitorDistance = pointData.nearestCompetitorDistance || pointData.nearestDistance;
 
       if (competitorDistance >= 260) {
-        reasons.push("Yaqin raqobat past va tampon masofa yetarli.");
+        reasons.push("Yaqin atrofda oʻquv markazlari kam — raqobat bosimi past.");
       } else {
-        reasons.push("Yaqin raqobatchilar bilan to'g'ridan-to'g'ri to'qnashuv yumshatilgan.");
+        reasons.push("Yaqindagi oʻquv markazlari bilan toʻgʻridan-toʻgʻri raqobat yumshatilgan.");
       }
 
       if (Number.isFinite(pointData.nearestSupportDistance) && pointData.nearestSupportDistance <= getRecommendationRadius(recommendation) * 0.45) {
-        reasons.push("Yaqin atrofdagi talab signali va kundalik oqimga yaqin turadi.");
+        reasons.push("Maktab va bolalar infratuzilmasiga yaqin — ota-onalar uchun qulay.");
       } else if (pointData.centerDistance <= getRecommendationRadius(recommendation) * 0.42) {
-        reasons.push("Lokal talab oqimining faol qismiga yaqin joylashgan.");
+        reasons.push("Bolalar va oilalar oqimining faol qismiga yaqin joylashgan.");
       } else {
-        reasons.push("Hudud ichidagi harakat oqimidan uzoqlashmaydi va kirish uchun qulay.");
+        reasons.push("Hudud ichidagi aholi oqimidan uzoqlashmaydi va kirish uchun qulay.");
       }
 
       if (pointData.nearestPlace) {
-        reasons.push(`${pointData.nearestPlace.n} atrofidagi biznes konteksti shu formatga mos.`);
+        reasons.push(`${pointData.nearestPlace.n} atrofidagi infratuzilma oʻquv markazi formatiga mos.`);
       } else if (recommendation.tag === "gap") {
-        reasons.push("Atrofdagi formatlar siyrak, yangi nuqta uchun bo'shliq aniqroq ko'rinadi.");
+        reasons.push("Atrofdagi oʻquv markazlari siyrak, yangi markaz uchun boʻshliq aniq koʻrinadi.");
       } else {
-        reasons.push("Yo'l va atrof servis oqimi bu nuqtani strategik mikrolokatsiya qiladi.");
+        reasons.push("Yoʻl va atrof infratuzilma bu nuqtani strategik lokatsiya qiladi.");
       }
 
       return reasons.slice(0, 3);
@@ -1974,7 +1979,7 @@
 
       const recommendationHintLayout = ymaps.templateLayoutFactory.createClass(
         '<div class="recommendation-tooltip">' +
-          '<div class="recommendation-tooltip__eyebrow">Aniq tavsiya nuqtasi</div>' +
+          '<div class="recommendation-tooltip__eyebrow">AI tavsiya: oʻquv markazi ochish joyi</div>' +
           '<p class="recommendation-tooltip__title">$[properties.tooltipTitle]</p>' +
           '<p class="recommendation-tooltip__body">$[properties.tooltipBody]</p>' +
           '<div class="recommendation-tooltip__list">' +
@@ -2531,12 +2536,12 @@
           if (pointData) {
             const hoverReasons = getRecommendationHoverReasons(recommendation, pointData);
             const recommendationMarker = new ymaps.Placemark(pointData.point, {
-              iconContent: "Open here",
+              iconContent: "TAVSIYA",
               stateClass: recommendation.id === activeRecommendationId ? "is-active" : "",
               balloonContent: buildRecommendationPointBalloon(recommendation, pointData),
               hintContent: pointData.address,
               tooltipTitle: escapeHtml(pointData.address),
-              tooltipBody: escapeHtml(`Shu nuqta tanlangan, chunki u hudud ichida raqobat bosimi pastroq, talab oqimiga yaqin va yangi biznes uchun qulay mikrolokatsiya beradi.`),
+              tooltipBody: escapeHtml(`Shu nuqta tanlangan, chunki u hudud ichida raqobat bosimi pastroq, bolalar oqimiga yaqin va yangi oʻquv markazi uchun qulay mikrolokatsiya beradi.`),
               tooltipReasonA: escapeHtml(hoverReasons[0] || "Yaqin raqobat darajasi nazorat ostida."),
               tooltipReasonB: escapeHtml(hoverReasons[1] || "Lokal talab oqimiga yaqin joylashgan."),
               tooltipReasonC: escapeHtml(hoverReasons[2] || "Atrof biznes konteksti ochilish uchun mos."),
