@@ -785,7 +785,7 @@ const onDownload = () => {
         <iframe
           src="/maps/fergana-education/index.html"
           class="w-full border-0 pointer-events-none absolute left-0"
-          style="height: 1100px; top: -380px;"
+          style="height: 1100px; top: -450px;"
           loading="lazy"
           tabindex="-1"
           :title="t.section7MapTitle"
