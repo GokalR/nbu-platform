@@ -16,7 +16,7 @@ const { lang } = useRsLang()
 
 const STEP_LABELS = {
   ru: ['Личный профиль', 'Финансовые вопросы', 'AI Рекомендации', 'AI Анализ', 'Результат'],
-  uz: ['Шахсий маълумотлар', 'Молиявий саволлар', 'AI Тавсиялар', 'AI Таҳлил', 'Натижа'],
+  uz: ['Shaxsiy ma'lumotlar', 'Moliyaviy savollar', 'AI Tavsiyalar', 'AI Tahlil', 'Natija'],
 }
 const STEP_PERCENTAGES = [20, 40, 60, 80, 100]
 

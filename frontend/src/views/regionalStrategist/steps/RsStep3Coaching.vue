@@ -21,12 +21,12 @@ const T = {
     next: 'Запустить полный анализ',
   },
   uz: {
-    stepBadge: '3-ҚАДАМ (5 ТАДАН)',
-    title: 'AI Тавсиялар',
-    sub: 'Жавобларингизга асосланиб асосий кузатувлар ва маслаҳатларни тайёрладик',
-    typing: 'AI маълумотларни таҳлил қилмоқда...',
-    back: 'Орқага',
-    next: 'Тўлиқ таҳлилни бошлаш',
+    stepBadge: '3-QADAM (5 TADAN)',
+    title: 'AI Tavsiyalar',
+    sub: 'Javoblaringizga asoslanib asosiy kuzatuvlar va maslahatlarni tayyorladik',
+    typing: 'AI ma'lumotlarni tahlil qilmoqda...',
+    back: 'Orqaga',
+    next: 'To'liq tahlilni boshlash',
   },
 }
 
@@ -47,14 +47,14 @@ const ITEMS_BY_SECTOR = {
       { type: 'recommendation', title: 'Подходящий кредитный продукт NBU', text: '«Развивайся» (до 3,5 млрд сум, 23% годовых, срок до 48 мес., залог — недвижимость). Под расширение мощностей с залогом здания — оптимальный вариант. Альтернатива: «Кредит оборотный» под закупку мебели/оборудования новых групп.' },
     ],
     uz: [
-      { type: 'strength', title: 'Демографик база', text: 'Фарғона вилоятида 2025 йилда 98 319 бола туғилган (50 683 ўғил, 47 636 қиз). Аҳолиси 4,22 млн, шаҳар улуши 56,7% — айнан ERKIN PARVOZ жойлашган шаҳар маҳаллаларида мактабгача ёшдаги болалар оқими барқарор.' },
-      { type: 'strength', title: 'Кредит тарихи', text: 'Амалдаги кредитлар йўқ (Форма 1 узоқ муддатли мажбуриятлар = 0). ROE 15,5% билан нол кредит юки — банк янги қарзни хизмат қилиш қобилиятини кўради.' },
-      { type: 'market', title: 'Тўловга қодир талаб', text: 'Фарғона шаҳри — вилоятнинг энг йирик иқтисодий маркази: саноат маҳсулоти 8 587 млрд сўм (2024). Оилаларнинг ўртача даромади хусусий болалар боғчасига (300–600 минг сўм/ой) ҳақ тўлашга имкон беради.' },
-      { type: 'market', title: 'Регулятив қўллаб-қувватлаш', text: '2019 йилдан мактабгача таълим давлат дастури фаол ривожланмоқда: хусусий боғчалар учун субсидиялар, ИФУТ 85100 бўйича солиқ имтиёзлари. МЧЖ сифатида аллақачон талабларга мос келасиз.' },
-      { type: 'warning', title: 'Ликвидлик чекланган', text: 'Форма 1 бўйича жорий ликвидлик = 1,19 (норма 1,5+). Ҳар бир сўм қисқа муддатли мажбуриятга 1,19 сўм айланма актив — захира кам. Кредит қарзни оширади → ликвидлик 1,05 гача тушиши мумкин.' },
-      { type: 'warning', title: 'Мавсумийлик', text: 'Боғчага қабул сентябрга боғлиқ: июн–август — cash-flow бўшлиги (40–50% оилалар ёзга чиқади). 2–3 ойлик захара ёки банк билан июл–август грейс-муддатини келишиб олинг.' },
-      { type: 'recommendation', title: '2 та янги гуруҳ (2–3 ёш)', text: 'Яслы гуруҳларига талаб 3–6 ёшдан юқори: маҳаллада давлат ясли йўқ, ота-оналар декрети 2 ёшда тугайди. Гуруҳдаги ўртача сон — 18–22 бола → +36–44 ўрин = +1,2–1,5 млрд сўм йиллик тушум.' },
-      { type: 'recommendation', title: 'Мос NBU кредит маҳсулоти', text: '«Развивайся» (3,5 млрд сўмгача, 23% йиллик, 48 ойгача, гаров — кўчмас мулк). Бино гаровида кенгайтириш учун оптимал. Муқобил: «Кредит оборотный» — янги гуруҳлар учун мебель/жиҳозлар харид қилиш.' },
+      { type: 'strength', title: 'Demografik baza', text: 'Farg'ona viloyatida 2025 yilda 98 319 bola tug'ilgan (50 683 o'g'il, 47 636 qiz). Aholisi 4,22 mln, shahar ulushi 56,7% — aynan ERKIN PARVOZ joylashgan shahar mahallalarida maktabgacha yoshdagi bolalar oqimi barqaror.' },
+      { type: 'strength', title: 'Kredit tarixi', text: 'Amaldagi kreditlar yo'q (Forma 1 uzoq muddatli majburiyatlar = 0). ROE 15,5% bilan nol kredit yuki — bank yangi qarzni xizmat qilish qobiliyatini ko'radi.' },
+      { type: 'market', title: 'To'lovga qodir talab', text: 'Farg'ona shahri — viloyatning eng yirik iqtisodiy markazi: sanoat mahsuloti 8 587 mlrd so'm (2024). Oilalarning o'rtacha daromadi xususiy bolalar bog'chasiga (300–600 ming so'm/oy) haq to'lashga imkon beradi.' },
+      { type: 'market', title: 'Regulyativ qo'llab-quvvatlash', text: '2019 yildan maktabgacha ta'lim davlat dasturi faol rivojlanmoqda: xususiy bog'chalar uchun subsidiyalar, IFUT 85100 bo'yicha soliq imtiyozlari. MChJ sifatida allaqachon talablarga mos kelasiz.' },
+      { type: 'warning', title: 'Likvidlik cheklangan', text: 'Forma 1 bo'yicha joriy likvidlik = 1,19 (norma 1,5+). Har bir so'm qisqa muddatli majburiyatga 1,19 so'm aylanma aktiv — zaxira kam. Kredit qarzni oshiradi → likvidlik 1,05 gacha tushishi mumkin.' },
+      { type: 'warning', title: 'Mavsumiylik', text: 'Bog'chaga qabul sentyabrga bog'liq: iyun–avgust — cash-flow bo'shligi (40–50% oilalar yozga chiqadi). 2–3 oylik zaxara yoki bank bilan iyul–avgust greys-muddatini kelishib oling.' },
+      { type: 'recommendation', title: '2 ta yangi guruh (2–3 yosh)', text: 'Yasli guruhlariga talab 3–6 yoshdan yuqori: mahallada davlat yasli yo'q, ota-onalar dekreti 2 yoshda tugaydi. Guruhdagi o'rtacha son — 18–22 bola → +36–44 o'rin = +1,2–1,5 mlrd so'm yillik tushum.' },
+      { type: 'recommendation', title: 'Mos NBU kredit mahsuloti', text: '«Razvivaysya» (3,5 mlrd so'mgacha, 23% yillik, 48 oygacha, garov — ko'chmas mulk). Bino garovida kengaytirish uchun optimal. Muqobil: «Kredit oborotniy» — yangi guruhlar uchun mebel/jihozlar xarid qilish.' },
     ],
   },
   services: {
@@ -64,9 +64,9 @@ const ITEMS_BY_SECTOR = {
       { type: 'recommendation', title: 'Кредит NBU', text: '«Развивайся» или «Бизнес прогресс» — оптимально для расширения сервисного бизнеса.' },
     ],
     uz: [
-      { type: 'strength', title: 'Бизнес барқарорлиги', text: 'МЧЖ 3–5 йиллик тажриба билан — банк тарихни қадрлайди.' },
-      { type: 'market', title: 'Фарғона вилоятида талаб', text: 'Аҳолиси 4,22 млн, 56,7% шаҳар — таълим ва хизмат кўрсатиш учун потенциал катта.' },
-      { type: 'recommendation', title: 'NBU кредити', text: '«Развивайся» ёки «Бизнес прогресс» — хизмат бизнесини кенгайтириш учун оптимал.' },
+      { type: 'strength', title: 'Biznes barqarorligi', text: 'MChJ 3–5 yillik tajriba bilan — bank tarixni qadrlaydi.' },
+      { type: 'market', title: 'Farg'ona viloyatida talab', text: 'Aholisi 4,22 mln, 56,7% shahar — ta'lim va xizmat ko'rsatish uchun potentsial katta.' },
+      { type: 'recommendation', title: 'NBU krediti', text: '«Razvivaysya» yoki «Biznes progress» — xizmat biznesini kengaytirish uchun optimal.' },
     ],
   },
   general: {
@@ -76,9 +76,9 @@ const ITEMS_BY_SECTOR = {
       { type: 'recommendation', title: 'Следующий шаг', text: 'Приложите финансовые отчёты (Форма 1 и 2) для расчёта точных коэффициентов рентабельности и ликвидности.' },
     ],
     uz: [
-      { type: 'strength', title: 'Тузилган профил', text: 'Жавобларингиз банкка тўлиқ тасвир беради — бу аризани тез кўриб чиқишга ёрдам беради.' },
-      { type: 'market', title: 'Минтақавий контекст', text: 'Фарғона вилояти: 4,22 млн аҳоли, саноат 45,9 трлн сўм (+104,3% 2024), инвестиция 19,96 трлн сўм (2023). Бизнес учун фаол бозор.' },
-      { type: 'recommendation', title: 'Кейинги қадам', text: 'Аниқ рентабеллик ва ликвидлик коэффициентлари учун молиявий ҳисоботларни (Форма 1 ва 2) илова қилинг.' },
+      { type: 'strength', title: 'Tuzilgan profil', text: 'Javoblaringiz bankka to'liq tasvir beradi — bu arizani tez ko'rib chiqishga yordam beradi.' },
+      { type: 'market', title: 'Mintaqaviy kontekst', text: 'Farg'ona viloyati: 4,22 mln aholi, sanoat 45,9 trln so'm (+104,3% 2024), investitsiya 19,96 trln so'm (2023). Biznes uchun faol bozor.' },
+      { type: 'recommendation', title: 'Keyingi qadam', text: 'Aniq rentabellik va likvidlik koeffitsientlari uchun moliyaviy hisobotlarni (Forma 1 va 2) ilova qiling.' },
     ],
   },
 }
@@ -91,10 +91,10 @@ const TYPE_CONFIG = {
     recommendation: { label: 'РЕКОМЕНДАЦИЯ', borderClass: 'border-l-navy-900', bgClass: 'bg-navy-900/[0.05]', iconBgClass: 'bg-navy-900/10', iconClass: 'text-navy-900', labelClass: 'text-navy-900' },
   },
   uz: {
-    strength: { label: 'КУЧЛИ ТОМОН', borderClass: 'border-l-emerald-500', bgClass: 'bg-emerald-50/80', iconBgClass: 'bg-emerald-100', iconClass: 'text-emerald-600', labelClass: 'text-emerald-700' },
-    market: { label: 'БОЗОР', borderClass: 'border-l-blue-500', bgClass: 'bg-blue-50/80', iconBgClass: 'bg-blue-100', iconClass: 'text-blue-600', labelClass: 'text-blue-700' },
-    warning: { label: 'ЭЪТИБОР БЕРИНГ', borderClass: 'border-l-amber-500', bgClass: 'bg-amber-50/80', iconBgClass: 'bg-amber-100', iconClass: 'text-amber-600', labelClass: 'text-amber-700' },
-    recommendation: { label: 'ТАВСИЯ', borderClass: 'border-l-navy-900', bgClass: 'bg-navy-900/[0.05]', iconBgClass: 'bg-navy-900/10', iconClass: 'text-navy-900', labelClass: 'text-navy-900' },
+    strength: { label: 'KUChLI TOMON', borderClass: 'border-l-emerald-500', bgClass: 'bg-emerald-50/80', iconBgClass: 'bg-emerald-100', iconClass: 'text-emerald-600', labelClass: 'text-emerald-700' },
+    market: { label: 'BOZOR', borderClass: 'border-l-blue-500', bgClass: 'bg-blue-50/80', iconBgClass: 'bg-blue-100', iconClass: 'text-blue-600', labelClass: 'text-blue-700' },
+    warning: { label: 'E'TIBOR BERING', borderClass: 'border-l-amber-500', bgClass: 'bg-amber-50/80', iconBgClass: 'bg-amber-100', iconClass: 'text-amber-600', labelClass: 'text-amber-700' },
+    recommendation: { label: 'TAVSIYa', borderClass: 'border-l-navy-900', bgClass: 'bg-navy-900/[0.05]', iconBgClass: 'bg-navy-900/10', iconClass: 'text-navy-900', labelClass: 'text-navy-900' },
   },
 }
 

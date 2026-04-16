@@ -10,10 +10,10 @@
 export const FERGANA_CONTEXT = {
   // Hero KPIs — the 4 headline numbers the dashboard leads with
   hero: {
-    population:   { value: 4223.0, unit: 'тыс. чел.', year: 2026, label: { ru: 'Население', uz: 'Aholi' } },
-    industry:     { value: 45896.1, unit: 'млрд сум', year: 2024, delta: '+104.3%', label: { ru: 'Промышленность', uz: 'Sanoat hajmi' } },
-    investments:  { value: 19955.0, unit: 'млрд сум', year: 2023, delta: '+29.4%',  label: { ru: 'Инвестиции',    uz: 'Investitsiyalar' } },
-    area:         { value: 6.76,    unit: 'тыс. км²',             label: { ru: 'Площадь',       uz: 'Hudud' } },
+    population:   { value: 4223.0, unit: 'tis. chel.', year: 2026, label: { ru: 'Naselenie', uz: 'Aholi' } },
+    industry:     { value: 45896.1, unit: 'mlrd sum', year: 2024, delta: '+104.3%', label: { ru: 'Promishlennost', uz: 'Sanoat hajmi' } },
+    investments:  { value: 19955.0, unit: 'mlrd sum', year: 2023, delta: '+29.4%',  label: { ru: 'Investitsii',    uz: 'Investitsiyalar' } },
+    area:         { value: 6.76,    unit: 'tis. km²',             label: { ru: 'Ploshad',       uz: 'Hudud' } },
   },
 
   demographics: {
@@ -98,16 +98,16 @@ export const FERGANA_CONTEXT = {
       'В Фарғона шаҳар — хронический дефицит мест в госсадах, частный сегмент растёт',
     ],
     uz: [
-      'Вилоятда 2025 йил туғилиш: 98 319 — болалар боғчалари учун барқарор демографик пойдевор',
-      'Вилоят аҳолиси: 4 223 минг, 56.7% — шаҳарда (талаб шаҳарларда жамланган)',
-      'Фарғона шаҳар: 328 409 аҳоли, вилоятнинг асосий таълим маркази',
-      'Никоҳлар 2025: 28 896 — 2-4 йил ичида ясли ва боғчага бориши кутилаётган оилалар',
-      'Мактабгача таълим: давлат дастури кенгаймоқда, хусусий боғчалар субсидия олмоқда',
-      '15 туман + 4 шаҳар — ҳар бирида 3-6 хусусий боғча талаб этилади',
-      'Фарғона шаҳрида боғча тўлови: 600 000 – 1 200 000 сўм/ой',
-      'Давлат дастури «Илк қадам» — хусусий боғчалар учун имтиёз ва қисман молиялаштириш',
-      'Урбанизация 56.7% + туғилиш ўсиши = ясли (2-3 ёш) талабининг йиллик 10-12% ўсиши',
-      'Фарғона шаҳарда давлат боғчаларида ўринлар танқислиги, хусусий сегмент ўсмоқда',
+      'Viloyatda 2025 yil tug'ilish: 98 319 — bolalar bog'chalari uchun barqaror demografik poydevor',
+      'Viloyat aholisi: 4 223 ming, 56.7% — shaharda (talab shaharlarda jamlangan)',
+      'Farg'ona shahar: 328 409 aholi, viloyatning asosiy ta'lim markazi',
+      'Nikohlar 2025: 28 896 — 2-4 yil ichida yasli va bog'chaga borishi kutilayotgan oilalar',
+      'Maktabgacha ta'lim: davlat dasturi kengaymoqda, xususiy bog'chalar subsidiya olmoqda',
+      '15 tuman + 4 shahar — har birida 3-6 xususiy bog'cha talab etiladi',
+      'Farg'ona shahrida bog'cha to'lovi: 600 000 – 1 200 000 so'm/oy',
+      'Davlat dasturi «Ilk qadam» — xususiy bog'chalar uchun imtiyoz va qisman moliyalashtirish',
+      'Urbanizatsiya 56.7% + tug'ilish o'sishi = yasli (2-3 yosh) talabining yillik 10-12% o'sishi',
+      'Farg'ona shaharda davlat bog'chalarida o'rinlar tanqisligi, xususiy segment o'smoqda',
     ],
   },
 

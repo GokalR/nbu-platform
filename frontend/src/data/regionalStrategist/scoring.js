@@ -81,12 +81,12 @@ function factorExperience(profile) {
 
   return {
     key: 'experience',
-    label: { ru: 'Опыт предпринимателя', uz: 'Тадбиркор тажрибаси' },
+    label: { ru: 'Opit predprinimatelya', uz: 'Tadbirkor tajribasi' },
     value: Math.max(0, Math.min(100, Math.round(v))),
     inputs,
     hint: {
       ru: 'Учитываем стаж, опыт в отрасли, образование, обучение и наличие ментора.',
-      uz: 'Тажриба, соҳадаги иш, таълим, ўқитиш ва ментор мавжудлигини ҳисобга оламиз.',
+      uz: 'Tajriba, sohadagi ish, ta'lim, o'qitish va mentor mavjudligini hisobga olamiz.',
     },
   }
 }
@@ -133,12 +133,12 @@ function factorFinance(finance, financials = null) {
     }
     return {
       key: 'finance',
-      label: { ru: 'Финансовая устойчивость', uz: 'Молиявий барқарорлик' },
+      label: { ru: 'Finansovaya ustoychivost', uz: 'Moliyaviy barqarorlik' },
       value: Math.max(0, Math.min(100, Math.round(v))),
       inputs,
       hint: {
         ru: 'По данным Excel: чистая маржа, текущая ликвидность, D/E, ROE и наличие залога.',
-        uz: 'Excel бўйича: соф маржа, жорий ликвидлик, D/E, ROE ва гаров мавжудлиги.',
+        uz: 'Excel bo'yicha: sof marja, joriy likvidlik, D/E, ROE va garov mavjudligi.',
       },
     }
   }
@@ -198,12 +198,12 @@ function factorFinance(finance, financials = null) {
 
   return {
     key: 'finance',
-    label: { ru: 'Финансовая устойчивость', uz: 'Молиявий барқарорлик' },
+    label: { ru: 'Finansovaya ustoychivost', uz: 'Moliyaviy barqarorlik' },
     value: Math.max(0, Math.min(100, Math.round(v))),
     inputs,
     hint: {
       ru: 'Маржа дохода, доля собственных средств, наличие залога и текущая долговая нагрузка.',
-      uz: 'Даромад маржаси, ўз маблағлари улуши, гаров мавжудлиги ва ҳозирги қарз юки.',
+      uz: 'Daromad marjasi, o'z mablag'lari ulushi, garov mavjudligi va hozirgi qarz yuki.',
     },
   }
 }
@@ -218,9 +218,9 @@ function factorMarket(finance, city) {
     inputs.push({ label: 'city', value: '—', impact: 0 })
     return {
       key: 'market',
-      label: { ru: 'Рыночный потенциал', uz: 'Бозор потенциали' },
+      label: { ru: 'Rinochniy potentsial', uz: 'Bozor potentsiali' },
       value: 50, inputs,
-      hint: { ru: 'Город не определён — невозможно оценить соответствие отрасли.', uz: 'Шаҳар аниқланмаган.' },
+      hint: { ru: 'Gorod ne opredelyon — nevozmojno otsenit sootvetstvie otrasli.', uz: 'Shahar aniqlanmagan.' },
     }
   }
 
@@ -246,12 +246,12 @@ function factorMarket(finance, city) {
 
   return {
     key: 'market',
-    label: { ru: 'Рыночный потенциал', uz: 'Бозор потенциали' },
+    label: { ru: 'Rinochniy potentsial', uz: 'Bozor potentsiali' },
     value: Math.max(0, Math.min(100, Math.round(v))),
     inputs,
     hint: {
       ru: 'Соответствие вашего направления рекомендованным отраслям города и отраслевым трендам.',
-      uz: 'Йўналишингизнинг шаҳар тавсия этилган соҳалари ва соҳа трендларига мослиги.',
+      uz: 'Yo'nalishingizning shahar tavsiya etilgan sohalari va soha trendlariga mosligi.',
     },
   }
 }
@@ -283,12 +283,12 @@ function factorLocation(profile, city) {
 
   return {
     key: 'location',
-    label: { ru: 'Локация', uz: 'Жойлашув' },
+    label: { ru: 'Lokatsiya', uz: 'Joylashuv' },
     value: Math.max(0, Math.min(100, Math.round(v))),
     inputs,
     hint: {
       ru: 'Пилотные города (Фергана, Маргилан) дают полный анализ. Городские локации — выше плотность рынка.',
-      uz: 'Пилот шаҳарларда (Фарғона, Марғилон) тўлиқ таҳлил. Шаҳар жойлашувларида — бозор зичлиги юқори.',
+      uz: 'Pilot shaharlarda (Farg'ona, Marg'ilon) to'liq tahlil. Shahar joylashuvlarida — bozor zichligi yuqori.',
     },
   }
 }
@@ -300,9 +300,9 @@ function factorCompetition(finance, city) {
 
   if (!city) return {
     key: 'competition',
-    label: { ru: 'Конкуренция', uz: 'Рақобат' },
+    label: { ru: 'Konkurentsiya', uz: 'Raqobat' },
     value: 60, inputs,
-    hint: { ru: 'Нужен город для анализа насыщенности.', uz: 'Таҳлил учун шаҳар керак.' },
+    hint: { ru: 'Nujen gorod dlya analiza nasishennosti.', uz: 'Tahlil uchun shahar kerak.' },
   }
 
   const direction = String(finance.businessDirection || '').toLowerCase()
@@ -323,12 +323,12 @@ function factorCompetition(finance, city) {
 
   return {
     key: 'competition',
-    label: { ru: 'Конкуренция', uz: 'Рақобат' },
+    label: { ru: 'Konkurentsiya', uz: 'Raqobat' },
     value: Math.max(0, Math.min(100, Math.round(v))),
     inputs,
     hint: {
       ru: 'Оценка насыщенности вашей отрасли в выбранном городе на основе данных дашбордов.',
-      uz: 'Танланган шаҳарда соҳангиз тўйинганлиги — дашборд маълумотлари асосида.',
+      uz: 'Tanlangan shaharda sohangiz to'yinganligi — dashbord ma'lumotlari asosida.',
     },
   }
 }
@@ -355,12 +355,12 @@ function factorBusinessModel(finance) {
 
   return {
     key: 'model',
-    label: { ru: 'Бизнес-модель', uz: 'Бизнес-модель' },
+    label: { ru: 'Biznes-model', uz: 'Biznes-model' },
     value: Math.max(0, Math.min(100, Math.round(v))),
     inputs,
     hint: {
       ru: 'Проработанность идеи: план, описание, целевой клиент, сроки, ресурсы.',
-      uz: 'Ғоянинг пишиклиги: режа, тавсиф, мақсадли мижоз, муддатлар, ресурслар.',
+      uz: 'G'oyaning pishikligi: reja, tavsif, maqsadli mijoz, muddatlar, resurslar.',
     },
   }
 }

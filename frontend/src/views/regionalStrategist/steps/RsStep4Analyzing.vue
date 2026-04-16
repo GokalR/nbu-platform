@@ -13,9 +13,9 @@ const T = {
     back: 'Вернуться к рекомендациям',
   },
   uz: {
-    title: 'AI таҳлил бажарилмоқда',
-    sub: 'Маълумотларингиз қайта ишланмоқда — бир оз кутинг',
-    back: 'Тавсияларга қайтиш',
+    title: 'AI tahlil bajarilmoqda',
+    sub: 'Ma'lumotlaringiz qayta ishlanmoqda — bir oz kuting',
+    back: 'Tavsiyalarga qaytish',
   },
 }
 
@@ -29,12 +29,12 @@ const CRITERIA = {
     { label: 'Бизнес-план', threshold: 95 },
   ],
   uz: [
-    { label: 'Шахсий профил', threshold: 15 },
-    { label: 'Минтақавий бозор', threshold: 30 },
-    { label: 'Молиявий имкониятлар', threshold: 45 },
-    { label: 'Бизнес-модель', threshold: 60 },
-    { label: 'Рақобат таҳлили', threshold: 78 },
-    { label: 'Бизнес-план', threshold: 95 },
+    { label: 'Shaxsiy profil', threshold: 15 },
+    { label: 'Mintaqaviy bozor', threshold: 30 },
+    { label: 'Moliyaviy imkoniyatlar', threshold: 45 },
+    { label: 'Biznes-model', threshold: 60 },
+    { label: 'Raqobat tahlili', threshold: 78 },
+    { label: 'Biznes-plan', threshold: 95 },
   ],
 }
 
