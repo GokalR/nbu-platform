@@ -154,7 +154,7 @@ export const STEP2_T = {
     expenseOpts: ['3 mln gacha', '3–10 mln', '10–30 mln', '30–50 mln', '50–100 mln', '100 mln dan ortiq'],
     debtOpts: ['Yoʻq', 'Ha, oʻz vaqtida toʻlayman', 'Ha, kechikishlar bor'],
     goalOpts: ['Assortimentni kengaytirish', 'Ishlab chiqarishni oshirgish', 'Yangi filial ochish', 'Xarajatlarni kamaytirish', 'Uskunalarni yangilash', 'Eksportga chiqish'],
-    problemOpts: ['Aylanma mablag' etishmaydi', 'Mijoz yoʻq', 'Yuqori raqobat', 'Uskuna yoʻq', 'Bilim/tajriba yoʻq', 'Bino yoʻq', 'Yuqori xarajatlar'],
+    problemOpts: ['Aylanma mablagʻ etishmaydi', 'Mijoz yoʻq', 'Yuqori raqobat', 'Uskuna yoʻq', 'Bilim/tajriba yoʻq', 'Bino yoʻq', 'Yuqori xarajatlar'],
     amountOpts: ['50 mln gacha', '50–200 mln', '200–500 mln', '500 mln – 1 mlrd', '1 mlrd dan ortiq'],
   },
 }

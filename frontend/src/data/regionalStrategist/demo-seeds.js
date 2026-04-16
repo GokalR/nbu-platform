@@ -100,7 +100,7 @@ export const DEMO_SEEDS = {
         monthlyExpenses: '30–50 mln',
         existingDebt: 'Yoʻq',
         businessGoal: 'Asosiy vositalar',
-        mainProblem: 'Aylanma mablag' etishmaydi',
+        mainProblem: 'Aylanma mablagʻ etishmaydi',
         loanAmount: '200–500 mln',
         hasCollateral: 'Ha',
         collateralType: 'Uy / kvartira',
