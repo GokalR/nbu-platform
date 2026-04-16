@@ -1289,7 +1289,32 @@ const onDownload = () => {
       </div>
     </section>
 
-    <!-- ═══ SECTION 7 — CTA ═══ -->
+    <!-- ═══ SECTION 7 — Fergana Education Map ═══ -->
+    <section v-if="isFergana" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
+      <div
+        class="px-8 py-6"
+        style="background: rgba(20,159,168,0.06); border-bottom: 1px solid rgba(20,159,168,0.15);"
+      >
+        <div class="flex items-center gap-4">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0" style="background:#149fa8">7</span>
+          <div>
+            <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section7MapTitle }}</h2>
+            <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section7MapSub }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-2">
+        <iframe
+          src="/maps/fergana-education/index.html"
+          class="w-full rounded-[8px] border-0"
+          style="height: 700px;"
+          loading="lazy"
+          :title="t.section7MapTitle"
+        />
+      </div>
+    </section>
+
+    <!-- ═══ SECTION 8 — CTA ═══ -->
     <section
       class="rounded-[16px] py-14 px-10 text-center"
       style="background: linear-gradient(135deg, #0F2847, #193F72);"
