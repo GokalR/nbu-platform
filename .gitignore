@@ -1,0 +1,14 @@
+node_modules
+dist
+.DS_Store
+*.log
+.vite
+.env
+.env.local
+__pycache__
+*.pyc
+venv/
+.venv/
+*.mp4
+*.mov
+.wrangler/

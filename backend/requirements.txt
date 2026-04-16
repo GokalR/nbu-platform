@@ -1,0 +1,28 @@
+# Web framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# Async DB (education)
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.29.0
+
+# Sync DB (analytics)
+psycopg[binary]>=3.1.0
+
+# Settings
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# Auth
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.0
+bcrypt>=4.0.0
+
+# Excel parsing
+openpyxl>=3.1.0
+
+# Claude API
+anthropic>=0.39.0
+
+# File uploads
+python-multipart>=0.0.9
