@@ -97,11 +97,12 @@
       top: 0;
       z-index: 30;
       flex-shrink: 0;
-      background: var(--bg-elevated);
-      border: 1px solid var(--line);
+      background: linear-gradient(135deg, #193f72 0%, #1a4f8c 50%, #1e5a9e 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 28px 70px rgba(25, 63, 114, 0.25);
       backdrop-filter: blur(18px);
+      color: #fff;
     }
 
     .topbar-main {
@@ -128,8 +129,8 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--text);
-      background: var(--premium-soft);
+      color: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 999px;
     }
 
@@ -138,8 +139,8 @@
       width: 8px;
       height: 8px;
       border-radius: 999px;
-      background: currentColor;
-      box-shadow: 0 0 0 6px rgba(215, 181, 109, 0.18);
+      background: #d7b56d;
+      box-shadow: 0 0 0 6px rgba(215, 181, 109, 0.25);
     }
 
     h1 {
@@ -148,11 +149,12 @@
       font-size: clamp(28px, 4vw, 44px);
       line-height: 1.05;
       letter-spacing: -0.03em;
+      color: #fff;
     }
 
     .sub {
       margin: 0;
-      color: var(--text-soft);
+      color: rgba(255, 255, 255, 0.65);
       font-size: 14px;
       line-height: 1.65;
     }
@@ -167,10 +169,10 @@
 
     .metric-card {
       padding: 14px 16px;
-      background: rgba(254, 254, 254, 0.82);
-      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.10);
       border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
+      box-shadow: none;
     }
 
     .metric-label {
@@ -179,7 +181,7 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--text-faint);
+      color: rgba(255, 255, 255, 0.55);
       margin-bottom: 8px;
     }
 
@@ -187,13 +189,13 @@
       display: block;
       font-size: 22px;
       font-weight: 800;
-      color: var(--text);
+      color: #fff;
       margin-bottom: 4px;
     }
 
     .metric-note {
       font-size: 12px;
-      color: var(--text-soft);
+      color: rgba(255, 255, 255, 0.50);
     }
 
     .toolbar {
@@ -208,10 +210,10 @@
       display: grid;
       gap: 10px;
       padding: 14px 16px;
-      background: rgba(254, 254, 254, 0.82);
-      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.10);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
+      box-shadow: none;
     }
 
     .toolbar-group {
@@ -279,7 +281,7 @@
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--text-faint);
+      color: rgba(255, 255, 255, 0.55);
     }
 
     .search-shell {
@@ -290,7 +292,7 @@
     .search-shell svg {
       width: 18px;
       height: 18px;
-      color: var(--text-faint);
+      color: rgba(255, 255, 255, 0.50);
     }
 
     .search-shell input {
@@ -298,21 +300,21 @@
       border: 0;
       padding: 0;
       background: transparent;
-      color: var(--text);
+      color: #fff;
       font-size: 14px;
       outline: none;
     }
 
     .search-shell input::placeholder {
-      color: var(--text-faint);
+      color: rgba(255, 255, 255, 0.40);
     }
 
     .search-note {
       padding: 7px 10px;
       font-size: 11px;
       font-weight: 700;
-      color: var(--text);
-      background: var(--premium-soft);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 999px;
       white-space: nowrap;
     }
@@ -324,10 +326,10 @@
     }
 
     button {
-      border: 1px solid transparent;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 11px 16px;
-      background: rgba(254, 254, 254, 0.96);
-      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.65);
       font-size: 13px;
       font-weight: 700;
       border-radius: 999px;
@@ -337,8 +339,8 @@
 
     button:hover {
       transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
-      color: var(--text);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+      color: #fff;
     }
 
     button:focus-visible {
@@ -1264,7 +1266,9 @@
   <div class="page-shell">
     <header class="topbar">
       <div class="topbar-main">
-        <img src="/nbu_logo.png" alt="NBU" style="height:36px; margin-right:16px; flex-shrink:0;" />
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:12px; background:rgba(255,255,255,0.12); margin-right:14px; flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
         <div class="brand-block">
           <div class="eyebrow">NBU · Taʻlim bozori tahlili</div>
           <div>
