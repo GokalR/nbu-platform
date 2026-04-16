@@ -1019,34 +1019,31 @@
       padding: 10px 14px;
       min-width: 180px;
       max-width: 240px;
-      border-radius: 12px;
-      background: rgba(254, 254, 254, 0.97);
-      border: 1.5px solid var(--line);
-      box-shadow: 0 12px 28px rgba(43, 42, 41, 0.14);
-      backdrop-filter: blur(12px);
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-left: 4px solid var(--text-faint);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.06);
       font-family: "Manrope", sans-serif;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
       pointer-events: none;
     }
 
     .zone-flag.is-active {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 34px rgba(43, 42, 41, 0.18);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
     .zone-flag--gap {
-      border-color: rgba(20, 159, 168, 0.3);
-      background: rgba(20, 159, 168, 0.06);
+      border-left-color: #149fa8;
     }
 
     .zone-flag--hot {
-      border-color: rgba(193, 110, 103, 0.3);
-      background: rgba(193, 110, 103, 0.06);
+      border-left-color: #c16e67;
     }
 
     .zone-flag--mid {
-      border-color: rgba(215, 181, 109, 0.35);
-      background: rgba(215, 181, 109, 0.08);
+      border-left-color: #d7b56d;
     }
 
     .zone-flag__title {
