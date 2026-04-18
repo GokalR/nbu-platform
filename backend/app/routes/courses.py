@@ -2,27 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..config import get_settings
 from ..db_async import get_db
+from ..helpers import translate_field as t, asset_url
 from ..models_education import Course, Video
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
-settings = get_settings()
-
-
-def t(field, lang: str) -> str:
-    if isinstance(field, dict):
-        return field.get(lang, field.get("ru", ""))
-    return field or ""
-
-
-def asset_url(path: str | None) -> str | None:
-    if not path:
-        return path
-    if path.startswith("http"):
-        return path
-    base = settings.video_base_url_stripped
-    return f"{base}{path}" if base else path
 
 
 @router.get("")

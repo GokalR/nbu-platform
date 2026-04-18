@@ -2,6 +2,8 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { BACKEND_URL } from '@/services/api'
+import { formatDuration } from '@/utils/formatDuration'
 import EduVideoPlayer from '@/components/education/EduVideoPlayer.vue'
 import EduQuiz from '@/components/education/EduQuiz.vue'
 import EduFlashcards from '@/components/education/EduFlashcards.vue'
@@ -10,7 +12,6 @@ import EduTest from '@/components/education/EduTest.vue'
 
 const route = useRoute()
 const router = useRouter()
-import { BACKEND_URL } from '@/services/api'
 
 const { locale } = useI18n()
 
@@ -51,7 +52,9 @@ async function loadData() {
     if (videoRes.ok) video.value = await videoRes.json()
     if (contentRes.ok) content.value = await contentRes.json()
     if (videosRes.ok) videos.value = await videosRes.json()
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('Failed to load lesson data:', e)
+  }
   loading.value = false
   activeTab.value = 'quiz'
 }
@@ -66,12 +69,6 @@ function goToVideo(vid) {
   router.push(`/education/courses/${courseId.value}/learn/${vid.id}`)
 }
 
-function formatDuration(sec) {
-  if (!sec) return ''
-  const m = Math.floor(sec / 60)
-  const s = sec % 60
-  return `${m}:${String(s).padStart(2, '0')}`
-}
 </script>
 
 <template>

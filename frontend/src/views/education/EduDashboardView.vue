@@ -2,10 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { BACKEND_URL } from '@/services/api'
 import { useEduAuthStore } from '@/stores/eduAuth'
 
 const router = useRouter()
-import { BACKEND_URL } from '@/services/api'
 
 const { t } = useI18n()
 const auth = useEduAuthStore()
@@ -19,7 +19,9 @@ onMounted(async () => {
       headers: { Authorization: `Bearer ${auth.token}` },
     })
     if (res.ok) dashboard.value = await res.json()
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('Failed to load dashboard:', e)
+  }
   loading.value = false
 })
 

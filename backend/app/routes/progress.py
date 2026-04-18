@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,7 +33,7 @@ class TestProgressRequest(BaseModel):
 class FlashcardProgressRequest(BaseModel):
     content_id: str
     card_id: str
-    rating: int
+    rating: int = Field(ge=1, le=4)
 
 
 @router.post("/video")

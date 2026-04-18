@@ -7,6 +7,9 @@ from ..models_analytics import ExcelUpload, Submission
 from ..schemas import UploadOut
 from ..services import excel_parser, ratios
 
+import logging
+log = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/submissions/{sub_id}/uploads", tags=["excel"])
 
 
@@ -32,7 +35,8 @@ async def upload_excel(
     try:
         parsed_codes = excel_parser.parse(kind, blob)
     except Exception as e:
-        raise HTTPException(422, f"Could not parse Excel: {e}") from e
+        log.error("Excel parse error for submission %s: %s", sub_id, e)
+        raise HTTPException(422, "Could not parse the uploaded Excel file. Please check the format.") from e
 
     combined_form1 = parsed_codes if kind == "balance" else None
     combined_form2 = parsed_codes if kind == "pnl" else None

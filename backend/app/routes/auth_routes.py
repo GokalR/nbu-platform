@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 class RegisterRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     full_name: str
 
@@ -25,6 +25,9 @@ class LoginRequest(BaseModel):
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     if len(body.password) < 6:
         raise HTTPException(status_code=400, detail="password_too_short")
+
+    if not body.full_name or len(body.full_name.strip()) < 1:
+        raise HTTPException(status_code=400, detail="full_name_required")
 
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():

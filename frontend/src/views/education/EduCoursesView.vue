@@ -2,9 +2,9 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { BACKEND_URL } from '@/services/api'
 
 const router = useRouter()
-import { BACKEND_URL } from '@/services/api'
 
 const { t, locale } = useI18n()
 const courses = ref([])

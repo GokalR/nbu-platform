@@ -4,15 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..auth import require_auth
 from ..db_async import get_db
+from ..helpers import translate_field as t
 from ..models_education import Course, Enrollment, Progress, User, Video
 
 router = APIRouter(prefix="/api/me", tags=["dashboard"])
-
-
-def t(field, lang: str) -> str:
-    if isinstance(field, dict):
-        return field.get(lang, field.get("ru", ""))
-    return field or ""
 
 
 @router.get("/dashboard")
@@ -41,9 +36,11 @@ async def get_dashboard(
         completed_result = await db.execute(
             select(func.count())
             .select_from(Progress)
+            .join(Video, Progress.video_id == Video.id)
             .where(
                 Progress.user_id == user.id,
                 Progress.progress_type == "video",
+                Video.course_id == course.id,
                 Progress.data["completed"].as_boolean() == True,
             )
         )

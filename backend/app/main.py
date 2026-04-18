@@ -3,7 +3,7 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
@@ -99,7 +99,9 @@ async def api_health():
 
 @app.post("/api/seed", tags=["meta"])
 async def run_seed():
-    """One-time endpoint to seed education data. Remove after use."""
+    """One-time endpoint to seed education data. Only works in dev/staging."""
+    if settings.app_env == "production":
+        raise HTTPException(status_code=403, detail="Seed endpoint disabled in production")
     from .db_async import async_session
     from .models_education import Course, Video, LearningContent
 

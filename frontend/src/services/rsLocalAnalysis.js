@@ -17,7 +17,7 @@
 import benchmarks from '@/data/regionalStrategist/peer_benchmarks.json'
 import { CITIES } from '@/data/regionalStrategist/cities'
 import { computeScore } from '@/data/regionalStrategist/scoring'
-import { matchCreditProducts, collateralLabel } from '@/data/regionalStrategist/credit-products'
+import { matchCreditProducts } from '@/data/regionalStrategist/credit-products'
 
 const toNum = (v) => {
   const x = Number(String(v ?? '').replace(/[^\d.-]/g, ''))

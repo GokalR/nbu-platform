@@ -1,8 +1,11 @@
 """Seed the database with sample courses, videos, and learning content."""
 
 import asyncio
+import logging
 
 from models import Base, Course, LearningContent, Video, async_session, engine
+
+log = logging.getLogger(__name__)
 
 
 # ── Course 1: Digital Culture of Banking Data (8 videos) ──────────────────────
@@ -87,106 +90,6 @@ COURSE_1_VIDEOS = [
         "description": {"ru": "Тренды и перспективы использования данных в банковском секторе.", "uz": "Bank sektorida ma'lumotlardan foydalanish tendensiyalari va istiqbollari."},
         "video_url": "/videos/digital-culture-bank/uz12.mp4",
         "duration_sec": 840,
-    },
-]
-
-
-# ── Course 2: Financial Literacy (6 videos) ──────────────────────────────────
-
-COURSE_2 = {
-    "title": "Финансовая грамотность для предпринимателей",
-    "description": "Практический курс по финансовому управлению для малого и среднего бизнеса в Узбекистане.",
-    "thumbnail_url": "/thumbnails/financial-literacy.png",
-    "category": "Финансы",
-    "educator_name": "NBU Education",
-}
-
-COURSE_2_VIDEOS = [
-    {
-        "title": "Урок 1: Основы финансового планирования",
-        "description": "Бюджетирование и финансовое прогнозирование для малого бизнеса.",
-        "video_url": "/videos/digital-culture-bank/uz1.mp4",
-        "duration_sec": 720,
-    },
-    {
-        "title": "Урок 2: Управление денежными потоками",
-        "description": "Cash flow: как контролировать и оптимизировать движение денежных средств.",
-        "video_url": "/videos/digital-culture-bank/uz2.mp4",
-        "duration_sec": 840,
-    },
-    {
-        "title": "Урок 3: Кредитование и финансирование",
-        "description": "Виды кредитов, условия и стратегии привлечения финансирования.",
-        "video_url": "/videos/digital-culture-bank/uz3.mp4",
-        "duration_sec": 900,
-    },
-    {
-        "title": "Урок 4: Налогообложение в Узбекистане",
-        "description": "Основные налоги, льготы и отчётность для предпринимателей.",
-        "video_url": "/videos/digital-culture-bank/uz4.mp4",
-        "duration_sec": 960,
-    },
-    {
-        "title": "Урок 5: Инвестиции и диверсификация",
-        "description": "Стратегии инвестирования и распределения рисков.",
-        "video_url": "/videos/digital-culture-bank/uz5.mp4",
-        "duration_sec": 780,
-    },
-    {
-        "title": "Урок 6: Финансовая отчётность и анализ",
-        "description": "Чтение балансов, P&L отчётов и ключевые показатели бизнеса.",
-        "video_url": "/videos/digital-culture-bank/uz6.mp4",
-        "duration_sec": 1020,
-    },
-]
-
-
-# ── Course 3: Digital Transformation (7 videos) ──────────────────────────────
-
-COURSE_3 = {
-    "title": "Цифровая трансформация бизнеса",
-    "description": "Как внедрить цифровые технологии в бизнес-процессы. Автоматизация, AI и современные платформы.",
-    "thumbnail_url": "/thumbnails/digital-transformation.png",
-    "category": "Технологии",
-    "educator_name": "NBU Education",
-}
-
-COURSE_3_VIDEOS = [
-    {
-        "title": "Модуль 1: Что такое цифровая трансформация",
-        "description": "Определение, этапы и стратегии цифровой трансформации.",
-        "video_url": "/videos/digital-culture-bank/uz7.mp4",
-        "duration_sec": 660,
-    },
-    {
-        "title": "Модуль 2: Автоматизация бизнес-процессов",
-        "description": "RPA, workflow-автоматизация и интеграция систем.",
-        "video_url": "/videos/digital-culture-bank/uz8.mp4",
-        "duration_sec": 780,
-    },
-    {
-        "title": "Модуль 3: Облачные технологии",
-        "description": "Cloud computing, SaaS решения и миграция в облако.",
-        "video_url": "/videos/digital-culture-bank/uz9.mp4",
-        "duration_sec": 900,
-    },
-    {
-        "title": "Модуль 4: Искусственный интеллект в бизнесе",
-        "description": "Применение AI и ML для оптимизации бизнес-процессов.",
-        "video_url": "/videos/digital-culture-bank/uz10.mp4",
-        "duration_sec": 1020,
-    },
-    {
-        "title": "Модуль 5: Кибербезопасность",
-        "description": "Защита бизнеса от цифровых угроз и атак.",
-        "video_url": "/videos/digital-culture-bank/uz11.mp4",
-        "duration_sec": 840,
-    },
-    {
-        "title": "Модуль 6: Электронная коммерция",
-        "description": "Онлайн-продажи, маркетплейсы и цифровые платежи.",
-        "video_url": "/videos/digital-culture-bank/uz12.mp4",
-        "duration_sec": 720,
     },
 ]
 
@@ -404,13 +307,11 @@ async def seed():
                     )
                     db.add(lc)
 
-            print(f"  Course: {course_data['title'].get('ru', course_data['title'])} ({len(videos_data)} videos)")
+            log.info("  Course: %s (%d videos)", course_data['title'].get('ru', course_data['title']), len(videos_data))
 
         await db.commit()
         total_videos = sum(len(v) for _, v in all_courses)
-        print(f"\nDatabase seeded successfully!")
-        print(f"  {len(all_courses)} courses, {total_videos} videos")
-        print(f"  No authentication required — all content is free")
+        log.info("Database seeded: %d courses, %d videos", len(all_courses), total_videos)
 
 
 if __name__ == "__main__":

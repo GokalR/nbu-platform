@@ -2,10 +2,11 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { BACKEND_URL } from '@/services/api'
+import { formatDuration } from '@/utils/formatDuration'
 
 const route = useRoute()
 const router = useRouter()
-import { BACKEND_URL } from '@/services/api'
 
 const { locale } = useI18n()
 const courseId = computed(() => route.params.id)
@@ -23,7 +24,9 @@ async function loadData() {
     ])
     if (courseRes.ok) course.value = await courseRes.json()
     if (videosRes.ok) videos.value = await videosRes.json()
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('Failed to load course data:', e)
+  }
   loading.value = false
 }
 
@@ -32,13 +35,6 @@ watch(locale, loadData)
 
 function startLesson(videoId) {
   router.push(`/education/courses/${courseId.value}/learn/${videoId}`)
-}
-
-function formatDuration(sec) {
-  if (!sec) return ''
-  const m = Math.floor(sec / 60)
-  const s = sec % 60
-  return `${m}:${String(s).padStart(2, '0')}`
 }
 
 const totalMinutes = computed(() => {

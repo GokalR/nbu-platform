@@ -6,6 +6,9 @@ from ..models_analytics import AnalysisResult, Submission
 from ..schemas import AnalysisOut, AnalysisRequest
 from ..services import benchmarks, cities, claude_client
 
+import logging
+log = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/submissions/{sub_id}/analysis", tags=["analysis"])
 
 
@@ -68,7 +71,8 @@ def run_analysis(sub_id: str, body: AnalysisRequest | None = None, db: Session =
         db.add(rec)
         db.commit()
         db.refresh(rec)
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"Claude analysis failed: {e}")
+        log.error("Claude analysis failed for submission %s: %s", sub_id, e)
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Analysis service temporarily unavailable")
 
     db.add(rec)
     db.commit()
