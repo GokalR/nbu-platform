@@ -33,27 +33,28 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     import asyncio
 
-    # Retry DB connection up to 5 times (Railway DB may take a moment)
-    for attempt in range(1, 6):
+    # Ensure DB schemas in background — don't block startup
+    async def _ensure_schemas():
+        for attempt in range(1, 6):
+            try:
+                async with engine_async.begin() as conn:
+                    await conn.run_sync(BaseAsync.metadata.create_all)
+                log.info("Education DB schema ensured (async).")
+                break
+            except Exception as e:
+                log.warning("DB connect attempt %d/5 failed: %s", attempt, e)
+                if attempt < 5:
+                    await asyncio.sleep(2 * attempt)
+                else:
+                    log.error("Could not connect to database after 5 attempts.")
+
         try:
-            async with engine_async.begin() as conn:
-                await conn.run_sync(BaseAsync.metadata.create_all)
-            log.info("Education DB schema ensured (async).")
-            break
+            BaseSync.metadata.create_all(bind=engine_sync)
+            log.info("Analytics DB schema ensured (sync).")
         except Exception as e:
-            log.warning("DB connect attempt %d/5 failed: %s", attempt, e)
-            if attempt == 5:
-                log.error("Could not connect to database after 5 attempts.")
-                raise
-            await asyncio.sleep(2 * attempt)
+            log.error("Could not ensure analytics DB schema: %s", e)
 
-    # Create analytics tables (sync)
-    try:
-        BaseSync.metadata.create_all(bind=engine_sync)
-        log.info("Analytics DB schema ensured (sync).")
-    except Exception as e:
-        log.error("Could not ensure analytics DB schema: %s", e)
-
+    asyncio.create_task(_ensure_schemas())
     yield
     await engine_async.dispose()
 
