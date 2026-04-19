@@ -96,8 +96,8 @@ async def health():
     return {
         "status": "ok",
         "env": settings.app_env,
-        "model": settings.anthropic_model,
-        "anthropicConfigured": bool(settings.anthropic_api_key),
+        "model": settings.anthropic_model_clean,
+        "anthropicConfigured": bool(settings.anthropic_api_key_clean),
     }
 
 

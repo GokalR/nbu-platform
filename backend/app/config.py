@@ -31,6 +31,14 @@ class Settings(BaseSettings):
     max_upload_bytes: int = 5 * 1024 * 1024
 
     @property
+    def anthropic_model_clean(self) -> str:
+        return self.anthropic_model.strip()
+
+    @property
+    def anthropic_api_key_clean(self) -> str:
+        return self.anthropic_api_key.strip()
+
+    @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 

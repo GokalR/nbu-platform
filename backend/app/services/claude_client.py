@@ -75,11 +75,11 @@ def build_user_message(context: dict[str, Any]) -> str:
 
 def analyze(context: dict[str, Any], lang: str = "ru", model: str | None = None) -> dict[str, Any]:
     settings = get_settings()
-    if not settings.anthropic_api_key:
+    if not settings.anthropic_api_key_clean:
         raise RuntimeError("ANTHROPIC_API_KEY is not configured")
 
-    client = Anthropic(api_key=settings.anthropic_api_key)
-    used_model = model or settings.anthropic_model
+    client = Anthropic(api_key=settings.anthropic_api_key_clean)
+    used_model = model or settings.anthropic_model_clean
 
     resp = client.messages.create(
         model=used_model,

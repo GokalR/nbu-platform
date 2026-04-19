@@ -119,14 +119,14 @@ def _parse_with_claude(blob: bytes, kind: str) -> dict:
     from anthropic import Anthropic
 
     settings = get_settings()
-    if not settings.anthropic_api_key:
+    if not settings.anthropic_api_key_clean:
         raise RuntimeError("ANTHROPIC_API_KEY is not configured")
 
     text_content = _excel_to_text(blob)
 
-    client = Anthropic(api_key=settings.anthropic_api_key)
+    client = Anthropic(api_key=settings.anthropic_api_key_clean)
     resp = client.messages.create(
-        model=settings.anthropic_model,
+        model=settings.anthropic_model_clean,
         max_tokens=2000,
         system=CLAUDE_PARSE_PROMPT,
         messages=[{
