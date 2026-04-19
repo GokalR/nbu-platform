@@ -2,6 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/LoginView.vue'),
+    meta: { layout: 'blank', public: true },
+  },
+  {
     path: '/',
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
@@ -130,6 +136,18 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+// Auth guard — redirect to /login if not authenticated
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('edu_token')
+  if (!to.meta.public && !token) {
+    next({ name: 'login', query: { redirect: to.fullPath } })
+  } else if (to.name === 'login' && token) {
+    next('/')
+  } else {
+    next()
+  }
 })
 
 export default router
