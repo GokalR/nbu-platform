@@ -1,22 +1,42 @@
-"""Loads peer_benchmarks.json and exposes a comparison helper."""
+"""Loads peer benchmarks and exposes a comparison helper.
+
+Reads from DB first (peer_benchmarks table), falls back to peer_benchmarks.json.
+"""
 from __future__ import annotations
 import json
+import logging
 from functools import lru_cache
 from pathlib import Path
+
+from sqlalchemy.orm import Session
+
+log = logging.getLogger(__name__)
 
 _DATA = Path(__file__).resolve().parent.parent.parent / "data" / "peer_benchmarks.json"
 
 
 @lru_cache(maxsize=1)
-def load() -> dict:
+def _load_from_file() -> dict:
     if not _DATA.exists():
         return {"benchmarks": {}, "companies": [], "note": "peer_benchmarks.json not found"}
     with _DATA.open(encoding="utf-8") as fh:
         return json.load(fh)
 
 
-def compare(user_ratios: dict[str, float | None]) -> list[dict]:
-    bm = load().get("benchmarks", {})
+def load(db: Session | None = None, region: str = "fergana") -> dict:
+    if db is not None:
+        try:
+            from ..models_rs_ref import PeerBenchmarkSet
+            row = db.query(PeerBenchmarkSet).filter_by(region=region).first()
+            if row:
+                return {"benchmarks": row.benchmarks, "companies": row.companies}
+        except Exception as e:
+            log.warning("DB benchmark lookup failed: %s", e)
+    return _load_from_file()
+
+
+def compare(user_ratios: dict[str, float | None], db: Session | None = None) -> list[dict]:
+    bm = load(db=db).get("benchmarks", {})
     out = []
     for key, row in bm.items():
         user = user_ratios.get(key)

@@ -65,4 +65,9 @@ export const rsApi = {
   latestAnalysis: (subId) => request(`/submissions/${subId}/analysis/latest`),
 
   health: () => request('/health'),
+
+  // Reference data (cities + benchmarks from DB)
+  getCities: () => request('/reference/cities'),
+  getCity: (id) => request(`/reference/cities/${id}`),
+  getBenchmarks: (region = 'fergana') => request(`/reference/benchmarks/${region}`),
 }

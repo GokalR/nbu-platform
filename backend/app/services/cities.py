@@ -1,6 +1,11 @@
 """City/region context used to ground Claude's analysis."""
 from __future__ import annotations
 
+import logging
+from sqlalchemy.orm import Session
+
+log = logging.getLogger(__name__)
+
 PILOT_IDS = ("fergana", "margilan")
 
 CITIES: dict[str, dict] = {
@@ -103,17 +108,39 @@ def _unsupported(hinted_name: str | None) -> dict:
     }
 
 
-def resolve(city_id: str | None, profile: dict | None = None) -> dict:
-    if city_id and city_id in CITIES:
-        return CITIES[city_id]
+def _from_db(city_id: str, db: Session | None) -> dict | None:
+    """Try to load city from DB. Returns None if not found or db unavailable."""
+    if db is None:
+        return None
+    try:
+        from ..models_rs_ref import City
+        row = db.get(City, city_id)
+        if row:
+            result = dict(row.data) if row.data else {}
+            result.update(id=row.id, supported=row.supported, level=row.level,
+                          nameRu=row.name_ru, nameUz=row.name_uz)
+            return result
+    except Exception as e:
+        log.warning("DB city lookup failed for '%s': %s", city_id, e)
+    return None
+
+
+def resolve(city_id: str | None, profile: dict | None = None, db: Session | None = None) -> dict:
+    # Try DB first, then hardcoded fallback
+    if city_id:
+        db_result = _from_db(city_id, db)
+        if db_result:
+            return db_result
+        if city_id in CITIES:
+            return CITIES[city_id]
 
     probe_parts = [str((profile or {}).get(k) or "") for k in ("hudud", "viloyat", "mahalla")]
     probe = " ".join(probe_parts).lower()
 
     if any(m in probe for m in ("marg", "марғ", "марг")):
-        return CITIES["margilan"]
+        return _from_db("margilan", db) or CITIES["margilan"]
     if any(m in probe for m in ("farg", "фарғ", "ферг", "фарг")):
-        return CITIES["fergana"]
+        return _from_db("fergana", db) or CITIES["fergana"]
 
     label = next((p for p in probe_parts if p.strip()), None)
     return _unsupported(label)

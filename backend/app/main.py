@@ -22,6 +22,12 @@ from .routes.videos import router as videos_router
 from .routes.analyze import router as analyze_router
 from .routes.excel import router as excel_router
 from .routes.submissions import router as submissions_router
+from .routes.analytics_ref import router as analytics_ref_router
+from .routes.rs_ref import router as rs_ref_router
+
+# Register reference models so create_all() picks them up
+from . import models_analytics_ref  # noqa: F401
+from . import models_rs_ref  # noqa: F401
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("nbu-unified")
@@ -81,6 +87,8 @@ app.include_router(dashboard_router)
 app.include_router(submissions_router, prefix="/api/rs")
 app.include_router(excel_router, prefix="/api/rs")
 app.include_router(analyze_router, prefix="/api/rs")
+app.include_router(rs_ref_router, prefix="/api/rs")
+app.include_router(analytics_ref_router)
 
 
 @app.get("/health", tags=["meta"])

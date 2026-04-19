@@ -12,8 +12,8 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/submissions/{sub_id}/analysis", tags=["analysis"])
 
 
-def _build_context(sub: Submission) -> dict:
-    city = cities.resolve(sub.city_id, sub.profile)
+def _build_context(sub: Submission, db) -> dict:
+    city = cities.resolve(sub.city_id, sub.profile, db=db)
 
     user_ratios = None
     user_absolutes = None
@@ -24,7 +24,7 @@ def _build_context(sub: Submission) -> dict:
             user_absolutes = computed.get("absolutes")
             break
 
-    peer_comparison = benchmarks.compare(user_ratios or {}) if user_ratios else []
+    peer_comparison = benchmarks.compare(user_ratios or {}, db=db) if user_ratios else []
 
     return {
         "lang": sub.lang,
@@ -46,7 +46,7 @@ def run_analysis(sub_id: str, body: AnalysisRequest | None = None, db: Session =
 
     lang = (body and body.lang) or sub.lang or "ru"
     model_override = body.model if body else None
-    ctx = _build_context(sub)
+    ctx = _build_context(sub, db)
 
     try:
         result = claude_client.analyze(ctx, lang=lang, model=model_override)
