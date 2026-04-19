@@ -11,8 +11,8 @@ const { locale } = useI18n()
 const { lang } = useRsLang()
 
 const T = {
-  ru: { home: 'Главная', businessTest: 'Бизнес-тест', about: 'О платформе', logoAlt: 'NBU — Национальный банк Узбекистана', backToHub: 'В NBU AI Hub' },
-  uz: { home: 'Bosh sahifa', businessTest: 'Biznes-test', about: 'Platforma haqida', logoAlt: 'NBU — Oʻzbekiston Milliy banki', backToHub: 'NBU AI Hub-ga' },
+  ru: { home: 'Главная', businessTest: 'Бизнес-тест', myResults: 'Мои результаты', about: 'О платформе', logoAlt: 'NBU — Национальный банк Узбекистана', backToHub: 'В NBU AI Hub' },
+  uz: { home: 'Bosh sahifa', businessTest: 'Biznes-test', myResults: 'Natijalarim', about: 'Platforma haqida', logoAlt: 'NBU — Oʻzbekiston Milliy banki', backToHub: 'NBU AI Hub-ga' },
 }
 const t = computed(() => T[lang.value])
 
@@ -26,6 +26,7 @@ const setLang = (v) => { locale.value = v; try { localStorage.setItem('nbu.local
 const nav = computed(() => ([
   { key: 'home', href: '/tools/regional-strategist' },
   { key: 'businessTest', href: '/tools/regional-strategist/test' },
+  { key: 'myResults', href: '/tools/regional-strategist/my-results' },
   { key: 'about', href: '#about' },
 ]))
 </script>
