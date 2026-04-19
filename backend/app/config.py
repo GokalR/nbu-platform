@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # Analytics / Claude
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-sonnet-4-6"
+    anthropic_model: str = "claude-sonnet-4-20250514"
     anthropic_max_tokens: int = 2000
     max_upload_bytes: int = 5 * 1024 * 1024
 
