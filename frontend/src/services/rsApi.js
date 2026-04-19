@@ -17,11 +17,18 @@ let runtimeDisabled = false
 
 const isConfigured = () => Boolean(BASE) && !runtimeDisabled
 
+function _authHeaders() {
+  const token = localStorage.getItem('edu_token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 async function request(path, options = {}) {
   if (!isConfigured()) return { ok: false, reason: 'no-backend' }
   try {
+    const auth = _authHeaders()
+    const contentHeaders = options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }
     const res = await fetch(`${BASE}${path}`, {
-      headers: options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' },
+      headers: { ...contentHeaders, ...auth },
       ...options,
     })
     if (!res.ok) {
@@ -65,6 +72,9 @@ export const rsApi = {
   latestAnalysis: (subId) => request(`/submissions/${subId}/analysis/latest`),
 
   health: () => request('/health'),
+
+  // User's submission history (requires auth)
+  mySubmissions: () => request('/submissions/my'),
 
   // Reference data (cities + benchmarks from DB)
   getCities: () => request('/reference/cities'),

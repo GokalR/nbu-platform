@@ -22,6 +22,8 @@ class Submission(BaseSync):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
+    user_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+
     profile: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     finance: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 

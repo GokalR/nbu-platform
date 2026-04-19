@@ -17,6 +17,7 @@ class SubmissionOut(BaseModel):
     id: str
     created_at: datetime
     updated_at: datetime
+    user_id: Optional[str] = None
     profile: dict[str, Any]
     finance: dict[str, Any]
     city_id: Optional[str]
@@ -24,6 +25,10 @@ class SubmissionOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SubmissionWithAnalysis(SubmissionOut):
+    latest_analysis: Optional[dict[str, Any]] = None
 
 
 class UploadOut(BaseModel):
