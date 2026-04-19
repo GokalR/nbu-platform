@@ -106,6 +106,27 @@ async def api_health():
     return {"status": "ok"}
 
 
+@app.post("/api/seed-ref", tags=["meta"])
+def seed_reference_data():
+    """Seed analytics regions + RS cities/benchmarks. Idempotent — safe to call repeatedly."""
+    import sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    results = {}
+    try:
+        from seed_rs import seed as seed_rs
+        seed_rs()
+        results["rs"] = "ok"
+    except Exception as e:
+        results["rs"] = f"error: {e}"
+    try:
+        from seed_analytics import seed as seed_analytics
+        seed_analytics()
+        results["analytics"] = "ok"
+    except Exception as e:
+        results["analytics"] = f"error: {e}"
+    return {"status": "done", "results": results}
+
+
 @app.post("/api/seed", tags=["meta"])
 async def run_seed():
     """One-time endpoint to seed education data. Only works in dev/staging."""
