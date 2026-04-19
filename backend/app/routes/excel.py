@@ -5,7 +5,7 @@ from ..config import get_settings
 from ..db_sync import get_db
 from ..models_analytics import ExcelUpload, Submission
 from ..schemas import UploadOut
-from ..services import excel_parser, ratios
+from ..services import excel_parser
 
 import logging
 log = logging.getLogger(__name__)
@@ -33,28 +33,31 @@ async def upload_excel(
         raise HTTPException(413, f"File too large (>{settings.max_upload_bytes} bytes)")
 
     try:
-        parsed_codes = excel_parser.parse(kind, blob)
+        parsed = excel_parser.parse(kind, blob)
     except Exception as e:
         log.error("Excel parse error for submission %s: %s", sub_id, e)
         raise HTTPException(422, "Could not parse the uploaded Excel file. Please check the format.") from e
 
-    combined_form1 = parsed_codes if kind == "balance" else None
-    combined_form2 = parsed_codes if kind == "pnl" else None
-
-    for prev in sub.uploads:
-        if prev.kind == "balance" and kind == "pnl":
-            combined_form1 = prev.parsed.get("codes", {})
-        elif prev.kind == "pnl" and kind == "balance":
-            combined_form2 = prev.parsed.get("codes", {})
-
-    computed = ratios.compute(combined_form1, combined_form2)
+    # Claude returns { "codes": {...}, "computed": { "absolutes": {...}, "ratios": {...} } }
+    # Rule-based fallback returns just codes dict — wrap it for compatibility
+    if "computed" not in parsed:
+        from ..services import ratios
+        combined_form1 = parsed if kind == "balance" else None
+        combined_form2 = parsed if kind == "pnl" else None
+        for prev in sub.uploads:
+            if prev.kind == "balance" and kind == "pnl":
+                combined_form1 = prev.parsed.get("codes", {})
+            elif prev.kind == "pnl" and kind == "balance":
+                combined_form2 = prev.parsed.get("codes", {})
+        computed = ratios.compute(combined_form1, combined_form2)
+        parsed = {"codes": parsed, "computed": computed}
 
     rec = ExcelUpload(
         submission_id=sub_id,
         kind=kind,
         original_filename=file.filename or "upload.xlsx",
         size_bytes=len(blob),
-        parsed={"codes": parsed_codes, "computed": computed},
+        parsed=parsed,
         raw_blob=None,
     )
     db.add(rec)
