@@ -99,14 +99,14 @@
       "summary": "Hulosa va reja"
     },
     "metrics": {
-      "grpGrowth": "YaRP oʻsish surʻati",
+      "grpGrowth": "YaHM oʻsish surʻati",
       "industry": "Sanoat mahsulotlari",
       "agri": "Qishloq xoʻjaligi",
       "trade": "Savdo aylanmasi"
     },
     "brief": {
       "population": "Aholi soni",
-      "grpEstimate": "YaRP (taxminiy)",
+      "grpEstimate": "YaHM (taxminiy)",
       "avgGrowth": "Oʻrt. oʻsish",
       "cities": "Shaharlar",
       "districts": "Tumanlar",
@@ -139,10 +139,10 @@
       "eyebrow": "EXECUTIVE BRIEF"
     },
     "cards": {
-      "grpInvestTitle": "YaRP va investitsiyalar, 2021–2025",
+      "grpInvestTitle": "YaHM va investitsiyalar, 2021–2025",
       "grpInvestForecast": "(+ prognoz)",
       "grpInvestSub": "Asosiy makroiqtisodiy koʻrsatkichlar dinamikasi",
-      "grpStructTitle": "YaRP tuzilmasi",
+      "grpStructTitle": "YaHM tuzilmasi",
       "grpStructSub": "Sektorlar ulushi, 2025",
       "foreignTradeTitle": "Tashqi savdo",
       "foreignTradeSub": "Eksport, import va saldo, 2025",
@@ -246,7 +246,7 @@
       "aiRecTitle": "AI Tavsiya · NBU"
     },
     "legends": {
-      "grp": "YaRP, mlrd soʻm",
+      "grp": "YaHM, mlrd soʻm",
       "invest": "Investitsiyalar, mlrd soʻm",
       "formal": "Rasmiy",
       "informal": "Norasmiy",
