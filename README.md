@@ -1,5 +1,35 @@
 # NBU Platform — Technical Documentation
 
+## Quick Reference (for Claude context)
+
+- **Frontend repo**: `GokalR/nbu-platform` → Cloudflare Pages at `nbu-platform.pages.dev`
+- **Backend**: Railway (Docker) — Unified FastAPI
+- **Database**: PostgreSQL on Railway
+  - Internal: `postgresql://postgres:ruPcQZwdfSMHItuJGVsVZJruiiBRcuIo@postgres.railway.internal:5432/railway`
+  - Public: `nozomi.proxy.rlwy.net:56993`
+- **AI model**: `claude-sonnet-4-6-20250627` (full ID required — short names cause 404)
+- **Local dir**: `c:\Users\User\Downloads\Projects\NBU-clean`
+- **Auth**: JWT stored as `edu_token` in localStorage, route guard on all pages
+- **Sync auth for RS**: `backend/app/auth_sync.py` — decodes JWT without DB query
+- **Login page**: V3 Product design (split layout with dashboard preview) — converted from React `frontend/newdesign/`
+- **bcrypt**: Pinned to `4.0.1` (>=4.1 breaks passlib)
+- **Railway env vars**: Can have trailing `\n` — always `.strip()` in Python
+- **`create_all()`**: Only creates NEW tables, does NOT add columns — use `ALTER TABLE` for schema changes
+- **DO NOT** use `GokalR/testing` repo — has >100MB video files blocking pushes
+
+### Pending SQL (run in Railway if not done)
+```sql
+ALTER TABLE submissions ADD COLUMN user_id VARCHAR(36);
+CREATE INDEX idx_submissions_user_id ON submissions(user_id);
+```
+
+### Submissions table `user_id`
+- Added to `models_analytics.py` as `Mapped[str | None]`, nullable, indexed
+- `auth_sync.py` provides `get_current_user_id()` — optional auth for RS routes
+- `GET /submissions/my` — returns authenticated user's past submissions with latest analysis
+
+---
+
 ## Architecture Overview
 
 ```
@@ -267,7 +297,7 @@ python-dotenv >= 1.0.0
 | `APP_ENV` | `production` |
 | `CORS_ORIGINS` | `https://nbu-testing.devgokal.com` |
 | `ANTHROPIC_API_KEY` | Claude API key |
-| `ANTHROPIC_MODEL` | `claude-sonnet-4-6` |
+| `ANTHROPIC_MODEL` | `claude-sonnet-4-6-20250627` (full ID required) |
 | `SECRET_KEY` | JWT signing key |
 | `VIDEO_BASE_URL` | `https://videos.nbu-testing.devgokal.com` |
 
