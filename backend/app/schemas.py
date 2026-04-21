@@ -129,3 +129,37 @@ class BenchmarkSetOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CityDistrictOut(BaseModel):
+    id: str
+    city_id: str
+    name_ru: str
+    name_uz: str
+    sort_order: int
+    data: dict[str, Any]
+
+    class Config:
+        from_attributes = True
+
+
+class CityEnterpriseOut(BaseModel):
+    id: str
+    city_id: str
+    sector: str
+    name: str
+    district_id: Optional[str] = None
+    data: dict[str, Any]
+
+    class Config:
+        from_attributes = True
+
+
+class CreditProductOut(BaseModel):
+    id: str
+    tier: str
+    sort_order: int
+    data: dict[str, Any]
+
+    class Config:
+        from_attributes = True

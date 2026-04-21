@@ -80,4 +80,14 @@ export const rsApi = {
   getCities: () => request('/reference/cities'),
   getCity: (id) => request(`/reference/cities/${id}`),
   getBenchmarks: (region = 'fergana') => request(`/reference/benchmarks/${region}`),
+  getCityDistricts: (cityId) => request(`/reference/districts?city_id=${encodeURIComponent(cityId)}`),
+  getCityEnterprises: (cityId, sector = '') => {
+    const q = new URLSearchParams({ city_id: cityId })
+    if (sector) q.set('sector', sector)
+    return request(`/reference/enterprises?${q.toString()}`)
+  },
+  getCreditProducts: (tier = '') => {
+    const q = tier ? `?tier=${encodeURIComponent(tier)}` : ''
+    return request(`/reference/credit-products${q}`)
+  },
 }

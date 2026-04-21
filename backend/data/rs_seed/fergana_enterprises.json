@@ -1,0 +1,72 @@
+[
+  {
+    "id": "fergana:margilon_silk_factory",
+    "city_id": "fergana",
+    "sector": "textiles",
+    "name": "Маргиланская шёлковая фабрика",
+    "district_id": "margilon",
+    "data": {
+      "type": "production",
+      "workers": 15000,
+      "detail_ru": "22 млн м² шёлка в год. Крупнейшее текстильное предприятие региона.",
+      "detail_uz": "Yiliga 22 mln m² ipak. Viloyatning eng yirik toʻqimachilik korxonasi.",
+      "source": "central-asia.guide"
+    }
+  },
+  {
+    "id": "fergana:yodgorlik_silk",
+    "city_id": "fergana",
+    "sector": "textiles",
+    "name": "Yodgorlik Silk Factory",
+    "district_id": "margilon",
+    "data": {
+      "type": "craft",
+      "workers": 2000,
+      "detail_ru": "Традиционное производство хан-атласа и адраса ручным способом. 250 000 м² шёлка в год.",
+      "detail_uz": "Xon-atlas va adras anʼanaviy qoʻlda tayyorlanadi. Yiliga 250 000 m² ipak.",
+      "source": "britannica.com, advantour.com"
+    }
+  },
+  {
+    "id": "fergana:global_textile",
+    "city_id": "fergana",
+    "sector": "textiles",
+    "name": "Global Textile LLC",
+    "district_id": "fargona",
+    "data": {
+      "type": "production",
+      "workers": 5000,
+      "detail_ru": "62 000 т трикотажа в год. Контракт с французской сетью Kiabi.",
+      "detail_uz": "Yiliga 62 000 t trikotaj. Frantsiyaning Kiabi tarmogʻi bilan shartnoma.",
+      "source": "gov.uz"
+    }
+  },
+  {
+    "id": "fergana:innovative_apparel",
+    "city_id": "fergana",
+    "sector": "textiles",
+    "name": "Innovative Apparel",
+    "district_id": "qoshtepa",
+    "data": {
+      "type": "fdi",
+      "workers": 3500,
+      "detail_ru": "$15 млн FDI (Шри-Ланка). Контракт с H&M. Запуск — август 2025.",
+      "detail_uz": "$15 mln FDI (Shri-Lanka). H&M bilan shartnoma. Ishga tushirish — 2025 avgust.",
+      "source": "trend.az, kursiv.media"
+    }
+  },
+  {
+    "id": "fergana:margilon_crafts",
+    "city_id": "fergana",
+    "sector": "textiles",
+    "name": "Маргиланский центр ремёсел",
+    "district_id": "margilon",
+    "data": {
+      "type": "craft",
+      "workers": 600,
+      "detail_ru": "200+ видов атласа и адраса, ковры, швейные изделия.",
+      "detail_uz": "200+ turdagi atlas va adras, gilamlar, tikuv mahsulotlari.",
+      "source": "uzbekistan.travel"
+    }
+  }
+]

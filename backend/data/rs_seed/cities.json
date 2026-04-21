@@ -1,0 +1,203 @@
+{
+  "fergana": {
+    "name_ru": "Ferganskaya oblast",
+    "name_uz": "Fargʻona viloyati",
+    "level": "province",
+    "supported": true,
+    "data_year": 2025,
+    "data": {
+      "kind": "province",
+      "capital_ru": "g. Fergana",
+      "capital_uz": "Fargʻona sh.",
+      "populationK": 4223.0,
+      "areaKm2": 6760,
+      "districts": 19,
+      "mahallas": 1248,
+      "industryBlnUzs": 45896.1,
+      "industryGrowthPct": 104.3,
+      "industryPerCapitaK": 11185.8,
+      "investmentsBlnUzs": 19955.0,
+      "investmentsGrowthPct": 29.4,
+      "exportsTopPartners": [
+        { "country_ru": "Afganistan", "country_uz": "Afgʻoniston", "usdK": 53084.9, "trend": 14.6 },
+        { "country_ru": "Iran", "country_uz": "Eron", "usdK": 40002.6, "trend": 82.1 },
+        { "country_ru": "Belarus", "country_uz": "Belarus", "usdK": 5884.4, "trend": 28.7 }
+      ],
+      "importsTopPartners": [
+        { "country_ru": "Koreya", "country_uz": "Koreya", "usdK": 25603.0, "trend": -15.5 },
+        { "country_ru": "Germaniya", "country_uz": "Germaniya", "usdK": 24003.7, "trend": 21.9 },
+        { "country_ru": "Indiya", "country_uz": "Hindiston", "usdK": 24324.5, "trend": -27.8 }
+      ],
+      "industries": [
+        { "key": "textiles", "nameRu": "Текстиль", "nameUz": "Тўқимачилик", "blnUzs": 12338.1 },
+        { "key": "chemicals", "nameRu": "Химия", "nameUz": "Кимё", "blnUzs": 5354.4 },
+        { "key": "clothing", "nameRu": "Одежда", "nameUz": "Кийим", "blnUzs": 2841.3 },
+        { "key": "oilRefining", "nameRu": "Нефтепереработка", "nameUz": "Нефть қайта ишлаш", "blnUzs": 2290.9 },
+        { "key": "food", "nameRu": "Пищевая", "nameUz": "Озиқ-овқат", "blnUzs": 2061.2 },
+        { "key": "leather", "nameRu": "Кожа и изделия", "nameUz": "Тери маҳсулотлари", "blnUzs": 1338.3 }
+      ],
+      "topIndustrialDistricts": [
+        { "key": "fergana_city", "nameRu": "Фергана (г.)", "nameUz": "Фарғона ш.", "sharePct": 24.6, "blnUzs": 8587.4 },
+        { "key": "qoqon_city", "nameRu": "Коканд (г.)", "nameUz": "Қўқон ш.", "sharePct": 13.6, "blnUzs": 1880.3 },
+        { "key": "uchkoprik", "nameRu": "Учкоприк", "nameUz": "Учкўприк", "sharePct": 8.8, "blnUzs": 3143.6 },
+        { "key": "qoshtepa", "nameRu": "Кўштепа", "nameUz": "Қўштепа", "sharePct": 6.3, "blnUzs": 2390.8 }
+      ],
+      "strengths": {
+        "ru": [
+          "Крупнейшая промышленная база региона (45,9 трлн сум)",
+          "Развитый текстильный и химический кластер",
+          "Растущий экспорт в Афганистан и Иран",
+          "Плотная сеть из 4 городов + 15 туманов — широкий рынок сбыта"
+        ],
+        "uz": [
+          "Mintaqaning eng yirik sanoat bazasi (45,9 trln soʻm)",
+          "Rivojlangan toʻqimachilik va kimyo klasteri",
+          "Afgʻoniston va Eronga eksportning oʻsishi",
+          "4 shahar + 15 tuman — keng bozor"
+        ]
+      },
+      "challenges": {
+        "ru": [
+          "Неравномерное распределение — 4,9% vs 24,6% между туманами",
+          "Зависимость от импорта сырья из Кореи и Индии",
+          "Сох — всего 0,33% в промышленности региона"
+        ],
+        "uz": [
+          "Notekis taqsimot — tumanlar oʻrtasida 4,9% dan 24,6% gacha",
+          "Koreya va Hindistondan xomashyoga bogʻliqlik",
+          "Soʻx — viloyat sanoatining bor-yoʻgʻi 0,33%"
+        ]
+      },
+      "recommendedSectors": ["textiles", "food", "services", "agriculture"],
+      "hero": {
+        "population":   { "value": 4223.0, "unit": "tis. chel.", "year": 2026 },
+        "industry":     { "value": 45896.1, "unit": "mlrd sum", "year": 2024, "delta": "+104.3%" },
+        "investments":  { "value": 19955.0, "unit": "mlrd sum", "year": 2023, "delta": "+29.4%" },
+        "area":         { "value": 6.76,    "unit": "tis. km²" }
+      },
+      "demographics": {
+        "totalK":  4223.0,
+        "urbanK":  2394.9,
+        "ruralK":  1828.2,
+        "urbanShare": 56.7,
+        "marriages2025": 28896,
+        "marriagesCity":    15239,
+        "marriagesVillage": 13657
+      },
+      "trade": {
+        "exportIranK":      40002.6,
+        "exportAfghanK":    53084.9,
+        "importKoreaK":     25603.0,
+        "importGermanyK":   24003.7
+      },
+      "highlights": {
+        "ru": [
+          "4,223 тыс. человек населения региона (56.7% — городское)",
+          "Промышленность 2024: 45,896 млрд сум (+104.3% за год)",
+          "Инвестиции 2023: 19,955 млрд сум (+29.4%)",
+          "Обрабатывающая промышленность выросла на 104% в 2023",
+          "Площадь региона: 6.76 тыс. км², 15 районов + 4 города",
+          "Экспорт в Афганистан: $53 млн, в Иран: $40 млн (2023)",
+          "61.6% инвестиций финансируются собственными средствами предприятий",
+          "Рост строительства в 2024 — 103.9%",
+          "855 текстильных предприятий (stat.uz, Jan-Oct 2021)",
+          "Ферганская долина — ключевой текстильный и агропромышленный кластер"
+        ],
+        "uz": [
+          "Regionda 4,223 ming aholi (56.7% — shaharda)",
+          "Sanoat 2024: 45,896 mlrd soʻm (+104.3%)",
+          "Investitsiyalar 2023: 19,955 mlrd soʻm (+29.4%)",
+          "Qayta ishlovchi sanoat 2023 yilda 104% ga oʻsdi",
+          "Hudud: 6.76 ming km², 15 tuman + 4 shahar",
+          "Eksport: Afgʻoniston $53 mln, Eron $40 mln (2023)",
+          "Investitsiyalarning 61.6% — korxonalar oʻz mablagʻlari",
+          "2024 yilda qurilish oʻsishi — 103.9%",
+          "855 toʻqimachilik korxonasi (stat.uz, 2021)",
+          "Fargʻona vodiysi — asosiy toʻqimachilik va agrosanoat klasteri"
+        ]
+      }
+    }
+  },
+  "margilan": {
+    "name_ru": "Margilan",
+    "name_uz": "Margʻilon",
+    "level": "city",
+    "supported": true,
+    "data_year": 2025,
+    "data": {
+      "kind": "city",
+      "province_ru": "Ferganskaya obl.",
+      "province_uz": "Fargʻona vil.",
+      "populationK": 261.9,
+      "areaKm2": 52,
+      "densityPerKm2": 5035,
+      "mahallas": 50,
+      "households": 46580,
+      "youthSharePct": 54,
+      "industryBlnUzs": 2459,
+      "industryGrowthPct": 71,
+      "industryShareOfProvincePct": 4.9,
+      "industryPerCapitaK": 9461,
+      "smeSharePct": 97,
+      "exportsBlnUzs": 450,
+      "exportsGrowthPct": 202,
+      "investmentsBlnUzs": 1281,
+      "investmentsGrowthPct": 83,
+      "avgSalaryKUzs": 3974,
+      "avgSalaryMigrantsKUzs": 7700,
+      "tourismPerYear": 380000,
+      "tourismObjects": 42,
+      "unemploymentPct": 5.8,
+      "activeEnterprises": 2787,
+      "activeIp": 7143,
+      "ipActiveSharePct": 46.4,
+      "ipSuspendedSharePct": 43.1,
+      "nplPct": 4.6,
+      "economyStructure": [
+        { "key": "retail", "nameRu": "Розница и опт", "nameUz": "Чакана ва улгуржи", "pct": 38.2, "tag": "№1" },
+        { "key": "services", "nameRu": "Услуги и туризм", "nameUz": "Хизматлар ва туризм", "pct": 23.8, "tag": "+107%" },
+        { "key": "industry", "nameRu": "Промышленность", "nameUz": "Саноат", "pct": 19.4, "tag": "слабо" },
+        { "key": "construction", "nameRu": "Строительство", "nameUz": "Қурилиш", "pct": 12.1 },
+        { "key": "other", "nameRu": "Прочее", "nameUz": "Бошқа", "pct": 6.5 }
+      ],
+      "topSectors": [
+        { "key": "food", "nameRu": "Пищевая (562 активных)", "nameUz": "Озиқ-овқат (562)", "blnUzs": 471 },
+        { "key": "textiles", "nameRu": "Текстиль (ручное + атлас)", "nameUz": "Тўқимачилик (атлас)", "blnUzs": 394 },
+        { "key": "shoes", "nameRu": "Обувь", "nameUz": "Пойабзал", "blnUzs": 257 },
+        { "key": "construction_mat", "nameRu": "Стройматериалы", "nameUz": "Қурилиш ашёлари", "blnUzs": 104 },
+        { "key": "furniture", "nameRu": "Мебель", "nameUz": "Мебел", "blnUzs": 44 }
+      ],
+      "creditPlan2026BlnUzs": 1500,
+      "creditPlan2026Jobs": 3614,
+      "strengths": {
+        "ru": [
+          "Рекордный экспорт 450 млрд сум (+202%) — атлас, трикотаж, фрукты",
+          "Туризм: 380 тыс. гостей в год, 42 объекта",
+          "97% экономики — МСБ, низкий порог входа",
+          "План NBU: 1,5 трлн сум новых кредитов (×5,6) и 3 614 рабочих мест"
+        ],
+        "uz": [
+          "Rekord eksport 450 mlrd soʻm (+202%) — atlas, trikotaj, mevalar",
+          "Turizm: yiliga 380 ming mehmon, 42 obʻekt",
+          "97% iqtisodiyot — MSB, kirish toʻsigʻi past",
+          "NBU rejasi: 1,5 trln soʻm yangi kreditlar (×5,6) va 3 614 ish oʻrni"
+        ]
+      },
+      "challenges": {
+        "ru": [
+          "Миграционный кризис: 15,6 тыс. за рубежом, 76% — ради заработка",
+          "43,1% ИП в приостановке — низкая рентабельность розницы",
+          "Промпроизводство на душу в 4× ниже Ферганы (9,5 тыс. vs 38,2 тыс. сум)",
+          "«Спящий» бизнес + теневая экономика ~37% активности"
+        ],
+        "uz": [
+          "Migratsiya: 15,6 ming chet elda, 76% — ish uchun",
+          "43,1% YaTT toʻxtatilgan — chakana past rentabellik",
+          "Jon boshiga sanoat Fargʻonadan 4× past (9,5 vs 38,2 ming soʻm)",
+          "«Uxlab yotgan» biznes + ~37% norasmiy faoliyat"
+        ]
+      },
+      "recommendedSectors": ["textiles", "services", "food", "tourism"]
+    }
+  }
+}

@@ -2,6 +2,7 @@
 import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRsLang } from '@/composables/useRsLang'
+import { useRsReference } from '@/composables/useRsReference'
 import { useRegionalStrategistStore } from '@/stores/regionalStrategist'
 import RsStatusTag from '@/components/regionalStrategist/RsStatusTag.vue'
 import RsInsightBox from '@/components/regionalStrategist/RsInsightBox.vue'
@@ -17,6 +18,21 @@ import { matchCreditProducts, collateralLabel } from '@/data/regionalStrategist/
 import { computeScore, peerMediansFor } from '@/data/regionalStrategist/scoring'
 import { rsApi } from '@/services/rsApi'
 import { generateLocalAnalysisAsync } from '@/services/rsLocalAnalysis'
+
+// Map user's business direction to a sector key the backend uses to filter
+// enterprises and the Yandex map. Kept as a pure lookup so the composable
+// can react when the user changes their answer.
+function directionToSector(direction = '') {
+  const d = String(direction || '').toLowerCase()
+  if (/tsentr|o.?quv|учебн|детск|богча|бо.?ча|sad|bog|kindergarten/.test(d)) return 'education'
+  if (/tikuv|shvey|швей|atlas|textile|тексти|одежд|kiy/.test(d)) return 'textiles'
+  if (/non|khleb|хлеб|konditer|кондитер|food|oshpaz|pitan/.test(d)) return 'food'
+  if (/avto|auto|transport|mashin/.test(d)) return 'auto'
+  if (/mebel|furniture|мебел/.test(d)) return 'furniture'
+  if (/salon|krasot|gozall|go.?zall|parikmax|sartarosh|beauty/.test(d)) return 'beauty'
+  if (/med|tibbiy|medit/.test(d)) return 'medical'
+  return ''
+}
 
 const emit = defineEmits(['restart'])
 const { lang } = useRsLang()
@@ -34,138 +50,6 @@ onUnmounted(() => {
 const store = useRegionalStrategistStore()
 const { profile, finance, submissionId, uploads, analysis, analysisStatus } = storeToRefs(store)
 
-// Fergana-city + kindergarten override for section subtitles and project copy.
-// Applied on top of STEP5_T[lang] when the user's direction + city match.
-// Keeps Margilan branch untouched.
-const FERGANA_KINDERGARTEN_OVERRIDE = {
-  ru: {
-    aiConclusionText:
-      'Бизнес имеет хороший потенциал для расширения. Сильные стороны — стабильная история (3–5 лет) и нулевая кредитная нагрузка при ROE 15,5%. Основной риск — текущая ликвидность 1,19 (ниже нормы 1,5). Расширение на 2 ясельные группы (2–3 года) закрывает рыночный пробел в маҳалле и увеличивает выручку на 35–45%.',
-    section2Sub: 'Частный детский сад — Фарғона шаҳар, Мирзо Улуғбек MFY',
-    section3Sub: 'Ферганская область · 15 районов + 4 города · 98 319 рождений в 2025 → базовый спрос на ДОУ',
-    locationInsightText:
-      'Мирзо Улуғбек MFY в Фарғона шаҳар — городская маҳалла в столице области (328 409 жителей). Рождаемость региона 98 319 в 2025 году (+0,2%) обеспечивает стабильный приток детей. Государственных ясель в радиусе 1 км — нет; ближайшие частные ДОУ работают с 3 лет. Ниша для групп 2–3 лет открыта.',
-    section4Title: 'Бизнес-план: расширение частного детского сада',
-    section4Sub: 'ERKIN PARVOZ NURI OLTIN · +2 ясельные группы · Фарғона шаҳар',
-    projectDescText:
-      'Расширение действующего частного детского сада ERKIN PARVOZ NURI OLTIN MCHJ (ИФУТ 85100, Мирзо Улуғбек MFY, г. Фергана) на 2 ясельные группы для детей 2–3 лет. Ремонт + мебель + оборудование = ~800 млн сум. Дополнительно 36–44 места × 400 тыс. сум/мес × 10 мес. ≈ +1,2–1,5 млрд сум/год выручки при марже 12–14%.',
-    coursesLabel: 'НОВЫЕ УСЛУГИ',
-    courses: [
-      'Ясельная группа (2–3 года)',
-      'Полный день 7:30–18:30',
-      'Питание 4-разовое',
-      'Музыкальные занятия',
-      'Физкультура + бассейн',
-      'Логопед (вводится)',
-      'Раннее развитие речи',
-      'Подготовка к мл. группе',
-    ],
-    studentsCol: 'Дети',
-    STARTUP_COSTS: [
-      ['Ремонт и подготовка 2 помещений', '250 млн'],
-      ['Мебель, кроватки, шкафчики', '150 млн'],
-      ['Игровое и развивающее оборудование', '120 млн'],
-      ['Кухонное оборудование (расширение)', '80 млн'],
-      ['Игрушки, учебные материалы', '50 млн'],
-      ['Сантехника, безопасность, пожарная сигнализация', '80 млн'],
-      ['Лицензии и маркетинг', '70 млн'],
-    ],
-    startupTotal: '800 млн сум',
-    MONTHLY_COSTS: [
-      ['Зарплата (4 воспитателя + 2 нянечки)', '42 млн'],
-      ['Питание детей (4-разовое)', '20 млн'],
-      ['Коммунальные услуги', '10 млн'],
-      ['Повар + помощник', '12 млн'],
-      ['Учебные материалы, игрушки', '5 млн'],
-      ['Прочие (хозтовары, медикаменты)', '6 млн'],
-    ],
-    monthlyTotal: '95 млн/мес',
-    REVENUE_FORECAST: [
-      { period: 'Месяц 1–3', students: 20, revenue: '8 млн', profit: '-14 млн', profitPositive: false },
-      { period: 'Месяц 4–6', students: 30, revenue: '12 млн', profit: '-2 млн', profitPositive: false },
-      { period: 'Месяц 7–9', students: 38, revenue: '15,2 млн', profit: '+4 млн', profitPositive: true },
-      { period: 'Месяц 10–12', students: 44, revenue: '17,6 млн', profit: '+8 млн', profitPositive: true },
-    ],
-    revenueForecastLabel: 'ПРОГНОЗ ВЫРУЧКИ (400 тыс. сум/мес за место, 2 новые группы)',
-    breakeven: 'Точка безубыточности: месяц 4–5 (при наполняемости 70%+)',
-    ACTION_STEPS: [
-      { week: 'Неделя 1–2', title: 'Доработка бизнес-плана', desc: 'Финансовые прогнозы на 2 ясельные группы, расчёт себестоимости питания', status: 'warning' },
-      { week: 'Неделя 3–4', title: 'Подача заявки на кредит', desc: 'Подать на «Развивайся» (23%, до 3,5 млрд, 48 мес.) в отделение NBU Фергана', status: 'negative' },
-      { week: 'Месяц 2', title: 'Проектирование помещений', desc: 'Согласовать планировку 2 групповых комнат, спальни, санузлов с СЭС', status: 'neutral' },
-      { week: 'Месяц 2–3', title: 'Ремонт и оборудование', desc: 'Закупка кроваток, шкафчиков, игрового оборудования, кухонной техники', status: 'neutral' },
-      { week: 'Месяц 3', title: 'Набор персонала', desc: '4 воспитателя + 2 нянечки + повар; медосмотр, аттестация', status: 'neutral' },
-      { week: 'Месяц 3–4', title: 'Маркетинг и набор детей', desc: 'Объявления в маҳалле, соцсети, дни открытых дверей для родителей', status: 'neutral' },
-      { week: 'Месяц 4', title: 'Открытие 2 ясельных групп', desc: 'Приём первых 20 детей (2–3 года), запуск 4-разового питания', status: 'positive' },
-      { week: 'Месяц 7–8', title: 'Выход на окупаемость', desc: '38+ детей, выручка 15+ млн/мес, покрытие расходов расширения', status: 'positive' },
-    ],
-    ctaSubtitle: 'Подайте заявку на «Развивайся» (до 3,5 млрд, 23%, 48 мес.) — оптимально под расширение с залогом недвижимости.',
-    MAHALLA_RANKING: null,
-  },
-  uz: {
-    aiConclusionText:
-      'Biznes kengaytirish uchun yaxshi potentsialga ega. Kuchli tomonlar — barqaror tarix (3–5 yil) va nol kredit yuki, ROE 15,5%. Asosiy xavf — joriy likvidlik 1,19 (norma 1,5 dan past). 2 ta yasli guruh (2–3 yosh) ochish mahalladagi bozor boʻshligini toʻldiradi va tushumni 35–45% ga oshiradi.',
-    section2Sub: 'Xususiy bolalar bogʻchasi — Fargʻona sh., Mirzo Ulugʻbek MFY',
-    section3Sub: 'Fargʻona viloyati · 15 tuman + 4 shahar · 2025 yilda 98 319 tugʻilish → bolalar bogʻchasiga asosiy talab',
-    locationInsightText:
-      'Fargʻona sh. Mirzo Ulugʻbek MFY — viloyat markazi shaharida joylashgan (328 409 aholi). 2025 yildagi tugʻilish 98 319 (+0,2%) barqaror bolalar oqimini taʻminlaydi. 1 km radiusda davlat yasli yoʻq; yaqin xususiy bogʻchalar 3 yoshdan ishlaydi. 2–3 yoshli guruhlar uchun nisha ochiq.',
-    section4Title: 'Biznes-reja: xususiy bolalar bogʻchasini kengaytirish',
-    section4Sub: 'ERKIN PARVOZ NURI OLTIN · +2 yasli guruh · Fargʻona sh.',
-    projectDescText:
-      'Amaldagi xususiy bolalar bogʻchasi ERKIN PARVOZ NURI OLTIN MCHJ (IFUT 85100, Mirzo Ulugʻbek MFY, Fargʻona sh.) ni 2 ta yasli guruh (2–3 yosh) bilan kengaytirish. Taʻmir + mebel + jihoz = ~800 mln soʻm. Qoʻshimcha 36–44 oʻrin × 400 ming soʻm/oy × 10 oy ≈ +1,2–1,5 mlrd soʻm/yil tushum, marja 12–14%.',
-    coursesLabel: 'YaNGI XIZMATLAR',
-    courses: [
-      'Yasli guruh (2–3 yosh)',
-      'Toʻliq kun 7:30–18:30',
-      '4 mahal ovqat',
-      'Musiqa mashgʻulotlari',
-      'Jismoniy tarbiya + hovuz',
-      'Logoped (kiritiladi)',
-      'Erta nutq rivojlanishi',
-      'Kichik guruhga tayyorgarlik',
-    ],
-    studentsCol: 'Bolalar',
-    STARTUP_COSTS: [
-      ['2 ta xonani taʻmirlash va tayyorlash', '250 mln'],
-      ['Mebel, krovatkalar, shkafchalar', '150 mln'],
-      ['Oʻyin va rivojlantiruvchi jihozlar', '120 mln'],
-      ['Oshxona jihozlari (kengaytirish)', '80 mln'],
-      ['Oʻyinchoqlar, oʻquv materiallari', '50 mln'],
-      ['Santexnika, xavfsizlik, yongʻin signalizatsiyasi', '80 mln'],
-      ['Litsenziyalar va marketing', '70 mln'],
-    ],
-    startupTotal: '800 mln soʻm',
-    MONTHLY_COSTS: [
-      ['Ish haqi (4 tarbiyachi + 2 enaga)', '42 mln'],
-      ['Bolalar ovqati (4 mahal)', '20 mln'],
-      ['Kommunal xizmatlar', '10 mln'],
-      ['Oshpaz + yordamchi', '12 mln'],
-      ['Oʻquv materiallari, oʻyinchoqlar', '5 mln'],
-      ['Boshqa (xoʻjalik, dori-darmon)', '6 mln'],
-    ],
-    monthlyTotal: '95 mln/oy',
-    REVENUE_FORECAST: [
-      { period: '1–3 oy', students: 20, revenue: '8 mln', profit: '-14 mln', profitPositive: false },
-      { period: '4–6 oy', students: 30, revenue: '12 mln', profit: '-2 mln', profitPositive: false },
-      { period: '7–9 oy', students: 38, revenue: '15,2 mln', profit: '+4 mln', profitPositive: true },
-      { period: '10–12 oy', students: 44, revenue: '17,6 mln', profit: '+8 mln', profitPositive: true },
-    ],
-    revenueForecastLabel: 'TUShUM PROGNOZI (400 ming soʻm/oy har oʻrin, 2 yangi guruh)',
-    breakeven: 'Foydalilik nuqtasi: 4–5 oy (toʻldirilish 70%+ da)',
-    ACTION_STEPS: [
-      { week: '1–2 hafta', title: 'Biznes-planni yakunlash', desc: '2 yasli guruh uchun moliyaviy prognozlar, ovqat tannarxini hisoblash', status: 'warning' },
-      { week: '3–4 hafta', title: 'Kreditga ariza berish', desc: 'NBU Fargʻona boʻlimiga «Razvivaysya» (23%, 3,5 mlrdgacha, 48 oy) uchun ariza', status: 'negative' },
-      { week: '2 oy', title: 'Xonalarni loyihalash', desc: '2 guruh xonasi, uxlash xonasi, sanuzellar rejasini SES bilan kelishish', status: 'neutral' },
-      { week: '2–3 oy', title: 'Taʻmir va jihozlash', desc: 'Krovatkalar, shkafchalar, oʻyin jihozlari, oshxona texnikasi sotib olish', status: 'neutral' },
-      { week: '3 oy', title: 'Xodimlarni yollash', desc: '4 tarbiyachi + 2 enaga + oshpaz; tibbiy koʻrik, attestatsiya', status: 'neutral' },
-      { week: '3–4 oy', title: 'Marketing va bolalar yigʻish', desc: 'Mahallada eʻlonlar, ijtimoiy tarmoqlar, ota-onalar uchun ochiq kunlar', status: 'neutral' },
-      { week: '4 oy', title: '2 yasli guruhni ochish', desc: 'Birinchi 20 bola (2–3 yosh) qabul qilish, 4 mahal ovqatni boshlash', status: 'positive' },
-      { week: '7–8 oy', title: 'Foydalilik nuqtasiga chiqish', desc: '38+ bola, tushum 15+ mln/oy, kengaytirish xarajatlarini qoplash', status: 'positive' },
-    ],
-    ctaSubtitle: '«Razvivaysya» (3,5 mlrd soʻmgacha, 23%, 48 oy) uchun ariza bering — koʻchmas mulk garovida kengaytirish uchun optimal.',
-    MAHALLA_RANKING: null,
-  },
-}
-
 // Detect pilot city from the user's profile answers. Only Fergana + Margilan
 // have real data; everything else shows a "data not yet available" state.
 const resolvedCityId = computed(() => {
@@ -175,17 +59,44 @@ const resolvedCityId = computed(() => {
   return null
 })
 const isPilotCity = computed(() => resolvedCityId.value !== null)
-const selectedCity = computed(() => (resolvedCityId.value ? CITIES[resolvedCityId.value] : CITIES.fergana))
 const isMargilan = computed(() => resolvedCityId.value === 'margilan')
 const isFergana = computed(() => resolvedCityId.value === 'fergana')
 
-const isKindergarten = computed(() => /детск|богча|боғча|kindergarten|дошколь/i.test(finance.value.businessDirection || ''))
-const useFerganaKgOverride = computed(() => isFergana.value && isKindergarten.value)
-const t = computed(() => {
-  const base = STEP5_T[lang.value]
-  if (!useFerganaKgOverride.value) return base
-  const ov = FERGANA_KINDERGARTEN_OVERRIDE[lang.value] || {}
-  return { ...base, ...ov }
+// Sector key derived from user's direction answer, feeds enterprise filter + map.
+const resolvedSector = computed(() => directionToSector(finance.value.businessDirection))
+
+// Backend-driven reference data (city KPIs, districts, enterprises, credit products).
+// Non-pilot cities get empty refs — UI renders no-data banners for affected sections.
+const {
+  city: backendCity,
+  districts: backendDistricts,
+  enterprises: backendEnterprises,
+  products: backendProducts,
+  hasCityData,
+  hasDistrictData,
+  hasEnterpriseData,
+} = useRsReference({ cityId: resolvedCityId, sector: resolvedSector })
+
+const selectedCity = computed(() => {
+  if (backendCity.value) return backendCity.value.data || backendCity.value
+  if (resolvedCityId.value && CITIES[resolvedCityId.value]) return CITIES[resolvedCityId.value]
+  return null
+})
+
+const t = computed(() => STEP5_T[lang.value])
+
+// Yandex map covers education centers only today. For other sectors, render
+// a "no coverage yet" banner instead of the iframe. Passing region + sector
+// as URL params lets the static HTML filter its marker dataset accordingly.
+const mapHasCoverage = computed(() => isPilotCity.value && resolvedSector.value === 'education')
+const mapSrc = computed(() => {
+  const region = resolvedCityId.value || ''
+  const sector = resolvedSector.value || ''
+  const qs = new URLSearchParams()
+  if (region) qs.set('region', region)
+  if (sector) qs.set('sector', sector)
+  const query = qs.toString()
+  return `/maps/fergana-education/index.html${query ? `?${query}` : ''}`
 })
 
 // Label the user's own region (what they picked), regardless of pilot status.
@@ -465,7 +376,9 @@ const formatProductCollateral = (p) =>
   p.collateral.map((c) => collateralLabel(c, lang.value)).join(' · ')
 
 /* ── Live score from user data ────────────────────── */
-const scoreResult = computed(() => computeScore(profile.value, finance.value, selectedCity.value.id, extractedFinancials.value))
+const scoreResult = computed(() =>
+  computeScore(profile.value, finance.value, resolvedCityId.value || 'fergana', extractedFinancials.value),
+)
 const RADIUS = 54
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 const scoreOffset = computed(() => CIRCUMFERENCE - (scoreResult.value.total / 100) * CIRCUMFERENCE)
@@ -771,6 +684,7 @@ const onDownload = () => {
           </div>
         </div>
         <button
+          v-if="mapHasCoverage"
           type="button"
           @click="showMap = true"
           class="shrink-0 inline-flex items-center gap-2 text-[13px] font-semibold text-white rounded-[10px] py-2.5 px-5 transition-all hover:shadow-lg bg-navy-900 hover:bg-navy-800"
@@ -779,25 +693,38 @@ const onDownload = () => {
           {{ lang === 'uz' ? 'Toʻliq ekranda ochish' : 'Открыть на весь экран' }}
         </button>
       </div>
-      <!-- Inline map preview — scrolled past header/toolbar to show actual Yandex map -->
-      <div class="relative cursor-pointer group overflow-hidden" style="height: 480px;" @click="showMap = true">
+      <!-- Inline map preview (education only) or no-coverage panel for other sectors -->
+      <div v-if="mapHasCoverage" class="relative cursor-pointer group overflow-hidden" style="height: 480px;" @click="showMap = true">
         <iframe
-          src="/maps/fergana-education/index.html"
+          :src="mapSrc"
           class="w-full border-0 pointer-events-none absolute left-0"
           style="height: 1100px; top: -600px;"
           loading="lazy"
           tabindex="-1"
           :title="t.section7MapTitle"
         />
-        <!-- Gradient fade at bottom to hint "click to expand" -->
         <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white/90 to-transparent pointer-events-none" />
-        <!-- Hover overlay with CTA -->
         <div class="absolute inset-0 bg-transparent group-hover:bg-black/[0.04] transition-colors flex items-center justify-center">
           <span class="inline-flex items-center gap-2 text-[14px] font-bold text-white rounded-full py-3 px-7 shadow-xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200" style="background:rgba(20,159,168,0.94); backdrop-filter: blur(4px);">
             <RsIcon name="maximize-2" :size="16" />
             {{ lang === 'uz' ? 'Xaritani kattalashtirish' : 'Открыть карту' }}
           </span>
         </div>
+      </div>
+      <div v-else class="px-8 py-10 text-center">
+        <div class="mx-auto w-12 h-12 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-3">
+          <RsIcon name="map-pin" :size="20" class="text-amber-600" />
+        </div>
+        <h4 class="font-sans text-[15px] font-bold text-carbon">
+          {{ lang === 'uz'
+            ? 'Bu soha uchun xarita maʻlumotlari tayyorlanmoqda'
+            : 'Данные карты для этой отрасли готовятся' }}
+        </h4>
+        <p class="font-sans text-[13px] text-gray-600 mt-2 max-w-[520px] mx-auto leading-[1.55]">
+          {{ lang === 'uz'
+            ? 'Hozircha xarita faqat taʻlim markazlari uchun toʻldirilgan. Boshqa sohalar uchun — keyingi yangilanishda.'
+            : 'Сейчас карта заполнена только по образовательным центрам. Другие отрасли — в следующих обновлениях.' }}
+        </p>
       </div>
     </section>
 
@@ -892,44 +819,6 @@ const onDownload = () => {
           </span>
         </div>
 
-        <!-- Kindergarten-specific context block -->
-        <div v-if="useFerganaKgOverride"
-             class="mt-5 rounded-[10px] border border-emerald-200 bg-emerald-50/60 px-5 py-4">
-          <div class="flex items-start gap-3">
-            <span class="shrink-0 mt-[2px] inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white text-[12px] font-bold">ДОУ</span>
-            <div class="min-w-0">
-              <div class="text-[13px] font-bold text-emerald-800 mb-1">
-                {{ lang === 'uz' ? 'Maktabgacha taʻlim segmenti — shahar xususiyatlari' : 'Сегмент дошкольного образования — специфика города' }}
-              </div>
-              <ul class="space-y-[6px]">
-                <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
-                  <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
-                  {{ lang === 'uz'
-                    ? 'Fargʻona shaharda davlat bogʻchalarida oʻrinlar tanqisligi; xususiy segment yillik ~10–12% oʻsmoqda.'
-                    : 'В Фарғона шаҳар хронический дефицит мест в госсадах; частный сегмент растёт на ~10–12% в год.' }}
-                </li>
-                <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
-                  <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
-                  {{ lang === 'uz'
-                    ? 'Viloyat boʻyicha 2025 yil 98 319 tugʻilish → kelgusi 2–4 yilda yasli (2–3 yosh) talabi keskin ortadi.'
-                    : 'По области 98 319 рождений в 2025 → спрос на ясли (2–3 года) в ближайшие 2–4 года резко растёт.' }}
-                </li>
-                <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
-                  <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
-                  {{ lang === 'uz'
-                    ? 'Oʻrtacha toʻlov 600 000 – 1 200 000 soʻm/oy; oʻrta sinf oilalar uchun mahalla ichidagi bogʻcha ustuvor.'
-                    : 'Средняя плата 600 000 – 1 200 000 сум/мес; для семей среднего класса приоритетен сад в своей маҳалле.' }}
-                </li>
-                <li class="flex items-start gap-2 text-[13px] text-carbon leading-[1.55]">
-                  <span class="w-[5px] h-[5px] rounded-full bg-emerald-500 mt-[8px] shrink-0" />
-                  {{ lang === 'uz'
-                    ? 'Davlat dasturi «Ilk qadam» — xususiy DOU uchun imtiyoz va qisman moliyalashtirish.'
-                    : 'Госпрограмма «Илк қадам» — льготы и частичное софинансирование для частных ДОУ.' }}
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -1077,7 +966,7 @@ const onDownload = () => {
       <div class="px-8 py-8 space-y-6">
         <RsFerganaHeatmap :direction="finance.businessDirection" />
 
-        <RsInsightBox v-if="isMargilan || useFerganaKgOverride" variant="info" :title="t.locationInsightTitle">
+        <RsInsightBox v-if="isMargilan" variant="info" :title="t.locationInsightTitle">
           {{ t.locationInsightText }}
         </RsInsightBox>
         <RsInsightBox v-else variant="info"
@@ -1090,117 +979,9 @@ const onDownload = () => {
       </div>
     </section>
 
-    <!-- ═══ SECTION 5 — Business Plan ═══ -->
-    <section class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
-      <div
-        class="px-8 py-6"
-        style="background: rgba(41,87,162,0.04); border-bottom: 1px solid rgba(41,87,162,0.1);"
-      >
-        <div class="flex items-center justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0 bg-navy-900">4</span>
-            <div>
-              <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section4Title }}</h2>
-              <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section4Sub }}</p>
-            </div>
-          </div>
-          <span class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-gold-500 bg-gold-500/10 rounded-[6px] py-1 px-2"
-                :title="t.demoBadgeHint">
-            {{ t.demoBadge }}
-          </span>
-        </div>
-      </div>
-      <div class="px-8 py-8 space-y-8">
-        <!-- Description -->
-        <div
-          class="rounded-[8px] py-4 px-5"
-          style="border-left: 3px solid #D7B56D; background: rgba(215,181,109,0.06);"
-        >
-          <div class="font-sans text-[13px] font-bold mb-1 text-gold-500">{{ t.projectDescLabel }}</div>
-          <div class="font-sans text-[14px] font-medium text-carbon leading-[1.6]">
-            {{ t.projectDescText }}
-          </div>
-        </div>
-
-        <!-- Courses -->
-        <div>
-          <div class="font-sans text-[11px] font-semibold uppercase tracking-[1px] text-steel-500 mb-3">{{ t.coursesLabel }}</div>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="c in t.courses" :key="c"
-              class="font-sans text-[13px] font-medium text-navy-900 bg-navy-900/[0.06] rounded-[8px] py-[6px] px-3"
-            >{{ c }}</span>
-          </div>
-        </div>
-
-        <!-- Costs side by side -->
-        <div class="grid grid-cols-2 gap-6">
-          <div>
-            <div class="font-sans text-[11px] font-semibold uppercase tracking-[1px] text-steel-500 mb-3">{{ t.startupCostsLabel }}</div>
-            <div class="border border-rs-border rounded-[10px] overflow-hidden">
-              <div class="divide-y divide-rs-border">
-                <div v-for="row in t.STARTUP_COSTS" :key="row[0]" class="flex justify-between py-3 px-4">
-                  <span class="font-sans text-[13px] text-carbon">{{ row[0] }}</span>
-                  <span class="font-mono text-[13px] font-semibold text-carbon">{{ row[1] }}</span>
-                </div>
-                <div class="flex justify-between py-3 px-4 bg-navy-900/[0.03]">
-                  <span class="font-sans text-[13px] font-bold text-carbon">{{ t.total }}</span>
-                  <span class="font-mono text-[14px] font-bold text-navy-900">{{ t.startupTotal }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="font-sans text-[11px] font-semibold uppercase tracking-[1px] text-steel-500 mb-3">{{ t.monthlyCostsLabel }}</div>
-            <div class="border border-rs-border rounded-[10px] overflow-hidden">
-              <div class="divide-y divide-rs-border">
-                <div v-for="row in t.MONTHLY_COSTS" :key="row[0]" class="flex justify-between py-3 px-4">
-                  <span class="font-sans text-[13px] text-carbon">{{ row[0] }}</span>
-                  <span class="font-mono text-[13px] font-semibold text-carbon">{{ row[1] }}</span>
-                </div>
-                <div class="flex justify-between py-3 px-4 bg-navy-900/[0.03]">
-                  <span class="font-sans text-[13px] font-bold text-carbon">{{ t.total }}</span>
-                  <span class="font-mono text-[14px] font-bold text-navy-900">{{ t.monthlyTotal }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Revenue forecast -->
-        <div>
-          <div class="font-sans text-[11px] font-semibold uppercase tracking-[1px] text-steel-500 mb-3">{{ t.revenueForecastLabel }}</div>
-          <div class="border border-rs-border rounded-[10px] overflow-hidden">
-            <table class="w-full">
-              <thead>
-                <tr class="bg-navy-900/[0.03]">
-                  <th class="text-left font-sans text-[12px] font-semibold text-steel-500 uppercase tracking-[0.5px] py-3 px-4">{{ t.periodCol }}</th>
-                  <th class="text-center font-sans text-[12px] font-semibold text-steel-500 uppercase tracking-[0.5px] py-3 px-4">{{ t.studentsCol }}</th>
-                  <th class="text-right font-sans text-[12px] font-semibold text-steel-500 uppercase tracking-[0.5px] py-3 px-4">{{ t.revenueCol }}</th>
-                  <th class="text-right font-sans text-[12px] font-semibold text-steel-500 uppercase tracking-[0.5px] py-3 px-4">{{ t.profitCol }}</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-rs-border">
-                <tr v-for="r in t.REVENUE_FORECAST" :key="r.period">
-                  <td class="font-sans text-[13px] font-medium text-carbon py-3 px-4">{{ r.period }}</td>
-                  <td class="font-mono text-[13px] font-semibold text-carbon py-3 px-4 text-center">{{ r.students }}</td>
-                  <td class="font-mono text-[13px] font-semibold text-carbon py-3 px-4 text-right">{{ r.revenue }}</td>
-                  <td
-                    :class="[
-                      'font-mono text-[13px] font-bold py-3 px-4 text-right',
-                      r.profitPositive ? 'text-emerald-600' : 'text-red-500',
-                    ]"
-                  >
-                    {{ r.profit }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="font-sans text-[12px] text-steel-500 mt-2 italic">{{ t.breakeven }}</p>
-        </div>
-      </div>
-    </section>
+    <!-- SECTION 4 (Business Plan) removed — it was almost entirely demo content
+         (startup/monthly costs, revenue forecast) hardcoded for one sector.
+         Actionable content now lives in Claude's nextSteps (Section 6 below). -->
 
     <!-- ═══ SECTION 5 — NBU Credit Products (climactic recommendation) ═══ -->
     <section class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
@@ -1406,7 +1187,7 @@ const onDownload = () => {
         </button>
         <!-- Map iframe fills full screen -->
         <iframe
-          src="/maps/fergana-education/index.html"
+          :src="mapSrc"
           class="w-full h-full border-0"
           :title="t.section7MapTitle"
         />

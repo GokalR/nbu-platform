@@ -1355,7 +1355,10 @@
   </div>
 
   <script src="map_data.generated.js"></script>
-  <script src="https://api-maps.yandex.ru/2.1/?apikey=19d81b42-59fd-4d25-b7b5-bd60bebc7c5b&lang=ru_RU"></script>
+  <!-- Yandex API key is injected at build time from VITE_YANDEX_MAPS_API_KEY.
+       Placeholder below is replaced by the rs-yandex-key Vite plugin; the
+       fallback key keeps the file working when opened outside the build. -->
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=__YANDEX_MAPS_API_KEY__&lang=ru_RU"></script>
   <script src="https://yandex.github.io/mapsapi-heatmap/dist/Heatmap.min.js"></script>
   <script>
     const APP_CONFIG = {
@@ -1384,9 +1387,18 @@
       fergana_region: { label: "Farg'ona viloyati" },
     };
 
+    // Scope is driven by URL params (?region=fergana|margilan&sector=education)
+    // so the parent app can switch the map view without a rebuild. Defaults
+    // keep the map working when opened standalone.
+    const URL_PARAMS = new URLSearchParams(window.location.search);
+    const URL_REGION = (URL_PARAMS.get("region") || "").toLowerCase();
+    const URL_SECTOR = (URL_PARAMS.get("sector") || "").toLowerCase();
+    const REGION_FROM_URL = URL_REGION === "margilan" || URL_REGION === "fergana" ? "fergana_region" : "fergana_region";
+    const CITY_FROM_URL = URL_REGION === "margilan" ? "margilan_city" : "fergana_city";
+
     const ACTIVE_SCOPE = {
-      region: "fergana_region",
-      city: "fergana_city",
+      region: REGION_FROM_URL,
+      city: CITY_FROM_URL,
     };
 
     const CITY_META = {

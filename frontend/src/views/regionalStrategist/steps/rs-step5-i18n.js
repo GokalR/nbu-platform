@@ -1,22 +1,25 @@
-// i18n dictionary and data tables for RsStep5Results.vue
-// All long arrays + UI strings live here to keep the SFC focused on markup.
+// i18n dictionary for RsStep5Results.vue.
+//
+// Previously held a pile of Margilan-IT-course demo data (SCORE_FACTORS,
+// MAHALLA_RANKING, STARTUP_COSTS, MONTHLY_COSTS, REVENUE_FORECAST, courses).
+// Those lived alongside FERGANA_KINDERGARTEN_OVERRIDE, which silently swapped
+// them for a kindergarten variant — classic demo rot. Both are gone now:
+// Section 4 (business plan) was deleted, and the remaining sections render
+// dynamic data from the backend + Claude's analysis output.
+//
+// What stays here: pure UI labels + the two fallback demo blocks still wired
+// to the template (SWOT quadrants, ACTION_STEPS roadmap, the NBU product
+// cards). These carry a visible "Шаблонный пример / Namunaviy shablon" badge
+// so users understand they're illustrative.
 
 export const STEP5_T = {
   ru: {
     /* ScoreCircle label */
     outOf100: 'из 100',
 
-    /* Score factors */
-    SCORE_FACTORS: [
-      { label: 'Опыт предпринимателя', value: 80 },
-      { label: 'Финансовая устойчивость', value: 70 },
-      { label: 'Рыночный потенциал', value: 78 },
-      { label: 'Локация', value: 82 },
-      { label: 'Конкуренция', value: 62 },
-      { label: 'Бизнес-модель', value: 72 },
-    ],
-
-    /* SWOT */
+    /* SWOT (fallback — Section 2 shows Claude's strengths/weaknesses when
+       present; these are the static safety net until the UI is rewired to
+       pull SWOT directly from analysis.output). */
     SWOT: {
       strengths: [
         'ООО с 3–5 летней историей — банк оценит стабильность',
@@ -28,7 +31,7 @@ export const STEP5_T = {
         'Ограниченный собственный капитал для расширения',
         'Зависимость от одного филиала',
         'Нет онлайн-платформы для дистанционного обучения',
-        'Сезонные колебания потока студентов',
+        'Сезонные колебания потока клиентов',
       ],
       opportunities: [
         'Гос. программа: подготовить 650 IT-специалистов в Маргилане',
@@ -38,50 +41,15 @@ export const STEP5_T = {
         '1,604 безработных + 974 женщины — целевая аудитория гос. программ',
       ],
       threats: [
-        '31 действующий учебный центр — высокая конкуренция',
+        'Высокая отраслевая конкуренция в регионе',
         'Средняя зарплата 3,974 тыс. сум — ценовое давление',
-        'Отток квалифицированных преподавателей за рубеж',
-        'Сезонный спад летом (июнь–август)',
+        'Отток квалифицированных кадров за рубеж',
+        'Сезонный спад спроса',
       ],
     },
 
-    /* Mahalla ranking */
-    MAHALLA_RANKING: [
-      { name: 'Бахрин', score: 92, reason: 'Центр возвращающихся мигрантов, высокий спрос на переподготовку', stat: '1,218 новых рабочих мест' },
-      { name: 'З.М. Бобур', score: 88, reason: 'Молодёжный район, планируется 1,008 рабочих мест', stat: '1,008 рабочих мест' },
-      { name: 'Кашкар', score: 85, reason: 'Самая высокая бизнес-активность — 19.6% населения = ИП', stat: '1,401 предприниматель' },
-      { name: 'Юксалиш', score: 82, reason: 'Промзона «Навруз» — работодатели нуждаются в обученных кадрах', stat: '150 рабочих мест' },
-      { name: 'Нурафшон', score: 78, reason: 'Развивающийся район с инвестиционными проектами', stat: 'SHOYI SILK проект' },
-      { name: 'Горианвал', score: 75, reason: 'Фонтанная площадь, 15 коммерческих объектов — трафик', stat: '15 объектов' },
-      { name: 'Тояагум', score: 72, reason: 'Набережная 0.9 км — туристический и молодёжный кластер', stat: '11.3 млрд инвестиций' },
-      { name: 'Пичокчи', score: 68, reason: 'Gold Silk, ADB проект — потенциал для курсов рядом с производством', stat: 'ADB проект' },
-    ],
-
-    /* Business plan costs */
-    STARTUP_COSTS: [
-      ['Аренда и ремонт помещения', '80 млн'],
-      ['Компьютеры и оборудование (20 шт.)', '120 млн'],
-      ['Мебель и оснащение классов', '30 млн'],
-      ['Маркетинг и реклама', '20 млн'],
-      ['Оборотные средства (3 мес.)', '50 млн'],
-    ],
-
-    MONTHLY_COSTS: [
-      ['Аренда помещения', '8 млн'],
-      ['Зарплата (6 преподавателей)', '24 млн'],
-      ['Коммунальные услуги', '3 млн'],
-      ['Маркетинг', '4 млн'],
-      ['Прочие расходы', '3 млн'],
-    ],
-
-    REVENUE_FORECAST: [
-      { period: 'Месяц 1–3', students: 40, revenue: '80 млн', profit: '-12 млн', profitPositive: false },
-      { period: 'Месяц 4–6', students: 60, revenue: '120 млн', profit: '+28 млн', profitPositive: true },
-      { period: 'Месяц 7–9', students: 80, revenue: '160 млн', profit: '+68 млн', profitPositive: true },
-      { period: 'Месяц 10–12', students: 100, revenue: '200 млн', profit: '+108 млн', profitPositive: true },
-    ],
-
-    /* Credit products */
+    /* Credit products (match fallback — Section 5 prefers backend credit_products
+       when available, falls back to these cards otherwise). */
     PRIMARY_PRODUCT: {
       name: 'Бизнес прогресс',
       program: 'Келажак тадбиркори',
@@ -93,7 +61,7 @@ export const STEP5_T = {
         ['ЛЬГОТНЫЙ ПЕРИОД', 'До 24 месяцев'],
         ['ЗАЛОГ', 'Ликвидное обеспечение — 125% от суммы кредита'],
         ['НАЗНАЧЕНИЕ', 'Расширение деятельности действующего бизнеса'],
-        ['ПОЧЕМУ ПОДХОДИТ', 'Низкая ставка, длительный срок, большой льготный период — идеально для расширения образовательного центра'],
+        ['ПОЧЕМУ ПОДХОДИТ', 'Низкая ставка, длительный срок, большой льготный период — оптимально для расширения'],
       ],
     },
 
@@ -124,16 +92,16 @@ export const STEP5_T = {
       },
     ],
 
-    /* Action plan */
+    /* Action plan (fallback — Section 6 prefers analysis.output.nextSteps). */
     ACTION_STEPS: [
-      { week: 'Неделя 1–2', title: 'Доработка бизнес-плана', desc: 'Есть черновик — доработать финансовые прогнозы и маркетинговый план', status: 'warning' },
-      { week: 'Неделя 3–4', title: 'Подача заявки на кредит', desc: 'Подать на «Бизнес прогресс» в отделение NBU Маргилан', status: 'negative' },
-      { week: 'Месяц 2', title: 'Поиск помещения', desc: 'Аренда 150–200 м² в мах. Бахрин или З.М. Бобур', status: 'neutral' },
-      { week: 'Месяц 2–3', title: 'Ремонт и оборудование', desc: 'Закупка 20 компьютеров, мебели, ремонт классов', status: 'neutral' },
-      { week: 'Месяц 3', title: 'Набор преподавателей', desc: '6 преподавателей: IT, английский, предпринимательство', status: 'neutral' },
-      { week: 'Месяц 3–4', title: 'Маркетинговая кампания', desc: 'Соцсети, партнёрство с IT-Park, объявления в махаллях', status: 'neutral' },
-      { week: 'Месяц 4', title: 'Запуск второго филиала', desc: 'Открытие и набор первого потока — 40 студентов', status: 'positive' },
-      { week: 'Месяц 6', title: 'Выход на окупаемость', desc: '60+ студентов, выручка 120 млн/мес, чистая прибыль', status: 'positive' },
+      { week: 'Неделя 1–2', title: 'Доработка бизнес-плана', desc: 'Финансовые прогнозы и маркетинговый план', status: 'warning' },
+      { week: 'Неделя 3–4', title: 'Подача заявки на кредит', desc: 'Подать в отделение NBU по месту регистрации бизнеса', status: 'negative' },
+      { week: 'Месяц 2', title: 'Подготовка помещения', desc: 'Аренда/покупка/ремонт согласно проекту', status: 'neutral' },
+      { week: 'Месяц 2–3', title: 'Закупка оборудования', desc: 'Ключевые активы, мебель, техника', status: 'neutral' },
+      { week: 'Месяц 3', title: 'Набор персонала', desc: 'Основная команда под выбранное направление', status: 'neutral' },
+      { week: 'Месяц 3–4', title: 'Маркетинговая кампания', desc: 'Продвижение в соцсетях и в маҳаллях', status: 'neutral' },
+      { week: 'Месяц 4', title: 'Запуск', desc: 'Открытие для первых клиентов', status: 'positive' },
+      { week: 'Месяц 6', title: 'Выход на окупаемость', desc: 'Стабильная выручка, покрытие расходов', status: 'positive' },
     ],
 
     /* UI strings */
@@ -147,9 +115,9 @@ export const STEP5_T = {
     goodPotential: 'Хороший потенциал',
     aiConclusion: 'Вывод AI',
     aiConclusionText:
-      'Ваш бизнес имеет хороший потенциал для расширения. Сильные стороны — стабильная история (3–5 лет) и нулевая кредитная нагрузка. Основной риск — высокая конкуренция (31 учебный центр). Рекомендуем дифференцироваться через IT-направления, которые совпадают со стратегией развития Маргилана.',
+      'Ваш бизнес имеет хороший потенциал для расширения. Сильные стороны — стабильная история и нулевая кредитная нагрузка. Основной риск — высокая отраслевая конкуренция. Рекомендуем дифференцироваться через стратегические направления, совпадающие с программой развития региона.',
     section2Title: 'SWOT-анализ',
-    section2Sub: 'Образовательные курсы — Маргилан, Фергана',
+    section2Sub: 'Ваш бизнес в контексте региональных условий',
     swotStrengths: 'Сильные стороны',
     swotWeaknesses: 'Слабые стороны',
     swotOpportunities: 'Возможности',
@@ -158,34 +126,7 @@ export const STEP5_T = {
     section3Sub: 'Маргилан · 8 из 50 махаллей нанесено — остальные будут добавлены по мере оцифровки',
     locationInsightTitle: 'AI рекомендация по локации',
     locationInsightText:
-      'Лучшие локации для второго филиала — махалля Бахрин (1,218 новых рабочих мест, центр возвращающихся мигрантов) и З.М. Бобур (молодёжный район, 1,008 рабочих мест). Оба района имеют высокий спрос на переподготовку кадров и совпадают с государственными программами занятости.',
-    section4Title: 'Бизнес-план: расширение образовательного центра',
-    section4Sub: 'Открытие второго филиала · IT-направления · Маргилан',
-    projectDescLabel: 'ОПИСАНИЕ ПРОЕКТА',
-    projectDescText:
-      'Расширение действующего образовательного центра с открытием второго филиала в махалле Бахрин. Фокус на IT-направления (AI/ML, data science, кибербезопасность, UX/UI), английский язык и основы предпринимательства. Целевая аудитория — молодёжь (141,500 чел.), возвращающиеся мигранты (10,904 чел.) и безработные (1,798 чел.).',
-    coursesLabel: 'НАПРАВЛЕНИЯ КУРСОВ',
-    courses: [
-      'Python / JavaScript',
-      'AI и Machine Learning',
-      'Data Science',
-      'Кибербезопасность',
-      'UX/UI дизайн',
-      'Английский язык',
-      'Основы предпринимательства',
-      'Digital Marketing',
-    ],
-    startupCostsLabel: 'СТАРТОВЫЕ ЗАТРАТЫ',
-    monthlyCostsLabel: 'ЕЖЕМЕСЯЧНЫЕ РАСХОДЫ',
-    total: 'Итого',
-    startupTotal: '300 млн сум',
-    monthlyTotal: '42 млн/мес',
-    revenueForecastLabel: 'ПРОГНОЗ ВЫРУЧКИ (стоимость курса: ~2 млн сум/мес на студента)',
-    periodCol: 'Период',
-    studentsCol: 'Студенты',
-    revenueCol: 'Выручка/мес',
-    profitCol: 'Чистая прибыль',
-    breakeven: 'Точка безубыточности: месяц 3–4 (при 50+ студентах)',
+      'Лучшие локации для расширения — махалля Бахрин (1,218 новых рабочих мест, центр возвращающихся мигрантов) и З.М. Бобур (молодёжный район, 1,008 рабочих мест). Оба района имеют высокий спрос и совпадают с государственными программами занятости.',
     section5Title: 'Кредитные продукты NBU',
     section5Sub: 'Каталог «Кредиты 2026» · подобраны по вашей сумме, залогу и цели',
     altProductsLabel: 'АЛЬТЕРНАТИВНЫЕ ПРОДУКТЫ',
@@ -200,7 +141,7 @@ export const STEP5_T = {
     section6Title: 'План действий',
     section6Sub: 'Пошаговый план на 6 месяцев',
     section7MapTitle: 'Карта учебных центров — Фергана',
-    section7MapSub: 'Интерактивная карта существующих учебных центров, конкуренции и рекомендуемых зон для открытия нового бизнеса',
+    section7MapSub: 'Интерактивная карта существующих учебных центров, конкуренции и рекомендуемых зон',
     ctaTitle: 'Готовы начать?',
     ctaSubtitle: 'Подайте заявку на кредит «Бизнес прогресс» или скачайте полный бизнес-план',
     applyBtn: 'Подать заявку в банк',
@@ -212,15 +153,6 @@ export const STEP5_T = {
   uz: {
     outOf100: '100 dan',
 
-    SCORE_FACTORS: [
-      { label: 'Tadbirkor tajribasi', value: 80 },
-      { label: 'Moliyaviy barqarorlik', value: 70 },
-      { label: 'Bozor potentsiali', value: 78 },
-      { label: 'Joylashuv', value: 82 },
-      { label: 'Raqobat', value: 62 },
-      { label: 'Biznes-model', value: 72 },
-    ],
-
     SWOT: {
       strengths: [
         'MChJ 3–5 yillik tarixga ega — bank barqarorlikni baholaydi',
@@ -231,8 +163,8 @@ export const STEP5_T = {
       weaknesses: [
         'Kengaytirish uchun cheklangan oʻz kapitali',
         'Bitta filialga bogʻliqlik',
-        'Masofaviy oʻqitish uchun onlayn platforma yoʻq',
-        'Talabalar oqimida mavsumiy tebranishlar',
+        'Masofaviy xizmat uchun onlayn platforma yoʻq',
+        'Mijozlar oqimida mavsumiy tebranishlar',
       ],
       opportunities: [
         'Davlat dasturi: Margʻilonda 650 nafar IT mutaxassis tayyorlash',
@@ -242,46 +174,12 @@ export const STEP5_T = {
         '1 604 ishsiz + 974 ayol — davlat dasturlarining maqsadli auditoriyasi',
       ],
       threats: [
-        '31 ta faoliyat yuritayotgan oʻquv markazi — yuqori raqobat',
+        'Hududda yuqori raqobat',
         'Oʻrtacha ish haqi 3 974 ming soʻm — narx bosimi',
-        'Malakali oʻqituvchilarning chet elga ketishi',
-        'Yozda mavsumiy pasayish (iyun–avgust)',
+        'Malakali kadrlarning chet elga ketishi',
+        'Mavsumiy talab pasayishi',
       ],
     },
-
-    MAHALLA_RANKING: [
-      { name: 'Bahrin', score: 92, reason: 'Qaytayotgan migrantlar markazi, qayta tayyorlashga yuqori talab', stat: '1 218 yangi ish oʻrni' },
-      { name: 'Z.M. Bobur', score: 88, reason: 'Yoshlar tumanida 1 008 ta ish oʻrni rejalashtirilgan', stat: '1 008 ish oʻrni' },
-      { name: 'Qashqar', score: 85, reason: 'Eng yuqori biznes faolligi — aholining 19.6% = YaTT', stat: '1 401 tadbirkor' },
-      { name: 'Yuksalish', score: 82, reason: '«Navroʻz» sanoat zonasi — ish beruvchilar tayyor kadrlarga muhtoj', stat: '150 ish oʻrni' },
-      { name: 'Nurafshon', score: 78, reason: 'Investitsiya loyihalari bilan rivojlanayotgan tuman', stat: 'SHOYI SILK loyihasi' },
-      { name: 'Gorianval', score: 75, reason: 'Fontan maydoni, 15 ta tijorat obʻekti — trafik', stat: '15 ta obʻekt' },
-      { name: 'Toyaagum', score: 72, reason: '0.9 km sohilband — turistik va yoshlar klasteri', stat: '11.3 mlrd investitsiya' },
-      { name: 'Pichoqchi', score: 68, reason: 'Gold Silk, ADB loyihasi — ishlab chiqarish yaqinida kurslar potentsiali', stat: 'ADB loyihasi' },
-    ],
-
-    STARTUP_COSTS: [
-      ['Ijara va binoni taʻmirlash', '80 mln'],
-      ['Kompyuterlar va jihozlar (20 dona)', '120 mln'],
-      ['Mebel va sinfxonalarni jihozlash', '30 mln'],
-      ['Marketing va reklama', '20 mln'],
-      ['Aylanma mablagʻlar (3 oy)', '50 mln'],
-    ],
-
-    MONTHLY_COSTS: [
-      ['Binoni ijaraga olish', '8 mln'],
-      ['Ish haqi (6 oʻqituvchi)', '24 mln'],
-      ['Kommunal xizmatlar', '3 mln'],
-      ['Marketing', '4 mln'],
-      ['Boshqa xarajatlar', '3 mln'],
-    ],
-
-    REVENUE_FORECAST: [
-      { period: '1–3 oy', students: 40, revenue: '80 mln', profit: '-12 mln', profitPositive: false },
-      { period: '4–6 oy', students: 60, revenue: '120 mln', profit: '+28 mln', profitPositive: true },
-      { period: '7–9 oy', students: 80, revenue: '160 mln', profit: '+68 mln', profitPositive: true },
-      { period: '10–12 oy', students: 100, revenue: '200 mln', profit: '+108 mln', profitPositive: true },
-    ],
 
     PRIMARY_PRODUCT: {
       name: 'Biznes progress',
@@ -294,7 +192,7 @@ export const STEP5_T = {
         ['IMTIYoZLI DAVR', '24 oygacha'],
         ['GAROV', 'Likvid taʻminot — kredit summasining 125%'],
         ['MAQSAD', 'Amaldagi biznes faoliyatini kengaytirish'],
-        ['NEGA MOS KELADI', 'Past stavka, uzoq muddat, katta imtiyozli davr — taʻlim markazini kengaytirish uchun ideal'],
+        ['NEGA MOS KELADI', 'Past stavka, uzoq muddat, katta imtiyozli davr — kengaytirish uchun optimal'],
       ],
     },
 
@@ -326,14 +224,14 @@ export const STEP5_T = {
     ],
 
     ACTION_STEPS: [
-      { week: '1–2 hafta', title: 'Biznes-planni yakunlash', desc: 'Qoralama bor — moliyaviy prognozlar va marketing rejasini takomillashtirish', status: 'warning' },
-      { week: '3–4 hafta', title: 'Kreditga ariza berish', desc: 'NBU Margʻilon boʻlimiga «Biznes progress» uchun ariza topshirish', status: 'negative' },
-      { week: '2 oy', title: 'Bino izlash', desc: 'Bahrin yoki Z.M. Bobur mahallalarida 150–200 m² ijara', status: 'neutral' },
-      { week: '2–3 oy', title: 'Taʻmir va jihozlash', desc: '20 ta kompyuter, mebel sotib olish, sinfxonalarni taʻmirlash', status: 'neutral' },
-      { week: '3 oy', title: 'Oʻqituvchilarni yollash', desc: '6 nafar oʻqituvchi: IT, ingliz tili, tadbirkorlik', status: 'neutral' },
-      { week: '3–4 oy', title: 'Marketing kampaniyasi', desc: 'Ijtimoiy tarmoqlar, IT-Park bilan hamkorlik, mahallalardagi eʻlonlar', status: 'neutral' },
-      { week: '4 oy', title: 'Ikkinchi filialni ochish', desc: 'Ochilish va birinchi oqimni yigʻish — 40 talaba', status: 'positive' },
-      { week: '6 oy', title: 'Zararsizlik nuqtasiga chiqish', desc: '60+ talaba, daromad 120 mln/oy, sof foyda', status: 'positive' },
+      { week: '1–2 hafta', title: 'Biznes-planni yakunlash', desc: 'Moliyaviy prognoz va marketing rejasini takomillashtirish', status: 'warning' },
+      { week: '3–4 hafta', title: 'Kreditga ariza berish', desc: 'Roʻyxatdan oʻtgan tumandagi NBU boʻlimiga ariza topshirish', status: 'negative' },
+      { week: '2 oy', title: 'Binoni tayyorlash', desc: 'Ijara/sotib olish/taʻmir loyiha boʻyicha', status: 'neutral' },
+      { week: '2–3 oy', title: 'Jihozlarni sotib olish', desc: 'Asosiy aktivlar, mebel, texnika', status: 'neutral' },
+      { week: '3 oy', title: 'Xodimlarni yollash', desc: 'Tanlangan yoʻnalish boʻyicha asosiy jamoa', status: 'neutral' },
+      { week: '3–4 oy', title: 'Marketing kampaniyasi', desc: 'Ijtimoiy tarmoqlar va mahallalardagi reklama', status: 'neutral' },
+      { week: '4 oy', title: 'Ochilish', desc: 'Birinchi mijozlar uchun ishga tushirish', status: 'positive' },
+      { week: '6 oy', title: 'Zararsizlik nuqtasi', desc: 'Barqaror daromad, xarajatlarni qoplash', status: 'positive' },
     ],
 
     restartBtn: '← Qaytadan boshlash',
@@ -346,45 +244,18 @@ export const STEP5_T = {
     goodPotential: 'Yaxshi potentsial',
     aiConclusion: 'AI xulosasi',
     aiConclusionText:
-      'Biznesingiz kengaytirish uchun yaxshi potentsialga ega. Kuchli tomonlari — barqaror tarix (3–5 yil) va nol kredit yuki. Asosiy xavf — yuqori raqobat (31 ta oʻquv markazi). IT-yoʻnalishlar orqali differentsiatsiya qilishni tavsiya etamiz, bu Margʻilon rivojlanish strategiyasiga mos keladi.',
+      'Biznesingiz kengaytirish uchun yaxshi potentsialga ega. Kuchli tomonlari — barqaror tarix va nol kredit yuki. Asosiy xavf — yuqori sohaviy raqobat. Mintaqa rivojlanish dasturiga mos keluvchi strategik yoʻnalishlar orqali differentsiatsiya qilishni tavsiya etamiz.',
     section2Title: 'SWOT-tahlil',
-    section2Sub: 'Taʻlim kurslari — Margʻilon, Fargʻona',
+    section2Sub: 'Biznesingiz mintaqaviy sharoitlar kontekstida',
     swotStrengths: 'Kuchli tomonlar',
     swotWeaknesses: 'Zaif tomonlar',
     swotOpportunities: 'Imkoniyatlar',
     swotThreats: 'Tahdidlar',
     section3Title: 'Mahallalar xaritasi (pilot)',
-    section3Sub: 'Margʻilon · 50 ta mahalladan 8 tasi xaritaga tushirilgan — qolganlari raqamlashtirilgach qoʻshiladi',
+    section3Sub: 'Margʻilon · 50 ta mahalladan 8 tasi xaritaga tushirilgan',
     locationInsightTitle: 'AI joylashuv tavsiyasi',
     locationInsightText:
-      'Ikkinchi filial uchun eng yaxshi joylashuvlar — Bahrin mahallasi (1 218 ta yangi ish oʻrni, qaytayotgan migrantlar markazi) va Z.M. Bobur (yoshlar tumani, 1 008 ta ish oʻrni). Har ikkala tumanda kadrlarni qayta tayyorlashga yuqori talab mavjud va davlat bandlik dasturlariga mos keladi.',
-    section4Title: 'Biznes-plan: taʻlim markazini kengaytirish',
-    section4Sub: 'Ikkinchi filialni ochish · IT-yoʻnalishlar · Margʻilon',
-    projectDescLabel: 'LOYIHA TAVSIFI',
-    projectDescText:
-      'Bahrin mahallasida ikkinchi filial ochish orqali amaldagi taʻlim markazini kengaytirish. IT-yoʻnalishlariga (AI/ML, data science, kiber xavfsizlik, UX/UI), ingliz tili va tadbirkorlik asoslariga eʻtibor. Maqsadli auditoriya — yoshlar (141 500 kishi), qaytayotgan migrantlar (10 904 kishi) va ishsizlar (1 798 kishi).',
-    coursesLabel: 'KURS YOʻNALIShLARI',
-    courses: [
-      'Python / JavaScript',
-      'AI va Machine Learning',
-      'Data Science',
-      'Kiber xavfsizlik',
-      'UX/UI dizayn',
-      'Ingliz tili',
-      'Tadbirkorlik asoslari',
-      'Digital Marketing',
-    ],
-    startupCostsLabel: 'BOShLANGʻICh XARAJATLAR',
-    monthlyCostsLabel: 'OYLIK XARAJATLAR',
-    total: 'Jami',
-    startupTotal: '300 mln soʻm',
-    monthlyTotal: '42 mln/oy',
-    revenueForecastLabel: 'DAROMAD PROGNOZI (kurs narxi: ~2 mln soʻm/oy talabaga)',
-    periodCol: 'Davr',
-    studentsCol: 'Talabalar',
-    revenueCol: 'Daromad/oy',
-    profitCol: 'Sof foyda',
-    breakeven: 'Zararsizlik nuqtasi: 3–4 oy (50+ talaba boʻlganda)',
+      'Kengaytirish uchun eng yaxshi joylashuvlar — Bahrin mahallasi (1 218 ta yangi ish oʻrni, qaytayotgan migrantlar markazi) va Z.M. Bobur (yoshlar tumani, 1 008 ta ish oʻrni). Har ikkala tumanda yuqori talab mavjud va davlat dasturlariga mos keladi.',
     section5Title: 'NBU kredit mahsulotlari',
     section5Sub: '«Kreditlar 2026» katalogi · sizning summa, garov va maqsad boʻyicha tanlandi',
     altProductsLabel: 'MUQOBIL MAHSULOTLAR',
