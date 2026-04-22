@@ -453,6 +453,10 @@ const actionPlanItems = computed(() => {
 // Score explanations from Claude (optional, one per factor).
 const scoreExplanations = computed(() => analysis.value?.output?.scoreExplanations || [])
 
+// Overall narrative Claude writes about the score (reuses the analysis summary).
+const scoreNarrative = computed(() => analysis.value?.output?.summary || '')
+const scoreFromClaude = computed(() => Boolean(scoreNarrative.value || scoreExplanations.value.length))
+
 // Did the Claude call finish successfully and return useful output?
 const hasClaudeOutput = computed(() => {
   const o = analysis.value?.output
@@ -952,15 +956,35 @@ async function retryAnalysis() {
         class="px-8 py-6"
         style="background: rgba(215,181,109,0.04); border-bottom: 1px solid rgba(215,181,109,0.12);"
       >
-        <div class="flex items-center gap-4">
-          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0 bg-navy-900">1</span>
-          <div>
-            <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section1Title }}</h2>
-            <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section1Sub }}</p>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0 bg-navy-900">1</span>
+            <div>
+              <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section1Title }}</h2>
+              <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section1Sub }}</p>
+            </div>
           </div>
+          <span v-if="scoreFromClaude"
+                class="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-[6px] py-1 px-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            {{ lang === 'uz' ? 'AI tahlili' : 'AI-анализ' }}
+          </span>
         </div>
       </div>
       <div class="px-8 py-8">
+        <!-- Claude's overall narrative about the score (uses analysis.output.summary). -->
+        <div v-if="scoreNarrative"
+             class="mb-6 rounded-[10px] border border-emerald-200 bg-emerald-50/60 py-4 px-5 flex items-start gap-3">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shrink-0 mt-[2px]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L9 9l-7 1 5 5-1 7 6-3 6 3-1-7 5-5-7-1z"/></svg>
+          </span>
+          <div class="flex-1 min-w-0">
+            <div class="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700">
+              {{ lang === 'uz' ? 'AI baholash' : 'AI-оценка' }}
+            </div>
+            <p class="font-sans text-[14px] text-carbon mt-1 leading-[1.6]">{{ scoreNarrative }}</p>
+          </div>
+        </div>
         <div class="flex flex-col md:flex-row gap-8 md:gap-10">
           <!-- ScoreCircle (live) -->
           <div class="flex flex-col items-center gap-3 shrink-0">
