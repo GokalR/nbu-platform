@@ -5,13 +5,27 @@ import RsIcon from './RsIcon.vue'
 const props = defineProps({
   factors: { type: Array, required: true },
   lang: { type: String, default: 'ru' },
+  // Optional: Claude-produced per-factor explanations
+  // [{ factorKey, why, howToImprove }, ...]
+  explanations: { type: Array, default: () => [] },
 })
 
 const L = {
-  ru: { weight: 'Вес', contribution: 'Вклад в балл', inputsLabel: 'Что мы учли', impact: 'Влияние', expand: 'Развернуть', collapse: 'Свернуть' },
-  uz: { weight: 'Vazn', contribution: 'Ball hissasi', inputsLabel: 'Hisobga olindi', impact: 'Taʻsir', expand: 'Ochish', collapse: 'Yigʻish' },
+  ru: {
+    weight: 'Вес', contribution: 'Вклад в балл', inputsLabel: 'Что мы учли', impact: 'Влияние',
+    expand: 'Развернуть', collapse: 'Свернуть',
+    whyLabel: 'Почему такой балл', improveLabel: 'Как поднять',
+  },
+  uz: {
+    weight: 'Vazn', contribution: 'Ball hissasi', inputsLabel: 'Hisobga olindi', impact: 'Taʻsir',
+    expand: 'Ochish', collapse: 'Yigʻish',
+    whyLabel: 'Nega shunday ball', improveLabel: 'Qanday koʻtarish',
+  },
 }
 const t = () => L[props.lang] ?? L.ru
+
+const explanationFor = (factorKey) =>
+  props.explanations?.find((e) => e?.factorKey === factorKey) || null
 
 const open = ref(new Set())
 const toggle = (key) => {
@@ -56,6 +70,24 @@ const impactSign = (n) => (n > 0 ? `+${n}` : n < 0 ? `${n}` : '±0')
 
       <div v-if="open.has(f.key)" class="px-4 pb-4 pt-1 border-t border-rs-border bg-navy-900/[0.015]">
         <p class="font-sans text-[12px] text-steel-500 italic mb-3 mt-2">{{ f.hint[lang] || f.hint.ru }}</p>
+
+        <!-- AI explanation (optional) -->
+        <div v-if="explanationFor(f.key)" class="mb-3 rounded-[8px] border border-emerald-200 bg-emerald-50/60 py-3 px-4">
+          <div class="flex items-start gap-2 mb-1.5">
+            <RsIcon name="sparkles" :size="14" class="text-emerald-600 mt-[3px] shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700">{{ t().whyLabel }}</div>
+              <p class="font-sans text-[13px] text-carbon mt-1 leading-[1.55]">{{ explanationFor(f.key).why }}</p>
+            </div>
+          </div>
+          <div v-if="explanationFor(f.key).howToImprove" class="flex items-start gap-2 mt-2 pt-2 border-t border-emerald-200/60">
+            <RsIcon name="arrow-up-right" :size="14" class="text-emerald-600 mt-[3px] shrink-0" />
+            <div class="flex-1 min-w-0">
+              <div class="font-sans text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700">{{ t().improveLabel }}</div>
+              <p class="font-sans text-[13px] text-carbon mt-1 leading-[1.55]">{{ explanationFor(f.key).howToImprove }}</p>
+            </div>
+          </div>
+        </div>
 
         <div class="rounded-[8px] bg-white border border-rs-border overflow-hidden">
           <div class="flex items-center px-3 py-2 bg-navy-900/[0.03] text-[10px] font-semibold uppercase tracking-[0.5px] text-steel-500">

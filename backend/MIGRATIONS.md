@@ -35,6 +35,31 @@ python seed_rs_reference.py
 The script is idempotent (`db.merge()` everywhere), so re-running it safely
 updates rows when the JSON in `backend/data/rs_seed/` changes.
 
+## 2026-04-21 (later) — Dedup columns for Excel + Analysis
+
+Two cache-key columns added so we stop re-sending identical work to Claude.
+Both are **nullable** so old rows keep working — new rows get populated.
+
+```sql
+ALTER TABLE excel_uploads     ADD COLUMN file_hash    VARCHAR(64);
+CREATE INDEX ix_excel_uploads_file_hash     ON excel_uploads(file_hash);
+
+ALTER TABLE analysis_results  ADD COLUMN context_hash VARCHAR(64);
+CREATE INDEX ix_analysis_results_context_hash ON analysis_results(context_hash);
+```
+
+**Semantics.**
+- `excel_uploads.file_hash` — SHA-256 of the uploaded Excel blob. Upload route does
+  `SELECT … WHERE submission_id=? AND kind=? AND file_hash=?` first; hit → return
+  existing row, skip Claude parse entirely.
+- `analysis_results.context_hash` — SHA-256 of canonical-JSON context (profile +
+  finance + city + excel ratios + rulesScore, sorted keys). Analysis route returns
+  the cached row when the same context has already produced a successful result.
+
+**Why:** one user session loading Step 5 should not trigger a 2–4 second Claude
+call every time the page mounts. Hash dedup makes repeated visits free and
+protects against accidental duplicate uploads.
+
 ## Deferred / follow-up work
 
 Items the Step 5 refactor left for a later session:

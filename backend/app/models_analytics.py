@@ -50,6 +50,7 @@ class ExcelUpload(BaseSync):
     kind: Mapped[str] = mapped_column(String(16), nullable=False)
     original_filename: Mapped[str] = mapped_column(String(256), nullable=False)
     size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    file_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
 
     parsed: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     raw_blob: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
@@ -67,6 +68,7 @@ class AnalysisResult(BaseSync):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
     context: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
+    context_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     output: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
 
     model: Mapped[str] = mapped_column(String(64), nullable=False)

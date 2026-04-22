@@ -59,6 +59,7 @@ class AnalysisOut(BaseModel):
 class AnalysisRequest(BaseModel):
     lang: Optional[str] = None
     model: Optional[str] = None
+    rules_score: Optional[dict[str, Any]] = None
 
 
 # ── Analytics reference schemas ──────────────────────────────────────

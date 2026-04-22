@@ -308,7 +308,10 @@ onMounted(async () => {
       }
     }
 
-    const res = await rsApi.runAnalysis(submissionId.value, { lang: lang.value })
+    const res = await rsApi.runAnalysis(submissionId.value, {
+      lang: lang.value,
+      rules_score: scoreResult.value,
+    })
     if (res.ok) {
       store.setAnalysis(res.data)
       backendOk = true
@@ -402,12 +405,60 @@ const SWOT_STYLES = {
   amber:   { bg: 'bg-amber-50',   border: 'border-amber-200',   title: 'text-amber-700',   dot: 'bg-amber-500' },
 }
 
-const swotQuadrants = computed(() => [
-  { title: t.value.swotStrengths,     color: 'emerald', items: t.value.SWOT.strengths },
-  { title: t.value.swotWeaknesses,    color: 'red',     items: t.value.SWOT.weaknesses },
-  { title: t.value.swotOpportunities, color: 'blue',    items: t.value.SWOT.opportunities },
-  { title: t.value.swotThreats,       color: 'amber',   items: t.value.SWOT.threats },
-])
+// Prefer Claude's SWOT (analysis.output.swot) over the static i18n fallback.
+// Fallback only kicks in when Claude hasn't run or returned an incomplete payload.
+const claudeSwot = computed(() => analysis.value?.output?.swot || null)
+const swotFromClaude = computed(() =>
+  Boolean(
+    claudeSwot.value &&
+      Array.isArray(claudeSwot.value.strengths) &&
+      claudeSwot.value.strengths.length,
+  ),
+)
+const swotQuadrants = computed(() => {
+  const src = swotFromClaude.value ? claudeSwot.value : t.value.SWOT
+  return [
+    { title: t.value.swotStrengths,     color: 'emerald', items: src.strengths     || [] },
+    { title: t.value.swotWeaknesses,    color: 'red',     items: src.weaknesses    || [] },
+    { title: t.value.swotOpportunities, color: 'blue',    items: src.opportunities || [] },
+    { title: t.value.swotThreats,       color: 'amber',   items: src.threats       || [] },
+  ]
+})
+
+// Action plan — prefer Claude's structured nextSteps, fall back to static i18n.
+// Claude shape: [{ order, title, why, deadline }]. Legacy/static shape: [{ title, body }].
+const claudeNextSteps = computed(() => analysis.value?.output?.nextSteps || null)
+const actionPlanFromClaude = computed(() =>
+  Array.isArray(claudeNextSteps.value) && claudeNextSteps.value.length > 0,
+)
+const actionPlanItems = computed(() => {
+  if (actionPlanFromClaude.value) {
+    return claudeNextSteps.value.map((s, i) => ({
+      title: s.title || s.name || '',
+      body: s.why || s.description || '',
+      deadline: s.deadline || '',
+      status: null,
+      order: s.order ?? i + 1,
+    }))
+  }
+  return (t.value.ACTION_STEPS || []).map((s, i) => ({
+    title: s.title || '',
+    body: s.desc || s.body || '',
+    deadline: s.week || '',
+    status: s.status || 'neutral',
+    order: i + 1,
+  }))
+})
+
+// Score explanations from Claude (optional, one per factor).
+const scoreExplanations = computed(() => analysis.value?.output?.scoreExplanations || [])
+
+// Did the Claude call finish successfully and return useful output?
+const hasClaudeOutput = computed(() => {
+  const o = analysis.value?.output
+  return Boolean(o && (o.summary || o.swot || o.nextSteps))
+})
+const claudeFailed = computed(() => analysisStatus.value === 'error')
 
 /* ── Action step circle colour ────────────────────── */
 const stepCircleClass = (i, total) => {
@@ -419,6 +470,21 @@ const stepCircleClass = (i, total) => {
 const onDownload = () => {
   // eslint-disable-next-line no-alert
   alert(t.value.downloadAlert)
+}
+
+async function retryAnalysis() {
+  if (!rsApi.isConfigured() || !submissionId.value) return
+  if (analysisStatus.value === 'analyzing') return
+  store.setAnalysisStatus('analyzing')
+  const res = await rsApi.runAnalysis(submissionId.value, {
+    lang: lang.value,
+    rules_score: scoreResult.value,
+  })
+  if (res.ok) {
+    store.setAnalysis(res.data)
+  } else {
+    store.setAnalysisStatus('error', res.error || 'Analysis failed')
+  }
 }
 </script>
 
@@ -502,6 +568,129 @@ const onDownload = () => {
             <RsIcon name="alert-triangle" :size="12" />
             {{ lang === 'uz' ? 'Maʻlumotlar cheklangan' : 'Данные ограничены' }}
           </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CITY CONTEXT — moved to top as first content section. Pilot cities only; non-pilots get honest banner. ═══ -->
+    <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[16px] overflow-hidden shadow-rs-card">
+      <div class="px-10 py-8 flex items-start justify-between gap-5"
+           style="background: linear-gradient(135deg, rgba(25,63,114,0.06) 0%, rgba(215,181,109,0.04) 100%); border-bottom: 1px solid rgba(25,63,114,0.1);">
+        <div class="flex items-start gap-5">
+          <span class="inline-flex items-center justify-center w-14 h-14 rounded-[14px] bg-navy-900 shrink-0 shadow-md">
+            <RsIcon name="landmark" :size="26" class="text-gold-400" />
+          </span>
+          <div class="min-w-0">
+            <div class="font-mono text-[12px] font-bold uppercase tracking-[1.5px] text-gold-500 mb-1">
+              {{ lang === 'uz' ? 'Shahar konteksti' : 'Контекст города' }}
+            </div>
+            <h2 class="font-sans text-[30px] font-bold text-carbon leading-tight">{{ userPickedLabel }}</h2>
+            <p class="font-sans text-[15px] text-gray-600 mt-2 max-w-[620px] leading-[1.5]">{{ t.cityContextHint }}</p>
+          </div>
+        </div>
+        <span v-if="!isCityDataReal"
+              class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-[6px] py-1.5 px-2.5 self-start"
+              :title="lang === 'uz' ? 'Shahar boʻyicha batafsil maʻlumotlar tayyorlanmoqda — quyida viloyat boʻyicha' : 'Детальные данные по городу в разработке — ниже показаны областные'">
+          {{ lang === 'uz' ? 'Viloyat boʻyicha maʻlumotlar' : 'Данные по области' }}
+        </span>
+      </div>
+
+      <!-- KPI tiles — bigger numbers, more breathing room -->
+      <div class="px-10 py-9 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="border border-rs-border/70 rounded-[12px] p-5 bg-gradient-to-br from-white to-navy-900/[0.02]">
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Aholi' : 'Население' }}</div>
+          <div class="font-mono text-[34px] font-bold text-carbon mt-2 leading-none">
+            {{ selectedCity.populationK.toLocaleString('ru-RU') }}<span class="text-[17px] font-medium text-steel-500 ml-1">{{ lang === 'uz' ? 'ming' : 'тыс.' }}</span>
+          </div>
+          <div class="text-[12px] text-steel-500 mt-2">{{ lang === 'uz' ? 'shahar markazi' : 'жители города' }}</div>
+        </div>
+        <div class="border border-rs-border/70 rounded-[12px] p-5 bg-gradient-to-br from-white to-navy-900/[0.02]">
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Sanoat' : 'Промышленность' }}</div>
+          <div class="font-mono text-[34px] font-bold text-carbon mt-2 leading-none">
+            {{ Math.round(selectedCity.industryBlnUzs).toLocaleString('ru-RU') }}<span class="text-[17px] font-medium text-steel-500 ml-1">{{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
+          </div>
+          <div class="text-[12px] text-steel-500 mt-2">2024 · +104.3%</div>
+        </div>
+        <div class="border border-rs-border/70 rounded-[12px] p-5 bg-gradient-to-br from-white to-navy-900/[0.02]">
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">
+            {{ selectedCity.id === 'margilan' ? (lang === 'uz' ? 'Eksport' : 'Экспорт') : (lang === 'uz' ? 'Investitsiya' : 'Инвестиции') }}
+          </div>
+          <div class="font-mono text-[34px] font-bold text-carbon mt-2 leading-none">
+            {{ (selectedCity.exportsBlnUzs ?? selectedCity.investmentsBlnUzs).toLocaleString('ru-RU') }}<span class="text-[17px] font-medium text-steel-500 ml-1">{{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
+          </div>
+          <div class="text-[12px] text-steel-500 mt-2">{{ selectedCity.id === 'margilan' ? '2023' : '2023 · +29.4%' }}</div>
+        </div>
+        <div class="border border-rs-border/70 rounded-[12px] p-5 bg-gradient-to-br from-white to-navy-900/[0.02]">
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Mahallalar' : 'Махаллей' }}</div>
+          <div class="font-mono text-[34px] font-bold text-carbon mt-2 leading-none">
+            {{ selectedCity.mahallas.toLocaleString('ru-RU') }}
+          </div>
+          <div class="text-[12px] text-steel-500 mt-2">{{ lang === 'uz' ? 'oʻzini oʻzi boshqarish' : 'самоуправления' }}</div>
+        </div>
+      </div>
+
+      <!-- Regional demographic + social context row -->
+      <div class="px-10 pb-3 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-rs-border/50 pt-7">
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Tugʻilish (viloyat)' : 'Рождаемость (область)' }}</div>
+          <div class="font-mono text-[28px] font-bold text-carbon mt-2 leading-none">98 319</div>
+          <div class="text-[12px] text-steel-500 mt-2">{{ lang === 'uz' ? '2025 · yangi oilalar' : '2025 · новорождённые' }}</div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Nikohlar (viloyat)' : 'Браки (область)' }}</div>
+          <div class="font-mono text-[28px] font-bold text-carbon mt-2 leading-none">28 896</div>
+          <div class="text-[12px] text-steel-500 mt-2">2025</div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Shahar ulushi' : 'Городское население' }}</div>
+          <div class="font-mono text-[28px] font-bold text-carbon mt-2 leading-none">56.7<span class="text-[17px] font-medium text-steel-500 ml-1">%</span></div>
+          <div class="text-[12px] text-steel-500 mt-2">{{ lang === 'uz' ? 'viloyat boʻyicha' : 'по области' }}</div>
+        </div>
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-[1px] text-steel-500">{{ lang === 'uz' ? 'Tuman va shaharlar' : 'Районов и городов' }}</div>
+          <div class="font-mono text-[28px] font-bold text-carbon mt-2 leading-none">15 + 4</div>
+          <div class="text-[12px] text-steel-500 mt-2">{{ lang === 'uz' ? 'maʻmuriy birliklar' : 'административных единиц' }}</div>
+        </div>
+      </div>
+
+      <div class="px-10 pb-9 pt-7">
+        <div class="text-[12px] font-bold uppercase tracking-[1px] text-steel-500 mb-3">
+          {{ lang === 'uz' ? 'Tavsiya etilgan sohalar' : 'Рекомендуемые отрасли' }}
+        </div>
+        <div class="flex flex-wrap gap-2.5">
+          <span v-for="sec in selectedCity.topSectors || selectedCity.industries" :key="sec.key"
+                class="inline-flex items-center gap-2.5 text-[14px] font-semibold text-navy-900 bg-navy-900/[0.05] border border-navy-900/[0.08] rounded-[10px] py-2 px-4">
+            {{ lang === 'uz' ? sec.nameUz : sec.nameRu }}
+            <span class="font-mono text-[12px] font-medium text-steel-500">{{ sec.blnUzs }} {{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Non-pilot region: show honest 'no data yet' banner instead of city KPIs -->
+    <section v-else class="bg-amber-50 border border-amber-200 rounded-[16px] overflow-hidden">
+      <div class="px-10 py-8 flex items-start gap-5">
+        <span class="inline-flex items-center justify-center w-14 h-14 rounded-[14px] bg-amber-500 shrink-0 shadow-md">
+          <RsIcon name="alert-triangle" :size="24" class="text-white" />
+        </span>
+        <div class="min-w-0">
+          <div class="font-mono text-[12px] font-bold uppercase tracking-[1.5px] text-amber-700 mb-1">
+            {{ lang === 'uz' ? 'Shahar konteksti' : 'Контекст города' }}
+          </div>
+          <h2 class="font-sans text-[24px] font-bold text-amber-900 leading-tight">
+            {{ lang === 'uz'
+              ? 'Bu hudud boʻyicha batafsil maʻlumotlar hozircha mavjud emas'
+              : 'Детальные данные по этому региону пока недоступны' }}
+          </h2>
+          <p class="font-sans text-[14px] text-amber-800 mt-2 leading-[1.55] max-w-[640px]">
+            {{ lang === 'uz'
+              ? 'Pilot shaharlar: Fargʻona va Margʻilon. AI tahlili sizning profil va moliyaviy maʻlumotlaringiz asosida umumiy tavsiya beradi.'
+              : 'Пилотные города: Фергана и Маргилан. AI-анализ даст общую рекомендацию по вашему профилю и финансам без опоры на региональные показатели.' }}
+          </p>
+          <p v-if="userPickedLabel" class="font-sans text-[13px] text-amber-700 mt-3">
+            {{ lang === 'uz' ? 'Siz tanlagan hudud:' : 'Ваш выбор:' }}
+            <span class="font-semibold">{{ userPickedLabel }}</span>
+          </p>
         </div>
       </div>
     </section>
@@ -663,9 +852,37 @@ const onDownload = () => {
          class="bg-white border border-rs-border rounded-[12px] py-6 px-8 text-center text-[13px] text-steel-500 italic">
       {{ lang === 'uz' ? 'AI tahlil qilyapti…' : 'AI анализирует…' }}
     </div>
-    <div v-else-if="analysisStatus === 'error'"
-         class="bg-red-50 border border-red-200 rounded-[12px] py-5 px-6 text-[13px] text-red-700">
-      {{ lang === 'uz' ? 'Tahlil xatosi:' : 'Ошибка анализа:' }} {{ store.analysisError }}
+    <div v-else-if="claudeFailed && !hasClaudeOutput"
+         class="bg-amber-50 border border-amber-200 rounded-[12px] py-5 px-6">
+      <div class="flex items-start gap-4">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 shrink-0">
+          <RsIcon name="alert-triangle" :size="18" class="text-white" />
+        </span>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-sans text-[15px] font-bold text-amber-900">
+            {{ lang === 'uz' ? 'AI tahlili hozircha mavjud emas' : 'AI-анализ временно недоступен' }}
+          </h3>
+          <p class="font-sans text-[13px] text-amber-800 mt-1 leading-[1.5]">
+            {{ lang === 'uz'
+              ? 'Quyida siz kiritgan maʻlumot va shablon boʻyicha natijalar koʻrsatilgan. AI tahlilini qayta urinib koʻrish mumkin.'
+              : 'Ниже показаны результаты по вашим данным и шаблонные рекомендации. Можно повторить попытку AI-анализа.' }}
+          </p>
+          <div v-if="store.analysisError" class="font-mono text-[11px] text-amber-700/80 mt-2 truncate">
+            {{ store.analysisError }}
+          </div>
+          <button
+            type="button"
+            @click="retryAnalysis"
+            :disabled="analysisStatus === 'analyzing'"
+            class="mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-60 rounded-[8px] py-2 px-4 transition-colors"
+          >
+            <RsIcon name="refresh-cw" :size="14" />
+            {{ analysisStatus === 'analyzing'
+              ? (lang === 'uz' ? 'Urinish…' : 'Пробуем…')
+              : (lang === 'uz' ? 'Qayta urinish' : 'Повторить') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ═══ EDUCATION MAP — preview + click to expand fullscreen ═══ -->
@@ -728,124 +945,6 @@ const onDownload = () => {
       </div>
     </section>
 
-    <!-- ═══ CITY CONTEXT — only for pilot cities (Fergana, Margilan) ═══ -->
-    <section v-if="isPilotCity" class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
-      <div class="px-8 py-6 flex items-start justify-between gap-4"
-           style="background: rgba(25,63,114,0.03); border-bottom: 1px solid rgba(25,63,114,0.08);">
-        <div class="flex items-start gap-4">
-          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-navy-900 shrink-0">
-            <RsIcon name="landmark" :size="16" class="text-white" />
-          </span>
-          <div class="min-w-0">
-            <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.cityContextTitle }}: {{ userPickedLabel }}</h2>
-            <p class="font-sans text-[13px] text-gray-600 mt-1">{{ t.cityContextHint }}</p>
-          </div>
-        </div>
-        <span v-if="!isCityDataReal"
-              class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-amber-700 bg-amber-50 border border-amber-200 rounded-[6px] py-1 px-2 self-start"
-              :title="lang === 'uz' ? 'Shahar boʻyicha batafsil maʻlumotlar tayyorlanmoqda — quyida viloyat boʻyicha' : 'Детальные данные по городу в разработке — ниже показаны областные'">
-          {{ lang === 'uz' ? 'Viloyat boʻyicha maʻlumotlar' : 'Данные по области' }}
-        </span>
-      </div>
-      <div class="px-8 py-7 grid grid-cols-2 md:grid-cols-4 gap-5">
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Aholi' : 'Население' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">
-            {{ selectedCity.populationK.toLocaleString('ru-RU') }}
-            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'ming' : 'тыс.' }}</span>
-          </div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'shahar markazi' : 'жители города' }}</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Sanoat' : 'Промышленность' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">
-            {{ Math.round(selectedCity.industryBlnUzs).toLocaleString('ru-RU') }}
-            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'mlrd soʻm' : 'млрд сум' }}</span>
-          </div>
-          <div class="text-[11px] text-steel-500 mt-0.5">2024 · +104.3%</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">
-            {{ selectedCity.id === 'margilan' ? (lang === 'uz' ? 'Eksport' : 'Экспорт') : (lang === 'uz' ? 'Investitsiya' : 'Инвестиции') }}
-          </div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">
-            {{ (selectedCity.exportsBlnUzs ?? selectedCity.investmentsBlnUzs).toLocaleString('ru-RU') }}
-            <span class="text-[13px] font-medium text-steel-500">{{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
-          </div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ selectedCity.id === 'margilan' ? (lang === 'uz' ? '2023' : '2023') : (lang === 'uz' ? '2023 · +29.4%' : '2023 · +29.4%') }}</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Mahallalar' : 'Махаллей' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">
-            {{ selectedCity.mahallas.toLocaleString('ru-RU') }}
-          </div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'oʻzini oʻzi boshqarish' : 'самоуправления' }}</div>
-        </div>
-      </div>
-
-      <!-- Regional demographic + social context row -->
-      <div class="px-8 pb-2 grid grid-cols-2 md:grid-cols-4 gap-5 border-t border-rs-border/50 pt-5">
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Tugʻilish (viloyat)' : 'Рождаемость (область)' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">98 319</div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? '2025 · yangi oilalar' : '2025 · новорождённые' }}</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Nikohlar (viloyat)' : 'Браки (область)' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">28 896</div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? '2025' : '2025' }}</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Shahar ulushi' : 'Городское население' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">56.7<span class="text-[13px] font-medium text-steel-500">%</span></div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'viloyat boʻyicha' : 'по области' }}</div>
-        </div>
-        <div>
-          <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500">{{ lang === 'uz' ? 'Tuman va shaharlar' : 'Районов и городов' }}</div>
-          <div class="font-mono text-[20px] font-bold text-carbon mt-1">15 + 4</div>
-          <div class="text-[11px] text-steel-500 mt-0.5">{{ lang === 'uz' ? 'maʻmuriy birliklar' : 'административных единиц' }}</div>
-        </div>
-      </div>
-
-      <div class="px-8 pb-7 pt-5">
-        <div class="text-[11px] font-semibold uppercase tracking-[0.5px] text-steel-500 mb-2">
-          {{ lang === 'uz' ? 'Tavsiya etilgan sohalar' : 'Рекомендуемые отрасли' }}
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <span v-for="sec in selectedCity.topSectors || selectedCity.industries" :key="sec.key"
-                class="inline-flex items-center gap-2 text-[13px] font-medium text-navy-900 bg-navy-900/[0.05] rounded-[8px] py-[6px] px-3">
-            {{ lang === 'uz' ? sec.nameUz : sec.nameRu }}
-            <span class="font-mono text-[12px] text-steel-500">{{ sec.blnUzs }} {{ lang === 'uz' ? 'mlrd' : 'млрд' }}</span>
-          </span>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Non-pilot region: show honest 'no data yet' banner instead of city KPIs -->
-    <section v-else class="bg-amber-50 border border-amber-200 rounded-[12px] overflow-hidden">
-      <div class="px-8 py-6 flex items-start gap-4">
-        <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-amber-500 shrink-0">
-          <RsIcon name="alert-triangle" :size="16" class="text-white" />
-        </span>
-        <div class="min-w-0">
-          <h2 class="font-sans text-[18px] font-bold text-amber-900">
-            {{ lang === 'uz'
-              ? 'Bu hudud boʻyicha batafsil maʻlumotlar hozircha mavjud emas'
-              : 'Детальные данные по этому региону пока недоступны' }}
-          </h2>
-          <p class="font-sans text-[13px] text-amber-800 mt-1 leading-[1.5]">
-            {{ lang === 'uz'
-              ? 'Pilot shaharlar: Fargʻona va Margʻilon. AI tahlili sizning profil va moliyaviy maʻlumotlaringiz asosida umumiy tavsiya beradi.'
-              : 'Пилотные города: Фергана и Маргилан. AI-анализ даст общую рекомендацию по вашему профилю и финансам без опоры на региональные показатели.' }}
-          </p>
-          <p v-if="userPickedLabel" class="font-sans text-[12px] text-amber-700 mt-2">
-            {{ lang === 'uz' ? 'Siz tanlagan hudud:' : 'Ваш выбор:' }}
-            <span class="font-semibold">{{ userPickedLabel }}</span>
-          </p>
-        </div>
-      </div>
-    </section>
 
     <!-- ═══ SECTION 1 — AI Scoring ═══ -->
     <section class="bg-white border border-rs-border rounded-[12px] overflow-hidden shadow-rs-card">
@@ -888,9 +987,14 @@ const onDownload = () => {
             </p>
           </div>
 
-          <!-- Live breakdown -->
+          <!-- Live breakdown — Claude-produced `scoreExplanations` fill in the
+               per-factor "why + how to improve" block when the analysis succeeded. -->
           <div class="flex-1 min-w-0">
-            <RsScoreBreakdown :factors="scoreResult.factors" :lang="lang" />
+            <RsScoreBreakdown
+              :factors="scoreResult.factors"
+              :lang="lang"
+              :explanations="scoreExplanations"
+            />
           </div>
         </div>
       </div>
@@ -910,7 +1014,13 @@ const onDownload = () => {
               <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section2Sub }}</p>
             </div>
           </div>
-          <span class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-gold-500 bg-gold-500/10 rounded-[6px] py-1 px-2"
+          <span v-if="swotFromClaude"
+                class="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-[6px] py-1 px-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            {{ lang === 'uz' ? 'AI tahlili' : 'AI-анализ' }}
+          </span>
+          <span v-else
+                class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-gold-500 bg-gold-500/10 rounded-[6px] py-1 px-2"
                 :title="t.demoBadgeHint">
             {{ t.demoBadge }}
           </span>
@@ -1097,37 +1207,52 @@ const onDownload = () => {
         class="px-8 py-6"
         style="background: rgba(41,87,162,0.04); border-bottom: 1px solid rgba(41,87,162,0.1);"
       >
-        <div class="flex items-center gap-4">
-          <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0 bg-navy-900">6</span>
-          <div>
-            <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section6Title }}</h2>
-            <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section6Sub }}</p>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-full font-mono text-[15px] font-bold text-white shrink-0 bg-navy-900">6</span>
+            <div>
+              <h2 class="font-sans text-[20px] font-bold text-carbon">{{ t.section6Title }}</h2>
+              <p class="font-sans text-[14px] font-normal text-gray-600 mt-1">{{ t.section6Sub }}</p>
+            </div>
           </div>
+          <span v-if="actionPlanFromClaude"
+                class="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.5px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-[6px] py-1 px-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            {{ lang === 'uz' ? 'AI tahlili' : 'AI-анализ' }}
+          </span>
+          <span v-else
+                class="shrink-0 inline-flex text-[11px] font-bold uppercase tracking-[0.5px] text-gold-500 bg-gold-500/10 rounded-[6px] py-1 px-2">
+            {{ t.demoBadge }}
+          </span>
         </div>
       </div>
       <div class="px-8 py-8">
         <div class="space-y-3">
           <div
-            v-for="(s, i) in t.ACTION_STEPS" :key="s.title"
+            v-for="(s, i) in actionPlanItems" :key="`${s.order}-${s.title}`"
             class="flex items-start gap-4 border border-rs-border rounded-[10px] p-4"
           >
             <div class="flex flex-col items-center shrink-0">
               <span
                 :class="[
                   'w-8 h-8 rounded-full flex items-center justify-center font-mono text-[13px] font-bold text-white',
-                  stepCircleClass(i, t.ACTION_STEPS.length),
+                  stepCircleClass(i, actionPlanItems.length),
                 ]"
               >
-                {{ i + 1 }}
+                {{ s.order }}
               </span>
-              <div v-if="i < t.ACTION_STEPS.length - 1" class="w-[2px] h-4 bg-rs-border mt-1" />
+              <div v-if="i < actionPlanItems.length - 1" class="w-[2px] h-4 bg-rs-border mt-1" />
             </div>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 flex-wrap">
                 <span class="font-sans text-[15px] font-semibold text-carbon">{{ s.title }}</span>
-                <RsStatusTag :variant="s.status">{{ s.week }}</RsStatusTag>
+                <RsStatusTag v-if="s.status" :variant="s.status">{{ s.deadline }}</RsStatusTag>
+                <span v-else-if="s.deadline"
+                      class="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.5px] text-navy-700 bg-navy-900/[0.06] rounded-[6px] py-1 px-2">
+                  {{ s.deadline }}
+                </span>
               </div>
-              <p class="font-sans text-[13px] text-gray-600 mt-1 leading-[1.5]">{{ s.desc }}</p>
+              <p v-if="s.body" class="font-sans text-[13px] text-gray-600 mt-1 leading-[1.5]">{{ s.body }}</p>
             </div>
           </div>
         </div>

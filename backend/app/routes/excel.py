@@ -1,3 +1,6 @@
+import hashlib
+import logging
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
@@ -7,7 +10,6 @@ from ..models_analytics import ExcelUpload, Submission
 from ..schemas import UploadOut
 from ..services import excel_parser
 
-import logging
 log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/submissions/{sub_id}/uploads", tags=["excel"])
@@ -31,6 +33,24 @@ async def upload_excel(
     blob = await file.read()
     if len(blob) > settings.max_upload_bytes:
         raise HTTPException(413, f"File too large (>{settings.max_upload_bytes} bytes)")
+
+    file_hash = hashlib.sha256(blob).hexdigest()
+
+    # Dedup: if same submission already has this exact file under the same kind,
+    # return the existing row instead of calling Claude again.
+    existing = (
+        db.query(ExcelUpload)
+        .filter(
+            ExcelUpload.submission_id == sub_id,
+            ExcelUpload.kind == kind,
+            ExcelUpload.file_hash == file_hash,
+        )
+        .order_by(ExcelUpload.created_at.desc())
+        .first()
+    )
+    if existing:
+        log.info("Excel dedup hit for submission %s kind %s (hash %s…)", sub_id, kind, file_hash[:8])
+        return existing
 
     try:
         parsed = excel_parser.parse(kind, blob)
@@ -57,6 +77,7 @@ async def upload_excel(
         kind=kind,
         original_filename=file.filename or "upload.xlsx",
         size_bytes=len(blob),
+        file_hash=file_hash,
         parsed=parsed,
         raw_blob=None,
     )
