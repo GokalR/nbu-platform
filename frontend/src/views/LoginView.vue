@@ -199,7 +199,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
               <div class="v3-dash-title">{{ t.dashRegion }}</div>
               <div class="v3-dash-sub">{{ t.dashMeta }}</div>
             </div>
-            <div class="v3-dash-badge">+18.2% YoY</div>
+            <div class="v3-dash-badge">+18.2% ВРП</div>
           </div>
 
           <div class="v3-map-row">
