@@ -111,10 +111,10 @@ const goTest = () => router.push('/tools/regional-strategist/test')
             </div>
 
             <h1 class="mt-8">
-              <span class="block font-serif text-[40px] md:text-[52px] font-normal text-white leading-[1.1] tracking-[-0.5px]">
+              <span class="block font-serif font-normal text-white leading-[1.1] tracking-[-0.5px]" style="font-size:clamp(2rem,4vw,3rem)">
                 {{ t.heroTitle }}
               </span>
-              <span class="block font-serif text-[40px] md:text-[52px] font-normal text-gold-500 leading-[1.1] tracking-[-0.5px]">
+              <span class="block font-serif font-normal text-gold-500 leading-[1.1] tracking-[-0.5px]" style="font-size:clamp(2rem,4vw,3rem)">
                 {{ t.heroLine2 }}
               </span>
             </h1>

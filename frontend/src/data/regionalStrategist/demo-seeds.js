@@ -37,7 +37,7 @@ export const DEMO_SEEDS = {
         employeeCount: '6–15',
       },
       finance: {
-        businessDirection: 'Uchebniy tsentr',
+        businessDirection: 'Учебный центр',
         ideaDescription:
           'Действующий учебный центр IT-направления в Маргилане. 1 филиал, 6 преподавателей, ~80 студентов. Планируем открыть второй филиал в махалле Бахрин с фокусом на AI/ML, data science и кибербезопасность.',
         whyThisBusiness: 'Есть опыт в этой сфере',

@@ -195,10 +195,10 @@ const threatLevelClass = (level) => {
       <div class="da-brief">
         <div class="relative z-10">
           <div class="sub-header-eyebrow" style="color:#93C5FD;font-size:15px">{{ t('district.overviewEyebrow') }}</div>
-          <h2 class="text-4xl lg:text-6xl font-black leading-[1.05] mt-3" style="font-family:'Manrope',sans-serif;letter-spacing:-0.02em">
+          <h2 class="font-black leading-[1.05] mt-3" style="font-family:'Manrope',sans-serif;letter-spacing:-0.02em;font-size:clamp(1.75rem,4.2vw,3.25rem)">
             {{ t('district.overviewTitle') }}
           </h2>
-          <p class="text-lg lg:text-xl text-blue-100/85 max-w-3xl mt-5 leading-relaxed">
+          <p class="text-blue-100/85 max-w-3xl mt-5 leading-relaxed" style="font-size:clamp(0.95rem,1.2vw,1.15rem)">
             {{ t('district.overviewIntro') }}
           </p>
         </div>
@@ -360,10 +360,10 @@ const threatLevelClass = (level) => {
           <div class="sub-header-eyebrow" style="color:#93C5FD;font-size:13px;letter-spacing:0.18em">
             {{ t('district.briefDrill.eyebrow') }} · {{ t(`district.kind.${selectedDistrict.kind}`).toUpperCase() }}
           </div>
-          <h2 class="text-4xl lg:text-6xl font-black leading-[1.02] mt-3" style="font-family:'Manrope',sans-serif;letter-spacing:-0.025em">
+          <h2 class="font-black leading-[1.02] mt-3" style="font-family:'Manrope',sans-serif;letter-spacing:-0.025em;font-size:clamp(1.75rem,4.2vw,3.25rem)">
             {{ title }}
           </h2>
-          <p class="text-lg lg:text-xl text-blue-100/85 max-w-3xl mt-5 leading-relaxed font-semibold">
+          <p class="text-blue-100/85 max-w-3xl mt-5 leading-relaxed font-semibold" style="font-size:clamp(0.95rem,1.2vw,1.15rem)">
             {{ selectedDistrict.population }} {{ t('district.units.thousandResidents') }} · {{ selectedDistrict.area.toLocaleString('ru-RU') }} {{ t('district.units.kmSq') }} ·
             {{ t('district.units.density') }} {{ Math.round((selectedDistrict.population * 1000) / selectedDistrict.area).toLocaleString('ru-RU') }} {{ t('district.units.peoplePerKmSq') }}
           </p>
@@ -979,7 +979,7 @@ const threatLevelClass = (level) => {
               </div>
               <div class="bg-gradient-to-br from-primary to-[#0054A6] text-white rounded-2xl text-center px-6 py-6 shadow-xl min-w-[140px]">
                 <div class="text-[10px] font-bold uppercase opacity-80 tracking-widest">Score</div>
-                <div class="text-5xl font-black mt-1" style="font-family:'Manrope',sans-serif;letter-spacing:-0.03em">{{ analytics.summary.score }}</div>
+                <div class="font-black mt-1" style="font-family:'Manrope',sans-serif;letter-spacing:-0.03em;font-size:clamp(2rem,4.5vw,3rem)">{{ analytics.summary.score }}</div>
                 <div class="text-[10px] opacity-70 mt-0.5">{{ t('district.cards.outOf10') }}</div>
                 <div class="mt-3 h-1.5 bg-white/20 rounded-full overflow-hidden">
                   <div class="h-full bg-emerald-400" :style="{ width: `${parseFloat(analytics.summary.score) * 10}%` }"></div>
