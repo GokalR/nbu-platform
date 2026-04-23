@@ -12,13 +12,13 @@ const { locale } = useI18n()
 const lang = computed(() => locale.value || 'ru')
 const setLang = (v) => { locale.value = v; try { localStorage.setItem('nbu.locale', v) } catch {} }
 
-// ---------- i18n ----------
 const T = {
   ru: {
     kicker: 'National Bank · Tashkent',
     signin: 'Вход', signup: 'Регистрация',
     email: 'Email', emailPh: 'you@company.uz',
     password: 'Пароль', passwordPh: 'Минимум 8 символов',
+    confirmPassword: 'Подтвердите пароль', confirmPasswordPh: 'Введите пароль ещё раз',
     passwordShow: 'Показать', passwordHide: 'Скрыть',
     fullName: 'Полное имя', fullNamePh: 'Иван Иванов',
     remember: 'Запомнить меня', forgot: 'Забыли пароль?',
@@ -32,18 +32,45 @@ const T = {
     heroBody: 'Региональная аналитика, AI-советник и инструменты финансового планирования — в одной защищённой платформе Национального Банка.',
     roleTitle: 'Я вхожу как',
     role_sme: 'Малый бизнес', role_corp: 'Корпоративный', role_individual: 'Частное лицо',
+    err_email: 'Проверьте email',
+    err_password_short: 'Пароль должен быть не менее 8 символов',
+    err_password_mismatch: 'Пароли не совпадают',
+    err_name_required: 'Введите полное имя',
+    err_email_taken: 'Этот email уже зарегистрирован',
+    err_invalid_credentials: 'Неверный email или пароль',
+    dashAnalytics: 'АНАЛИТИКА РЕГИОНОВ',
+    dashRegion: 'Ферганская область',
+    dashMeta: 'Q2 · 2026 · 15 районов',
+    dashMapKicker: 'КАРТА · ФЕРГАНСКАЯ ДОЛИНА',
+    dashMapSub: '15 районов · 4 города',
+    dashStat1: '15 районов', dashStat2: '4 города', dashStat3: '3.7M чел.',
+    kpi1: 'ВРП района', kpi1u: 'млрд сум',
+    kpi2: 'Инвестиции', kpi2u: 'млрд сум',
+    kpi3: 'Активных МСБ', kpi3u: '+342 мес.',
+    chartTitle: 'ВРП по кварталам',
+    aiFeed1t: 'AI СОВЕТНИК', aiFeed1m: 'Рост МСБ в Фергане +18% за квартал',
+    aiFeed2t: 'АНАЛИТИКА', aiFeed2m: 'Экспорт текстиля Намангана превысил план на 4.2%',
+    aiFeed3t: 'РЕКОМЕНДАЦИЯ', aiFeed3m: 'Кредитная ёмкость региона Сурхандарья +12%',
+    aiFeed4t: 'AI СОВЕТНИК', aiFeed4m: 'Предупреждение: отток рабочей силы в Хорезме',
+    tool1: 'Аналитика', tool1d: '14 регионов',
+    tool2: 'Советник', tool2d: 'AI · GPT',
+    tool3: 'Обучение', tool3d: 'Курсы МСБ',
+    tool4: 'Финконтроль', tool4d: 'Потоки',
+    floatLabel: 'Доход платформы', floatVal: '₽4.2B · +12.4%',
+    topBadge: '3 узла · Tashkent · Fergana · Samarkand',
   },
   uz: {
     kicker: 'Milliy Bank · Toshkent',
-    signin: 'Kirish', signup: 'Ro\'yxatdan o\'tish',
+    signin: 'Kirish', signup: "Ro'yxatdan o'tish",
     email: 'Email', emailPh: 'you@company.uz',
     password: 'Parol', passwordPh: 'Kamida 8 ta belgi',
-    passwordShow: 'Ko\'rsatish', passwordHide: 'Yashirish',
-    fullName: 'To\'liq ism', fullNamePh: 'Ism Familiya',
+    confirmPassword: 'Parolni tasdiqlang', confirmPasswordPh: 'Parolni qayta kiriting',
+    passwordShow: "Ko'rsatish", passwordHide: 'Yashirish',
+    fullName: "To'liq ism", fullNamePh: 'Ism Familiya',
     remember: 'Meni eslab qol', forgot: 'Parolni unutdingizmi?',
     submit: 'Platformaga kirish', submitRegister: 'Akkaunt yaratish',
-    noAccount: 'Akkauntingiz yo\'qmi?', haveAccount: 'Akkauntingiz bormi?',
-    signupCta: 'Ro\'yxatdan o\'tish', signinCta: 'Kirish',
+    noAccount: "Akkauntingiz yo'qmi?", haveAccount: 'Akkauntingiz bormi?',
+    signupCta: "Ro'yxatdan o'tish", signinCta: 'Kirish',
     statusOk: 'Barcha tizimlar ishlayapti',
     legal: 'End-to-end shifrlash bilan himoyalangan',
     copyright: '© 2026 NBU AI Platform',
@@ -51,74 +78,107 @@ const T = {
     heroBody: 'Platforma hudud tahlili, AI maslahatchi va moliyaviy rejalashtirish vositalarini bitta himoyalangan muhitda birlashtiradi.',
     roleTitle: 'Men quyidagi sifatida kiraman',
     role_sme: 'Kichik biznes', role_corp: 'Korporativ', role_individual: 'Jismoniy shaxs',
+    err_email: 'Email ni tekshiring',
+    err_password_short: 'Parol kamida 8 ta belgidan iborat boʻlishi kerak',
+    err_password_mismatch: 'Parollar mos kelmaydi',
+    err_name_required: "To'liq ismni kiriting",
+    err_email_taken: 'Bu email allaqachon roʻyxatdan oʻtgan',
+    err_invalid_credentials: "Email yoki parol noto'g'ri",
+    dashAnalytics: 'HUDUD TAHLILI',
+    dashRegion: "Farg'ona viloyati",
+    dashMeta: 'Q2 · 2026 · 15 tuman',
+    dashMapKicker: "XARITA · FARG'ONA VODIYSI",
+    dashMapSub: '15 tuman · 4 shahar',
+    dashStat1: '15 tuman', dashStat2: '4 shahar', dashStat3: '3.7M kishi',
+    kpi1: 'Tuman YaHM', kpi1u: 'mlrd soʻm',
+    kpi2: 'Investitsiya', kpi2u: 'mlrd soʻm',
+    kpi3: 'Faol MSB', kpi3u: '+342 oy',
+    chartTitle: 'Choraklik YaHM',
+    aiFeed1t: 'AI MASLAHATCHI', aiFeed1m: "Farg'onada MSB o'sishi +18%",
+    aiFeed2t: 'TAHLIL', aiFeed2m: 'Namangan toʻqimachilik eksporti rejadan 4.2% oshdi',
+    aiFeed3t: 'TAVSIYA', aiFeed3m: 'Surxondaryo kredit sigʻimi +12%',
+    aiFeed4t: 'AI MASLAHATCHI', aiFeed4m: 'Ogohlantirish: Xorazmda ishchi kuchi oqimi',
+    tool1: 'Tahlil', tool1d: '14 hudud',
+    tool2: 'Maslahatchi', tool2d: 'AI · GPT',
+    tool3: "Ta'lim", tool3d: 'MSB kurslari',
+    tool4: 'Finnazorat', tool4d: 'Oqimlar',
+    floatLabel: 'Platforma daromadi', floatVal: '₽4.2B · +12.4%',
+    topBadge: "3 tugun · Toshkent · Farg'ona · Samarqand",
   },
 }
 const t = computed(() => T[lang.value] || T.ru)
 
-// ---------- Form state ----------
 const mode = ref('signin')
 const email = ref('')
 const password = ref('')
+const passwordConfirm = ref('')
 const fullName = ref('')
 const showPw = ref(false)
+const showPwConfirm = ref(false)
 const remember = ref(true)
 const loading = ref(false)
 const error = ref('')
 const role = ref('sme')
 const emailFocus = ref(false)
 const pwFocus = ref(false)
+const pwConfirmFocus = ref(false)
 const nameFocus = ref(false)
 
-watch(mode, () => { error.value = '' })
+watch(mode, () => {
+  error.value = ''
+  passwordConfirm.value = ''
+})
+
+function validateSignup() {
+  if (!fullName.value.trim()) return t.value.err_name_required
+  if (password.value.length < 8) return t.value.err_password_short
+  if (password.value !== passwordConfirm.value) return t.value.err_password_mismatch
+  return null
+}
+
+function mapBackendError(message) {
+  if (!message) return ''
+  const m = String(message).toLowerCase()
+  if (m.includes('email_taken')) return t.value.err_email_taken
+  if (m.includes('password_too_short')) return t.value.err_password_short
+  if (m.includes('full_name_required')) return t.value.err_name_required
+  if (m.includes('invalid email or password')) return t.value.err_invalid_credentials
+  return message
+}
 
 async function submit() {
   error.value = ''
+  if (mode.value === 'signup') {
+    const v = validateSignup()
+    if (v) { error.value = v; return }
+  }
   loading.value = true
   try {
     if (mode.value === 'signin') {
-      await auth.login(email.value, password.value)
+      await auth.login(email.value.trim(), password.value)
     } else {
-      await auth.register(email.value, password.value, fullName.value.trim())
+      await auth.register(email.value.trim(), password.value, fullName.value.trim())
     }
     const redirect = route.query.redirect || '/'
     router.push(redirect)
   } catch (e) {
-    error.value = e.message
+    error.value = mapBackendError(e.message)
   }
   loading.value = false
 }
 
-// AI feed ticker
 const tick = ref(0)
 let tickTimer = null
-const aiFeed = [
-  { t: 'AI СОВЕТНИК', m: 'Рост МСБ в Фергане +18% за квартал', c: '#059669' },
-  { t: 'АНАЛИТИКА', m: 'Экспорт текстиля Намангана превысил план на 4.2%', c: '#0054A6' },
-  { t: 'РЕКОМЕНДАЦИЯ', m: 'Кредитная ёмкость региона Сурхандарья +12%', c: '#F59E0B' },
-  { t: 'AI СОВЕТНИК', m: 'Предупреждение: отток рабочей силы в Хорезме', c: '#DC2626' },
-]
-const aiNow = computed(() => aiFeed[tick.value % aiFeed.length])
+const aiFeed = computed(() => [
+  { t: t.value.aiFeed1t, m: t.value.aiFeed1m, c: '#059669' },
+  { t: t.value.aiFeed2t, m: t.value.aiFeed2m, c: '#0054A6' },
+  { t: t.value.aiFeed3t, m: t.value.aiFeed3m, c: '#F59E0B' },
+  { t: t.value.aiFeed4t, m: t.value.aiFeed4m, c: '#DC2626' },
+])
+const aiNow = computed(() => aiFeed.value[tick.value % aiFeed.value.length])
 onMounted(() => { tickTimer = setInterval(() => tick.value++, 3000) })
 onUnmounted(() => clearInterval(tickTimer))
 
-// Map regions
-const regions = [
-  { k: 'karakalpak', d: 'M12,60 C18,40 35,28 55,30 C70,32 78,48 72,62 C66,78 48,88 28,82 C18,80 8,72 12,60Z', cx: 42, cy: 56 },
-  { k: 'khorezm', d: 'M60,48 C70,42 82,44 86,54 C88,62 82,70 72,68 C64,66 56,58 60,48Z', cx: 73, cy: 56 },
-  { k: 'navoi', d: 'M88,58 C104,50 130,54 138,68 C142,80 128,90 110,86 C94,82 82,72 88,58Z', cx: 113, cy: 70 },
-  { k: 'bukhara', d: 'M90,82 C102,78 120,82 124,92 C126,100 116,108 102,104 C90,100 84,90 90,82Z', cx: 106, cy: 92 },
-  { k: 'samarkand', d: 'M140,80 C152,74 168,78 170,88 C172,98 160,106 148,102 C138,98 132,88 140,80Z', cx: 154, cy: 90 },
-  { k: 'kashkadarya', d: 'M158,104 C172,100 188,104 190,116 C192,126 178,132 164,128 C152,124 146,110 158,104Z', cx: 174, cy: 116 },
-  { k: 'surkhandarya', d: 'M180,132 C192,128 206,134 208,144 C208,154 196,158 184,154 C176,150 170,138 180,132Z', cx: 194, cy: 144 },
-  { k: 'jizzakh', d: 'M172,70 C184,66 196,70 196,80 C196,88 186,92 176,88 C168,86 162,76 172,70Z', cx: 184, cy: 79 },
-  { k: 'syrdarya', d: 'M196,66 C206,62 216,64 218,72 C218,80 208,84 200,80 C192,78 188,70 196,66Z', cx: 207, cy: 72 },
-  { k: 'tashkent', d: 'M204,50 C218,46 236,52 238,64 C238,74 224,80 212,76 C200,72 192,58 204,50Z', cx: 221, cy: 62 },
-  { k: 'namangan', d: 'M238,56 C250,52 264,58 264,66 C264,74 252,78 242,76 C234,74 230,62 238,56Z', cx: 251, cy: 66 },
-  { k: 'andijan', d: 'M262,68 C272,66 280,70 280,78 C278,86 268,88 260,84 C254,80 254,72 262,68Z', cx: 270, cy: 77 },
-  { k: 'fergana', d: 'M254,82 C266,78 280,82 282,92 C282,100 270,104 260,100 C250,96 244,86 254,82Z', cx: 268, cy: 91 },
-]
-
-// Bar chart heights
 const bars = Array.from({ length: 16 }, (_, i) => {
   const base = 30 + Math.abs(Math.sin(i * 0.55) * 55) + (i % 4) * 4
   return Math.min(base, 90)
@@ -127,7 +187,144 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 
 <template>
   <div class="v3">
-    <!-- LEFT: form side -->
+    <!-- LEFT: dashboard preview -->
+    <div class="v3-right">
+      <div class="v3-right-grid" />
+      <div class="v3-right-glow1" />
+      <div class="v3-right-glow2" />
+
+      <div class="v3-float-top">
+        <span class="v3-live-dot" /> {{ t.topBadge }}
+      </div>
+
+      <div class="v3-dashboard">
+        <div class="v3-dash-card">
+          <div class="v3-chrome">
+            <div class="v3-chrome-dot" /><div class="v3-chrome-dot" /><div class="v3-chrome-dot" />
+            <div class="v3-chrome-url">platform.nbu.uz/dashboard</div>
+            <div class="v3-chrome-live"><span class="v3-live-dot-sm" /> LIVE</div>
+          </div>
+
+          <div class="v3-dash-header">
+            <div>
+              <div class="v3-dash-label">{{ t.dashAnalytics }}</div>
+              <div class="v3-dash-title">{{ t.dashRegion }}</div>
+              <div class="v3-dash-sub">{{ t.dashMeta }}</div>
+            </div>
+            <div class="v3-dash-badge">+18.2% YoY</div>
+          </div>
+
+          <div class="v3-map-row">
+            <div class="v3-map-box">
+              <div class="v3-map-header">
+                <div>
+                  <div class="v3-map-kicker">{{ t.dashMapKicker }}</div>
+                  <div class="v3-map-sub">{{ t.dashMapSub }}</div>
+                </div>
+                <div class="v3-map-active">FERGANA ACTIVE</div>
+              </div>
+              <div class="v3-map-img-wrap">
+                <img src="/assets/fergana_map.png" alt="Ferganskaya dolina" class="v3-map-img" />
+              </div>
+              <div class="v3-map-footer">
+                <span>{{ t.dashStat1 }}</span>
+                <span>{{ t.dashStat2 }}</span>
+                <span>{{ t.dashStat3 }}</span>
+              </div>
+            </div>
+            <div class="v3-kpis">
+              <div class="v3-kpi">
+                <div class="v3-kpi-label">{{ t.kpi1 }}</div>
+                <div class="v3-kpi-value" style="color:#fff">14,240</div>
+                <div class="v3-kpi-unit">{{ t.kpi1u }}</div>
+              </div>
+              <div class="v3-kpi">
+                <div class="v3-kpi-label">{{ t.kpi2 }}</div>
+                <div class="v3-kpi-value" style="color:#A7F3D0">2,820</div>
+                <div class="v3-kpi-unit">{{ t.kpi2u }}</div>
+              </div>
+              <div class="v3-kpi">
+                <div class="v3-kpi-label">{{ t.kpi3 }}</div>
+                <div class="v3-kpi-value" style="color:#93C5FD">12,840</div>
+                <div class="v3-kpi-unit">{{ t.kpi3u }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-chart">
+            <div class="v3-chart-head">
+              <div class="v3-chart-title">{{ t.chartTitle }}</div>
+              <div class="v3-chart-legend">
+                <span><span class="v3-legend-box sky" />2024</span>
+                <span><span class="v3-legend-box green" />2025</span>
+              </div>
+            </div>
+            <div class="v3-bars">
+              <div v-for="(h,i) in bars" :key="i" class="v3-bar-col">
+                <div class="v3-bar" :class="{accent: i>=12}" :style="{height: h+'px'}" />
+              </div>
+            </div>
+            <div class="v3-chart-labels"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
+          </div>
+
+          <div class="v3-ai-feed" :key="tick" :style="{'--feed-color': aiNow.c}">
+            <div class="v3-ai-icon" :style="{background: aiNow.c, boxShadow: '0 0 14px '+aiNow.c+'88'}">✦</div>
+            <div class="v3-ai-body">
+              <div class="v3-ai-tag" :style="{color: aiNow.c}">{{ aiNow.t }}</div>
+              <div class="v3-ai-msg">{{ aiNow.m }}</div>
+            </div>
+            <div class="v3-ai-dots">
+              <div v-for="(_,i) in aiFeed" :key="i" :class="['v3-ai-dot',{active: i===tick%aiFeed.length}]" />
+            </div>
+          </div>
+        </div>
+
+        <div class="v3-tools">
+          <div class="v3-tool-tile">
+            <div class="v3-tool-top">
+              <div class="v3-tool-icon" style="background:#93C5FD33;color:#93C5FD">▦</div>
+              <div class="v3-tool-dot" style="background:#93C5FD;box-shadow:0 0 6px #93C5FD" />
+            </div>
+            <div class="v3-tool-name">{{ t.tool1 }}</div>
+            <div class="v3-tool-desc">{{ t.tool1d }}</div>
+          </div>
+          <div class="v3-tool-tile">
+            <div class="v3-tool-top">
+              <div class="v3-tool-icon" style="background:#10B98133;color:#10B981">✦</div>
+              <div class="v3-tool-dot" style="background:#10B981;box-shadow:0 0 6px #10B981" />
+            </div>
+            <div class="v3-tool-name">{{ t.tool2 }}</div>
+            <div class="v3-tool-desc">{{ t.tool2d }}</div>
+          </div>
+          <div class="v3-tool-tile">
+            <div class="v3-tool-top">
+              <div class="v3-tool-icon" style="background:#FBBF2433;color:#FBBF24">◐</div>
+              <div class="v3-tool-dot" style="background:#FBBF24;box-shadow:0 0 6px #FBBF24" />
+            </div>
+            <div class="v3-tool-name">{{ t.tool3 }}</div>
+            <div class="v3-tool-desc">{{ t.tool3d }}</div>
+          </div>
+          <div class="v3-tool-tile">
+            <div class="v3-tool-top">
+              <div class="v3-tool-icon" style="background:#A78BFA33;color:#A78BFA">⬡</div>
+              <div class="v3-tool-dot" style="background:#A78BFA;box-shadow:0 0 6px #A78BFA" />
+            </div>
+            <div class="v3-tool-name">{{ t.tool4 }}</div>
+            <div class="v3-tool-desc">{{ t.tool4d }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="v3-float-bottom">
+        <div class="v3-float-icon">↑</div>
+        <div>
+          <div class="v3-float-label">{{ t.floatLabel }}</div>
+          <div class="v3-float-val">{{ t.floatVal }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: form side -->
     <div class="v3-left">
       <header class="v3-header">
         <div class="v3-logo">
@@ -146,12 +343,10 @@ const bars = Array.from({ length: 16 }, (_, i) => {
         <h1 class="v3-hero">{{ t.heroLine1 }}<br/><span class="v3-accent">{{ t.heroAccent }}</span><br/>{{ t.heroLine2 }}</h1>
         <p class="v3-body">{{ t.heroBody }}</p>
 
-        <!-- tabs -->
         <div class="v3-tabs">
           <button v-for="[k,label] in [['signin',t.signin],['signup',t.signup]]" :key="k" :class="['v3-tab',{active:mode===k}]" @click="mode=k">{{ label }}</button>
         </div>
 
-        <!-- role chips (signup) -->
         <div v-if="mode==='signup'" class="v3-roles fade-in">
           <div class="v3-roles-label">{{ t.roleTitle }}</div>
           <div class="v3-roles-row">
@@ -159,7 +354,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
           </div>
         </div>
 
-        <!-- full name (signup) -->
         <div v-if="mode==='signup'" class="v3-field-group fade-in">
           <label class="v3-field-label">{{ t.fullName }}</label>
           <div :class="['v3-field',{focus:nameFocus}]">
@@ -177,8 +371,15 @@ const bars = Array.from({ length: 16 }, (_, i) => {
           <div class="v3-field-group">
             <label class="v3-field-label">{{ t.password }}</label>
             <div :class="['v3-field',{focus:pwFocus}]">
-              <input v-model="password" :type="showPw?'text':'password'" :placeholder="t.passwordPh" autocomplete="current-password" @focus="pwFocus=true" @blur="pwFocus=false" @keydown.enter="submit" />
+              <input v-model="password" :type="showPw?'text':'password'" :placeholder="t.passwordPh" :autocomplete="mode==='signup' ? 'new-password' : 'current-password'" @focus="pwFocus=true" @blur="pwFocus=false" @keydown.enter="mode==='signin' && submit()" />
               <button class="v3-pw-toggle" type="button" @click="showPw=!showPw">{{ showPw ? t.passwordHide : t.passwordShow }}</button>
+            </div>
+          </div>
+          <div v-if="mode==='signup'" class="v3-field-group fade-in">
+            <label class="v3-field-label">{{ t.confirmPassword }}</label>
+            <div :class="['v3-field',{focus:pwConfirmFocus}]">
+              <input v-model="passwordConfirm" :type="showPwConfirm?'text':'password'" :placeholder="t.confirmPasswordPh" autocomplete="new-password" @focus="pwConfirmFocus=true" @blur="pwConfirmFocus=false" @keydown.enter="submit" />
+              <button class="v3-pw-toggle" type="button" @click="showPwConfirm=!showPwConfirm">{{ showPwConfirm ? t.passwordHide : t.passwordShow }}</button>
             </div>
           </div>
         </div>
@@ -208,132 +409,20 @@ const bars = Array.from({ length: 16 }, (_, i) => {
         <span>·</span> {{ t.copyright }}
       </div>
     </div>
-
-    <!-- RIGHT: dashboard preview -->
-    <div class="v3-right">
-      <div class="v3-right-grid" />
-      <div class="v3-right-glow1" />
-      <div class="v3-right-glow2" />
-
-      <!-- floating top badge -->
-      <div class="v3-float-top">
-        <span class="v3-live-dot" /> 3 узла · Tashkent · Fergana · Samarkand
-      </div>
-
-      <div class="v3-dashboard">
-        <!-- main card -->
-        <div class="v3-dash-card">
-          <!-- window chrome -->
-          <div class="v3-chrome">
-            <div class="v3-chrome-dot" /><div class="v3-chrome-dot" /><div class="v3-chrome-dot" />
-            <div class="v3-chrome-url">platform.nbu.uz/dashboard</div>
-            <div class="v3-chrome-live"><span class="v3-live-dot-sm" /> LIVE</div>
-          </div>
-
-          <!-- header -->
-          <div class="v3-dash-header">
-            <div>
-              <div class="v3-dash-label">АНАЛИТИКА РЕГИОНОВ</div>
-              <div class="v3-dash-title">Ферганская область</div>
-              <div class="v3-dash-sub">Q2 · 2026 · 15 районов</div>
-            </div>
-            <div class="v3-dash-badge">+18.2% YoY</div>
-          </div>
-
-          <!-- map + KPIs -->
-          <div class="v3-map-row">
-            <div class="v3-map-box">
-              <svg viewBox="0 0 292 170" class="v3-map-svg">
-                <g v-for="r in regions" :key="r.k">
-                  <path :d="r.d" :fill="r.k==='fergana' ? '#93C5FD' : 'rgba(255,255,255,0.08)'" :stroke="r.k==='fergana' ? '#fff' : 'rgba(255,255,255,0.25)'" :stroke-width="r.k==='fergana' ? 1.2 : 0.7" />
-                  <template v-if="r.k==='fergana'">
-                    <circle :cx="r.cx" :cy="r.cy" r="3.5" fill="#fff" />
-                    <circle :cx="r.cx" :cy="r.cy" r="8" fill="none" stroke="#fff" stroke-width="1" opacity="0.6">
-                      <animate attributeName="r" values="4;12;4" dur="2.4s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.8;0;0.8" dur="2.4s" repeatCount="indefinite" />
-                    </circle>
-                  </template>
-                </g>
-              </svg>
-              <div class="v3-map-footer"><span>14 регионов</span><span>· 199 районов</span></div>
-            </div>
-            <div class="v3-kpis">
-              <div v-for="(s,i) in [{l:'ВРП района',v:'14,240',u:'млрд сум',c:'#fff'},{l:'Инвестиции',v:'2,820',u:'млрд сум',c:'#A7F3D0'},{l:'Активных МСБ',v:'12,840',u:'+342 мес.',c:'#93C5FD'}]" :key="i" class="v3-kpi">
-                <div class="v3-kpi-label">{{ s.l }}</div>
-                <div class="v3-kpi-value" :style="{color:s.c}">{{ s.v }}</div>
-                <div class="v3-kpi-unit">{{ s.u }}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- bar chart -->
-          <div class="v3-chart">
-            <div class="v3-chart-head">
-              <div class="v3-chart-title">ВРП по кварталам</div>
-              <div class="v3-chart-legend">
-                <span><span class="v3-legend-box sky" />2024</span>
-                <span><span class="v3-legend-box green" />2025</span>
-              </div>
-            </div>
-            <div class="v3-bars">
-              <div v-for="(h,i) in bars" :key="i" class="v3-bar-col">
-                <div class="v3-bar" :class="{accent: i>=12}" :style="{height: h+'px'}" />
-              </div>
-            </div>
-            <div class="v3-chart-labels"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
-          </div>
-
-          <!-- AI feed -->
-          <div class="v3-ai-feed" :key="tick" :style="{'--feed-color': aiNow.c}">
-            <div class="v3-ai-icon" :style="{background: aiNow.c, boxShadow: '0 0 14px '+aiNow.c+'88'}">✦</div>
-            <div class="v3-ai-body">
-              <div class="v3-ai-tag" :style="{color: aiNow.c}">{{ aiNow.t }}</div>
-              <div class="v3-ai-msg">{{ aiNow.m }}</div>
-            </div>
-            <div class="v3-ai-dots">
-              <div v-for="(_,i) in aiFeed" :key="i" :class="['v3-ai-dot',{active: i===tick%aiFeed.length}]" />
-            </div>
-          </div>
-        </div>
-
-        <!-- tool tiles -->
-        <div class="v3-tools">
-          <div v-for="(x,i) in [{n:'Аналитика',d:'14 регионов',c:'#93C5FD',i:'▦'},{n:'Советник',d:'AI · GPT',c:'#10B981',i:'✦'},{n:'Обучение',d:'Курсы МСБ',c:'#FBBF24',i:'◐'},{n:'Финконтроль',d:'Потоки',c:'#A78BFA',i:'⬡'}]" :key="i" class="v3-tool-tile">
-            <div class="v3-tool-top">
-              <div class="v3-tool-icon" :style="{background: x.c+'33', color: x.c}">{{ x.i }}</div>
-              <div class="v3-tool-dot" :style="{background: x.c, boxShadow: '0 0 6px '+x.c}" />
-            </div>
-            <div class="v3-tool-name">{{ x.n }}</div>
-            <div class="v3-tool-desc">{{ x.d }}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- floating bottom badge -->
-      <div class="v3-float-bottom">
-        <div class="v3-float-icon">↑</div>
-        <div>
-          <div class="v3-float-label">Доход платформы</div>
-          <div class="v3-float-val">₽4.2B · +12.4%</div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <style scoped>
-/* ---- Layout ---- */
 .v3 {
   min-height: 100vh;
   background: #F5F8FC;
   color: #0F1A2B;
   display: grid;
-  grid-template-columns: minmax(480px, 1fr) minmax(540px, 1.15fr);
+  grid-template-columns: minmax(540px, 1.15fr) minmax(480px, 1fr);
   font-family: 'Manrope', 'Inter', system-ui, sans-serif;
   position: relative; overflow: hidden;
 }
 
-/* ---- LEFT ---- */
 .v3-left {
   padding: 40px 56px;
   display: flex; flex-direction: column;
@@ -370,7 +459,8 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 
 .v3-form-area { max-width: 520px; width: 100%; position: relative; }
 .v3-hero {
-  font-size: 54px; line-height: 1.02; letter-spacing: -1.8px;
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  line-height: 1.02; letter-spacing: -1.2px;
   margin: 0; font-weight: 800;
 }
 .v3-accent { color: #003D7C; }
@@ -379,9 +469,8 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   max-width: 460px; line-height: 1.55;
 }
 
-/* tabs */
 .v3-tabs {
-  display: inline-flex; margin-top: 32px; margin-bottom: 20px;
+  display: inline-flex; margin-top: 28px; margin-bottom: 18px;
   background: #E6EEF8; border-radius: 10px; padding: 4px;
 }
 .v3-tab {
@@ -395,8 +484,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   box-shadow: 0 6px 16px -6px rgba(0,61,124,0.4);
 }
 
-/* roles */
-.v3-roles { margin-bottom: 18px; }
+.v3-roles { margin-bottom: 16px; }
 .v3-roles-label {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
   color: #64748B; margin-bottom: 10px; font-weight: 700;
@@ -413,9 +501,9 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   border-color: #003D7C; background: #003D7C; color: #fff;
 }
 
-/* fields */
-.v3-fields { display: flex; flex-direction: column; gap: 14px; max-width: 460px; }
-.v3-field-group { margin-bottom: 0; }
+.v3-fields { display: flex; flex-direction: column; gap: 12px; max-width: 460px; margin-bottom: 0; }
+.v3-field-group { margin-bottom: 12px; }
+.v3-fields .v3-field-group { margin-bottom: 0; }
 .v3-field-label {
   display: block; font-size: 11px; letter-spacing: 0.6px;
   text-transform: uppercase; color: #64748B; margin-bottom: 6px; font-weight: 700;
@@ -424,6 +512,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   display: flex; align-items: center; background: #fff;
   border: 1.5px solid rgba(0,61,124,0.12);
   border-radius: 10px; transition: all .18s;
+  max-width: 460px;
 }
 .v3-field.focus {
   border-color: #003D7C;
@@ -432,7 +521,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 .v3-field input {
   flex: 1; border: none; background: transparent;
   padding: 13px 16px; font-size: 15px; color: #0F1A2B;
-  outline: none; font-family: inherit;
+  outline: none; font-family: inherit; min-width: 0;
 }
 .v3-field input::placeholder { color: #94A3B8; }
 .v3-pw-toggle {
@@ -444,12 +533,12 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 
 .v3-error {
   margin-top: 10px; font-size: 12px; color: #DC2626; font-weight: 600;
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 6px; max-width: 460px;
 }
 
 .v3-row {
   display: flex; align-items: center; justify-content: space-between;
-  margin-top: 16px; margin-bottom: 22px; max-width: 460px;
+  margin-top: 14px; margin-bottom: 20px; max-width: 460px;
 }
 .v3-remember {
   display: flex; align-items: center; gap: 8px;
@@ -457,7 +546,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 }
 .v3-remember input { width: 15px; height: 15px; accent-color: #003D7C; }
 .v3-forgot { font-size: 13px; color: #003D7C; font-weight: 600; text-decoration: none; }
-.v3-spacer { height: 22px; }
+.v3-spacer { height: 18px; }
 
 .v3-submit {
   width: 100%; max-width: 460px;
@@ -482,9 +571,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   display: inline-block;
 }
 
-.v3-switch {
-  margin-top: 16px; font-size: 13px; color: #64748B; max-width: 460px;
-}
+.v3-switch { margin-top: 14px; font-size: 13px; color: #64748B; max-width: 460px; }
 .v3-switch button {
   background: transparent; border: none;
   color: #003D7C; cursor: pointer;
@@ -494,14 +581,13 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 
 .v3-footer-left {
   font-size: 11px; letter-spacing: 0.4px; color: #64748B;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
 .v3-status-dot {
   width: 6px; height: 6px; border-radius: 999px; background: #059669;
   display: inline-block;
 }
 
-/* ---- RIGHT ---- */
 .v3-right {
   position: relative; overflow: hidden;
   background: linear-gradient(155deg, #002855 0%, #003D7C 55%, #0054A6 100%);
@@ -518,21 +604,21 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   pointer-events: none;
 }
 .v3-right-glow1 {
-  position: absolute; top: -140px; right: -140px;
+  position: absolute; top: -140px; left: -140px;
   width: 460px; height: 460px; border-radius: 50%;
   background: radial-gradient(circle, rgba(147,197,253,0.33), transparent 70%);
   filter: blur(30px); animation: floaty 7s ease-in-out infinite;
   pointer-events: none;
 }
 .v3-right-glow2 {
-  position: absolute; bottom: -180px; left: -80px;
+  position: absolute; bottom: -180px; right: -80px;
   width: 380px; height: 380px; border-radius: 50%;
   background: radial-gradient(circle, rgba(0,84,166,0.4), transparent 70%);
   filter: blur(30px); pointer-events: none;
 }
 
 .v3-float-top {
-  position: absolute; top: 32px; right: 32px; z-index: 3;
+  position: absolute; top: 32px; left: 32px; z-index: 3;
   padding: 8px 12px;
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
@@ -551,7 +637,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 .v3-dashboard {
   position: relative; z-index: 2;
   width: 100%; max-width: 600px;
-  transform: perspective(1400px) rotateY(-7deg) rotateX(3deg);
+  transform: perspective(1400px) rotateY(7deg) rotateX(3deg);
   transform-origin: center center;
   display: flex; flex-direction: column; gap: 16px;
 }
@@ -601,21 +687,44 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 }
 
 .v3-map-row {
-  display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px;
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px;
   padding: 14px 0;
   border-top: 1px solid rgba(255,255,255,0.12);
   border-bottom: 1px solid rgba(255,255,255,0.12);
   margin-bottom: 14px;
 }
 .v3-map-box {
-  background: rgba(0,0,0,0.18); border-radius: 10px; padding: 10px;
+  background: linear-gradient(160deg, rgba(0,0,0,0.28), rgba(0,61,124,0.3));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 12px 12px 10px;
   display: flex; flex-direction: column; justify-content: space-between;
 }
-.v3-map-svg { width: 100%; height: auto; display: block; }
+.v3-map-header {
+  display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;
+}
+.v3-map-kicker {
+  font-size: 9px; letter-spacing: 1.4px; text-transform: uppercase;
+  color: #93C5FD; font-family: 'JetBrains Mono', monospace; font-weight: 700;
+}
+.v3-map-sub { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+.v3-map-active {
+  padding: 3px 7px; background: rgba(16,185,129,0.18);
+  border: 1px solid rgba(16,185,129,0.4); border-radius: 4px;
+  font-size: 9px; font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; color: #A7F3D0;
+}
+.v3-map-img-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 6px;
+}
+.v3-map-img {
+  width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+}
 .v3-map-footer {
   display: flex; align-items: center; justify-content: space-between;
   font-size: 10px; font-family: 'JetBrains Mono', monospace;
-  color: rgba(255,255,255,0.55); letter-spacing: 0.4px; margin-top: 4px;
+  color: rgba(255,255,255,0.55); letter-spacing: 0.4px; margin-top: 6px;
 }
 
 .v3-kpis { display: flex; flex-direction: column; gap: 6px; }
@@ -633,7 +742,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 .v3-kpi-value { font-size: 17px; font-weight: 800; margin-top: 1px; letter-spacing: -0.3px; }
 .v3-kpi-unit { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 1px; }
 
-/* chart */
 .v3-chart { margin-bottom: 14px; }
 .v3-chart-head {
   display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
@@ -647,15 +755,11 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   font-family: 'JetBrains Mono', monospace;
 }
 .v3-chart-legend span { display: inline-flex; align-items: center; gap: 4px; }
-.v3-legend-box {
-  width: 8px; height: 8px; border-radius: 2px; display: inline-block;
-}
+.v3-legend-box { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
 .v3-legend-box.sky { background: #93C5FD; }
 .v3-legend-box.green { background: linear-gradient(to top, #059669, #10B981); }
 
-.v3-bars {
-  height: 110px; display: flex; align-items: flex-end; gap: 6px; padding: 4px 0;
-}
+.v3-bars { height: 110px; display: flex; align-items: flex-end; gap: 6px; padding: 4px 0; }
 .v3-bar-col { flex: 1; }
 .v3-bar {
   background: linear-gradient(to top, rgba(127,181,230,0.53), #93C5FD);
@@ -671,7 +775,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* AI feed */
 .v3-ai-feed {
   padding: 13px 14px;
   background: linear-gradient(135deg, color-mix(in srgb, var(--feed-color) 20%, transparent), rgba(255,255,255,0.05));
@@ -693,16 +796,10 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 }
 .v3-ai-msg { font-size: 13px; margin-top: 2px; font-weight: 500; color: rgba(255,255,255,0.95); }
 .v3-ai-dots { display: flex; gap: 3px; }
-.v3-ai-dot {
-  width: 4px; height: 4px; border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-}
+.v3-ai-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.25); }
 .v3-ai-dot.active { background: #fff; }
 
-/* tool tiles */
-.v3-tools {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-}
+.v3-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .v3-tool-tile {
   padding: 12px;
   background: rgba(255,255,255,0.07);
@@ -726,16 +823,15 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   font-family: 'JetBrains Mono', monospace; margin-top: 2px; letter-spacing: 0.3px;
 }
 
-/* floating badges */
 .v3-float-bottom {
-  position: absolute; bottom: 28px; left: 28px; z-index: 3;
+  position: absolute; bottom: 28px; right: 28px; z-index: 3;
   padding: 10px 14px;
   background: #fff; color: #003D7C;
   border-radius: 10px;
   font-size: 12px; font-weight: 700;
   box-shadow: 0 20px 50px -15px rgba(0,0,0,0.5);
   display: flex; align-items: center; gap: 10px;
-  transform: rotate(-2deg);
+  transform: rotate(2deg);
 }
 .v3-float-icon {
   width: 26px; height: 26px; border-radius: 7px; background: #059669;
@@ -748,7 +844,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 }
 .v3-float-val { font-size: 14px; letter-spacing: -0.3px; }
 
-/* animations */
 .fade-in { animation: slideUp .3s ease; }
 @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -756,7 +851,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 @keyframes floaty { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
 @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.55; } }
 
-/* responsive */
 @media (max-width: 1024px) {
   .v3 { grid-template-columns: 1fr; }
   .v3-right { display: none; }
