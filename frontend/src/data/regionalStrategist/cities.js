@@ -18,7 +18,7 @@ export const CITIES = {
     populationK: 4223.0,
     areaKm2: 6760,
     districts: 19, // 4 города + 15 туманов
-    mahallas: 1248,
+    mahallas: 1017,
     industryBlnUzs: 45896.1, // 2024
     industryGrowthPct: 104.3,
     industryPerCapitaK: 11185.8, // ×4 к Маргилану
