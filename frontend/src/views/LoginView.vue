@@ -25,9 +25,6 @@ const T = {
     submit: 'Войти в платформу', submitRegister: 'Создать аккаунт',
     noAccount: 'Нет аккаунта?', haveAccount: 'Уже есть аккаунт?',
     signupCta: 'Зарегистрироваться', signinCta: 'Войти',
-    statusOk: 'Все системы работают',
-    legal: 'Защищено end-to-end шифрованием',
-    copyright: '© 2026 NBU AI Platform',
     heroLine1: 'Войдите в', heroAccent: 'интеллект', heroLine2: 'вашего бизнеса.',
     heroBody: 'Региональная аналитика, AI-советник и инструменты финансового планирования — в одной защищённой платформе Национального Банка.',
     roleTitle: 'Я вхожу как',
@@ -53,11 +50,10 @@ const T = {
     aiFeed3t: 'РЕКОМЕНДАЦИЯ', aiFeed3m: 'Кредитная ёмкость региона Сурхандарья +12%',
     aiFeed4t: 'AI СОВЕТНИК', aiFeed4m: 'Предупреждение: отток рабочей силы в Хорезме',
     tool1: 'Аналитика', tool1d: '14 регионов',
-    tool2: 'Советник', tool2d: 'AI · GPT',
+    tool2: 'Советник', tool2d: 'AI бот',
     tool3: 'Обучение', tool3d: 'Курсы МСБ',
     tool4: 'Финконтроль', tool4d: 'Потоки',
-    floatLabel: 'Доход платформы', floatVal: '₽4.2B · +12.4%',
-    topBadge: '3 узла · Tashkent · Fergana · Samarkand',
+    floatLabel: 'Покрытие платформы', floatVal: '14 регионов · 650K+ бизнесов',
   },
   uz: {
     kicker: 'Milliy Bank · Toshkent',
@@ -71,10 +67,7 @@ const T = {
     submit: 'Platformaga kirish', submitRegister: 'Akkaunt yaratish',
     noAccount: "Akkauntingiz yo'qmi?", haveAccount: 'Akkauntingiz bormi?',
     signupCta: "Ro'yxatdan o'tish", signinCta: 'Kirish',
-    statusOk: 'Barcha tizimlar ishlayapti',
-    legal: 'End-to-end shifrlash bilan himoyalangan',
-    copyright: '© 2026 NBU AI Platform',
-    heroLine1: 'Kirish:', heroAccent: 'intellekt', heroLine2: 'biznesingiz uchun.',
+    heroLine1: 'Biznesingiz', heroAccent: 'intellektiga', heroLine2: 'kiring.',
     heroBody: 'Platforma hudud tahlili, AI maslahatchi va moliyaviy rejalashtirish vositalarini bitta himoyalangan muhitda birlashtiradi.',
     roleTitle: 'Men quyidagi sifatida kiraman',
     role_sme: 'Kichik biznes', role_corp: 'Korporativ', role_individual: 'Jismoniy shaxs',
@@ -98,12 +91,11 @@ const T = {
     aiFeed2t: 'TAHLIL', aiFeed2m: 'Namangan toʻqimachilik eksporti rejadan 4.2% oshdi',
     aiFeed3t: 'TAVSIYA', aiFeed3m: 'Surxondaryo kredit sigʻimi +12%',
     aiFeed4t: 'AI MASLAHATCHI', aiFeed4m: 'Ogohlantirish: Xorazmda ishchi kuchi oqimi',
-    tool1: 'Tahlil', tool1d: '14 hudud',
-    tool2: 'Maslahatchi', tool2d: 'AI · GPT',
-    tool3: "Ta'lim", tool3d: 'MSB kurslari',
-    tool4: 'Finnazorat', tool4d: 'Oqimlar',
-    floatLabel: 'Platforma daromadi', floatVal: '₽4.2B · +12.4%',
-    topBadge: "3 tugun · Toshkent · Farg'ona · Samarqand",
+    tool1: 'Tahlil', tool1d: '14 viloyat',
+    tool2: 'Maslahatchi', tool2d: 'AI bot',
+    tool3: "Ta'lim", tool3d: 'KOB kurslari',
+    tool4: 'Moliya nazorati', tool4d: 'Oqimlar',
+    floatLabel: 'Platforma qamrovi', floatVal: '14 viloyat · 650K+ biznes',
   },
 }
 const t = computed(() => T[lang.value] || T.ru)
@@ -192,10 +184,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
       <div class="v3-right-grid" />
       <div class="v3-right-glow1" />
       <div class="v3-right-glow2" />
-
-      <div class="v3-float-top">
-        <span class="v3-live-dot" /> {{ t.topBadge }}
-      </div>
 
       <div class="v3-dashboard">
         <div class="v3-dash-card">
@@ -402,12 +390,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
           <button @click="mode = mode==='signin'?'signup':'signin'">{{ mode==='signin' ? t.signupCta : t.signinCta }} →</button>
         </div>
       </div>
-
-      <div class="v3-footer-left">
-        <span class="v3-status-dot" /> {{ t.statusOk }}
-        <span>·</span> {{ t.legal }}
-        <span>·</span> {{ t.copyright }}
-      </div>
     </div>
   </div>
 </template>
@@ -424,12 +406,16 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 }
 
 .v3-left {
-  padding: 40px 56px;
+  padding: 120px 56px 56px;
   display: flex; flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 48px;
   position: relative; z-index: 2;
 }
-.v3-header { display: flex; align-items: center; justify-content: space-between; }
+.v3-header {
+  position: absolute; top: 40px; left: 56px; right: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
 .v3-logo { display: flex; align-items: center; gap: 12px; }
 .v3-logo-mark {
   width: 34px; height: 34px; border-radius: 9px;
@@ -579,15 +565,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   font-family: inherit;
 }
 
-.v3-footer-left {
-  font-size: 11px; letter-spacing: 0.4px; color: #64748B;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.v3-status-dot {
-  width: 6px; height: 6px; border-radius: 999px; background: #059669;
-  display: inline-block;
-}
-
 .v3-right {
   position: relative; overflow: hidden;
   background: linear-gradient(155deg, #002855 0%, #003D7C 55%, #0054A6 100%);
@@ -615,23 +592,6 @@ const bars = Array.from({ length: 16 }, (_, i) => {
   width: 380px; height: 380px; border-radius: 50%;
   background: radial-gradient(circle, rgba(0,84,166,0.4), transparent 70%);
   filter: blur(30px); pointer-events: none;
-}
-
-.v3-float-top {
-  position: absolute; top: 32px; left: 32px; z-index: 3;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  backdrop-filter: blur(12px);
-  border-radius: 999px;
-  font-size: 11px; font-weight: 600; color: #fff;
-  display: flex; align-items: center; gap: 8px;
-  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.4px;
-}
-.v3-live-dot {
-  width: 6px; height: 6px; border-radius: 50%; display: inline-block;
-  background: #10B981; box-shadow: 0 0 8px #10B981;
-  animation: pulse 2s infinite;
 }
 
 .v3-dashboard {
@@ -854,6 +814,7 @@ const bars = Array.from({ length: 16 }, (_, i) => {
 @media (max-width: 1024px) {
   .v3 { grid-template-columns: 1fr; }
   .v3-right { display: none; }
-  .v3-left { padding: 24px; }
+  .v3-left { padding: 96px 24px 32px; }
+  .v3-header { top: 24px; left: 24px; right: 24px; }
 }
 </style>
