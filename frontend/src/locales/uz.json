@@ -313,6 +313,16 @@
       "insightsTitle": "Asosiy kuzatuvlar",
       "risksTitle": "Risklar va imkoniyatlar",
       "fargona_city": {
+        "overall": {
+          "title": "AI · Fargʻona shahri umumiy xulosalari",
+          "summary": "Fargʻona — barcha asosiy tarmoqlarda kuchli dinamikaga ega diversifikatsiyalashgan iqtisodiy markaz. 2021–2025-yillarda xizmatlar 2,8 baravar oʻsdi, sanoat eng yirik tarmoq boʻlib qoldi, ishsizlik 3,0% — viloyatdagi eng past koʻrsatkichlardan biri. Strategik imkoniyatlar — sanoatni diversifikatsiyalash va IT tarmoqni rivojlantirish.",
+          "tags": [
+            "✓ Xizmatlar ×2,8 (5y)",
+            "✓ Ishsizlik 3,0%",
+            "⚠ Toʻqimachilikka qaramlik",
+            "💡 IT uchun venchur fond"
+          ]
+        },
         "economic": {
           "title": "Iqtisodiy faollik AI-tahlili",
           "summary": "Fargʻona — Fargʻona vodiysining eng yirik iqtisodiy markazi (335,1 ming aholi). 2021–2025-yillarda sanoat ishlab chiqarish 7 075,5 dan 12 666,6 mlrd soʻmgacha oʻsdi (+79%), xizmatlar sohasi esa 4 387,5 dan 12 191,0 mlrd soʻmgacha (+178%) — 2025-yilda birinchi marta hajm boʻyicha sanoatga yaqinlashdi. Asosiy kapitalga investitsiyalar 2,3 baravar oshdi — 7 128,4 mlrd soʻmga — bu kelajakdagi oʻsish uchun zamin yaratadi.",
@@ -407,6 +417,114 @@
             "IT va xizmatlar iqtisodiyotini startaplar va inkubatorlar orqali rivojlantirish",
             "Bank strategiyasi: «Fargʻona 2030» paketi — diversifikatsiyaga kompleks kreditlar",
             "Shaharning oʻsayotgan oʻrta sinfi uchun bank xizmatlarini raqamlashtirish"
+          ]
+        }
+      },
+      "margilon_city": {
+        "overall": {
+          "title": "AI · Margʻilon shahri umumiy xulosalari",
+          "summary": "Margʻilon — eksport-turistik rivojlanish modeli, ipak va toʻqimachilikning noyob konsentratsiyasi. 5 yilda ishsizlik 3,7 p.p. tushdi, eksport 3 baravar oʻsdi, oʻrtacha maosh 3 974 ming soʻm. Strategik prioritetlar: norasmiy sektorni qonuniylashtirish (37%) va farma hamda oziq-ovqat qayta ishlashga diversifikatsiya.",
+          "tags": [
+            "✓ Eksport ×3 (5y)",
+            "✓ Ishsizlik −3,7 p.p.",
+            "⚠ 37% norasmiy iqtisodiyot",
+            "💡 Turistik klaster"
+          ]
+        },
+        "economic": {
+          "title": "Iqtisodiy faollik AI-tahlili",
+          "summary": "Margʻilon — Fargʻona vodiysidagi ipak ishlab chiqarishning tarixiy poytaxti (261,9 ming aholi). Shahar YaHM tarkibi noyob: savdo (38,2%) yetakchi, soʻngra xizmatlar (23,8%) va sanoat (19,4%). 2021–2025-yillarda eksport rekord oʻsishni koʻrsatdi: 149 dan 450 mln dollargacha (×3) — asosan toʻqimachilik va ipak mahsulotlari hisobiga. Asosiy kapitalga investitsiyalar beqaror — 5 yilda ×1,6 oʻsish, 2024-yilda pasayish bilan.",
+          "insights": [
+            "Eksport ×3 (5y) — viloyat shaharlari orasida eng yuqori",
+            "Savdo YaHM tarkibida yetakchi (38,2%) — viloyat shaharlari uchun nomuddin",
+            "Toʻqimachilik va ipak — kuchli sanoat asosi va tarixiy ixtisoslashuv",
+            "Investitsiyalarning 44,3% — chet ellik, eksport yoʻnalishini tasdiqlaydi"
+          ],
+          "risks": [
+            "Ipak/toʻqimachilikka qaramlik — farma va oziq-ovqat qayta ishlashga diversifikatsiya",
+            "Korxonalar soni kamaymoqda (4 928 → 2 787 (5y)) — biznes konsentratsiyasi",
+            "Norasmiy iqtisodiyot 37% — yashirin bandlikning yuqori darajasi",
+            "Bank uchun imkoniyat: «Margʻilon-Ipak» — toʻqimachilik shartnomalari uchun eksport krediti"
+          ]
+        },
+        "infra": {
+          "title": "Infratuzilma AI-tahlili",
+          "summary": "Asosiy infratuzilma yetarli darajada: suv 99%, gaz 89%, yoʻllar 75%, kanalizatsiya 62% — soʻnggi modernizatsiya talab qiladi. Margʻilon — turistik markaz (380 ming tashrif buyuruvchilar, 42 ta madaniy meros obyekti), bu shahar muhiti va jamoat xizmatlari sifatiga talablarni oshiradi.",
+          "insights": [
+            "Suv taʼminoti 99% — viloyat shaharlari yetakchisi",
+            "Gazlashtirish 89% va yoʻllar 75% — yuqori taʼminot darajasi",
+            "42 ta madaniy meros obyekti doimiy restavratsiya talab qiladi",
+            "Yiliga 380 ming turist — mehmonxona infratuzilmasiga barqaror talab"
+          ],
+          "risks": [
+            "Kanalizatsiya 62% — boshqa kategoriyalardan ortda, yangilash kerak",
+            "Turlar oqimi mehmonxona va ovqatlanish ob'ektlarini kengaytirishni talab qiladi",
+            "Bank uchun imkoniyat: mehmonxona rivojlanishiga loyihali kreditlar",
+            "Meros restavratsiyasi — davlat byudjeti bilan birga ESG-kreditlash imkoniyati"
+          ]
+        },
+        "population": {
+          "title": "Aholi va bandlik AI-tahlili",
+          "summary": "Margʻilon aholisi — 261,9 ming kishi, ulardan 140,2 mingi mehnat yoshida. 5 yilda ishsizlik 9,5%dan 5,8%gacha tushdi — taʼsirchan dinamika. Lekin 2024-yilda chet elga migratsiya cho'qqi qiymatga 6 240 kishigacha yetdi (2021-da 253), 2025-da esa 1 180 gacha tushdi. Sotsial reestr 2 602 oilani qamrab oladi (4,2%).",
+          "insights": [
+            "Ishsizlik 5 yilda 9,5%dan 5,8%gacha tushdi — rekord pasayish",
+            "140,2 ming mehnat yoshidagi aholi — barqaror mehnat resursi bazasi",
+            "Migratsiya 2024-da choʻqqi 6 240, 2025-da 1 180 — migrantlarning qaytishi",
+            "Chet elda 15 574 fuqaro — pul oʻtkazmalarining barqaror oqimi"
+          ],
+          "risks": [
+            "Tabiiy oʻsish 4 757 — bolalar infratuzilmasiga bosim",
+            "Qaytuvchi migrantlarni reintegratsiya qilish imtiyozli kreditlash orqali",
+            "Bank uchun imkoniyat: migrantlar oilalari uchun ipoteka",
+            "37% norasmiy iqtisodiyot bank xizmatlari qamrovini pasaytiradi"
+          ]
+        },
+        "mahalla": {
+          "title": "Mahalla va bank salohiyati AI-tahlili",
+          "summary": "Shaharda 50 mahalla. Iqtisodiy faol top-5 — Kashkar, Pichoqchi, Turaqoʻrgʻon, Yuksalish, Goʻriavval — ipak ishlab chiqarish va savdoni jamlaydi. Sotsial reestr 2 602 oilani qamrab oladi (4,2%), norasmiy iqtisodiyot darajasi 37% — viloyat oʻrtachasidan yuqori. NPL darajasi 4,6% — chegaraviy.",
+          "insights": [
+            "50 mahalla — hunarmandchilik ishlab chiqarishining yuqori zichligi",
+            "Top-5 mahalla — ipak va toʻqimachilik klasteri",
+            "46 580 xonadon — barqaror mikromoliyalashtirish bazasi",
+            "Turizm 380 ming — suvenir-hunarmandchilik MSBni moliyalashtirish imkoniyati"
+          ],
+          "risks": [
+            "NPL 4,6% — mikrokredit portfeli sifatini kuzatish",
+            "37% norasmiy iqtisodiyot — bank stimul bilan qonuniylashtirish imkoniyati",
+            "Bank uchun imkoniyat: Margʻilon hunarmandlari uchun «Ipak ustasi» paketi",
+            "Turistik nuqtalarda POS raqamlashtirish — prioritet"
+          ]
+        },
+        "opportunities": {
+          "title": "Rivojlanish imkoniyatlari AI-tahlili",
+          "summary": "Margʻilon — uchta strategik yoʻnalishdagi noyob shahar: eksport toʻqimachilik klasteri (5 yilda ×3 oʻsish), madaniy turizm (yiliga 380 ming, 42 meros obyekti), va tarixiy hunarmandchilik (ipak). Ishsizlikning 1,6 baravar pasayishi va 2025-yilda migrantlarning qaytishi mahalliy iqtisodiyotni kengaytirish uchun qulay zamin yaratadi.",
+          "insights": [
+            "Eksport ×3 (5y) — viloyatdagi eng kuchli koʻrsatkich",
+            "Turizm 380 ming — mehmonxona, restoran va suvenir biznesi salohiyati",
+            "Xalqaro shartnomali ipak klaster — e-commerce platformalarini rivojlantirish",
+            "Migrantlarning qaytishi yiliga 5 060 — malakali kadrlar oqimi"
+          ],
+          "risks": [
+            "Korxonalar soni kamayishi (×0,57) MSB qoʻllab-quvvatlashni talab qiladi",
+            "Farma va oziq-ovqat qayta ishlashga investitsiya yetishmasligi",
+            "Bank uchun imkoniyat: «Margʻilon 2030» — eksport toʻqimachilikni qoʻllash dasturi",
+            "Buyumlarni onlayn sotish platformalarining rivoji — ekvayring uchun salohiyat"
+          ]
+        },
+        "summary": {
+          "title": "AI-tahlil va strategik tavsiyalar",
+          "summary": "Margʻilon — eksport toʻqimachilik va madaniy turizmning noyob kombinatsiyasi bilan muvaffaqiyatli diversifikatsiyalanayotgan shahar. Ishsizlik 9,5%dan 5,8%gacha tushdi, eksport 3 baravar oʻsdi, oʻrtacha maosh 3 974 ming soʻm. Lekin biznes konsentratsiyasi (×0,57 korxona (5y)) va norasmiylikning yuqori darajasi (37%) — strategik xatarlar.",
+          "insights": [
+            "Noyob eksport modeli — toʻqimachilik (5y) ×3",
+            "Turistik brend ishlamoqda: 380 ming tashrif, 42 obyekt",
+            "Ijtimoiy koʻrsatkichlar yaxshilanmoqda: ishsizlik (5y) −3,7 p.p.",
+            "Foreign-driven investitsiyalar 44,3% — rivojlanish modeli"
+          ],
+          "risks": [
+            "Biznes dekonsentratsiyasi: MSB qoʻllash — prioritet",
+            "Norasmiy iqtisodiyotni bank stimul bilan qonuniylashtirish",
+            "Bank strategiyasi: «Margʻilon Ipak» — eksport-turistik modelga kompleks mahsulot",
+            "Xalqaro savdoni kengaytirish uchun raqamlashtirish va e-commerce"
           ]
         }
       }

@@ -208,6 +208,20 @@ const aiAnalysis = computed(() => {
   }
 })
 
+// City-level AI banner — compact recommendation shown at the top of the
+// drill-down page, above the tabs. Drawn from district.aiAnalysis.<key>.overall.
+const aiOverall = computed(() => {
+  if (!districtKey.value) return null
+  const path = `district.aiAnalysis.${districtKey.value}.overall`
+  if (!te(`${path}.title`)) return null
+  const tags = tm(`${path}.tags`)
+  return {
+    title: t(`${path}.title`),
+    summary: t(`${path}.summary`),
+    tags: Array.isArray(tags) ? tags : [],
+  }
+})
+
 </script>
 
 <template>
@@ -454,6 +468,24 @@ const aiAnalysis = computed(() => {
             <div class="da-kpi-label">{{ t('district.cards.plan2026Preschools') }}</div>
             <div class="da-kpi-value">{{ analytics.plan2026.preschools }}</div>
             <div class="da-kpi-sub">{{ analytics.plan2026.preschoolPlaces.toLocaleString('ru-RU') }} {{ t('district.cards.plan2026PreschoolPlaces') }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- City-level AI banner — overall takeaways, shown only for districts
+           with curated district.aiAnalysis.<key>.overall content -->
+      <div v-if="aiOverall" class="da-ai-banner">
+        <div class="da-ai-banner-icon">
+          <AppIcon name="auto_awesome" filled class="!text-[24px] text-white" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-1.5 flex-wrap">
+            <div class="da-ai-banner-title">{{ aiOverall.title }}</div>
+            <span class="da-ai-banner-badge">{{ t('district.aiAnalysis.badge') }}</span>
+          </div>
+          <p class="da-ai-banner-summary">{{ aiOverall.summary }}</p>
+          <div v-if="aiOverall.tags.length" class="flex gap-2 mt-3 flex-wrap">
+            <span v-for="(tag, i) in aiOverall.tags" :key="i" class="da-ai-banner-tag">{{ tag }}</span>
           </div>
         </div>
       </div>
