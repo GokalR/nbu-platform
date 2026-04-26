@@ -228,6 +228,26 @@ const REAL_DATA = {
     nplRate: 2.1,
     bankCoverage: { smbCredits: 51.8, exporters: 26, employed: 73 },
     digitalAdoption2025: { payments: 77.6, cards: 71.4, merchants: 70.0, lending: 4.6 },
+    // Roads — file 2 §13 (km, 2025): total + asphalt + earth verified; gravel/patched no data
+    roads2025: { totalKm: 21916, asphaltKm: 21248, earthKm: 667, gravelKm: null, patchedKm: null },
+    // Education — file 1 §8 (2025 counts)
+    education2025: {
+      schools: 1275,
+      schoolsPlanned: null,
+      kindergartens: 779,
+      kindergartensPlanned: null,
+      privateSchools: 55,
+      familyKindergartens: 3158,
+      preschoolCoveragePct: 75.6,
+    },
+    // Labor trend — file 2 §17 (in thousand people, converted to absolute by ×1000 in build)
+    laborTrend5Y: [
+      { year: 2021, formalK: 483.6, informalK: 694.5, abroadK: 263.2, unemployedK: 158.4 },
+      { year: 2022, formalK: 539.9, informalK: 664.2, abroadK: 275.7, unemployedK: 152.5 },
+      { year: 2023, formalK: 525.3, informalK: 678.9, abroadK: 300.0, unemployedK: 106.8 },
+      { year: 2024, formalK: 686.2, informalK: 648.9, abroadK: 185.96, unemployedK: 86.44 },
+      { year: 2025, formalK: 813.2, informalK: 580.3, abroadK: 218.12, unemployedK: 80.28 },
+    ],
     // Note: avgSalary, infra coverage % (water/sewage/gas), entities org-form split,
     // gravelKm, patchedKm, mahalla credit scores, 2026 plan are not in source data.
   },
@@ -416,14 +436,28 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       { name: t('regionAnalytics.infra.matrix.digital'),       status: 'warn',                                               note: t('districtAnalytics.infra.note.digital',    { n: Math.round(60 + p.infra * 30) }) },
     ] : null,
     budgetMlrd: Math.round(46.3 * scale * 10) / 10,
-    roads: {
+    roads: rd?.roads2025 ? {
+      totalKm:   rd.roads2025.totalKm,
+      asphaltKm: rd.roads2025.asphaltKm,
+      gravelKm:  rd.roads2025.gravelKm,
+      patchedKm: rd.roads2025.patchedKm,
+      earthKm:   rd.roads2025.earthKm,
+    } : {
       totalKm: Math.round(popK * 0.6),
       asphaltKm: Math.round(popK * 0.6 * (0.2 + p.infra * 0.4)),
       gravelKm: Math.round(popK * 0.6 * 0.15),
       patchedKm: Math.round(popK * 0.6 * 0.25),
       earthKm: Math.round(popK * 0.6 * 0.3 * (1 - p.infra * 0.5)),
     },
-    education: {
+    education: rd?.education2025 ? {
+      schools:               rd.education2025.schools,
+      schoolsPlanned:        rd.education2025.schoolsPlanned,
+      kindergartens:         rd.education2025.kindergartens,
+      kindergartensPlanned:  rd.education2025.kindergartensPlanned,
+      privateSchools:        rd.education2025.privateSchools,
+      familyKindergartens:   rd.education2025.familyKindergartens,
+      preschoolCoveragePct:  rd.education2025.preschoolCoveragePct,
+    } : {
       schools: Math.max(4, Math.round(popK * 0.06)),
       schoolsPlanned: Math.max(1, Math.round(popK * 0.015)),
       kindergartens: Math.max(6, Math.round(popK * 0.09)),
@@ -457,19 +491,27 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       { label: t('regionAnalytics.pop.economicallyActive'), value: fmt(workingAge), delta: hasNaturalIncrease ? `+${fmt(rd.population.naturalIncrease)}` : (rd ? '—' : `+${fmt(Math.round(5745 * scale))}`), sub: hasNaturalIncrease ? t('districtAnalytics.pop.naturalIncrease') : (rd ? '' : t('regionAnalytics.pop.since2021')), tone: 'green' },
       { label: t('regionAnalytics.brief.unemployment'),     value: `${unemployment}%`, delta: hasUnemploymentStart ? `${unemploymentStart}% → ${unemployment}%` : `${unemployment}%`, sub: hasUnemploymentStart ? '2021 → 2025' : '2025', tone: 'green' },
     ],
-    laborTrend: [
-      { year: 2021, formal: 16137, informal: 3455, abroad: 4474, unemployed: 2784 },
-      { year: 2022, formal: 16618, informal: 3010, abroad: 4875, unemployed: 2246 },
-      { year: 2023, formal: 17618, informal: 2995, abroad: 5213, unemployed: 1854 },
-      { year: 2024, formal: 19455, informal: 2765, abroad: 5566, unemployed: 1520 },
-      { year: 2025, formal: 20415, informal: 2210, abroad: 6936, unemployed: 1197 },
-    ].map((row) => ({
-      year: row.year,
-      formal: Math.round(row.formal * scale),
-      informal: Math.round(row.informal * scale),
-      abroad: Math.round(row.abroad * scale * (1 + (1 - p.infra) * 0.5)),
-      unemployed: Math.round(row.unemployed * scale),
-    })),
+    laborTrend: rd?.laborTrend5Y
+      ? rd.laborTrend5Y.map((r) => ({
+          year: r.year,
+          formal:     Math.round(r.formalK * 1000),
+          informal:   Math.round(r.informalK * 1000),
+          abroad:     Math.round(r.abroadK * 1000),
+          unemployed: Math.round(r.unemployedK * 1000),
+        }))
+      : [
+          { year: 2021, formal: 16137, informal: 3455, abroad: 4474, unemployed: 2784 },
+          { year: 2022, formal: 16618, informal: 3010, abroad: 4875, unemployed: 2246 },
+          { year: 2023, formal: 17618, informal: 2995, abroad: 5213, unemployed: 1854 },
+          { year: 2024, formal: 19455, informal: 2765, abroad: 5566, unemployed: 1520 },
+          { year: 2025, formal: 20415, informal: 2210, abroad: 6936, unemployed: 1197 },
+        ].map((row) => ({
+          year: row.year,
+          formal: Math.round(row.formal * scale),
+          informal: Math.round(row.informal * scale),
+          abroad: Math.round(row.abroad * scale * (1 + (1 - p.infra) * 0.5)),
+          unemployed: Math.round(row.unemployed * scale),
+        })),
     unemploymentTrend: hasUnemploymentStart ? [
       { year: 2021, value: parseFloat(unemploymentStart) },
       { year: 2022, value: parseFloat(unemploymentStart) - 2.0 },

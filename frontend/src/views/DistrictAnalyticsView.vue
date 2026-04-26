@@ -710,19 +710,19 @@ const threatLevelClass = (level) => {
               <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.roadsTitle') }}</div>
               <div class="da-card-sub">{{ t('district.cards.roadsTotal') }} {{ analytics.infra.roads.totalKm }} {{ t('district.cards.km') }}</div>
               <div class="space-y-3 mt-4 text-sm">
-                <div>
+                <div v-if="analytics.infra.roads.asphaltKm != null">
                   <div class="da-bar-row"><span>{{ t('district.cards.asphalt') }}</span><span class="da-mono font-bold">{{ analytics.infra.roads.asphaltKm }} {{ t('district.cards.km') }}</span></div>
                   <div class="da-bar-outer mt-1.5"><div class="da-bar-inner" :style="{ width: `${(analytics.infra.roads.asphaltKm / analytics.infra.roads.totalKm) * 100}%`, background: 'linear-gradient(90deg,#059669,#10B981)' }"></div></div>
                 </div>
-                <div>
+                <div v-if="analytics.infra.roads.gravelKm != null">
                   <div class="da-bar-row"><span>{{ t('district.cards.gravel') }}</span><span class="da-mono font-bold">{{ analytics.infra.roads.gravelKm }} {{ t('district.cards.km') }}</span></div>
                   <div class="da-bar-outer mt-1.5"><div class="da-bar-inner" :style="{ width: `${(analytics.infra.roads.gravelKm / analytics.infra.roads.totalKm) * 100}%`, background: 'linear-gradient(90deg,#FBBF24,#F59E0B)' }"></div></div>
                 </div>
-                <div>
+                <div v-if="analytics.infra.roads.patchedKm != null">
                   <div class="da-bar-row"><span>{{ t('district.cards.patched') }}</span><span class="da-mono font-bold">{{ analytics.infra.roads.patchedKm }} {{ t('district.cards.km') }}</span></div>
                   <div class="da-bar-outer mt-1.5"><div class="da-bar-inner" :style="{ width: `${(analytics.infra.roads.patchedKm / analytics.infra.roads.totalKm) * 100}%`, background: 'linear-gradient(90deg,#D97706,#B45309)' }"></div></div>
                 </div>
-                <div>
+                <div v-if="analytics.infra.roads.earthKm != null">
                   <div class="da-bar-row"><span>{{ t('district.cards.earth') }}</span><span class="da-mono font-bold">{{ analytics.infra.roads.earthKm }} {{ t('district.cards.km') }}</span></div>
                   <div class="da-bar-outer mt-1.5"><div class="da-bar-inner" :style="{ width: `${(analytics.infra.roads.earthKm / analytics.infra.roads.totalKm) * 100}%`, background: 'linear-gradient(90deg,#DC2626,#991B1B)' }"></div></div>
                 </div>
