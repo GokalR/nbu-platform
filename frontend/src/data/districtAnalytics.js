@@ -377,15 +377,38 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
     return 'red'
   }
 
+  // Verified Fargona viloyat REAL growth 2025/2024 (constant prices) —
+  // farstat.uz ВРП/3. Yalpi hududiy mahsulotning o'sish sur'atlari.pdf.
+  // Used as a "viloyat real growth" subline on the city sector tiles, so
+  // users can compare nominal city YoY against verified real region growth.
+  const REGION_REAL_GROWTH_FERGANA = {
+    industry:     107.3,
+    construction: 117.4,
+    services:     108.6,
+    trade:        111.1,        // savdo, yashash va ovqatlanish (subset of xizmatlar)
+    agriculture:  105.4,
+    invest:       null,         // not published as real growth in this table
+  }
+  const isFerganaPilot = districtKey === 'fargona_city' || districtKey === 'margilon_city'
+  const regionReal = isFerganaPilot ? REGION_REAL_GROWTH_FERGANA : {}
+  const regionDelta = (key) => {
+    const pct = regionReal[key]
+    if (pct == null) return ''
+    const d = pct - 100
+    return `${d >= 0 ? '+' : ''}${d.toFixed(1)}%`
+  }
+
   const economic = {
     // Sector breakdown — 4 tiles for sectors NOT shown in the macro row above.
     // Industry sits in macro row, so this row covers Services / Trade /
     // Construction / Agriculture; drops the fabricated "businessCoverage".
+    // Each tile gets two growth indicators: nominal city YoY (current prices)
+    // and verified region REAL growth (constant prices, viloyat-level).
     kpis: [
-      { label: t('regionAnalytics.econ.services'),         value: `${fmt(servicesBln)} ${t('regionAnalytics.units.bnShort')}`, sub: sumUnit, delta: growthChip(rd?.servicesGrowthPct),     tone: toneOf(rd?.servicesGrowthPct) },
-      { label: t('districtAnalytics.sector.trade'),        value: `${fmt(tradeBln)} ${t('regionAnalytics.units.bnShort')}`,    sub: sumUnit, delta: growthChip(rd?.tradeGrowthPct),        tone: toneOf(rd?.tradeGrowthPct) },
-      { label: t('regionAnalytics.sector.construction'),   value: `${fmt(constructionBln)} ${t('regionAnalytics.units.bnShort')}`, sub: sumUnit, delta: growthChip(rd?.constructionGrowth),  tone: toneOf(rd?.constructionGrowth) },
-      { label: t('districtAnalytics.econ.agriShort'),      value: `${fmt(agriBln)} ${t('regionAnalytics.units.bnShort')}`,     sub: sumUnit, delta: growthChip(rd?.agricultureGrowthPct),  tone: toneOf(rd?.agricultureGrowthPct) },
+      { label: t('regionAnalytics.econ.services'),         value: `${fmt(servicesBln)} ${t('regionAnalytics.units.bnShort')}`, sub: sumUnit, delta: growthChip(rd?.servicesGrowthPct),     regionDelta: regionDelta('services'),    tone: toneOf(rd?.servicesGrowthPct) },
+      { label: t('districtAnalytics.sector.trade'),        value: `${fmt(tradeBln)} ${t('regionAnalytics.units.bnShort')}`,    sub: sumUnit, delta: growthChip(rd?.tradeGrowthPct),        regionDelta: regionDelta('trade'),       tone: toneOf(rd?.tradeGrowthPct) },
+      { label: t('regionAnalytics.sector.construction'),   value: `${fmt(constructionBln)} ${t('regionAnalytics.units.bnShort')}`, sub: sumUnit, delta: growthChip(rd?.constructionGrowth),  regionDelta: regionDelta('construction'),tone: toneOf(rd?.constructionGrowth) },
+      { label: t('districtAnalytics.econ.agriShort'),      value: `${fmt(agriBln)} ${t('regionAnalytics.units.bnShort')}`,     sub: sumUnit, delta: growthChip(rd?.agricultureGrowthPct),  regionDelta: regionDelta('agriculture'), tone: toneOf(rd?.agricultureGrowthPct) },
     ],
     // 5-year trend: use verified series from rd.fiveYear when available
     // (fargona_city, margilon_city). For non-pilot districts, scale current
@@ -906,7 +929,7 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
     rd?.mahallas != null
       ? { label: t('districtAnalytics.macro.mahalla'),    value: fmt(rd.mahallas),          sub: t('districtAnalytics.macro.mahallaUnit'), delta: '', tone: 'blue' }
       : null,
-    { label: t('districtAnalytics.macro.industryShort'),  value: fmt(industryBln),          sub: mlrdSum, delta: rd?.industryGrowthPct != null ? growthChip(rd.industryGrowthPct) : (rd ? '' : `${industryTrend} 5Y`),  tone: toneOf(rd?.industryGrowthPct) },
+    { label: t('districtAnalytics.macro.industryShort'),  value: fmt(industryBln),          sub: mlrdSum, delta: rd?.industryGrowthPct != null ? growthChip(rd.industryGrowthPct) : (rd ? '' : `${industryTrend} 5Y`),  regionDelta: regionDelta('industry'), tone: toneOf(rd?.industryGrowthPct) },
     hasCityExport
       ? { label: t('districtAnalytics.fiveY.export'),     value: fmt(rd.foreignTrade2025.exportMln), sub: t('districtAnalytics.macro.mlnUSD'), delta: growthChip(rd.foreignTrade2025.exportPct), tone: toneOf(rd.foreignTrade2025.exportPct) }
       : (!rd ? { label: t('districtAnalytics.fiveY.export'), value: fmt(exportYears[4]), sub: mlrdSum, delta: `${exportTrend} 5Y`, tone: 'green' } : null),

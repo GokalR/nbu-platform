@@ -605,7 +605,12 @@ const aiOverall = computed(() => {
             <div class="da-macro-kpi-label">{{ m.label }}</div>
             <div class="da-macro-kpi-value">{{ m.value }}</div>
             <div class="da-macro-kpi-sub">{{ m.sub }}</div>
-            <div class="da-macro-kpi-delta" :class="`tone-${m.tone}`">{{ m.delta }}</div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <div v-if="m.delta" class="da-macro-kpi-delta" :class="`tone-${m.tone}`">{{ m.delta }}</div>
+              <span v-if="m.regionDelta" class="da-region-delta">
+                {{ t('district.cards.regionRealLabel') }} {{ m.regionDelta }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -614,7 +619,12 @@ const aiOverall = computed(() => {
             <div class="da-kpi-label">{{ kpi.label }}</div>
             <div class="da-kpi-value">{{ kpi.value }}</div>
             <div class="da-kpi-sub">{{ kpi.sub }}</div>
-            <span v-if="kpi.delta" class="da-kpi-delta" :class="`tone-${kpi.tone}`">{{ kpi.delta }}</span>
+            <div class="flex items-center gap-2 flex-wrap mt-auto">
+              <span v-if="kpi.delta" class="da-kpi-delta" :class="`tone-${kpi.tone}`">{{ kpi.delta }}</span>
+              <span v-if="kpi.regionDelta" class="da-region-delta">
+                {{ t('district.cards.regionRealLabel') }} {{ kpi.regionDelta }}
+              </span>
+            </div>
           </div>
         </div>
 
