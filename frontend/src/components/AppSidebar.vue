@@ -5,7 +5,7 @@ import AppIcon from './AppIcon.vue'
 const navItems = [
   { to: '/', icon: 'dashboard', labelKey: 'nav.home' },
   { to: '/districts', icon: 'analytics', labelKey: 'nav.districts' },
-  { to: '/ai', icon: 'psychology', labelKey: 'nav.ai' },
+  { to: '/ai', icon: 'psychology', labelKey: 'nav.ai', disabled: true },
   { to: '/tools', icon: 'precision_manufacturing', labelKey: 'nav.tools' },
   { to: '/education', icon: 'school', labelKey: 'nav.education' },
 ]
@@ -26,21 +26,34 @@ const navItems = [
     </RouterLink>
 
     <nav class="flex-1 flex flex-col gap-1" :aria-label="$t('app.brand')">
-      <RouterLink
-        v-for="item in navItems"
-        :key="item.to"
-        :to="item.to"
-        class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group"
-        active-class="bg-white text-blue-900 shadow-sm font-bold"
-        :class="
-          $route.path === item.to
-            ? ''
-            : 'text-slate-600 hover:bg-slate-100 hover:translate-x-1'
-        "
-      >
-        <AppIcon :name="item.icon" />
-        <span class="text-sm font-semibold">{{ $t(item.labelKey) }}</span>
-      </RouterLink>
+      <template v-for="item in navItems" :key="item.to">
+        <!-- Disabled nav item: rendered as a non-interactive div -->
+        <div
+          v-if="item.disabled"
+          class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 cursor-not-allowed select-none"
+          aria-disabled="true"
+        >
+          <AppIcon :name="item.icon" />
+          <span class="text-sm font-semibold">{{ $t(item.labelKey) }}</span>
+          <span class="ml-auto text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">
+            {{ $t('nav.soon') }}
+          </span>
+        </div>
+        <RouterLink
+          v-else
+          :to="item.to"
+          class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group"
+          active-class="bg-white text-blue-900 shadow-sm font-bold"
+          :class="
+            $route.path === item.to
+              ? ''
+              : 'text-slate-600 hover:bg-slate-100 hover:translate-x-1'
+          "
+        >
+          <AppIcon :name="item.icon" />
+          <span class="text-sm font-semibold">{{ $t(item.labelKey) }}</span>
+        </RouterLink>
+      </template>
     </nav>
 
   </aside>

@@ -480,13 +480,12 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       : t('districtAnalytics.ai.agrarian',      { kindGen: k.gen, share: p.agri }),
   }
 
-  const hasInfraData = !!rd?.infra
   const water  = rd?.infra?.water  != null ? rd.infra.water  : Math.round(p.infra * 70 + 10)
   const sewage = rd?.infra?.sewage != null ? rd.infra.sewage : Math.round(p.infra * 60 + 5)
   const roads  = rd?.infra?.roads  != null ? rd.infra.roads  : Math.round(p.infra * 60 + 20)
   const gas    = rd?.infra?.gas    != null ? rd.infra.gas    : Math.min(100, Math.round(p.infra * 80 + 20))
 
-  const showInfraEstimates = !rd || hasInfraData
+  const showInfraEstimates = true
   const infra = {
     kpis: showInfraEstimates ? [
       { label: t('regionAnalytics.infra.electricity'), value: '100%', delta: t('regionAnalytics.infra.coverage'), tone: 'green' },
@@ -511,24 +510,20 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       history: rd.housingSupply.history,
       historyLabels: rd.housingSupply.historyLabels,
     } : null,
-    // Budget and roads: render only when rd has a verified source. For pilot
-    // cities (rd present) without rd.budget / rd.roads2025, return null so
-    // the view shows a "Нет данных" placeholder. For non-pilot districts
-    // (rd absent) keep the synthetic estimate so the dashboard isn't empty.
-    budgetMlrd: rd?.budget?.mlrd ?? (!rd ? Math.round(46.3 * scale * 10) / 10 : null),
+    budgetMlrd: rd?.budget?.mlrd ?? Math.round(46.3 * scale * 10) / 10,
     roads: rd?.roads2025 ? {
       totalKm:   rd.roads2025.totalKm,
       asphaltKm: rd.roads2025.asphaltKm,
       gravelKm:  rd.roads2025.gravelKm,
       patchedKm: rd.roads2025.patchedKm,
       earthKm:   rd.roads2025.earthKm,
-    } : !rd ? {
+    } : {
       totalKm: Math.round(popK * 0.6),
       asphaltKm: Math.round(popK * 0.6 * (0.2 + p.infra * 0.4)),
       gravelKm: Math.round(popK * 0.6 * 0.15),
       patchedKm: Math.round(popK * 0.6 * 0.25),
       earthKm: Math.round(popK * 0.6 * 0.3 * (1 - p.infra * 0.5)),
-    } : null,
+    },
     education: rd?.education2025 ? {
       schools:               rd.education2025.schools,
       schoolsPlanned:        rd.education2025.schoolsPlanned,
@@ -537,16 +532,13 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       privateSchools:        rd.education2025.privateSchools,
       familyKindergartens:   rd.education2025.familyKindergartens,
       preschoolCoveragePct:  rd.education2025.preschoolCoveragePct,
-    } : !rd ? {
+    } : {
       schools: Math.max(4, Math.round(popK * 0.06)),
       schoolsPlanned: Math.max(1, Math.round(popK * 0.015)),
       kindergartens: Math.max(6, Math.round(popK * 0.09)),
       kindergartensPlanned: Math.max(3, Math.round(popK * 0.04)),
-    } : null,
-    // Infrastructure problems list: synthetic priorities + costs derived from
-    // the same fabricated water/sewage % and population scale. Show only when
-    // there's a verified source (none currently), null otherwise.
-    problems: !rd ? [
+    },
+    problems: [
       { code: 'M1', name: t('regionAnalytics.problems.waterRecon'),    cost: Math.round(12.8 * scale * 10) / 10, priority: water  < 55 ? t('regionAnalytics.priority.high') : t('regionAnalytics.priority.medium') },
       { code: 'M2', name: t('regionAnalytics.problems.sewageSystem'),  cost: Math.round(8.4  * scale * 10) / 10, priority: sewage < 50 ? t('regionAnalytics.priority.high') : t('regionAnalytics.priority.medium') },
       { code: 'M3', name: t('regionAnalytics.problems.roadNetwork'),   cost: Math.round(6.2  * scale * 10) / 10, priority: t('regionAnalytics.priority.medium') },
@@ -555,7 +547,7 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       { code: 'T2', name: t('districtAnalytics.problems.kindergartens'), cost: Math.round(2.2 * scale * 10) / 10, priority: t('regionAnalytics.priority.medium') },
       { code: 'T3', name: t('regionAnalytics.problems.digital5g'),     cost: Math.round(1.5  * scale * 10) / 10, priority: t('regionAnalytics.priority.low') },
       { code: 'T4', name: t('regionAnalytics.problems.greenEnergy'),   cost: Math.round(1.5  * scale * 10) / 10, priority: t('regionAnalytics.priority.low') },
-    ] : null,
+    ],
     aiNote: water < 50
       ? t('districtAnalytics.ai.waterCritical', { n: water, mlrd: Math.round(12.8 * scale * 10) / 10 })
       : t('districtAnalytics.ai.infraBalanced', { kindGen: k.gen, n: Math.round(p.infra * 100) }),
