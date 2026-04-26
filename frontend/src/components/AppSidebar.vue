@@ -43,14 +43,5 @@ const navItems = [
       </RouterLink>
     </nav>
 
-    <div class="mt-auto border-t border-outline-variant/20 pt-4 flex flex-col gap-1">
-      <a
-        href="#"
-        class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 transition-colors rounded-lg"
-      >
-        <AppIcon name="contact_support" />
-        <span class="text-sm font-semibold">{{ $t('nav.support') }}</span>
-      </a>
-    </div>
   </aside>
 </template>

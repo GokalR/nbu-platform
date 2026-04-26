@@ -540,18 +540,6 @@ const sortedRegions = computed(() =>
       </transition>
     </div>
 
-    <!-- Floating action button -->
-    <button
-      type="button"
-      class="fixed bottom-8 right-8 bg-primary text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-50 flex items-center gap-2 group"
-    >
-      <AppIcon name="add_chart" filled />
-      <span
-        class="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 font-bold text-sm whitespace-nowrap"
-      >
-        {{ t('common.createReport') }}
-      </span>
-    </button>
   </section>
 
   <!-- Unavailable region toast -->
