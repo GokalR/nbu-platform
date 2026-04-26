@@ -564,29 +564,36 @@ const aiOverall = computed(() => {
           <div class="col-span-12 lg:col-span-4 da-card">
             <div class="da-card-title"><span class="dot" style="background:#DC2626"></span>{{ t('district.cards.foreignTradeTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.foreignTradeSub') }}</div>
-            <div class="grid grid-cols-1 gap-4 mt-5">
-              <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
-                <div>
-                  <div class="da-kpi-label mb-1">{{ t('district.cards.import') }}</div>
-                  <div class="medium-number">{{ analytics.economic.trade.importMln }} {{ t('district.units.bnSum') }}</div>
+            <template v-if="analytics.economic.trade">
+              <div class="grid grid-cols-1 gap-4 mt-5">
+                <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
+                  <div>
+                    <div class="da-kpi-label mb-1">{{ t('district.cards.import') }}</div>
+                    <div class="medium-number">{{ analytics.economic.trade.importMln }} {{ t('district.units.bnSum') }}</div>
+                  </div>
+                  <AppIcon name="download" class="text-slate-300 text-2xl" />
                 </div>
-                <AppIcon name="download" class="text-slate-300 text-2xl" />
-              </div>
-              <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
-                <div>
-                  <div class="da-kpi-label mb-1">{{ t('district.cards.export') }}</div>
-                  <div class="medium-number text-emerald-600">{{ analytics.economic.trade.exportMln }} {{ t('district.units.bnSum') }}</div>
-                  <span class="da-chip tone-green mt-1">▲ {{ analytics.economic.trade.exportGrowth }}</span>
+                <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
+                  <div>
+                    <div class="da-kpi-label mb-1">{{ t('district.cards.export') }}</div>
+                    <div class="medium-number text-emerald-600">{{ analytics.economic.trade.exportMln }} {{ t('district.units.bnSum') }}</div>
+                    <span class="da-chip tone-green mt-1">▲ {{ analytics.economic.trade.exportGrowth }}</span>
+                  </div>
+                  <AppIcon name="upload" class="text-emerald-300 text-2xl" />
                 </div>
-                <AppIcon name="upload" class="text-emerald-300 text-2xl" />
-              </div>
-              <div class="flex items-end justify-between">
-                <div>
-                  <div class="da-kpi-label mb-1">{{ t('district.cards.balance') }}</div>
-                  <div class="medium-number text-red-600">{{ analytics.economic.trade.deficitMln }} {{ t('district.units.bnSum') }}</div>
+                <div class="flex items-end justify-between">
+                  <div>
+                    <div class="da-kpi-label mb-1">{{ t('district.cards.balance') }}</div>
+                    <div class="medium-number text-red-600">{{ analytics.economic.trade.deficitMln }} {{ t('district.units.bnSum') }}</div>
+                  </div>
+                  <AppIcon name="trending_down" class="text-red-300 text-2xl" />
                 </div>
-                <AppIcon name="trending_down" class="text-red-300 text-2xl" />
               </div>
+            </template>
+            <div v-else class="da-no-data">
+              <AppIcon name="info" class="!text-[24px] text-slate-400" />
+              <div class="da-no-data-title">{{ t('district.cards.noData') }}</div>
+              <div class="da-no-data-sub">{{ t('district.cards.noDataForeignTrade') }}</div>
             </div>
           </div>
 

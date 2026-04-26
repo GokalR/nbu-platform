@@ -51,10 +51,8 @@ const REAL_DATA = {
     tradeBln: 6562.8,
     constructionBln: 3276.6,
     agricultureBln: 1020.3,
-    unemployment: 3.0,            // 4 700 unemployed of 153 200 active
     mahallas: 74,
     perCapita: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },
-    benchmark: { industry: 14057, invest: 7688, services: 16993, trade: 9993, construction: 4537 },
     // Nominal YoY growth 2025/2024 (% — current prices, derived from PDFs)
     industryGrowthPct: 112.1,
     servicesGrowthPct: 131.1,
@@ -72,23 +70,28 @@ const REAL_DATA = {
       construction: [1742.5, 2463.6, 2928.6, 2872.2, 3276.6],
       agriculture:  [587.3, 654.8, 754.6, 833.1, 1020.3],
     },
-    // ⚠ Unverified from the farstat.uz PDFs in fergana/ — sourced from prior
-    // NBU Data Office briefing (April 2026); kept for now, replace when a
-    // verified city-level publication is added to the source folder.
-    demographics: { men: 164800, women: 170300, womenPct: 50.8, families: 118600, households: 105000 },
-    employment: { economicallyActive: 153200, employed: 146500, unemployed: 4700, unemploymentPct: 3.0 },
-    poverty: { families: 1772, pct: 1.5, prevFamilies: 2998, prevPct: 4.1 },
-    foreignTrade2025: { turnoverMln: 417.6, turnoverPct: 96.5, exportMln: 187.5, exportPct: 151.4, importMln: 230.1, importPct: 74.5, balanceMln: -42.6 },
-    population: {
-      abroad: 12100,
+    // Verified demographics — farstat.uz "Hududlar bo'yicha shahar va qishloq
+    // aholisi soni" (1 yanvar 2026): Farg'ona shahri 335.1 ming, 100% urban.
+    // Population history 2019-2026 (kishi):
+    populationFiveYear: [283.8, 289.0, 293.5, 299.2, 314.5, 321.8, 328.4, 335.1],
+    populationFiveYearLabels: [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
+    // Verified age structure 2025 — farstat.uz "Yosh guruhlari bo'yicha".
+    ageGroups2025: {
+      '0-2': 20784, '3-5': 17391, '6-7': 9615, '8-15': 40235,
+      '16-17': 10515, '18-19': 8374, '20-24': 22037, '25-29': 28537,
+      '30-34': 32224, '35-39': 28005, '40-49': 41543, '50-59': 32395,
+      '60-69': 25517, '70-74': 6073, '75-79': 3312, '80-84': 869, '85+': 983,
     },
-    plan2026: {
-      infraBudgetBln: 42.8,
-      tourismVisitorsK: 350,
-      jobs: 48800,
-      preschools: 20,
-      preschoolPlaces: 3000,
-    },
+    // ── Fields below were intentionally REMOVED because no city-level source
+    // was found in the fergana/ folder. Restore once a verified publication
+    // is dropped in (see verification report):
+    //   demographics — gender / families / households (no city PDF)
+    //   employment — active / unemployed (no city Mehnat bozori PDF)
+    //   poverty — соцреестр (no city Ehtiyojmand oilalar PDF)
+    //   foreignTrade2025 — viloyat-only in folder; city slice not published
+    //   plan2026 — NBU brief, separate source
+    //   population.abroad — pending Ko'chib ketganlar audit
+    //   unemployment — pending city employment publication
   },
   margilon_city: {
     populationK: 261.9,          // 261,948
@@ -404,22 +407,25 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
             { name: t('regionAnalytics.sector.services'),     percent: p.services.toFixed(1), color: '#0054A6' },
             { name: t('districtAnalytics.sector.trade'),      percent: p.trade.toFixed(1),    color: '#2563EB' },
           ],
+    // City-level foreign trade: prefer rd.foreignTrade2025 (city brief), then
+    // rd.fiveYear export/import series; null when neither exists so the view
+    // renders a "no data" placeholder rather than synthetic numbers.
     trade: rd?.foreignTrade2025 ? {
       importMln: rd.foreignTrade2025.importMln,
       exportMln: rd.foreignTrade2025.exportMln,
       deficitMln: rd.foreignTrade2025.balanceMln,
       exportGrowth: `${rd.foreignTrade2025.exportPct >= 100 ? '+' : ''}${Math.round(rd.foreignTrade2025.exportPct - 100)}%`,
-    } : rd?.fiveYear ? {
+    } : rd?.fiveYear?.export && rd?.fiveYear?.import ? {
       importMln: rd.fiveYear.import[4],
       exportMln: rd.fiveYear.export[4],
       deficitMln: rd.fiveYear.import[4] - rd.fiveYear.export[4],
       exportGrowth: `+${Math.round(((rd.fiveYear.export[4] / rd.fiveYear.export[0]) - 1) * 100)}%`,
-    } : {
+    } : !rd ? {
       importMln: Math.round(40 * scale),
       exportMln: Math.round(11.4 * scale * (p.growth / 8.0) * (1 + p.textile * 0.4)),
       deficitMln: Math.round(-28.6 * scale),
       exportGrowth: `+${Math.round(30 + p.growth * 5)}%`,
-    },
+    } : null,
     entities: rd?.entities ? {
       active: rd.entities.active,
       inactive: rd.entities.inactive,
