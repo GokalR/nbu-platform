@@ -72,7 +72,8 @@
       "education": "Профессиональное обучение",
       "credits": "Выданные кредиты",
       "newBusiness": "Новые предприниматели",
-      "exporters": "Предприятия-экспортёры"
+      "exporters": "Предприятия-экспортёры",
+      "noData": "нет данных"
     }
   },
   "district": {
@@ -89,7 +90,7 @@
     "listDistricts": "Районы",
     "viewDetails": "Открыть аналитику",
     "backToRegion": "← К обзору Ферганской области",
-    "kind": { "city": "Город", "district": "Район" },
+    "kind": { "city": "Город", "district": "Район", "region": "Область" },
     "tabs": {
       "economic": "Экономическая активность",
       "infra": "Инфраструктура",
@@ -411,7 +412,8 @@
     "toshloq": "Ташлакский р-н",
     "uchkoprik": "Учкуприкский р-н",
     "ozbekiston": "Узбекистанский р-н",
-    "yozyovon": "Язъяванский р-н"
+    "yozyovon": "Язъяванский р-н",
+    "samarqand_region": "Самаркандская область"
   },
   "districtsShort": {
     "fargona_city": "Фергана",
@@ -1567,15 +1569,18 @@
   "districtAnalytics": {
     "kind": {
       "city": "город",
-      "district": "район"
+      "district": "район",
+      "region": "область"
     },
     "kindGen": {
       "city": "города",
-      "district": "района"
+      "district": "района",
+      "region": "области"
     },
     "kindAdj": {
       "city": "городской",
-      "district": "районный"
+      "district": "районный",
+      "region": "областной"
     },
     "score": {
       "grpGrowth": "Рост ВРП",

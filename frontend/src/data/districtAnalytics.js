@@ -31,6 +31,8 @@ const PROFILE = {
   uchkoprik:     { industry: 26, agri: 50, services: 14, trade: 10, growth: 7.0, infra: 0.55, tourism: 0.1, textile: 0.2, enclave: false },
   ozbekiston:    { industry: 30, agri: 46, services: 14, trade: 10, growth: 7.5, infra: 0.60, tourism: 0.2, textile: 0.3, enclave: false },
   yozyovon:      { industry: 24, agri: 54, services: 12, trade: 10, growth: 6.9, infra: 0.52, tourism: 0.1, textile: 0.2, enclave: false },
+  // Samarkand viloyat — region-level pseudo-entry (real data verified from NBU Excel briefs)
+  samarqand_region: { industry: 17.4, agri: 28.5, services: 47.7, trade: 0, growth: 8.5, infra: 0.7, tourism: 0.9, textile: 0.4, enclave: false },
 }
 
 // ── Real data from NBU Data Office dashboards (farstat.uz / Margilan brief) ──
@@ -141,6 +143,94 @@ const REAL_DATA = {
     unregisteredSelfEmployed: 2682,
     informalEconomy: 37,
   },
+  // ── Samarkand viloyat (region-level) — verified 2025 data from NBU Excel briefs ──
+  samarqand_region: {
+    populationK: 4297.5,           // 2025 total population (file 1: "Жами аҳоли")
+    area: 16770,                   // km² (16.77 thsd km²)
+    mahallas: 1063,                // 2025 (down from 1126 after 2024 reform)
+    households: 841957,
+    grpBln: 121489.5,
+    industryBln: 57767.5,
+    servicesBln: 78163.0,
+    tradeBln: 41892.4,
+    constructionBln: 18637.5,
+    agricultureBln: 60758.2,
+    investBln: 38281.9,
+    industryGrowthPct: 108.5,
+    servicesGrowthPct: 115.9,
+    tradeGrowthPct: 110.3,
+    constructionGrowth: 117.3,
+    agricultureGrowthPct: 103.3,
+    investGrowthPct: 125.6,
+    unemployment: 4.74,
+    unemploymentStart: 9.9,
+    perCapita: { industry: 11820, invest: 8824, services: 18016, trade: 9656, construction: 4296 },
+    benchmark: { industry: 11186, invest: 4726, services: 11400, trade: 9380, construction: 5100 },
+    fiveYear: {
+      industry:     [22834.3, 29188.6, 32955.7, 45408, 57767.5],
+      export:       [531.7,   636.6,   766.8,   886.3,  1150.9],
+      import:       [1388.8,  1729,    2125.6,  2158.3, 2915.4],
+      construction: [117.8,   111.8,   103.6,   113.6,  117.3],
+      migration:    [232545,  217432,  210892,  261576, 174374],
+      enterprises:  [40903,   48155,   37598,   31669,  34722],
+      unemployment: [9.9,     9.3,     6.6,     5.4,    4.7],
+      investments:  [15641.6, 18917.1, 25717.1, 28946.9, 38281.9],
+    },
+    sectors: [
+      { key: 'services',     pct: 47.7 },
+      { key: 'agri',         pct: 28.5 },
+      { key: 'industry',     pct: 17.4 },
+      { key: 'construction', pct:  6.4 },
+    ],
+    investSources: [
+      { key: 'foreign',      pct: 62.4 },
+      { key: 'enterprises',  pct: 19.8 },
+      { key: 'population',   pct:  4.7 },
+      { key: 'govBudget',    pct:  4.7 },
+      { key: 'bankCredits',  pct:  3.1 },
+    ],
+    foreignTrade2025: {
+      turnoverMln: 4066.3,
+      exportMln: 1150.9,
+      importMln: 2915.4,
+      balanceMln: -1764.5,
+      exportPct: 129.9,         // 1150.9 / 886.3 - 1 = +29.9%
+    },
+    demographics: {
+      men: 2207355,
+      women: 2172436,
+      womenPct: 49.6,
+      households: 841957,
+    },
+    employment: {
+      economicallyActive: 1691961,
+      employed: 1611680,
+      unemployed: 80281,
+      unemploymentPct: 4.74,
+      formal: 813248,
+      informal: 580308,
+    },
+    poverty: { pct: 6.1, families: 70285, prevPct: 7.5, prevFamilies: 98420 },
+    population: {
+      abroad: 218124,
+      naturalIncrease: 82300,
+      pensioners: 456004,
+      workingAge: 1691961,
+    },
+    tourism: { visitors: 3021, objects: 860 },
+    topMahallas: [
+      { name: 'Нуробод т. Пулатчи',   loans: 98 },
+      { name: 'Пайариқ т. Галлакор',  loans: 85 },
+      { name: 'Қўшработ т. Шовона',   loans: 81 },
+      { name: 'Оқдарё т. Пичоқчи',    loans: 76 },
+      { name: 'Нарпай т. Қозиёқли',   loans: 76 },
+    ],
+    nplRate: 2.1,
+    bankCoverage: { smbCredits: 51.8, exporters: 26, employed: 73 },
+    digitalAdoption2025: { payments: 77.6, cards: 71.4, merchants: 70.0, lending: 4.6 },
+    // Note: avgSalary, infra coverage % (water/sewage/gas), entities org-form split,
+    // gravelKm, patchedKm, mahalla credit scores, 2026 plan are not in source data.
+  },
 }
 
 // Sector key → color mapping
@@ -165,10 +255,11 @@ function fmt(n, d = 0) {
 
 // Helper: pick "city" or "district" label keys for grammatical context.
 function kindLabels(t, kind) {
+  const suffix = kind === 'city' ? 'city' : kind === 'region' ? 'region' : 'district'
   return {
-    nom: t(kind === 'city' ? 'districtAnalytics.kind.city' : 'districtAnalytics.kind.district'),
-    gen: t(kind === 'city' ? 'districtAnalytics.kindGen.city' : 'districtAnalytics.kindGen.district'),
-    adj: t(kind === 'city' ? 'districtAnalytics.kindAdj.city' : 'districtAnalytics.kindAdj.district'),
+    nom: t(`districtAnalytics.kind.${suffix}`),
+    gen: t(`districtAnalytics.kindGen.${suffix}`),
+    adj: t(`districtAnalytics.kindAdj.${suffix}`),
   }
 }
 
@@ -407,9 +498,10 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
     },
   }
 
-  const bankCredits = Math.round(55 + p.infra * 30)
+  const bankCredits     = rd?.bankCoverage?.smbCredits != null ? Math.round(rd.bankCoverage.smbCredits) : Math.round(55 + p.infra * 30)
+  const bankExporters   = rd?.bankCoverage?.exporters  != null ? Math.round(rd.bankCoverage.exporters)  : Math.round(20 + p.textile * 40 + p.tourism * 15)
+  const bankEmployed    = rd?.bankCoverage?.employed   != null ? Math.round(rd.bankCoverage.employed)   : null
   const bankNewBusiness = Math.round(40 + p.growth * 3)
-  const bankExporters = Math.round(20 + p.textile * 40 + p.tourism * 15)
 
   const mahalla = {
     kpis: [
@@ -422,25 +514,36 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       { label: t('regionAnalytics.bank.smbCredits'),     percent: bankCredits,                                color: 'bg-primary' },
       { label: t('regionAnalytics.bank.newEntrepr'),     percent: bankNewBusiness,                            color: 'bg-primary-container' },
       { label: t('regionAnalytics.bank.exporters'),      percent: bankExporters,                              color: 'bg-secondary' },
-      { label: t('regionAnalytics.bank.employed'),       percent: empEmployed,                                color: 'bg-tertiary' },
+      { label: t('regionAnalytics.bank.employed'),       percent: bankEmployed != null ? bankEmployed : empEmployed, color: 'bg-tertiary' },
       { label: t('regionAnalytics.bank.selfEmployed'),   percent: Math.round(40 + p.agri * 0.5),              color: 'bg-tertiary opacity-60' },
       { label: t('regionAnalytics.bank.profEducation'),  percent: Math.round(25 + p.infra * 20),              color: 'bg-primary opacity-60' },
     ],
     topMahallas: rd?.topMahallas
-      ? rd.topMahallas.map((name, i) => ({
-          name,
-          loans: Math.max(4, Math.round((24 - i * 2) * scale)),
-          score: parseFloat((9.0 - i * 0.3).toFixed(1)),
-        }))
+      ? rd.topMahallas.map((entry, i) => {
+          const name  = typeof entry === 'string' ? entry : entry.name
+          const loans = typeof entry === 'string' ? Math.max(4, Math.round((24 - i * 2) * scale)) : entry.loans
+          return {
+            name,
+            loans,
+            score: parseFloat((9.0 - i * 0.3).toFixed(1)),
+          }
+        })
       : rd
         ? null
         : buildTopMahallas(d, p, scale),
-    digitalAdoption: {
-      payments: Math.round(60 + p.infra * 30),
-      cards: Math.round(45 + p.infra * 30),
-      merchants: Math.round(35 + p.infra * 25),
-      lending: Math.round(25 + p.infra * 20),
-    },
+    digitalAdoption: rd?.digitalAdoption2025
+      ? {
+          payments:  Math.round(rd.digitalAdoption2025.payments),
+          cards:     Math.round(rd.digitalAdoption2025.cards),
+          merchants: Math.round(rd.digitalAdoption2025.merchants),
+          lending:   Math.round(rd.digitalAdoption2025.lending),
+        }
+      : {
+          payments: Math.round(60 + p.infra * 30),
+          cards: Math.round(45 + p.infra * 30),
+          merchants: Math.round(35 + p.infra * 25),
+          lending: Math.round(25 + p.infra * 20),
+        },
   }
 
   // ---- Enrichments: 5-year time series (real for pilot cities, estimated for others) ----

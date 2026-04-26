@@ -53,7 +53,7 @@ const snapshotStats = computed(() => {
   const r = regions[selected.value]
   return [
     { label: t('home.kpi.population'), value: r.population },
-    { label: t('home.kpi.gdpGrowth'), value: r.gdpGrowth },
+    { label: t('home.kpi.gdpGrowth'), value: r.gdpGrowth ?? t('home.cards.noData') },
     { label: t('home.kpi.exports'), value: r.exports },
     {
       label: t('home.snapshot.populationRank'),
@@ -73,9 +73,9 @@ const kpis = computed(() => [
   {
     key: 'gdpGrowth',
     icon: 'trending_up',
-    value: current.value.gdpGrowth,
-    delta: current.value.gdpDelta,
-    tone: 'positive',
+    value: current.value.gdpGrowth ?? t('home.cards.noData'),
+    delta: current.value.gdpDelta ?? '',
+    tone: current.value.gdpGrowth == null ? 'neutral' : 'positive',
   },
   {
     key: 'exports',
@@ -93,68 +93,94 @@ const kpis = computed(() => [
   },
 ])
 
-const economicBars = computed(() => [
-  {
-    label: t('home.cards.industry'),
-    value: scaleVal(current.value.bars.industry, '$', ' mln'),
-    percent: current.value.bars.industry,
-    color: 'bg-primary',
-  },
-  {
-    label: t('home.cards.agriculture'),
-    value: scaleVal(current.value.bars.agriculture, '$', ' mln'),
-    percent: current.value.bars.agriculture,
-    color: 'bg-primary-container',
-  },
-  {
-    label: t('home.cards.services'),
-    value: scaleVal(current.value.bars.services, '$', ' mln'),
-    percent: current.value.bars.services,
-    color: 'bg-primary opacity-60',
-  },
-])
+const NO_DATA = computed(() => t('home.cards.noData'))
 
-const populationBars = computed(() => [
-  {
-    label: t('home.cards.employed'),
-    value: pctOfPop(current.value.employment.employed, 0.55),
-    percent: current.value.employment.employed,
-    color: 'bg-tertiary',
-  },
-  {
-    label: t('home.cards.selfEmployed'),
-    value: pctOfPop(current.value.employment.selfEmployed, 0.22),
-    percent: current.value.employment.selfEmployed,
-    color: 'bg-tertiary-container',
-  },
-  {
-    label: t('home.cards.education'),
-    value: pctOfPop(current.value.employment.education, 0.04),
-    percent: current.value.employment.education,
-    color: 'bg-tertiary opacity-60',
-  },
-])
+function buildVerified(arr, colors) {
+  return arr.map((b, i) => ({
+    label: t(b.labelKey),
+    value: b.value ?? NO_DATA.value,
+    percent: b.value == null ? 0 : b.percent,
+    color: colors[i],
+  }))
+}
 
-const bankBars = computed(() => [
-  {
-    label: t('home.cards.credits'),
-    value: scaleVal(current.value.bank.credits, '', ' trln'),
-    percent: current.value.bank.credits,
-    color: 'bg-primary-container',
-  },
-  {
-    label: t('home.cards.newBusiness'),
-    value: `${(current.value.bank.newBusiness * 80).toLocaleString()} ta`,
-    percent: current.value.bank.newBusiness,
-    color: 'bg-primary',
-  },
-  {
-    label: t('home.cards.exporters'),
-    value: `${current.value.bank.exporters * 12} ta`,
-    percent: current.value.bank.exporters,
-    color: 'bg-secondary',
-  },
-])
+const economicBars = computed(() => {
+  if (current.value.verified?.economic) {
+    return buildVerified(current.value.verified.economic, ['bg-primary', 'bg-primary-container', 'bg-primary opacity-60'])
+  }
+  return [
+    {
+      label: t('home.cards.industry'),
+      value: scaleVal(current.value.bars.industry, '$', ' mln'),
+      percent: current.value.bars.industry,
+      color: 'bg-primary',
+    },
+    {
+      label: t('home.cards.agriculture'),
+      value: scaleVal(current.value.bars.agriculture, '$', ' mln'),
+      percent: current.value.bars.agriculture,
+      color: 'bg-primary-container',
+    },
+    {
+      label: t('home.cards.services'),
+      value: scaleVal(current.value.bars.services, '$', ' mln'),
+      percent: current.value.bars.services,
+      color: 'bg-primary opacity-60',
+    },
+  ]
+})
+
+const populationBars = computed(() => {
+  if (current.value.verified?.population) {
+    return buildVerified(current.value.verified.population, ['bg-tertiary', 'bg-tertiary-container', 'bg-tertiary opacity-60'])
+  }
+  return [
+    {
+      label: t('home.cards.employed'),
+      value: pctOfPop(current.value.employment.employed, 0.55),
+      percent: current.value.employment.employed,
+      color: 'bg-tertiary',
+    },
+    {
+      label: t('home.cards.selfEmployed'),
+      value: pctOfPop(current.value.employment.selfEmployed, 0.22),
+      percent: current.value.employment.selfEmployed,
+      color: 'bg-tertiary-container',
+    },
+    {
+      label: t('home.cards.education'),
+      value: pctOfPop(current.value.employment.education, 0.04),
+      percent: current.value.employment.education,
+      color: 'bg-tertiary opacity-60',
+    },
+  ]
+})
+
+const bankBars = computed(() => {
+  if (current.value.verified?.bank) {
+    return buildVerified(current.value.verified.bank, ['bg-primary-container', 'bg-primary', 'bg-secondary'])
+  }
+  return [
+    {
+      label: t('home.cards.credits'),
+      value: scaleVal(current.value.bank.credits, '', ' trln'),
+      percent: current.value.bank.credits,
+      color: 'bg-primary-container',
+    },
+    {
+      label: t('home.cards.newBusiness'),
+      value: `${(current.value.bank.newBusiness * 80).toLocaleString()} ta`,
+      percent: current.value.bank.newBusiness,
+      color: 'bg-primary',
+    },
+    {
+      label: t('home.cards.exporters'),
+      value: `${current.value.bank.exporters * 12} ta`,
+      percent: current.value.bank.exporters,
+      color: 'bg-secondary',
+    },
+  ]
+})
 
 function scaleVal(percent, prefix = '', suffix = '') {
   return `${prefix}${(percent * 5).toFixed(0)}${suffix}`
@@ -167,7 +193,9 @@ function pctOfPop(percent, factor) {
   return v >= 1 ? `${v.toFixed(1)} mln` : `${(v * 1000).toFixed(0)}k`
 }
 
-const ANALYTICS_REGIONS = new Set(['fergana'])
+const ANALYTICS_REGIONS = new Set(['fergana', 'samarqand'])
+// Regions that open straight into a viloyat-level dashboard (no district picker).
+const REGION_DASHBOARD_DISTRICT = { samarqand: 'samarqand_region' }
 const unavailableToast = ref(null)
 
 function reset() {
@@ -182,7 +210,10 @@ function gotoAnalytics() {
     setTimeout(() => { unavailableToast.value = null }, 3000)
     return
   }
-  router.push({ name: 'districts', query: { region: selected.value || '' } })
+  const query = { region: selected.value || '' }
+  const regionDistrict = selected.value && REGION_DASHBOARD_DISTRICT[selected.value]
+  if (regionDistrict) query.district = regionDistrict
+  router.push({ name: 'districts', query })
 }
 
 // Sorted region list (by population) for sidebar

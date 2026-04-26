@@ -72,7 +72,8 @@
       "education": "Kasbiy taʻlimda",
       "credits": "Berilgan kreditlar",
       "newBusiness": "Yangi tadbirkorlar",
-      "exporters": "Eksportyor korxonalar"
+      "exporters": "Eksportyor korxonalar",
+      "noData": "maʻlumot yoʻq"
     }
   },
   "district": {
@@ -89,7 +90,7 @@
     "listDistricts": "Tumanlar",
     "viewDetails": "Tahlilni ochish",
     "backToRegion": "← Fargʻona viloyati umumiy koʻrinishiga",
-    "kind": { "city": "Shahar", "district": "Tuman" },
+    "kind": { "city": "Shahar", "district": "Tuman", "region": "Viloyat" },
     "tabs": {
       "economic": "Iqtisodiy faollik",
       "infra": "Infratuzilma",
@@ -411,7 +412,8 @@
     "toshloq": "Toshloq tumani",
     "uchkoprik": "Uchkoʻprik tumani",
     "ozbekiston": "Oʻzbekiston tumani",
-    "yozyovon": "Yozyovon tumani"
+    "yozyovon": "Yozyovon tumani",
+    "samarqand_region": "Samarqand viloyati"
   },
   "districtsShort": {
     "fargona_city": "Fargʻona",
@@ -1567,15 +1569,18 @@
   "districtAnalytics": {
     "kind": {
       "city": "shahar",
-      "district": "tuman"
+      "district": "tuman",
+      "region": "viloyat"
     },
     "kindGen": {
       "city": "shaharning",
-      "district": "tumanning"
+      "district": "tumanning",
+      "region": "viloyatning"
     },
     "kindAdj": {
       "city": "shahar",
-      "district": "tuman"
+      "district": "tuman",
+      "region": "viloyat"
     },
     "score": {
       "grpGrowth": "YaIM oʻsishi",

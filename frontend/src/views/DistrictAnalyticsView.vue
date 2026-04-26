@@ -27,7 +27,7 @@ watch(mapSelection, (v) => {
   if (v !== districtKey.value) selectDistrict(v)
 })
 
-const AVAILABLE_DISTRICTS = new Set(['fargona_city', 'margilon_city'])
+const AVAILABLE_DISTRICTS = new Set(['fargona_city', 'margilon_city', 'samarqand_region'])
 const unavailableToast = ref(null)
 
 function selectDistrict(key) {

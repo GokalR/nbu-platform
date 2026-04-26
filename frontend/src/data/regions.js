@@ -59,19 +59,41 @@ export const regions = {
     employment: { employed: 80, selfEmployed: 62, education: 33 },
     bank: { credits: 70, newBusiness: 50, exporters: 38 },
   },
+  // Samarkand: verified from stat.uz Excel exports (Самарқанд вил ПРОМП, 2025).
+  // Aggregate GDP growth not published — shown as no data.
   samarqand: {
-    population: '4.07 mln',
-    populationRaw: 4.07,
+    population: '4.30 mln',
+    populationRaw: 4.30,
     districts: 16,
-    area: '16,773 km²',
+    area: '16,770 km²',
     status: 'active',
-    gdpGrowth: '8.3%',
-    gdpDelta: '+8.3%',
-    exports: '$1.1 mlrd',
-    mahallas: 1066,
+    gdpGrowth: null,
+    gdpDelta: null,
+    exports: '$1.15 mlrd',
+    mahallas: 1063,
     bars: { industry: 78, agriculture: 80, services: 65 },
     employment: { employed: 88, selfEmployed: 70, education: 42 },
     bank: { credits: 82, newBusiness: 65, exporters: 45 },
+    verified: {
+      // Production volumes 2025, mlrd UZS — from "ПРОМТ қўшимча Самарқанд вилоят (3).xlsx"
+      economic: [
+        { labelKey: 'home.cards.industry',    value: '57.8 trln', percent: 74 },
+        { labelKey: 'home.cards.agriculture', value: '60.8 trln', percent: 78 },
+        { labelKey: 'home.cards.services',    value: '78.2 trln', percent: 100 },
+      ],
+      // Labor market 2025, K people — total employed 1 611.7 K (formal+informal). Self-employed and prof. education unavailable.
+      population: [
+        { labelKey: 'home.cards.employed',     value: '1.6 mln', percent: 96 },
+        { labelKey: 'home.cards.selfEmployed', value: null,      percent: 0 },
+        { labelKey: 'home.cards.education',    value: null,      percent: 0 },
+      ],
+      // Banking 2025 — credit coverage of employed 73%, opened businesses 6 564 in 2025, exporter coverage 26%.
+      bank: [
+        { labelKey: 'home.cards.credits',     value: '73%',      percent: 73 },
+        { labelKey: 'home.cards.newBusiness', value: '6 564 ta', percent: 65 },
+        { labelKey: 'home.cards.exporters',   value: '26%',      percent: 26 },
+      ],
+    },
   },
   qashqadaryo: {
     population: '3.45 mln',

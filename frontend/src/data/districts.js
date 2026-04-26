@@ -24,6 +24,9 @@ export const districts = [
   { key: 'uchkoprik', kind: 'district', population: 189.5, area: 270, status: 'active' },
   { key: 'ozbekiston',kind: 'district', population: 205.1, area: 670, status: 'active' },
   { key: 'yozyovon',  kind: 'district', population: 167.2, area: 410, status: 'active' },
+  // Samarkand viloyat — region-level pseudo-entry, invisible in Fergana lists,
+  // reachable via /districts?district=samarqand_region. Population is 2025 total.
+  { key: 'samarqand_region', kind: 'region', population: 4297.5, area: 16770, status: 'active' },
 ]
 
 export const tools = [
