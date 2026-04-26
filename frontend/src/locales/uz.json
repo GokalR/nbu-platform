@@ -328,6 +328,86 @@
             "Tashqi savdo defitsiti (-42,6 mln dollar) — eksportbop qayta ishlashni rivojlantirish imkoniyati",
             "Bank uchun imkoniyat: oʻrta biznes (xizmatlar va savdo) uchun investitsiya krediti hali toʻliq foydalanilmagan"
           ]
+        },
+        "infra": {
+          "title": "Infratuzilma AI-tahlili",
+          "summary": "Fargʻona shahri rivojlangan asosiy infratuzilmaga ega — kommunal xizmatlar bilan qamrov yuqori. NBU brief maʼlumotlariga koʻra, suv taʼminoti va gazlashtirish 90%+ darajasida, lekin kanalizatsiya tarmogʻi (taxminan 60%) va yoʻl qoplamalari yangilanishni talab qiladi. 2026-yil uchun infratuzilma byudjeti 42,8 mlrd soʻm rejalashtirilgan; 2021–2025 yillardagi investitsiya oʻsishi (×2,3) tarmoqlarni yangilashning yirik loyihalari uchun darcha ochmoqda.",
+          "insights": [
+            "Suv va gaz taʼminoti qamrovi yuqori (90%+) — viloyat oʻrtachasidan ustun",
+            "Kanalizatsiya tarmogʻi taxminan 60% hudud qamrovida — modernizatsiya prioriteti",
+            "74 mahalla — asosiy xizmatlar boʻyicha barqaror taqsimot",
+            "2026 invest-byudjet: 42,8 mlrd soʻm infratuzilma loyihalariga"
+          ],
+          "risks": [
+            "Suv va issiqlik tarmoqlarining eskirishi — loyihali moliyalashtirish imkoniyati",
+            "Tirband soatlardagi yoʻl yuklamasi — jamoat transportiga investitsiya kerak",
+            "Yashil energetika va energosamaradorlik — toʻliq foydalanilmagan salohiyat",
+            "Bank uchun imkoniyat: kommunal modernizatsiyaga ESG-kreditlash"
+          ]
+        },
+        "population": {
+          "title": "Aholi va bandlik AI-tahlili",
+          "summary": "Shahar aholisi 335,1 ming kishi — 50,8% ayollar va 49,2% erkaklar (manba: NBU brief). Iqtisodiy faol aholi 153,2 ming, ulardan 146,5 ming bandlangan (95,6%). Ishsizlik 3,0% — viloyat oʻrtachasidan past. Royxatga koʻra 12,1 ming aholi chet elda ishlaydi — bu pul oʻtkazmalari oqimini hosil qiladi va shu bilan birga shaharda yuqori unumli ish oʻrinlarining yetishmasligini koʻrsatadi.",
+          "insights": [
+            "Ishsizlik 3,0% — Fargʻona viloyatidagi eng past koʻrsatkichlardan biri",
+            "153,2 ming iqtisodiy faol aholi — vodiyning yirik mehnat bozori",
+            "12,1 ming mehnat migrantlari — pul oʻtkazmalarining barqaror oqimi",
+            "Kambagʻallik kamaymoqda: 1,5% sotsial reestrda (2024-da 4,1% edi)"
+          ],
+          "risks": [
+            "Yoshlarning chet elga ketishi — sifatli ish oʻrinlari yaratish zarur",
+            "Aholi qarish — pensiya va ijtimoiy tizimga bosim",
+            "Bank uchun imkoniyat: migrantlar oilalari uchun mahsulotlar (transferlar, kreditlar)",
+            "IT va xizmatlar iqtisodiyotini rivojlantirish migratsiya risklarini kamaytiradi"
+          ]
+        },
+        "mahalla": {
+          "title": "Mahalla va bank salohiyati AI-tahlili",
+          "summary": "Shahar 74 mahalladan iborat — asosiy ijtimoiy-hududiy katakchalar. NBU brief maʼlumotlariga koʻra, 1 772 oila (1,5%) sotsial reestrda — 2024-yilga nisbatan 1,7 baravar pasayish. Ishbilarmonlik markaziy mahallalarda toʻplangan, biroq 25–30% oʻzini-oʻzi band qiluvchilar rasmiy iqtisodiyotdan tashqarida — bu mikromoliyalashtirish va biznes legalizatsiyasi mahsulotlari uchun katta darcha yaratadi.",
+          "insights": [
+            "74 mahalla — mahalliy tadbirkorlik nuqtalarining yuqori zichligi",
+            "Kambagʻallikning bir yilda 1,7 baravar pasayishi — daromadlar oʻsishi belgisi",
+            "Faol savdo mahallalari mikrokreditlarga yuqori talab yaratadi",
+            "Mahalla reestrlarining raqamlashtirilishi banklar targetingini aniqlashtiradi"
+          ],
+          "risks": [
+            "Oʻzini-oʻzi band qilganlar segmenti moslashtirilgan mahsulotlar talab qiladi",
+            "Mikromoliyalashtirishning bir qismi norasmiy kanallar orqali ketadi",
+            "Bank uchun imkoniyat: imtiyozli shartlar bilan «Mahalla-tadbirkor» paketi",
+            "Savdo mahallalarida POS- va ekvayring tarmogʻini rivojlantirish — infratuzilma prioriteti"
+          ]
+        },
+        "opportunities": {
+          "title": "Rivojlanish imkoniyatlari AI-tahlili",
+          "summary": "Fargʻona uchta strategik yoʻnalishda salohiyatga ega: turizm (2026 reja — 350 ming tashrif buyuruvchilar), vodiyning meva-sabzavot mahsulotlarini qayta ishlash va IT-sohani rivojlantirish. 2026-yilda 48 800 yangi ish oʻrni yaratish rejalashtirilgan. Xizmatlar (×2,8) va investitsiyalar (×2,3) ning 5 yil ichidagi kuchli oʻsishi yangi tarmoqlarni moliyalashtirishga qulay zamin yaratadi.",
+          "insights": [
+            "Turizm — oʻsish darchasi: 2026-yilda 350 ming tashrif rejalashtirilgan",
+            "Vodiyning logistik markazi — saqlash va transport salohiyati",
+            "Xizmatlar oʻsishi oʻrta sinfning shakllanishini koʻrsatadi — premium-xizmatlar bozori",
+            "20 ta yangi bolalar bogʻchasi va 3 000 oʻrin — onalarning iqtisodiy faolligini qoʻllab-quvvatlash"
+          ],
+          "risks": [
+            "Toʻqimachilik eksportiga qaramlik farma va IT'ga diversifikatsiyani talab qiladi",
+            "Venchur kapital yetishmasligi innovatsion startaplarni sekinlashtiradi",
+            "Bank uchun imkoniyat: venchur fond + IT-loyihalar uchun kredit liniyalari",
+            "Onlayn-savdo rivoji — ekvayring va toʻlov xizmatlariga talab oʻsishi"
+          ]
+        },
+        "summary": {
+          "title": "AI-tahlil va strategik tavsiyalar",
+          "summary": "Fargʻona — 2021–2025-yillarda barcha asosiy tarmoqlarda barqaror oʻsishga ega diversifikatsiyalashgan shahar bozori. Sanoat (12,7 trln soʻm), xizmatlar (12,2 trln soʻm) va investitsiyalar (7,1 trln soʻm) muvozanatli tuzilmani tashkil etadi. Past ishsizlik (3,0%) va kambagʻallikning 1,7 baravar pasayishi oʻsishning sifati barqarorligini koʻrsatadi. Asosiy strategik vazifa — miqdoriy oʻsishdan diversifikatsiya va innovatsiyalar orqali sifat oʻsishiga oʻtish.",
+          "insights": [
+            "Muvozanatli iqtisodiyot: birinchi marta xizmatlar sanoat bilan tenglashdi",
+            "Investitsiya zaxirasi 5 yilda ×2,3 — keyingi oʻsish uchun zamin",
+            "2026 reja: 42,8 mlrd soʻm infratuzilma + 48 800 yangi ish oʻrni",
+            "Past ishsizlik va kambagʻallikning kamayishi — sogʻlom bozor koʻrsatkichlari"
+          ],
+          "risks": [
+            "Sanoat diversifikatsiyasi: toʻqimachilikka qaramlikdan chiqish — prioritet",
+            "IT va xizmatlar iqtisodiyotini startaplar va inkubatorlar orqali rivojlantirish",
+            "Bank strategiyasi: «Fargʻona 2030» paketi — diversifikatsiyaga kompleks kreditlar",
+            "Shaharning oʻsayotgan oʻrta sinfi uchun bank xizmatlarini raqamlashtirish"
+          ]
         }
       }
     }

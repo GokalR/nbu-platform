@@ -836,7 +836,30 @@ const aiAnalysis = computed(() => {
           </div>
         </div>
 
-        <div class="da-ai">
+        <div v-if="aiAnalysis" class="da-ai-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
+            <div class="flex items-center gap-3">
+              <div class="da-ai-card-icon"><AppIcon name="auto_awesome" filled class="!text-[22px] text-white" /></div>
+              <div>
+                <div class="da-ai-card-title">{{ aiAnalysis.title }}</div>
+                <div class="da-ai-card-sub">{{ t('district.aiAnalysis.disclaimer') }}</div>
+              </div>
+            </div>
+            <span class="da-ai-card-badge">{{ t('district.aiAnalysis.badge') }}</span>
+          </div>
+          <p class="da-ai-card-summary">{{ aiAnalysis.summary }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="check_circle" class="!text-[16px] text-emerald-600" />{{ t('district.aiAnalysis.insightsTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.insights" :key="`ins-${i}`">{{ item }}</li></ul>
+            </div>
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="lightbulb" class="!text-[16px] text-amber-600" />{{ t('district.aiAnalysis.risksTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.risks" :key="`rsk-${i}`">{{ item }}</li></ul>
+            </div>
+          </div>
+        </div>
+        <div v-else class="da-ai">
           <div class="da-ai-icon"><AppIcon name="psychology" /></div>
           <div class="flex-1">
             <div class="da-ai-title">{{ t('district.cards.aiRecTitle') }}</div>
@@ -913,6 +936,30 @@ const aiAnalysis = computed(() => {
             </div>
           </div>
         </div>
+
+        <div v-if="aiAnalysis" class="da-ai-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
+            <div class="flex items-center gap-3">
+              <div class="da-ai-card-icon"><AppIcon name="auto_awesome" filled class="!text-[22px] text-white" /></div>
+              <div>
+                <div class="da-ai-card-title">{{ aiAnalysis.title }}</div>
+                <div class="da-ai-card-sub">{{ t('district.aiAnalysis.disclaimer') }}</div>
+              </div>
+            </div>
+            <span class="da-ai-card-badge">{{ t('district.aiAnalysis.badge') }}</span>
+          </div>
+          <p class="da-ai-card-summary">{{ aiAnalysis.summary }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="check_circle" class="!text-[16px] text-emerald-600" />{{ t('district.aiAnalysis.insightsTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.insights" :key="`ins-${i}`">{{ item }}</li></ul>
+            </div>
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="lightbulb" class="!text-[16px] text-amber-600" />{{ t('district.aiAnalysis.risksTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.risks" :key="`rsk-${i}`">{{ item }}</li></ul>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- #4 Mahalla & Bank -->
@@ -986,6 +1033,30 @@ const aiAnalysis = computed(() => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div v-if="aiAnalysis" class="da-ai-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
+            <div class="flex items-center gap-3">
+              <div class="da-ai-card-icon"><AppIcon name="auto_awesome" filled class="!text-[22px] text-white" /></div>
+              <div>
+                <div class="da-ai-card-title">{{ aiAnalysis.title }}</div>
+                <div class="da-ai-card-sub">{{ t('district.aiAnalysis.disclaimer') }}</div>
+              </div>
+            </div>
+            <span class="da-ai-card-badge">{{ t('district.aiAnalysis.badge') }}</span>
+          </div>
+          <p class="da-ai-card-summary">{{ aiAnalysis.summary }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="check_circle" class="!text-[16px] text-emerald-600" />{{ t('district.aiAnalysis.insightsTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.insights" :key="`ins-${i}`">{{ item }}</li></ul>
+            </div>
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="lightbulb" class="!text-[16px] text-amber-600" />{{ t('district.aiAnalysis.risksTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.risks" :key="`rsk-${i}`">{{ item }}</li></ul>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1070,7 +1141,30 @@ const aiAnalysis = computed(() => {
           </div>
         </div>
 
-        <div class="da-ai">
+        <div v-if="aiAnalysis" class="da-ai-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
+            <div class="flex items-center gap-3">
+              <div class="da-ai-card-icon"><AppIcon name="auto_awesome" filled class="!text-[22px] text-white" /></div>
+              <div>
+                <div class="da-ai-card-title">{{ aiAnalysis.title }}</div>
+                <div class="da-ai-card-sub">{{ t('district.aiAnalysis.disclaimer') }}</div>
+              </div>
+            </div>
+            <span class="da-ai-card-badge">{{ t('district.aiAnalysis.badge') }}</span>
+          </div>
+          <p class="da-ai-card-summary">{{ aiAnalysis.summary }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="check_circle" class="!text-[16px] text-emerald-600" />{{ t('district.aiAnalysis.insightsTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.insights" :key="`ins-${i}`">{{ item }}</li></ul>
+            </div>
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="lightbulb" class="!text-[16px] text-amber-600" />{{ t('district.aiAnalysis.risksTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.risks" :key="`rsk-${i}`">{{ item }}</li></ul>
+            </div>
+          </div>
+        </div>
+        <div v-else class="da-ai">
           <div class="da-ai-icon"><AppIcon name="psychology" /></div>
           <div class="flex-1">
             <div class="da-ai-title">{{ t('district.cards.aiRecTitle') }}</div>
@@ -1203,6 +1297,30 @@ const aiAnalysis = computed(() => {
                 </div>
               </div>
               <div class="text-xs text-slate-500 mt-2">{{ p.owner }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="aiAnalysis" class="da-ai-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap mb-4">
+            <div class="flex items-center gap-3">
+              <div class="da-ai-card-icon"><AppIcon name="auto_awesome" filled class="!text-[22px] text-white" /></div>
+              <div>
+                <div class="da-ai-card-title">{{ aiAnalysis.title }}</div>
+                <div class="da-ai-card-sub">{{ t('district.aiAnalysis.disclaimer') }}</div>
+              </div>
+            </div>
+            <span class="da-ai-card-badge">{{ t('district.aiAnalysis.badge') }}</span>
+          </div>
+          <p class="da-ai-card-summary">{{ aiAnalysis.summary }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="check_circle" class="!text-[16px] text-emerald-600" />{{ t('district.aiAnalysis.insightsTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.insights" :key="`ins-${i}`">{{ item }}</li></ul>
+            </div>
+            <div>
+              <div class="da-ai-card-block-title"><AppIcon name="lightbulb" class="!text-[16px] text-amber-600" />{{ t('district.aiAnalysis.risksTitle') }}</div>
+              <ul class="da-ai-card-list"><li v-for="(item, i) in aiAnalysis.risks" :key="`rsk-${i}`">{{ item }}</li></ul>
             </div>
           </div>
         </div>
