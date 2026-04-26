@@ -819,11 +819,20 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
   const grpPC = Math.round((grpTotal * 1e9) / popAbs / 1000)
   // For pilot cities (rd present), drop KPIs that lack a verified source so the
   // dashboard never displays fabricated salary/tourism/GRP-per-capita numbers.
+  // City-level export figures aren't published in the farstat.uz folder
+  // (only viloyat-level is available); show the export tile only when we
+  // have an explicit foreignTrade2025.exportMln on the city record.
+  const hasCityExport = rd?.foreignTrade2025?.exportMln != null
   economic.macroKpis = [
     { label: t('regionAnalytics.brief.population'),       value: fmt(popAbs),               sub: `${Math.round(popAbs / realArea).toLocaleString('ru-RU')}/${t('regionAnalytics.units.kmSq')}`, delta: rd ? '' : t(d.kind === 'city' ? 'districtAnalytics.macro.cityRate' : 'districtAnalytics.macro.ruralRate'), tone: 'green' },
     { label: t('regionAnalytics.pop.area'),               value: `${realArea} ${t('regionAnalytics.units.kmSq')}`, sub: t('districtAnalytics.macro.administrative'), delta: '', tone: 'blue' },
+    rd?.mahallas != null
+      ? { label: t('districtAnalytics.macro.mahalla'),    value: fmt(rd.mahallas),          sub: t('districtAnalytics.macro.mahallaUnit'), delta: '', tone: 'blue' }
+      : null,
     { label: t('districtAnalytics.macro.industryShort'),  value: fmt(industryBln),          sub: mlrdSum, delta: rd?.industryGrowthPct != null ? growthChip(rd.industryGrowthPct) : (rd ? '' : `${industryTrend} 5Y`),  tone: toneOf(rd?.industryGrowthPct) },
-    { label: t('districtAnalytics.fiveY.export'),         value: fmt(exportYears[4]),       sub: mlrdSum, delta: rd?.foreignTrade2025?.exportPct != null ? growthChip(rd.foreignTrade2025.exportPct) : (rd ? '' : `${exportTrend} 5Y`), tone: toneOf(rd?.foreignTrade2025?.exportPct) },
+    hasCityExport
+      ? { label: t('districtAnalytics.fiveY.export'),     value: fmt(rd.foreignTrade2025.exportMln), sub: t('districtAnalytics.macro.mlnUSD'), delta: growthChip(rd.foreignTrade2025.exportPct), tone: toneOf(rd.foreignTrade2025.exportPct) }
+      : (!rd ? { label: t('districtAnalytics.fiveY.export'), value: fmt(exportYears[4]), sub: mlrdSum, delta: `${exportTrend} 5Y`, tone: 'green' } : null),
     { label: t('regionAnalytics.brief.investments'),      value: fmt(investBln),            sub: mlrdSum, delta: rd?.investGrowthPct != null ? growthChip(rd.investGrowthPct) : (rd ? '' : `${investTrend} 5Y`), tone: toneOf(rd?.investGrowthPct) },
     (hasSalary || !rd) ? { label: t('districtAnalytics.macro.avgSalary'), value: fmt(realSalary), sub: t('districtAnalytics.macro.thsSumPerMonth'), delta: rd ? '' : '+86% 5Y', tone: 'green' } : null,
     (hasTourism || !rd) ? { label: t('districtAnalytics.macro.tourism'), value: tourVisitors, sub: t('districtAnalytics.macro.visitorsPerYear'), delta: t('districtAnalytics.macro.objects', { n: tourObjects }), tone: 'blue' } : null,
