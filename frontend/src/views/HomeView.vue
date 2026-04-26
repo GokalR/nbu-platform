@@ -41,20 +41,22 @@ const populationRank = computed(() => {
   return idx >= 0 ? idx + 1 : null
 })
 
+const NO_DATA = computed(() => t('home.cards.noData'))
+
 const snapshotStats = computed(() => {
   if (!selected.value) {
     return [
-      { label: t('home.kpi.population'), value: national.population },
-      { label: t('home.kpi.gdpGrowth'), value: national.gdpGrowth },
-      { label: t('home.kpi.exports'), value: national.exports },
+      { label: t('home.kpi.population'), value: national.population ?? NO_DATA.value },
+      { label: t('home.kpi.gdpGrowth'), value: national.gdpGrowth ?? NO_DATA.value },
+      { label: t('home.kpi.exports'), value: national.exports ?? NO_DATA.value },
       { label: t('home.snapshot.regions'), value: String(regionKeys.length) },
     ]
   }
   const r = regions[selected.value]
   return [
-    { label: t('home.kpi.population'), value: r.population },
-    { label: t('home.kpi.gdpGrowth'), value: r.gdpGrowth ?? t('home.cards.noData') },
-    { label: t('home.kpi.exports'), value: r.exports },
+    { label: t('home.kpi.population'), value: r.population ?? NO_DATA.value },
+    { label: t('home.kpi.gdpGrowth'), value: r.gdpGrowth ?? NO_DATA.value },
+    { label: t('home.kpi.exports'), value: r.exports ?? NO_DATA.value },
     {
       label: t('home.snapshot.populationRank'),
       value: populationRank.value ? `#${populationRank.value} / ${regionKeys.length}` : '—',
@@ -66,34 +68,32 @@ const kpis = computed(() => [
   {
     key: 'population',
     icon: 'groups',
-    value: current.value.population,
-    delta: '+1.2%',
-    tone: 'positive',
+    value: current.value.population ?? NO_DATA.value,
+    delta: '',
+    tone: current.value.population == null ? 'neutral' : 'positive',
   },
   {
     key: 'gdpGrowth',
     icon: 'trending_up',
-    value: current.value.gdpGrowth ?? t('home.cards.noData'),
+    value: current.value.gdpGrowth ?? NO_DATA.value,
     delta: current.value.gdpDelta ?? '',
     tone: current.value.gdpGrowth == null ? 'neutral' : 'positive',
   },
   {
     key: 'exports',
     icon: 'payments',
-    value: current.value.exports,
-    delta: t('home.kpi.target'),
-    tone: 'positive',
+    value: current.value.exports ?? NO_DATA.value,
+    delta: current.value.exports == null ? '' : t('home.kpi.target'),
+    tone: current.value.exports == null ? 'neutral' : 'positive',
   },
   {
     key: 'mahallas',
     icon: 'location_city',
-    value: current.value.mahallas.toLocaleString(),
-    delta: t('home.kpi.total'),
+    value: current.value.mahallas != null ? current.value.mahallas.toLocaleString() : NO_DATA.value,
+    delta: current.value.mahallas == null ? '' : t('home.kpi.total'),
     tone: 'neutral',
   },
 ])
-
-const NO_DATA = computed(() => t('home.cards.noData'))
 
 function buildVerified(arr, colors) {
   return arr.map((b, i) => ({
@@ -104,94 +104,44 @@ function buildVerified(arr, colors) {
   }))
 }
 
+function noDataBars(labelKeys, colors) {
+  return labelKeys.map((labelKey, i) => ({
+    label: t(labelKey),
+    value: NO_DATA.value,
+    percent: 0,
+    color: colors[i],
+  }))
+}
+
 const economicBars = computed(() => {
   if (current.value.verified?.economic) {
     return buildVerified(current.value.verified.economic, ['bg-primary', 'bg-primary-container', 'bg-primary opacity-60'])
   }
-  return [
-    {
-      label: t('home.cards.industry'),
-      value: scaleVal(current.value.bars.industry, '$', ' mln'),
-      percent: current.value.bars.industry,
-      color: 'bg-primary',
-    },
-    {
-      label: t('home.cards.agriculture'),
-      value: scaleVal(current.value.bars.agriculture, '$', ' mln'),
-      percent: current.value.bars.agriculture,
-      color: 'bg-primary-container',
-    },
-    {
-      label: t('home.cards.services'),
-      value: scaleVal(current.value.bars.services, '$', ' mln'),
-      percent: current.value.bars.services,
-      color: 'bg-primary opacity-60',
-    },
-  ]
+  return noDataBars(
+    ['home.cards.industry', 'home.cards.agriculture', 'home.cards.services'],
+    ['bg-primary', 'bg-primary-container', 'bg-primary opacity-60'],
+  )
 })
 
 const populationBars = computed(() => {
   if (current.value.verified?.population) {
     return buildVerified(current.value.verified.population, ['bg-tertiary', 'bg-tertiary-container', 'bg-tertiary opacity-60'])
   }
-  return [
-    {
-      label: t('home.cards.employed'),
-      value: pctOfPop(current.value.employment.employed, 0.55),
-      percent: current.value.employment.employed,
-      color: 'bg-tertiary',
-    },
-    {
-      label: t('home.cards.selfEmployed'),
-      value: pctOfPop(current.value.employment.selfEmployed, 0.22),
-      percent: current.value.employment.selfEmployed,
-      color: 'bg-tertiary-container',
-    },
-    {
-      label: t('home.cards.education'),
-      value: pctOfPop(current.value.employment.education, 0.04),
-      percent: current.value.employment.education,
-      color: 'bg-tertiary opacity-60',
-    },
-  ]
+  return noDataBars(
+    ['home.cards.employed', 'home.cards.selfEmployed', 'home.cards.education'],
+    ['bg-tertiary', 'bg-tertiary-container', 'bg-tertiary opacity-60'],
+  )
 })
 
 const bankBars = computed(() => {
   if (current.value.verified?.bank) {
     return buildVerified(current.value.verified.bank, ['bg-primary-container', 'bg-primary', 'bg-secondary'])
   }
-  return [
-    {
-      label: t('home.cards.credits'),
-      value: scaleVal(current.value.bank.credits, '', ' trln'),
-      percent: current.value.bank.credits,
-      color: 'bg-primary-container',
-    },
-    {
-      label: t('home.cards.newBusiness'),
-      value: `${(current.value.bank.newBusiness * 80).toLocaleString()} ta`,
-      percent: current.value.bank.newBusiness,
-      color: 'bg-primary',
-    },
-    {
-      label: t('home.cards.exporters'),
-      value: `${current.value.bank.exporters * 12} ta`,
-      percent: current.value.bank.exporters,
-      color: 'bg-secondary',
-    },
-  ]
+  return noDataBars(
+    ['home.cards.credits', 'home.cards.newBusiness', 'home.cards.exporters'],
+    ['bg-primary-container', 'bg-primary', 'bg-secondary'],
+  )
 })
-
-function scaleVal(percent, prefix = '', suffix = '') {
-  return `${prefix}${(percent * 5).toFixed(0)}${suffix}`
-}
-
-function pctOfPop(percent, factor) {
-  const popMln =
-    parseFloat(String(current.value.population).replace(/[^\d.]/g, '')) || 1
-  const v = popMln * factor * (percent / 100) * 4
-  return v >= 1 ? `${v.toFixed(1)} mln` : `${(v * 1000).toFixed(0)}k`
-}
 
 const ANALYTICS_REGIONS = new Set(['fergana', 'samarqand'])
 // Regions that open straight into a viloyat-level dashboard (no district picker).
