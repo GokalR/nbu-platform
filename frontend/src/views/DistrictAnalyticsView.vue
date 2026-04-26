@@ -193,6 +193,26 @@ const populationHistoryOpts = {
   },
 }
 
+// Vital statistics (verified, births vs deaths 2021-2025)
+const vitalStatsData = computed(() => {
+  if (!analytics.value?.population?.vitalStats) return null
+  const v = analytics.value.population.vitalStats
+  return {
+    labels: v.historyLabels,
+    datasets: [
+      { label: t('district.cards.vitalBirths'), data: v.birthsHistory, backgroundColor: 'rgba(5,150,105,0.85)', borderRadius: 4, barPercentage: 0.7 },
+      { label: t('district.cards.vitalDeaths'), data: v.deathsHistory, backgroundColor: 'rgba(220,38,38,0.85)', borderRadius: 4, barPercentage: 0.7 },
+    ],
+  }
+})
+const vitalStatsOpts = {
+  plugins: { legend: { position: 'bottom', labels: { font: { size: 12, weight: '600' } } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } },
+    y: { grid: { color: '#F0F4FA' }, ticks: { font: { size: 11 }, callback: (v) => v.toLocaleString('ru-RU') } },
+  },
+}
+
 // Age distribution (verified, 17 brackets, year-end 2025)
 const ageGroupsData = computed(() => {
   if (!analytics.value?.population?.ageGroups) return null
@@ -1021,6 +1041,49 @@ const aiOverall = computed(() => {
             <div class="da-kpi-value">{{ k.value }}</div>
             <span class="da-kpi-delta" :class="`tone-${k.tone}`">{{ k.delta }}</span>
             <div class="da-kpi-sub">{{ k.sub }}</div>
+          </div>
+        </div>
+
+        <!-- Verified vital statistics (births / deaths / natural increase) -->
+        <div v-if="analytics.population.vitalStats" class="da-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.vitalStatsTitle') }}</div>
+              <div class="da-card-sub">{{ t('district.cards.vitalStatsSub') }}</div>
+            </div>
+            <span class="da-city-badge">{{ t('district.cards.cityLevel') }}</span>
+          </div>
+          <div class="grid grid-cols-12 gap-5 mt-5">
+            <div class="col-span-12 md:col-span-4 grid grid-cols-1 gap-3">
+              <div class="da-ft-tile">
+                <div class="da-kpi-label">{{ t('district.cards.vitalBirths') }} 2025</div>
+                <div class="da-ft-value text-emerald-700">
+                  {{ analytics.population.vitalStats.births2025.toLocaleString('ru-RU') }}
+                  <span class="da-ft-unit">{{ t('district.units.peopleShort') }}</span>
+                </div>
+                <div class="text-[11px] text-slate-500">
+                  {{ t('district.cards.vitalBoys') }}: {{ analytics.population.vitalStats.birthsBoys2025.toLocaleString('ru-RU') }} ·
+                  {{ t('district.cards.vitalGirls') }}: {{ analytics.population.vitalStats.birthsGirls2025.toLocaleString('ru-RU') }}
+                </div>
+              </div>
+              <div class="da-ft-tile">
+                <div class="da-kpi-label">{{ t('district.cards.vitalDeaths') }} 2025</div>
+                <div class="da-ft-value text-red-600">
+                  {{ analytics.population.vitalStats.deaths2025.toLocaleString('ru-RU') }}
+                  <span class="da-ft-unit">{{ t('district.units.peopleShort') }}</span>
+                </div>
+              </div>
+              <div class="da-ft-tile">
+                <div class="da-kpi-label">{{ t('district.cards.vitalNaturalIncrease') }} 2025</div>
+                <div class="da-ft-value text-primary">
+                  +{{ analytics.population.vitalStats.naturalIncrease2025.toLocaleString('ru-RU') }}
+                  <span class="da-ft-unit">{{ t('district.units.peopleShort') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-8">
+              <FcChart type="bar" :data="vitalStatsData" :options="vitalStatsOpts" :height="280" />
+            </div>
           </div>
         </div>
 

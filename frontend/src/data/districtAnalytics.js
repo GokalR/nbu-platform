@@ -89,6 +89,19 @@ const REAL_DATA = {
       history: [21.8, 23.4, 22.9, 24.2, 25.4],
       historyLabels: [2020, 2021, 2022, 2023, 2024],
     },
+    // Verified vital statistics — farstat.uz демографические_данные/
+    // Tug'ilganlar soni.pdf + O'lganlar soni.pdf (Farg'ona shahri rows,
+    // 2021-2025 series; natural increase derived).
+    vitalStats: {
+      births:    [6291, 6893, 7373, 6871, 6226],
+      deaths:    [1751, 1901, 1740, 1750, 1786],
+      labels:    [2021, 2022, 2023, 2024, 2025],
+      births2025: 6226,
+      deaths2025: 1786,
+      naturalIncrease2025: 4440,            // 6226 - 1786
+      birthsBoys2025: 3189,
+      birthsGirls2025: 3037,
+    },
     // ── Fields below were intentionally REMOVED because no city-level source
     // was found in the fergana/ folder. Restore once a verified publication
     // is dropped in (see verification report):
@@ -628,6 +641,18 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
     population.ageGroups = {
       labels: Object.keys(rd.ageGroups2025),
       values: Object.values(rd.ageGroups2025),
+    }
+  }
+  if (rd?.vitalStats) {
+    population.vitalStats = {
+      births2025:           rd.vitalStats.births2025,
+      deaths2025:           rd.vitalStats.deaths2025,
+      naturalIncrease2025:  rd.vitalStats.naturalIncrease2025,
+      birthsBoys2025:       rd.vitalStats.birthsBoys2025,
+      birthsGirls2025:      rd.vitalStats.birthsGirls2025,
+      birthsHistory:        rd.vitalStats.births,
+      deathsHistory:        rd.vitalStats.deaths,
+      historyLabels:        rd.vitalStats.labels,
     }
   }
 
