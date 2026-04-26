@@ -445,22 +445,22 @@ const sortedRegions = computed(() =>
             {{ figuresBadge.label }}
           </span>
         </header>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 lg:gap-6">
           <article
             v-for="tile in figureTiles"
             :key="tile.key"
-            class="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
+            class="flex flex-col items-center text-center gap-3 p-5 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
           >
             <span
-              class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"
+              class="w-11 h-11 rounded-full bg-primary-fixed text-primary flex items-center justify-center"
             >
-              <AppIcon :name="tile.icon" filled class="!text-[24px]" />
+              <AppIcon :name="tile.icon" filled class="!text-[22px]" />
             </span>
-            <p class="text-[11px] font-bold uppercase tracking-wide text-on-surface-variant leading-tight min-h-[2.5rem] flex items-center justify-center">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-on-surface-variant leading-snug min-h-[2.75rem] flex items-center justify-center">
               {{ tile.label }}
             </p>
             <p
-              class="text-2xl font-extrabold leading-none flex items-baseline gap-1"
+              class="text-[34px] font-extrabold leading-none tracking-tight flex items-baseline gap-1"
               :class="tile.isPercent && tile.hasData
                 ? tile.toneClasses.value
                 : (tile.hasData ? 'text-on-surface' : 'text-on-surface-variant')"
@@ -469,19 +469,19 @@ const sortedRegions = computed(() =>
               <AppIcon
                 v-if="tile.isPercent && tile.hasData && tile.direction === 'up'"
                 name="arrow_drop_up"
-                class="!text-[20px]"
+                class="!text-[28px]"
               />
               <AppIcon
                 v-else-if="tile.isPercent && tile.hasData && tile.direction === 'down'"
                 name="arrow_drop_down"
-                class="!text-[20px]"
+                class="!text-[28px]"
               />
             </p>
 
             <!-- Delta in п.п. (tone-coloured, single secondary line) -->
             <p
               v-if="tile.isPercent && tile.hasData"
-              class="tabular-nums text-[11px] font-bold leading-none"
+              class="tabular-nums text-[13px] font-bold leading-none"
               :class="tile.toneClasses.value"
             >
               {{ tile.deltaLabel }}
@@ -490,11 +490,11 @@ const sortedRegions = computed(() =>
             <!-- Deviation bar: ±20 п.п. visual range, centred at 100% -->
             <div
               v-if="tile.isPercent && tile.hasData"
-              class="relative w-full h-1.5 rounded-full bg-surface-container"
+              class="relative w-full h-2 rounded-full bg-surface-container"
               role="img"
               :aria-label="tile.deltaLabel"
             >
-              <span class="absolute left-1/2 -top-0.5 -bottom-0.5 w-px bg-outline-variant"></span>
+              <span class="absolute left-1/2 -top-1 -bottom-1 w-px bg-outline-variant"></span>
               <span
                 class="absolute top-0 bottom-0 rounded-full"
                 :class="tile.toneClasses.bar"
@@ -504,7 +504,7 @@ const sortedRegions = computed(() =>
 
             <p
               v-if="tile.footnote"
-              class="text-[10px] text-on-surface-variant leading-tight mt-auto"
+              class="text-[11px] text-on-surface-variant leading-tight mt-auto"
             >
               {{ tile.footnote }}
             </p>
