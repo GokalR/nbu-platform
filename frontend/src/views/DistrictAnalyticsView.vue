@@ -202,7 +202,7 @@ const threatLevelClass = (level) => {
             {{ t('district.overviewIntro') }}
           </p>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-9 relative z-10">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-9 relative z-10">
           <div class="da-brief-kpi">
             <div class="da-brief-kpi-label">{{ t('district.brief.population') }}</div>
             <div class="da-brief-kpi-value">
@@ -229,11 +229,6 @@ const threatLevelClass = (level) => {
             <div class="da-brief-kpi-label">{{ t('district.brief.districts') }}</div>
             <div class="da-brief-kpi-value">{{ overview.districts }}</div>
             <div class="da-brief-kpi-unit mt-3">{{ t('district.units.ruralDistricts') }}</div>
-          </div>
-          <div class="da-brief-kpi">
-            <div class="da-brief-kpi-label">{{ t('district.brief.infraIndex') }}</div>
-            <div class="da-brief-kpi-value">{{ Math.round(overview.avgInfra * 100) }}</div>
-            <div class="da-brief-kpi-unit mt-3">{{ t('district.units.infraWeighted') }}</div>
           </div>
         </div>
       </div>

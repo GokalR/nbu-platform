@@ -139,10 +139,9 @@
     "brief": {
       "population": "Aholi soni",
       "grpEstimate": "YaHM (taxminiy)",
-      "avgGrowth": "Oʻrt. oʻsish",
+      "avgGrowth": "YaHM oʻsishi",
       "cities": "Shaharlar",
-      "districts": "Tumanlar",
-      "infraIndex": "Infra indeks"
+      "districts": "Tumanlar"
     },
     "units": {
       "mlnPeople": "mln kishi",
@@ -150,7 +149,6 @@
       "year2025": "2025 y.",
       "regCities": "viloyatga qarashli shaharlar",
       "ruralDistricts": "qishloq tumanlari",
-      "infraWeighted": "oʻrt. ogʻirlikli, /100",
       "thousand": "ming",
       "kmSq": "km²",
       "perKmSq": "/km²",

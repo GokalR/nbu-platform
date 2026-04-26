@@ -986,32 +986,31 @@ function buildPlan(d, p, scale, water, t) {
 }
 
 // Fergana-region aggregate: for the overview panel (no district selected).
-// Uses real data from dashboards. Source: farstat.uz (2024–2026).
+// Headline population, GRP and growth come from farstat.uz
+// "Makroiqtisodiy ko'rsatkichlar" (Jan–Dec 2025, preliminary). Cities,
+// districts and area are derived from the per-district profiles (excluding
+// non-Fergana entries like samarqand_region).
 export function buildFerganaOverview() {
-  const keys = Object.keys(PROFILE)
-  const totalPop = keys.reduce((s, k) => s + districtByKey[k].population, 0) // thousand
-  const totalGrp = keys.reduce((s, k) => {
-    // Use real GRP for pilot cities, formula for others
-    if (REAL_DATA[k]) return s + REAL_DATA[k].grpBln
+  const ferganaKeys = Object.keys(PROFILE).filter((k) => {
     const d = districtByKey[k]
-    const p = PROFILE[k]
-    return s + Math.round(BENCH_GRP * (d.population / BENCH_POP) * (p.growth / 8.0))
-  }, 0)
-  const weightedGrowth = keys.reduce((s, k) => s + PROFILE[k].growth * districtByKey[k].population, 0) / totalPop
-  const weightedInfra = keys.reduce((s, k) => s + PROFILE[k].infra * districtByKey[k].population, 0) / totalPop
-  const cities = keys.filter((k) => districtByKey[k].kind === 'city').length
-  const districts = keys.filter((k) => districtByKey[k].kind === 'district').length
-  const totalArea = keys.reduce((s, k) => s + districtByKey[k].area, 0)
+    return d && (d.kind === 'city' || d.kind === 'district')
+  })
+  const cities = ferganaKeys.filter((k) => districtByKey[k].kind === 'city').length
+  const districts = ferganaKeys.filter((k) => districtByKey[k].kind === 'district').length
+  const totalArea = ferganaKeys.reduce((s, k) => s + districtByKey[k].area, 0)
+
+  // Verified 2025 totals from farstat.uz Makroiqtisodiy ko'rsatkichlar table.
+  const totalPopulationAbs = 4223044   // 1 jan 2026
+  const totalGrpBln = 111305.3         // mlrd soʻm, Jan–Dec 2025 preliminary
+  const avgGrowth = 8.1                // 108.1% YoY
 
   return {
-    totalPopulationK: totalPop,
-    totalPopulationAbs: Math.round(totalPop * 1000),
-    totalGrpBln: totalGrp,
-    avgGrowth: weightedGrowth,
-    avgInfra: weightedInfra,
+    totalPopulationK: totalPopulationAbs / 1000,
+    totalPopulationAbs,
+    totalGrpBln,
+    avgGrowth,
     cities,
     districts,
     totalArea,
-    score: Math.min(9.4, 5.5 + weightedGrowth * 0.25 + weightedInfra * 2.0).toFixed(1),
   }
 }

@@ -139,10 +139,9 @@
     "brief": {
       "population": "Население",
       "grpEstimate": "ВРП (оценка)",
-      "avgGrowth": "Ср. рост",
+      "avgGrowth": "Рост ВРП",
       "cities": "Города",
-      "districts": "Районы",
-      "infraIndex": "Инфра индекс"
+      "districts": "Районы"
     },
     "units": {
       "mlnPeople": "млн чел.",
@@ -150,7 +149,6 @@
       "year2025": "2025 г.",
       "regCities": "городов обл. подчинения",
       "ruralDistricts": "сельских р-нов",
-      "infraWeighted": "средневзвеш., /100",
       "thousand": "тыс",
       "kmSq": "км²",
       "perKmSq": "/км²",
