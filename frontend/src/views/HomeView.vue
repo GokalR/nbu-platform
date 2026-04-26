@@ -69,13 +69,14 @@ function formatPopDate(iso) {
   return `${parseInt(d, 10)}.${m}.${y}`
 }
 
-// Tone coding for percent metrics. Maps to existing M3 tokens used elsewhere
-// in the app (tertiary = positive growth, error = negative).
+// Tone coding for percent metrics. Maps to existing M3 tokens — tertiary for
+// growth, error for decline, on-surface for ~100% (no chip backgrounds, the
+// tone lives on the value text and the deviation bar fill).
 const TONE_CLASSES = {
-  pos: { chip: 'bg-tertiary-container text-on-tertiary-container', spark: 'text-tertiary' },
-  neu: { chip: 'bg-surface-container text-on-surface-variant',     spark: 'text-on-surface-variant' },
-  neg: { chip: 'bg-error-container text-on-error-container',       spark: 'text-error' },
-  na:  { chip: 'bg-surface-container text-on-surface-variant',     spark: 'text-on-surface-variant' },
+  pos: { value: 'text-tertiary',           bar: 'bg-tertiary' },
+  neu: { value: 'text-on-surface',         bar: 'bg-on-surface-variant' },
+  neg: { value: 'text-error',              bar: 'bg-error' },
+  na:  { value: 'text-on-surface-variant', bar: 'bg-on-surface-variant' },
 }
 
 function tileTone(v) {
@@ -85,50 +86,22 @@ function tileTone(v) {
   return 'neg'
 }
 
-// Deterministic 6-point synthetic series so each tile gets a consistent
-// trend silhouette. The historical series is not in the data yet — these
-// sparklines convey direction, not exact history.
-function sparkSeries(seedKey, endValue) {
-  if (endValue == null) return null
-  let h = 2166136261
-  for (let i = 0; i < seedKey.length; i++) {
-    h ^= seedKey.charCodeAt(i)
-    h = Math.imul(h, 16777619) >>> 0
-  }
-  const rand = () => {
-    h = (Math.imul(h, 1664525) + 1013904223) >>> 0
-    return (h & 0xffff) / 0xffff
-  }
-  const pts = []
-  let v = endValue + (rand() - 0.5) * 6
-  for (let i = 0; i < 5; i++) {
-    pts.push(+v.toFixed(1))
-    v += (endValue - v) * 0.35 + (rand() - 0.5) * 1.6
-  }
-  pts.push(endValue)
-  return pts
+// Deviation bar — visualises distance from 100% on a ±20 п.п. scale, anchored
+// at the centre tick. Magnitudes beyond ±20 clamp to the half-width; the
+// numeric delta above the bar remains the source of truth.
+const BAR_HALF_RANGE = 20
+
+function buildBarStyle(value) {
+  if (value == null) return null
+  const delta = value - 100
+  const widthPct = Math.min(Math.abs(delta) / BAR_HALF_RANGE, 1) * 50
+  const w = `${widthPct.toFixed(2)}%`
+  return delta >= 0
+    ? { left: '50%', width: w }
+    : { right: '50%', width: w }
 }
 
-function buildSpark(points, w = 56, h = 18, baseline = 100) {
-  if (!points || !points.length) return null
-  const min = Math.min(...points, baseline) - 1
-  const max = Math.max(...points, baseline) + 1
-  const range = max - min || 1
-  const sx = (i) => (i / (points.length - 1)) * w
-  const sy = (val) => h - ((val - min) / range) * h
-  const line = points
-    .map((val, i) => `${i === 0 ? 'M' : 'L'} ${sx(i).toFixed(1)} ${sy(val).toFixed(1)}`)
-    .join(' ')
-  const area = `${line} L ${w.toFixed(1)} ${h.toFixed(1)} L 0 ${h.toFixed(1)} Z`
-  return {
-    w, h, line, area,
-    baseY: sy(baseline).toFixed(1),
-    lastX: sx(points.length - 1).toFixed(1),
-    lastY: sy(points[points.length - 1]).toFixed(1),
-  }
-}
-
-function buildTrend(seedKey, value) {
+function buildTrend(value) {
   const tone = tileTone(value)
   const delta = value != null ? +(value - 100).toFixed(1) : null
   const deltaLabel = delta != null
@@ -138,7 +111,7 @@ function buildTrend(seedKey, value) {
     tone,
     toneClasses: TONE_CLASSES[tone],
     deltaLabel,
-    spark: buildSpark(sparkSeries(seedKey, value)),
+    barStyle: buildBarStyle(value),
   }
 }
 
@@ -193,7 +166,6 @@ const figuresBadge = computed(() => {
 const figureTiles = computed(() => {
   const rd = current.value.raqamlarda || {}
   const isNational = !selected.value
-  const seedRegion = selected.value || 'national'
   return FIGURE_METRICS.map((m) => {
     if (m.key === 'population') {
       const value = formatPopCount(rd.populationCount)
@@ -220,7 +192,7 @@ const figureTiles = computed(() => {
     // Tashkent city replaces the agriculture tile with foreign trade turnover.
     if (m.key === 'agriculture' && rd.agriculture == null && rd.tashqi_savdo != null) {
       const v = rd.tashqi_savdo
-      const trend = buildTrend(`${seedRegion}:tashqi_savdo`, v)
+      const trend = buildTrend(v)
       return {
         key: 'tashqi_savdo',
         icon: 'currency_exchange',
@@ -238,7 +210,7 @@ const figureTiles = computed(() => {
       : `home.figures.metrics.${m.key}`
     const v = rd[m.key]
     const value = formatPercent(v)
-    const trend = buildTrend(`${seedRegion}:${m.key}`, v)
+    const trend = buildTrend(v)
     return {
       key: m.key,
       icon: m.icon,
@@ -489,62 +461,53 @@ const sortedRegions = computed(() =>
             </p>
             <p
               class="text-2xl font-extrabold leading-none flex items-baseline gap-1"
-              :class="tile.hasData ? 'text-on-surface' : 'text-on-surface-variant'"
+              :class="tile.isPercent && tile.hasData
+                ? tile.toneClasses.value
+                : (tile.hasData ? 'text-on-surface' : 'text-on-surface-variant')"
             >
               <span>{{ tile.value }}</span>
               <AppIcon
                 v-if="tile.isPercent && tile.hasData && tile.direction === 'up'"
                 name="arrow_drop_up"
-                class="!text-[20px] text-tertiary"
+                class="!text-[20px]"
               />
               <AppIcon
                 v-else-if="tile.isPercent && tile.hasData && tile.direction === 'down'"
                 name="arrow_drop_down"
-                class="!text-[20px] text-error"
+                class="!text-[20px]"
               />
             </p>
-            <p v-if="tile.footnote" class="text-[10px] text-on-surface-variant leading-tight min-h-[1.25rem]">
-              {{ tile.footnote }}
+
+            <!-- Delta in п.п. (tone-coloured, single secondary line) -->
+            <p
+              v-if="tile.isPercent && tile.hasData"
+              class="tabular-nums text-[11px] font-bold leading-none"
+              :class="tile.toneClasses.value"
+            >
+              {{ tile.deltaLabel }}
             </p>
 
-            <!-- Trend row: tone-coded ±п.п. chip + 6-point sparkline (V1 Refined) -->
+            <!-- Deviation bar: ±20 п.п. visual range, centred at 100% -->
             <div
               v-if="tile.isPercent && tile.hasData"
-              class="w-full mt-auto pt-1 flex items-center justify-between gap-2"
+              class="relative w-full h-1.5 rounded-full bg-surface-container"
+              role="img"
+              :aria-label="tile.deltaLabel"
             >
+              <span class="absolute left-1/2 -top-0.5 -bottom-0.5 w-px bg-outline-variant"></span>
               <span
-                class="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                :class="tile.toneClasses.chip"
-              >
-                {{ tile.deltaLabel }}
-              </span>
-              <svg
-                v-if="tile.spark"
-                :viewBox="`0 0 ${tile.spark.w} ${tile.spark.h}`"
-                :width="tile.spark.w"
-                :height="tile.spark.h"
-                preserveAspectRatio="none"
-                class="block flex-shrink-0"
-                :class="tile.toneClasses.spark"
-              >
-                <line
-                  :x1="0" :y1="tile.spark.baseY"
-                  :x2="tile.spark.w" :y2="tile.spark.baseY"
-                  stroke="currentColor" stroke-width="0.5"
-                  stroke-dasharray="2 2" opacity="0.3"
-                />
-                <path :d="tile.spark.area" fill="currentColor" opacity="0.10" />
-                <path
-                  :d="tile.spark.line"
-                  fill="none" stroke="currentColor" stroke-width="1.4"
-                  stroke-linejoin="round" stroke-linecap="round"
-                />
-                <circle
-                  :cx="tile.spark.lastX" :cy="tile.spark.lastY"
-                  r="2" fill="currentColor"
-                />
-              </svg>
+                class="absolute top-0 bottom-0 rounded-full"
+                :class="tile.toneClasses.bar"
+                :style="tile.barStyle"
+              ></span>
             </div>
+
+            <p
+              v-if="tile.footnote"
+              class="text-[10px] text-on-surface-variant leading-tight mt-auto"
+            >
+              {{ tile.footnote }}
+            </p>
           </article>
         </div>
         <p
