@@ -508,11 +508,9 @@
 /* ========== Macro KPI compact row ========== */
 .da-root .da-macro-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
 }
-@media (min-width: 768px) { .da-root .da-macro-row { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (min-width: 1280px) { .da-root .da-macro-row { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
 .da-root .da-macro-kpi {
   background: #fff;
   border-radius: 16px;
@@ -968,6 +966,53 @@
   line-height: 1.5;
   color: #94A3B8;
   max-width: 36ch;
+}
+
+/* === Foreign trade card — 3-tile horizontal layout when full width === */
+.da-root .da-ft-tile {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.da-root .da-ft-value {
+  font-family: 'Manrope', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.da-root .da-ft-unit {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+  margin-left: 4px;
+}
+
+/* === City / region scope badges (used on foreign trade card) === */
+.da-root .da-region-badge,
+.da-root .da-city-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.da-root .da-region-badge {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+.da-root .da-city-badge {
+  background: #DBEAFE;
+  color: #1E3A8A;
+  border: 1px solid #93C5FD;
 }
 
 /* === City-level AI banner (above tabs, compact) ============================= */

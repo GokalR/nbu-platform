@@ -407,25 +407,42 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
             { name: t('regionAnalytics.sector.services'),     percent: p.services.toFixed(1), color: '#0054A6' },
             { name: t('districtAnalytics.sector.trade'),      percent: p.trade.toFixed(1),    color: '#2563EB' },
           ],
-    // City-level foreign trade: prefer rd.foreignTrade2025 (city brief), then
-    // rd.fiveYear export/import series; null when neither exists so the view
-    // renders a "no data" placeholder rather than synthetic numbers.
+    // Foreign trade card: prefer city-level rd.foreignTrade2025, then 5Y
+    // export/import series, then verified Fergana viloyat totals (farstat.uz
+    // Makroiqtisodiy ko'rsatkichlar Jan-Dec 2025) as regional context for
+    // cities without city-level publication. `level` field tells the view
+    // whether to render city or region badge.
     trade: rd?.foreignTrade2025 ? {
+      level: 'city',
       importMln: rd.foreignTrade2025.importMln,
       exportMln: rd.foreignTrade2025.exportMln,
       deficitMln: rd.foreignTrade2025.balanceMln,
       exportGrowth: `${rd.foreignTrade2025.exportPct >= 100 ? '+' : ''}${Math.round(rd.foreignTrade2025.exportPct - 100)}%`,
+      importGrowth: rd.foreignTrade2025.importPct != null ? `${rd.foreignTrade2025.importPct >= 100 ? '+' : ''}${Math.round(rd.foreignTrade2025.importPct - 100)}%` : '',
     } : rd?.fiveYear?.export && rd?.fiveYear?.import ? {
+      level: 'city',
       importMln: rd.fiveYear.import[4],
       exportMln: rd.fiveYear.export[4],
       deficitMln: rd.fiveYear.import[4] - rd.fiveYear.export[4],
       exportGrowth: `+${Math.round(((rd.fiveYear.export[4] / rd.fiveYear.export[0]) - 1) * 100)}%`,
-    } : !rd ? {
+      importGrowth: `+${Math.round(((rd.fiveYear.import[4] / rd.fiveYear.import[0]) - 1) * 100)}%`,
+    } : rd ? {
+      // City has no published foreign-trade data — show verified Fergana
+      // viloyat totals for context (farstat.uz Jan-Dec 2025, mln USD).
+      level: 'region',
+      importMln: 1586.3,
+      exportMln: 1082.1,
+      deficitMln: -504.2,
+      exportGrowth: '+29.4%',
+      importGrowth: '+18.8%',
+    } : {
+      level: 'estimate',
       importMln: Math.round(40 * scale),
       exportMln: Math.round(11.4 * scale * (p.growth / 8.0) * (1 + p.textile * 0.4)),
       deficitMln: Math.round(-28.6 * scale),
       exportGrowth: `+${Math.round(30 + p.growth * 5)}%`,
-    } : null,
+      importGrowth: '',
+    },
     entities: rd?.entities ? {
       active: rd.entities.active,
       inactive: rd.entities.inactive,

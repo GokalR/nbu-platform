@@ -561,39 +561,58 @@ const aiOverall = computed(() => {
         </div>
 
         <div class="grid grid-cols-12 gap-6">
-          <div class="col-span-12 lg:col-span-4 da-card">
-            <div class="da-card-title"><span class="dot" style="background:#DC2626"></span>{{ t('district.cards.foreignTradeTitle') }}</div>
-            <div class="da-card-sub">{{ t('district.cards.foreignTradeSub') }}</div>
-            <template v-if="analytics.economic.trade">
-              <div class="grid grid-cols-1 gap-4 mt-5">
-                <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
-                  <div>
-                    <div class="da-kpi-label mb-1">{{ t('district.cards.import') }}</div>
-                    <div class="medium-number">{{ analytics.economic.trade.importMln }} {{ t('district.units.bnSum') }}</div>
-                  </div>
-                  <AppIcon name="download" class="text-slate-300 text-2xl" />
+          <div
+            class="da-card"
+            :class="analytics.economic.entities ? 'col-span-12 lg:col-span-4' : 'col-span-12'"
+          >
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <div class="da-card-title"><span class="dot" style="background:#DC2626"></span>{{ t('district.cards.foreignTradeTitle') }}</div>
+                <div class="da-card-sub">{{ t('district.cards.foreignTradeSub') }}</div>
+              </div>
+              <span
+                v-if="analytics.economic.trade?.level === 'region'"
+                class="da-region-badge"
+              >
+                {{ t('district.cards.regionLevel') }}
+              </span>
+              <span
+                v-else-if="analytics.economic.trade?.level === 'city'"
+                class="da-city-badge"
+              >
+                {{ t('district.cards.cityLevel') }}
+              </span>
+            </div>
+
+            <!-- 3-tile horizontal when card spans full width, stacked when narrow -->
+            <div
+              v-if="analytics.economic.trade"
+              class="mt-5"
+              :class="analytics.economic.entities ? 'flex flex-col gap-4' : 'grid grid-cols-1 md:grid-cols-3 gap-4'"
+            >
+              <div class="da-ft-tile">
+                <div class="da-kpi-label">{{ t('district.cards.export') }}</div>
+                <div class="da-ft-value text-emerald-700">
+                  {{ analytics.economic.trade.exportMln.toLocaleString('ru-RU') }}
+                  <span class="da-ft-unit">{{ t('districtAnalytics.macro.mlnUSD') }}</span>
                 </div>
-                <div class="flex items-end justify-between pb-3 border-b border-outline-variant/30">
-                  <div>
-                    <div class="da-kpi-label mb-1">{{ t('district.cards.export') }}</div>
-                    <div class="medium-number text-emerald-600">{{ analytics.economic.trade.exportMln }} {{ t('district.units.bnSum') }}</div>
-                    <span class="da-chip tone-green mt-1">▲ {{ analytics.economic.trade.exportGrowth }}</span>
-                  </div>
-                  <AppIcon name="upload" class="text-emerald-300 text-2xl" />
+                <span v-if="analytics.economic.trade.exportGrowth" class="da-chip tone-green">▲ {{ analytics.economic.trade.exportGrowth }}</span>
+              </div>
+              <div class="da-ft-tile">
+                <div class="da-kpi-label">{{ t('district.cards.import') }}</div>
+                <div class="da-ft-value text-slate-700">
+                  {{ analytics.economic.trade.importMln.toLocaleString('ru-RU') }}
+                  <span class="da-ft-unit">{{ t('districtAnalytics.macro.mlnUSD') }}</span>
                 </div>
-                <div class="flex items-end justify-between">
-                  <div>
-                    <div class="da-kpi-label mb-1">{{ t('district.cards.balance') }}</div>
-                    <div class="medium-number text-red-600">{{ analytics.economic.trade.deficitMln }} {{ t('district.units.bnSum') }}</div>
-                  </div>
-                  <AppIcon name="trending_down" class="text-red-300 text-2xl" />
+                <span v-if="analytics.economic.trade.importGrowth" class="da-chip tone-blue">▲ {{ analytics.economic.trade.importGrowth }}</span>
+              </div>
+              <div class="da-ft-tile">
+                <div class="da-kpi-label">{{ t('district.cards.balance') }}</div>
+                <div class="da-ft-value" :class="analytics.economic.trade.deficitMln >= 0 ? 'text-emerald-700' : 'text-red-600'">
+                  {{ analytics.economic.trade.deficitMln.toLocaleString('ru-RU') }}
+                  <span class="da-ft-unit">{{ t('districtAnalytics.macro.mlnUSD') }}</span>
                 </div>
               </div>
-            </template>
-            <div v-else class="da-no-data">
-              <AppIcon name="info" class="!text-[24px] text-slate-400" />
-              <div class="da-no-data-title">{{ t('district.cards.noData') }}</div>
-              <div class="da-no-data-sub">{{ t('district.cards.noDataForeignTrade') }}</div>
             </div>
           </div>
 

@@ -191,6 +191,8 @@
       "foreignTradeSub": "Eksport, import va saldo, 2025",
       "noData": "Maʼlumotlar mavjud emas",
       "noDataForeignTrade": "Shahar miqyosida tashqi savdo alohida nashr qilinmaydi — maʼlumotlar faqat Fargʻona viloyati darajasida mavjud.",
+      "regionLevel": "Viloyat darajasi",
+      "cityLevel": "Shahar darajasi",
       "import": "Import",
       "export": "Eksport",
       "balance": "Saldo",
