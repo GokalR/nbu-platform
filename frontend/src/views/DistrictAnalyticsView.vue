@@ -879,25 +879,24 @@ const aiOverall = computed(() => {
 
           <div :class="['space-y-5', analytics.infra.matrix ? 'col-span-12 lg:col-span-5' : 'col-span-12']">
             <div class="da-card">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.devBudgetTitle') }}</div>
-                  <div class="da-card-sub">{{ t('district.cards.devBudgetSub') }}</div>
-                </div>
-                <span v-if="analytics.infra.budgetEstimated" class="da-estimate-badge">{{ t('district.cards.estimateBadge') }}</span>
+              <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.devBudgetTitle') }}</div>
+              <div class="da-card-sub">{{ t('district.cards.devBudgetSub') }}</div>
+              <template v-if="analytics.infra.budgetMlrd != null">
+                <div class="big-number mt-4 text-primary">{{ analytics.infra.budgetMlrd }}</div>
+                <div class="text-sm text-slate-500 mt-1">{{ t('district.cards.bnSum') }}</div>
+              </template>
+              <div v-else class="da-no-data">
+                <AppIcon name="info" class="!text-[24px] text-slate-400" />
+                <div class="da-no-data-title">{{ t('district.cards.noData') }}</div>
               </div>
-              <div class="big-number mt-4 text-primary">{{ analytics.infra.budgetMlrd }}</div>
-              <div class="text-sm text-slate-500 mt-1">{{ t('district.cards.bnSum') }}</div>
             </div>
             <div class="da-card">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.roadsTitle') }}</div>
-                  <div class="da-card-sub">{{ t('district.cards.roadsTotal') }} {{ analytics.infra.roads.totalKm }} {{ t('district.cards.km') }}</div>
-                </div>
-                <span v-if="analytics.infra.roadsEstimated" class="da-estimate-badge">{{ t('district.cards.estimateBadge') }}</span>
-              </div>
-              <div class="space-y-3 mt-4 text-sm">
+              <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.roadsTitle') }}</div>
+              <template v-if="analytics.infra.roads">
+                <div class="da-card-sub">{{ t('district.cards.roadsTotal') }} {{ analytics.infra.roads.totalKm }} {{ t('district.cards.km') }}</div>
+              </template>
+              <div v-else class="da-card-sub">{{ t('district.cards.roadsSub') }}</div>
+              <div v-if="analytics.infra.roads" class="space-y-3 mt-4 text-sm">
                 <div v-if="analytics.infra.roads.asphaltKm != null">
                   <div class="da-bar-row"><span>{{ t('district.cards.asphalt') }}</span><span class="da-mono font-bold">{{ analytics.infra.roads.asphaltKm }} {{ t('district.cards.km') }}</span></div>
                   <div class="da-bar-outer mt-1.5"><div class="da-bar-inner" :style="{ width: `${(analytics.infra.roads.asphaltKm / analytics.infra.roads.totalKm) * 100}%`, background: 'linear-gradient(90deg,#059669,#10B981)' }"></div></div>
@@ -915,11 +914,15 @@ const aiOverall = computed(() => {
                   <div class="da-bar-outer mt-1.5"><div class="da-bar-inner" :style="{ width: `${(analytics.infra.roads.earthKm / analytics.infra.roads.totalKm) * 100}%`, background: 'linear-gradient(90deg,#DC2626,#991B1B)' }"></div></div>
                 </div>
               </div>
+              <div v-else class="da-no-data mt-4">
+                <AppIcon name="info" class="!text-[24px] text-slate-400" />
+                <div class="da-no-data-title">{{ t('district.cards.noData') }}</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="da-card">
+        <div v-if="analytics.infra.problems" class="da-card">
           <div class="flex items-start justify-between flex-wrap gap-3">
             <div>
               <div class="da-card-title"><span class="dot" style="background:#F59E0B"></span>{{ t('district.cards.issuesTitle') }}</div>
