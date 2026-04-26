@@ -74,6 +74,37 @@
       "newBusiness": "Yangi tadbirkorlar",
       "exporters": "Eksportyor korxonalar",
       "noData": "maʻlumot yoʻq"
+    },
+    "figures": {
+      "titleNational": "Oʻzbekiston raqamlarda",
+      "titleRegion": "{name} raqamlarda",
+      "subtitle2025": "(2025-yilning yanvar — dekabr holatiga)",
+      "subtitle2026Q1": "(2026-yilning yanvar — mart holatiga)",
+      "subtitleNoPeriod": "(stat.uz maʻlumoti)",
+      "vs2024": "2024-yilning yanvar — dekabr oyiga nisbatan foizda",
+      "vs2025Q1": "2025-yilning yanvar — mart oyiga nisbatan foizda",
+      "asOfDate": "{date} holatiga",
+      "currentCount": "Aholining joriy hisobi boʻyicha",
+      "source": "Manba: {site}",
+      "sourceUnreachable": "Manba: {site} (sayt ishlamayapti)",
+      "sourcePartial": "Manba: {site} (baʻzi koʻrsatkichlar eʻlon qilinmagan)",
+      "sourceHeadlineOnly": "Manba: {site} (faqat umumiy koʻrsatkich eʻlon qilingan)",
+      "partialBadge": "Qisman maʻlumot",
+      "noDataBadge": "Maʻlumot yoʻq",
+      "metrics": {
+        "grp": "Yalpi hududiy mahsulot",
+        "gdp": "Yalpi ichki mahsulot",
+        "industry": "Sanoat",
+        "agriculture": "Qishloq, oʻrmon va baliqchilik xoʻjaligi",
+        "investment": "Asosiy kapitalga kiritilgan investitsiyalar",
+        "construction": "Qurilish ishlari",
+        "freight": "Yuk aylanmasi",
+        "passenger": "Yoʻlovchi aylanmasi",
+        "retail": "Chakana tovar aylanmasi",
+        "services": "Xizmatlar",
+        "tashqi_savdo": "Tashqi savdo aylanmasi",
+        "population": "Doimiy aholi soni"
+      }
     }
   },
   "district": {

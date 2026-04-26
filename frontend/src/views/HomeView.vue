@@ -2,12 +2,17 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import KpiCard from '@/components/KpiCard.vue'
-import StatCard from '@/components/StatCard.vue'
 import UzbekistanMap from '@/components/UzbekistanMap.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import RegionDropdown from '@/components/RegionDropdown.vue'
-import { regions, regionKeys, national, regionSpecializations } from '@/data/regions'
+import {
+  regions,
+  regionKeys,
+  national,
+  regionSpecializations,
+  regionSources,
+  nationalSource,
+} from '@/data/regions'
 import { regionColors } from '@/data/regionColors'
 
 const { t, tm } = useI18n()
@@ -15,8 +20,6 @@ const router = useRouter()
 
 const selected = ref(null) // null = whole country
 const sidebarMode = ref('population') // 'population' | 'specialization'
-const selectedYear = ref(2025)
-const availableYears = [2021, 2022, 2023, 2024, 2025]
 
 const selectedSpec = computed(() => {
   if (!selected.value) return null
@@ -32,115 +35,144 @@ const selectedSpec = computed(() => {
 
 const current = computed(() => (selected.value ? regions[selected.value] : national))
 
-const populationRank = computed(() => {
-  if (!selected.value) return null
-  const sorted = regionKeys
-    .map((k) => ({ k, p: regions[k].populationRaw }))
-    .sort((a, b) => b.p - a.p)
-  const idx = sorted.findIndex((x) => x.k === selected.value)
-  return idx >= 0 ? idx + 1 : null
-})
-
 const NO_DATA = computed(() => t('home.cards.noData'))
 
-const snapshotStats = computed(() => {
-  if (!selected.value) {
-    return [
-      { label: t('home.kpi.population'), value: national.population ?? NO_DATA.value },
-      { label: t('home.kpi.gdpGrowth'), value: national.gdpGrowth ?? NO_DATA.value },
-      { label: t('home.kpi.exports'), value: national.exports ?? NO_DATA.value },
-      { label: t('home.snapshot.regions'), value: String(regionKeys.length) },
-    ]
-  }
-  const r = regions[selected.value]
-  return [
-    { label: t('home.kpi.population'), value: r.population ?? NO_DATA.value },
-    { label: t('home.kpi.gdpGrowth'), value: r.gdpGrowth ?? NO_DATA.value },
-    { label: t('home.kpi.exports'), value: r.exports ?? NO_DATA.value },
-    {
-      label: t('home.snapshot.populationRank'),
-      value: populationRank.value ? `#${populationRank.value} / ${regionKeys.length}` : '—',
-    },
-  ]
-})
+// stat.uz "raqamlarda" infographic — 10 metrics. National total uses GDP
+// label, regions use GRP label. Tashkent city replaces the agriculture tile
+// with foreign trade turnover (handled in figureTiles below).
+const FIGURE_METRICS = [
+  { key: 'grp', icon: 'show_chart' },
+  { key: 'industry', icon: 'factory' },
+  { key: 'agriculture', icon: 'agriculture' },
+  { key: 'investment', icon: 'savings' },
+  { key: 'construction', icon: 'construction' },
+  { key: 'freight', icon: 'local_shipping' },
+  { key: 'passenger', icon: 'directions_bus' },
+  { key: 'retail', icon: 'storefront' },
+  { key: 'services', icon: 'handyman' },
+  { key: 'population', icon: 'groups' },
+]
 
-const kpis = computed(() => [
-  {
-    key: 'population',
-    icon: 'groups',
-    value: current.value.population ?? NO_DATA.value,
-    delta: '',
-    tone: current.value.population == null ? 'neutral' : 'positive',
-  },
-  {
-    key: 'gdpGrowth',
-    icon: 'trending_up',
-    value: current.value.gdpGrowth ?? NO_DATA.value,
-    delta: current.value.gdpDelta ?? '',
-    tone: current.value.gdpGrowth == null ? 'neutral' : 'positive',
-  },
-  {
-    key: 'exports',
-    icon: 'payments',
-    value: current.value.exports ?? NO_DATA.value,
-    delta: current.value.exports == null ? '' : t('home.kpi.target'),
-    tone: current.value.exports == null ? 'neutral' : 'positive',
-  },
-  {
-    key: 'mahallas',
-    icon: 'location_city',
-    value: current.value.mahallas != null ? current.value.mahallas.toLocaleString() : NO_DATA.value,
-    delta: current.value.mahallas == null ? '' : t('home.kpi.total'),
-    tone: 'neutral',
-  },
-])
-
-function buildVerified(arr, colors) {
-  return arr.map((b, i) => ({
-    label: t(b.labelKey),
-    value: b.value ?? NO_DATA.value,
-    percent: b.value == null ? 0 : b.percent,
-    color: colors[i],
-  }))
+function formatPercent(v) {
+  if (v == null) return null
+  return `${v.toFixed(1)}%`
 }
 
-function noDataBars(labelKeys, colors) {
-  return labelKeys.map((labelKey, i) => ({
-    label: t(labelKey),
-    value: NO_DATA.value,
-    percent: 0,
-    color: colors[i],
-  }))
+function formatPopCount(n) {
+  if (n == null) return null
+  return n.toLocaleString('ru-RU')
 }
 
-const economicBars = computed(() => {
-  if (current.value.verified?.economic) {
-    return buildVerified(current.value.verified.economic, ['bg-primary', 'bg-primary-container', 'bg-primary opacity-60'])
-  }
-  return noDataBars(
-    ['home.cards.industry', 'home.cards.agriculture', 'home.cards.services'],
-    ['bg-primary', 'bg-primary-container', 'bg-primary opacity-60'],
-  )
+function formatPopDate(iso) {
+  if (!iso) return null
+  const [y, m, d] = iso.split('-')
+  return `${parseInt(d, 10)}.${m}.${y}`
+}
+
+const figuresHeader = computed(() => {
+  const r = current.value
+  const period = r.raqamlarda?.period
+  const subtitleKey =
+    period === '2025' ? 'home.figures.subtitle2025'
+    : period === '2026Q1' ? 'home.figures.subtitle2026Q1'
+    : 'home.figures.subtitleNoPeriod'
+  const title = selected.value
+    ? t('home.figures.titleRegion', { name: t(`regions.${selected.value}`) })
+    : t('home.figures.titleNational')
+  return { title, subtitle: t(subtitleKey) }
 })
 
-const populationBars = computed(() => {
-  if (current.value.verified?.population) {
-    return buildVerified(current.value.verified.population, ['bg-tertiary', 'bg-tertiary-container', 'bg-tertiary opacity-60'])
-  }
-  return noDataBars(
-    ['home.cards.employed', 'home.cards.selfEmployed', 'home.cards.education'],
-    ['bg-tertiary', 'bg-tertiary-container', 'bg-tertiary opacity-60'],
-  )
+const periodFootnote = computed(() => {
+  const period = current.value.raqamlarda?.period
+  if (period === '2025') return t('home.figures.vs2024')
+  if (period === '2026Q1') return t('home.figures.vs2025Q1')
+  return ''
 })
 
-const bankBars = computed(() => {
-  if (current.value.verified?.bank) {
-    return buildVerified(current.value.verified.bank, ['bg-primary-container', 'bg-primary', 'bg-secondary'])
-  }
-  return noDataBars(
-    ['home.cards.credits', 'home.cards.newBusiness', 'home.cards.exporters'],
-    ['bg-primary-container', 'bg-primary', 'bg-secondary'],
-  )
+// Source attribution shown at the bottom of the raqamlarda section.
+// `note` distinguishes sites that were unreachable, sites that published
+// only a partial bulletin, and the headline-only Andijon case.
+const figuresSource = computed(() => {
+  const src = selected.value ? regionSources[selected.value] : nationalSource
+  if (!src) return { text: t('home.figures.source', { site: 'stat.uz' }), tone: 'neutral' }
+  const params = { site: src.site }
+  if (src.note === 'unreachable') return { text: t('home.figures.sourceUnreachable', params), tone: 'warning' }
+  if (src.note === 'partial') return { text: t('home.figures.sourcePartial', params), tone: 'warning' }
+  if (src.note === 'headlineOnly') return { text: t('home.figures.sourceHeadlineOnly', params), tone: 'warning' }
+  return { text: t('home.figures.source', params), tone: 'neutral' }
+})
+
+// Empty / partial badge surfaced in the section header.
+const figuresBadge = computed(() => {
+  const rd = current.value.raqamlarda || {}
+  // Treat agriculture as covered if the region instead reports tashqi_savdo
+  // (Tashkent city — the city bulletin replaces the agriculture tile with
+  // foreign trade turnover).
+  const hasAgriOrFx = rd.agriculture != null || rd.tashqi_savdo != null
+  const others = ['grp', 'industry', 'investment', 'construction', 'freight', 'passenger', 'retail', 'services']
+  const present = (hasAgriOrFx ? 1 : 0) + others.filter((k) => rd[k] != null).length
+  const total = 1 + others.length
+  if (present === 0) return { kind: 'empty', label: t('home.figures.noDataBadge') }
+  if (present < total) return { kind: 'partial', label: t('home.figures.partialBadge') }
+  return null
+})
+
+const figureTiles = computed(() => {
+  const rd = current.value.raqamlarda || {}
+  const isNational = !selected.value
+  return FIGURE_METRICS.map((m) => {
+    if (m.key === 'population') {
+      const value = formatPopCount(rd.populationCount)
+      let footnote = ''
+      if (value != null) {
+        if (rd.populationCaption === 'currentCount') {
+          footnote = t('home.figures.currentCount')
+        } else {
+          const dateStr = formatPopDate(rd.populationDate)
+          if (dateStr) footnote = t('home.figures.asOfDate', { date: dateStr })
+        }
+      }
+      return {
+        key: m.key,
+        icon: m.icon,
+        label: t('home.figures.metrics.population'),
+        value: value ?? NO_DATA.value,
+        footnote,
+        isPercent: false,
+        hasData: value != null,
+        direction: 'flat',
+      }
+    }
+    // Tashkent city replaces the agriculture tile with foreign trade turnover.
+    if (m.key === 'agriculture' && rd.agriculture == null && rd.tashqi_savdo != null) {
+      const v = rd.tashqi_savdo
+      return {
+        key: 'tashqi_savdo',
+        icon: 'currency_exchange',
+        label: t('home.figures.metrics.tashqi_savdo'),
+        value: formatPercent(v),
+        footnote: periodFootnote.value,
+        isPercent: true,
+        hasData: true,
+        direction: v > 100 ? 'up' : v < 100 ? 'down' : 'flat',
+      }
+    }
+    const labelKey = m.key === 'grp' && isNational
+      ? 'home.figures.metrics.gdp'
+      : `home.figures.metrics.${m.key}`
+    const v = rd[m.key]
+    const value = formatPercent(v)
+    return {
+      key: m.key,
+      icon: m.icon,
+      label: t(labelKey),
+      value: value ?? NO_DATA.value,
+      footnote: value ? periodFootnote.value : '',
+      isPercent: true,
+      hasData: value != null,
+      direction: v == null ? 'flat' : v > 100 ? 'up' : v < 100 ? 'down' : 'flat',
+    }
+  })
 })
 
 const ANALYTICS_REGIONS = new Set(['fergana', 'samarqand'])
@@ -196,16 +228,6 @@ const sortedRegions = computed(() =>
             <AppIcon name="restart_alt" />
             {{ t('home.map.reset') }}
           </button>
-          <div class="inline-flex items-center gap-1 bg-surface-container-lowest border border-outline-variant/40 rounded-lg px-2 py-1">
-            <AppIcon name="calendar_today" class="!text-[14px] text-on-surface-variant" />
-            <select
-              v-model="selectedYear"
-              class="bg-transparent text-xs font-bold text-on-surface focus:outline-none cursor-pointer pr-1"
-              aria-label="Year"
-            >
-              <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
-            </select>
-          </div>
           <button
             v-if="selected"
             type="button"
@@ -336,18 +358,6 @@ const sortedRegions = computed(() =>
         </div>
       </div>
 
-      <!-- KPI cards between map and region selection (fills the gap) -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-        <KpiCard
-          v-for="kpi in kpis"
-          :key="kpi.key"
-          :icon="kpi.icon"
-          :value="kpi.value"
-          :label="t(`home.kpi.${kpi.key}`)"
-          :delta="kpi.delta"
-          :tone="kpi.tone"
-        />
-      </div>
     </div>
 
     <!-- Data section: detailed stat cards for selected region or whole country -->
@@ -364,12 +374,69 @@ const sortedRegions = computed(() =>
         </span>
       </header>
 
-      <!-- Stat cards (dynamic) -->
-      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-        <StatCard icon="finance" :title="t('home.cards.economic')" :bars="economicBars" />
-        <StatCard icon="person_search" :title="t('home.cards.population')" :bars="populationBars" />
-        <StatCard icon="storefront" :title="t('home.cards.bank')" :bars="bankBars" />
-      </div>
+      <!-- stat.uz "raqamlarda" infographic — 10 verified metrics -->
+      <section class="bg-surface-container-lowest rounded-xl shadow-sm p-6 lg:p-8 space-y-6">
+        <header class="flex flex-col items-center text-center gap-1">
+          <h3 class="text-xl lg:text-2xl font-extrabold tracking-tight text-on-surface uppercase">
+            {{ figuresHeader.title }}
+          </h3>
+          <p class="text-sm text-on-surface-variant">{{ figuresHeader.subtitle }}</p>
+          <span
+            v-if="figuresBadge"
+            class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide"
+            :class="figuresBadge.kind === 'empty'
+              ? 'bg-error-container text-on-error-container'
+              : 'bg-tertiary-container text-on-tertiary-container'"
+          >
+            <AppIcon
+              :name="figuresBadge.kind === 'empty' ? 'block' : 'warning'"
+              class="!text-[12px]"
+            />
+            {{ figuresBadge.label }}
+          </span>
+        </header>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
+          <article
+            v-for="tile in figureTiles"
+            :key="tile.key"
+            class="flex flex-col items-center text-center gap-2 p-4 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors"
+          >
+            <span
+              class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"
+            >
+              <AppIcon :name="tile.icon" filled class="!text-[24px]" />
+            </span>
+            <p class="text-[11px] font-bold uppercase tracking-wide text-on-surface-variant leading-tight min-h-[2.5rem] flex items-center justify-center">
+              {{ tile.label }}
+            </p>
+            <p
+              class="text-2xl font-extrabold leading-none flex items-baseline gap-1"
+              :class="tile.hasData ? 'text-on-surface' : 'text-on-surface-variant'"
+            >
+              <span>{{ tile.value }}</span>
+              <AppIcon
+                v-if="tile.isPercent && tile.hasData && tile.direction === 'up'"
+                name="arrow_drop_up"
+                class="!text-[20px] text-tertiary"
+              />
+              <AppIcon
+                v-else-if="tile.isPercent && tile.hasData && tile.direction === 'down'"
+                name="arrow_drop_down"
+                class="!text-[20px] text-error"
+              />
+            </p>
+            <p v-if="tile.footnote" class="text-[10px] text-on-surface-variant leading-tight min-h-[1.25rem]">
+              {{ tile.footnote }}
+            </p>
+          </article>
+        </div>
+        <p
+          class="text-[10px] text-right italic"
+          :class="figuresSource.tone === 'warning' ? 'text-error' : 'text-on-surface-variant'"
+        >
+          {{ figuresSource.text }}
+        </p>
+      </section>
 
       <!-- Detailed analytics CTA (only when a region is selected) -->
       <transition name="slide-fade">
