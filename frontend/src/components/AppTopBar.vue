@@ -29,23 +29,6 @@ function logout() {
     <div class="flex items-center gap-6">
       <LanguageSwitcher />
 
-      <div class="flex items-center gap-3">
-        <button
-          type="button"
-          class="p-2 text-slate-500 hover:text-blue-800 transition-colors active:scale-95 duration-200"
-          aria-label="notifications"
-        >
-          <AppIcon name="notifications" />
-        </button>
-        <button
-          type="button"
-          class="p-2 text-slate-500 hover:text-blue-800 transition-colors active:scale-95 duration-200"
-          aria-label="settings"
-        >
-          <AppIcon name="settings" />
-        </button>
-      </div>
-
       <!-- User menu -->
       <div class="relative">
         <button
