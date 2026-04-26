@@ -539,6 +539,7 @@ const aiOverall = computed(() => {
             <div class="da-kpi-label">{{ kpi.label }}</div>
             <div class="da-kpi-value">{{ kpi.value }}</div>
             <div class="da-kpi-sub">{{ kpi.sub }}</div>
+            <span v-if="kpi.delta" class="da-kpi-delta" :class="`tone-${kpi.tone}`">{{ kpi.delta }}</span>
           </div>
         </div>
 
