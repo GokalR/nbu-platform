@@ -243,7 +243,15 @@
       "actionPlanSub": "Дорожная карта по приоритетам NBU",
       "step": "Шаг",
       "budget": "Бюджет",
-      "aiRecTitle": "AI Рекомендация · NBU"
+      "aiRecTitle": "AI Рекомендация · NBU",
+      "plan2026Title": "План развития 2026",
+      "plan2026Sub": "Утверждённые целевые показатели",
+      "plan2026Infra": "Бюджет на инфраструктуру",
+      "plan2026Tourism": "Туристический поток",
+      "plan2026Jobs": "Новые рабочие места",
+      "plan2026Preschools": "Новые детские сады",
+      "plan2026PreschoolPlaces": "мест",
+      "plan2026Visitors": "тыс. посетителей"
     },
     "legends": {
       "grp": "ВРП, млрд сум",

@@ -87,7 +87,7 @@ const grpTrendOpts = {
 }
 
 const sectorsData = computed(() => {
-  if (!analytics.value) return null
+  if (!analytics.value || !analytics.value.economic.sectors) return null
   return {
     labels: analytics.value.economic.sectors.map((s) => s.name),
     datasets: [{ data: analytics.value.economic.sectors.map((s) => parseFloat(s.percent)), backgroundColor: analytics.value.economic.sectors.map((s) => s.color), borderWidth: 0, hoverOffset: 8 }],
@@ -120,7 +120,7 @@ const laborOpts = {
 }
 
 const unemploymentData = computed(() => {
-  if (!analytics.value) return null
+  if (!analytics.value || !analytics.value.population.unemploymentTrend) return null
   return {
     labels: analytics.value.population.unemploymentTrend.map((r) => r.year),
     datasets: [{
@@ -384,6 +384,38 @@ const threatLevelClass = (level) => {
         </div>
       </div>
 
+      <!-- Verified 2026 plan -->
+      <div v-if="analytics.plan2026" class="da-card">
+        <div class="flex items-start justify-between flex-wrap gap-3">
+          <div>
+            <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.plan2026Title') }}</div>
+            <div class="da-card-sub">{{ t('district.cards.plan2026Sub') }}</div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mt-5">
+          <div class="da-kpi">
+            <div class="da-kpi-label">{{ t('district.cards.plan2026Infra') }}</div>
+            <div class="da-kpi-value">{{ analytics.plan2026.infraBudgetBln }}</div>
+            <div class="da-kpi-sub">{{ t('district.cards.bnSum') }}</div>
+          </div>
+          <div class="da-kpi">
+            <div class="da-kpi-label">{{ t('district.cards.plan2026Tourism') }}</div>
+            <div class="da-kpi-value">{{ analytics.plan2026.tourismVisitorsK }}</div>
+            <div class="da-kpi-sub">{{ t('district.cards.plan2026Visitors') }}</div>
+          </div>
+          <div class="da-kpi">
+            <div class="da-kpi-label">{{ t('district.cards.plan2026Jobs') }}</div>
+            <div class="da-kpi-value">{{ analytics.plan2026.jobs.toLocaleString('ru-RU') }}</div>
+            <div class="da-kpi-sub">{{ t('district.cards.jobs') }}</div>
+          </div>
+          <div class="da-kpi">
+            <div class="da-kpi-label">{{ t('district.cards.plan2026Preschools') }}</div>
+            <div class="da-kpi-value">{{ analytics.plan2026.preschools }}</div>
+            <div class="da-kpi-sub">{{ analytics.plan2026.preschoolPlaces.toLocaleString('ru-RU') }} {{ t('district.cards.plan2026PreschoolPlaces') }}</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Pill tab nav -->
       <div class="da-tab-nav">
         <button
@@ -444,7 +476,7 @@ const threatLevelClass = (level) => {
               <FcChart type="line" :data="grpTrendData" :options="grpTrendOpts" :height="300" />
             </div>
           </div>
-          <div class="col-span-12 lg:col-span-4 da-card">
+          <div v-if="analytics.economic.sectors" class="col-span-12 lg:col-span-4 da-card">
             <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.grpStructTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.grpStructSub') }}</div>
             <div class="mt-5">
@@ -483,7 +515,7 @@ const threatLevelClass = (level) => {
             </div>
           </div>
 
-          <div class="col-span-12 lg:col-span-8 da-card">
+          <div v-if="analytics.economic.entities" class="col-span-12 lg:col-span-8 da-card">
             <div class="da-card-title"><span class="dot" style="background:#2563EB"></span>{{ t('district.cards.businessTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.businessSub') }}</div>
             <div class="grid grid-cols-12 gap-6 mt-5">
@@ -570,7 +602,7 @@ const threatLevelClass = (level) => {
 
         <!-- Investment sources + benchmark -->
         <div class="grid grid-cols-12 gap-6">
-          <div class="col-span-12 lg:col-span-5 da-card">
+          <div v-if="analytics.economic.investmentSources" class="col-span-12 lg:col-span-5 da-card">
             <div class="da-card-title"><span class="dot" style="background:#D97706"></span>{{ t('district.cards.investStructTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.investStructSub') }}</div>
             <div class="flex items-center gap-3 mt-4 mb-4">
@@ -589,7 +621,7 @@ const threatLevelClass = (level) => {
             </div>
           </div>
 
-          <div class="col-span-12 lg:col-span-7 da-card">
+          <div :class="['da-card', analytics.economic.investmentSources ? 'col-span-12 lg:col-span-7' : 'col-span-12']">
             <div class="flex items-start justify-between">
               <div>
                 <div class="da-card-title"><span class="dot" style="background:#0891B2"></span>{{ t('district.cards.perCapitaTitle') }}</div>
@@ -636,7 +668,7 @@ const threatLevelClass = (level) => {
 
       <!-- #2 Infrastructure -->
       <div v-else-if="activeTab === 'infra'" class="space-y-6">
-        <div class="grid grid-cols-2 lg:grid-cols-5 gap-5">
+        <div v-if="analytics.infra.kpis" class="grid grid-cols-2 lg:grid-cols-5 gap-5">
           <div v-for="k in analytics.infra.kpis" :key="k.label" class="da-kpi">
             <div class="da-kpi-label">{{ k.label }}</div>
             <div class="da-kpi-value">{{ k.value }}</div>
@@ -645,7 +677,7 @@ const threatLevelClass = (level) => {
         </div>
 
         <div class="grid grid-cols-12 gap-6">
-          <div class="col-span-12 lg:col-span-7 da-card" style="padding:0;overflow:hidden">
+          <div v-if="analytics.infra.matrix" class="col-span-12 lg:col-span-7 da-card" style="padding:0;overflow:hidden">
             <div style="padding:24px 24px 12px">
               <div class="da-card-title"><span class="dot" style="background:#D97706"></span>{{ t('district.cards.infraMatrixTitle') }}</div>
               <div class="da-card-sub">{{ t('district.cards.infraMatrixSub') }}</div>
@@ -667,7 +699,7 @@ const threatLevelClass = (level) => {
             </table>
           </div>
 
-          <div class="col-span-12 lg:col-span-5 space-y-5">
+          <div :class="['space-y-5', analytics.infra.matrix ? 'col-span-12 lg:col-span-5' : 'col-span-12']">
             <div class="da-card">
               <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.devBudgetTitle') }}</div>
               <div class="da-card-sub">{{ t('district.cards.devBudgetSub') }}</div>
@@ -854,7 +886,7 @@ const threatLevelClass = (level) => {
           </div>
         </div>
 
-        <div class="da-card" style="padding:0;overflow:hidden">
+        <div v-if="analytics.mahalla.topMahallas" class="da-card" style="padding:0;overflow:hidden">
           <div style="padding:24px 24px 12px">
             <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.topMahallasTitle') }}</div>
             <div class="da-card-sub">{{ t('district.cards.topMahallasSub') }}</div>
