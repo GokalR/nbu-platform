@@ -16,13 +16,20 @@
 //   (qrstat.uz, xorazmstat.uz, navstat.uz, buxstat.uz, samstat.uz, qashstat.uz,
 //    surxonstat.uz, jizzaxstat.uz, sirstat.uz, toshvilstat.uz, toshstat.uz,
 //    namstat.uz, andstat.uz, farstat.uz)
-// - Districts/cities/mahallas (administrative): фото таблицы hududlar 2026.
+// - Per-region counts:
+//     `districts` — rayons (туманов), excluding cities of regional rank.
+//     `cities`    — cities of regional rank (шаҳарлар), separate from rayons.
+//     `mahallas`  — total mahallas.
+//   The hududlar 2026 photo only lists the combined count (туман+шаҳар сони);
+//   the rayon/city split was filled from canonical Uzbekistan administrative
+//   division references.
 
 export const regions = {
   karakalpakstan: {
     population: '2.06 mln',
     populationRaw: 2.06,
-    districts: 17,
+    districts: 16,
+    cities: 1,
     area: '166,590 km²',
     mahallas: 452,
     status: 'active',
@@ -44,7 +51,8 @@ export const regions = {
   khorezm: {
     population: '2.08 mln',
     populationRaw: 2.08,
-    districts: 13,
+    districts: 11,
+    cities: 2,
     area: '6,464 km²',
     mahallas: 509,
     status: 'active',
@@ -66,7 +74,8 @@ export const regions = {
   navoiy: {
     population: '1.19 mln',
     populationRaw: 1.19,
-    districts: 11,
+    districts: 8,
+    cities: 3,
     area: '110,990 km²',
     mahallas: 313,
     status: 'active',
@@ -89,7 +98,8 @@ export const regions = {
   bukhara: {
     population: '2.11 mln',
     populationRaw: 2.11,
-    districts: 13,
+    districts: 11,
+    cities: 2,
     area: '40,328 km²',
     mahallas: 516,
     status: 'active',
@@ -112,7 +122,8 @@ export const regions = {
   samarqand: {
     population: '4.38 mln',
     populationRaw: 4.38,
-    districts: 16,
+    districts: 14,
+    cities: 2,
     area: '16,770 km²',
     mahallas: 1063,
     status: 'active',
@@ -134,7 +145,8 @@ export const regions = {
   qashqadaryo: {
     population: '3.72 mln',
     populationRaw: 3.72,
-    districts: 16,
+    districts: 14,
+    cities: 2,
     area: '28,568 km²',
     mahallas: 776,
     status: 'active',
@@ -157,7 +169,8 @@ export const regions = {
   surxondaryo: {
     population: '3.02 mln',
     populationRaw: 3.02,
-    districts: 15,
+    districts: 14,
+    cities: 1,
     area: '20,099 km²',
     mahallas: 723,
     status: 'active',
@@ -179,7 +192,8 @@ export const regions = {
   jizzax: {
     population: '1.57 mln',
     populationRaw: 1.57,
-    districts: 13,
+    districts: 12,
+    cities: 1,
     area: '21,179 km²',
     mahallas: 304,
     status: 'active',
@@ -202,7 +216,8 @@ export const regions = {
   sirdaryo: {
     population: '0.95 mln',
     populationRaw: 0.95,
-    districts: 11,
+    districts: 9,
+    cities: 2,
     area: '4,276 km²',
     mahallas: 221,
     status: 'active',
@@ -224,7 +239,8 @@ export const regions = {
   tashkent_region: {
     population: '3.16 mln',
     populationRaw: 3.16,
-    districts: 22,
+    districts: 15,
+    cities: 7,
     area: '15,258 km²',
     mahallas: 883,
     status: 'active',
@@ -272,7 +288,8 @@ export const regions = {
   namangan: {
     population: '3.20 mln',
     populationRaw: 3.20,
-    districts: 14,
+    districts: 11,
+    cities: 3,
     area: '7,440 km²',
     mahallas: 754,
     status: 'active',
@@ -294,7 +311,8 @@ export const regions = {
   andijan: {
     population: '3.51 mln',
     populationRaw: 3.51,
-    districts: 16,
+    districts: 14,
+    cities: 2,
     area: '4,303 km²',
     mahallas: 879,
     status: 'active',
@@ -318,7 +336,7 @@ export const regions = {
   fergana: {
     population: '4.22 mln',
     populationRaw: 4.22,
-    districts: 19,
+    districts: 15,
     cities: 4,
     area: '6,760 km²',
     mahallas: 1017,
@@ -389,11 +407,15 @@ export const nationalSource = { site: 'stat.uz', note: null }
 export const regionKeys = Object.keys(regions)
 
 // National total — stat.uz "Oʻzbekiston raqamlarda" (Jan-Dec 2025) infographic.
-// 208 районов/городов, 8 998 махалля (источник: таблица hududlar 2026 г.).
+// Hududlar 2026 reports 208 туманов+шаҳаров total and 8 998 махалля. The
+// 208 splits as 176 туманов (164 across viloyats + 12 within Tashkent city)
+// and 32 шаҳаров of regional rank.
 export const national = {
   population: '38.24 mln',
   populationRaw: 38.24,
-  districts: 208,
+  districts: 176,
+  cities: 32,
+  area: '448,978 km²',
   mahallas: 8998,
   raqamlarda: {
     period: '2025',
