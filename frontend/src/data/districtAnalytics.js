@@ -37,33 +37,35 @@ const PROFILE = {
 // Sources: dashboard_fergan_city.html, DASHBOARD_margilan_city.html
 const REAL_DATA = {
   fargona_city: {
-    populationK: 335.1,
+    populationK: 335.1,           // 335,100 — verified
     area: 110,
-    industryBln: 8587,           // 2024 industrial output (bln soum)
-    investBln: 4077,             // 2023 investments in fixed capital
-    grpBln: 12678,               // estimated from per-capita comparison
-    servicesBln: 12317,          // derived: 36,753 per-capita × 335.1K
-    tradeBln: 6630,              // derived: 19,785 per-capita × 335.1K
-    constructionBln: 3310,       // derived: 9,878 per-capita × 335.1K
-    avgSalary: 5200,             // estimated, city center
-    unemployment: 4.2,           // estimated, lower for oblast center
-    unemploymentStart: 8.5,
-    mahallas: 82,
-    constructionGrowth: 142.2,   // 2024
-    tourism: { visitors: 200, objects: 28 },  // K visitors
-    perCapita: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },
-    // Fergana city vs region average benchmark
-    benchmark: { industry: 11186, invest: 4726, services: 11400, trade: 9380, construction: 5100 },
-    // 5-year history (2021–2025), estimated from region growth rates
+    industryBln: 12666.6,         // 2025 — verified
+    investBln: 7128.4,            // 2025 (+132.4%) — verified
+    grpBln: 12678,                // estimated from per-capita comparison — UNVERIFIED
+    servicesBln: 12191.0,         // 2025 (+119.8%) — verified
+    tradeBln: 6562.8,             // 2025 retail (+113.1%) — verified
+    constructionBln: 3276.6,      // 2025 (+111.1%) — verified
+    agricultureBln: 1184.6,       // 2025 (+101.5%) — verified
+    avgSalary: 5200,              // estimated — UNVERIFIED
+    unemployment: 3.0,            // 2025 — verified (4 700 unemployed of 153 200 active)
+    unemploymentStart: 8.5,       // UNVERIFIED
+    mahallas: 74,                 // verified
+    constructionGrowth: 111.1,    // 2025 — verified (+11.1%)
+    tourism: { visitors: 200, objects: 28 },  // UNVERIFIED — current snapshot, no source
+    perCapita: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },  // verified
+    // Fergana city vs region average benchmark (per-capita, thousand sum) — verified
+    benchmark: { industry: 14057, invest: 7688, services: 16993, trade: 9993, construction: 4537 },
+    // 5-year history. ONLY 2025 (last) value is verified for industry, export, import.
+    // 2021–2024 are pre-existing estimates — flagged unverified.
     fiveYear: {
-      industry:     [5900, 6200, 6700, 8587, 9016],
-      export:       [210, 280, 350, 420, 580],
-      import:       [920, 960, 1010, 1050, 980],
-      construction: [132.3, 105.5, 109.1, 142.2, 115.0],
-      migration:    [180, 310, 850, 2100, 620],
-      enterprises:  [6800, 7200, 7500, 7800, 8100],
-      unemployment: [8.5, 7.2, 6.0, 5.0, 4.2],
-      investments:  [2100, 2500, 3200, 4077, 4500],
+      industry:     [5900, 6200, 6700, 8587, 12666.6],   // 2025 verified; 2021–2024 estimates
+      export:       [210, 280, 350, 420, 187.5],          // 2025 verified (mln USD, +151.4%); earlier estimates
+      import:       [920, 960, 1010, 1050, 230.1],        // 2025 verified (mln USD, 74.5%); earlier estimates
+      construction: [132.3, 105.5, 109.1, 142.2, 111.1],  // 2025 growth verified; earlier estimates
+      migration:    [180, 310, 850, 2100, 620],           // UNVERIFIED
+      enterprises:  [6800, 7200, 7500, 7800, 8100],       // UNVERIFIED
+      unemployment: [8.5, 7.2, 6.0, 5.0, 3.0],            // 2025 verified; earlier estimates
+      investments:  [2100, 2500, 3200, 4077, 7128.4],     // 2025 verified; earlier estimates
     },
     sectors: [
       { key: 'industry',     pct: 25.3 },
@@ -80,14 +82,24 @@ const REAL_DATA = {
       { key: 'bankCredits', pct: 14.0 },
       { key: 'population',  pct: 8.0 },
     ],
-    entities: { active: 8100, inactive: 1200, opened: 420, closed: 180, ie: 5400, ooo: 1800, farmer: 450, other: 450 },
+    entities: { active: 8100, inactive: 1200, opened: 420, closed: 180, ie: 5400, ooo: 1800, farmer: 450, other: 450 },  // UNVERIFIED
     population: {
-      workingAge: 180000,
-      abroad: 4200,
-      naturalIncrease: 6800,
+      workingAge: 180000,         // UNVERIFIED
+      abroad: 12100,              // verified — citizens abroad 2025
+      naturalIncrease: 6800,      // UNVERIFIED
     },
-    infra: { water: 95, sewage: 72, gas: 98, roads: 82 },
-    topMahallas: ['Markaziy', 'Yangi hayot', 'Istiqlol', 'Bunyodkor', 'Do\'stlik'],
+    // Verified demographics (2025): men 164 800, women 170 300 (50.8%),
+    // families 118 600, households 105 000.
+    demographics: { men: 164800, women: 170300, womenPct: 50.8, families: 118600, households: 105000 },
+    // Verified employment (2025): active 153 200, employed 146 500, unemployed 4 700 (3.0%).
+    employment: { economicallyActive: 153200, employed: 146500, unemployed: 4700, unemploymentPct: 3.0 },
+    // Verified poverty (2025): 1 772 families (1.5%) now; 2 998 (4.1%) year ago.
+    poverty: { families: 1772, pct: 1.5, prevFamilies: 2998, prevPct: 4.1 },
+    // Verified foreign trade 2025 (mln USD): turnover 417.6 (96.5%),
+    // export 187.5 (+151.4%), import 230.1 (74.5%), balance −42.6.
+    foreignTrade2025: { turnoverMln: 417.6, turnoverPct: 96.5, exportMln: 187.5, exportPct: 151.4, importMln: 230.1, importPct: 74.5, balanceMln: -42.6 },
+    infra: { water: 95, sewage: 72, gas: 98, roads: 82 },  // UNVERIFIED — coverage scores
+    topMahallas: ['Markaziy', 'Yangi hayot', 'Istiqlol', 'Bunyodkor', 'Do\'stlik'],  // UNVERIFIED
   },
   margilon_city: {
     populationK: 261.9,          // 261,948

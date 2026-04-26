@@ -15,7 +15,7 @@
  */
 export const FERGANA_DISTRICTS = [
   { id: 'margilon',   name: 'Марғилон ш.',  score: 95, population: 257_878, businesses: 180, competition: 'высокая', verdict: 'Столица шёлка Узбекистана. Yodgorlik (2 000+ рабочих), Маргиланская шёлковая фабрика (15 000 рабочих, 22 млн м²/год). 1 000+ семей-ремесленников.' },
-  { id: 'fargona',    name: 'Фарғона ш.',   score: 88, population: 328_409, businesses: 150, competition: 'высокая', verdict: 'Региональный центр. Global Textile (62 000 т трикотажа для Kiabi). СЭЗ «Фергана», развитая логистика.' },
+  { id: 'fargona',    name: 'Фарғона ш.',   score: 88, population: 335_100, businesses: 150, competition: 'высокая', verdict: 'Региональный центр. Global Textile (62 000 т трикотажа для Kiabi). СЭЗ «Фергана», развитая логистика.' },
   { id: 'quva',       name: 'Қува',         score: 76, population: 280_720, businesses: 75,  competition: 'средняя', verdict: 'Шелководческий район (четверть коконов Узбекистана). Хлопкопереработка, крупное население — трудовой резерв.' },
   { id: 'rishton',    name: 'Риштон',       score: 68, population: 221_216, businesses: 40,  competition: 'средняя', verdict: 'Развитое ремесленное производство. Потенциал для текстильного мини-цеха рядом с кластером Маргилана.' },
   { id: 'oltiariq',   name: 'Олтиариқ',     score: 74, population: 233_047, businesses: 55,  competition: 'средняя', verdict: 'Между Ферганой и Маргиланом — логистическое преимущество. Доступная аренда, трудовой резерв.' },
