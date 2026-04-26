@@ -108,13 +108,26 @@
     }
   },
   "district": {
-    "unavailable": "Maʻlumotlar faqat Fargʻona va Margʻilon shaharlari uchun mavjud (pilot shaharlar)",
+    "unavailable": {
+      "fergana": "Maʻlumotlar faqat Fargʻona va Margʻilon shaharlari uchun mavjud (pilot shaharlar)",
+      "samarqand": "Samarqandning alohida shahar va tumanlari boʻyicha batafsil tahlil ishlab chiqilmoqda"
+    },
     "breadcrumb": "Fargʻona viloyati / Tumanlar tahlili",
     "subtitle": "Hududiy iqtisodiy maʻlumotlar va infratuzilma, demografiya, institutsional bank salohiyatining koʻp oʻlchovli tahlili.",
-    "overviewTitle": "Fargʻona viloyati",
-    "overviewEyebrow": "HUDUDIY HAB · 19 SHAHAR VA TUMAN",
-    "overviewIntro": "Xaritadan yoki roʻyxatdan shahar yoki tumanni tanlang — batafsil tahlil ochiladi. Quyidagi panel Fargʻona viloyatining umumiy koʻrinishini koʻrsatadi.",
+    "overviewTitle": {
+      "fergana": "Fargʻona viloyati",
+      "samarqand": "Samarqand viloyati"
+    },
+    "overviewEyebrow": {
+      "fergana": "HUDUDIY HAB · 19 SHAHAR VA TUMAN",
+      "samarqand": "HUDUDIY HAB · 16 SHAHAR VA TUMAN"
+    },
+    "overviewIntro": {
+      "fergana": "Xaritadan yoki roʻyxatdan shahar yoki tumanni tanlang — batafsil tahlil ochiladi. Quyidagi panel Fargʻona viloyatining umumiy koʻrinishini koʻrsatadi.",
+      "samarqand": "Quyidagi panel Samarqand viloyatining umumiy koʻrinishini koʻrsatadi. Alohida shahar va tumanlar boʻyicha batafsil tahlil ishlab chiqilmoqda."
+    },
     "mapTitle": "Fargʻona viloyati xaritasi",
+    "mapTitleSamarqand": "Samarqand viloyati xaritasi",
     "mapHint": "Tafsilotlar uchun shahar yoki tumanni bosing",
     "listTitle": "Shaharlar va tumanlar",
     "listCities": "Shaharlar",
@@ -442,7 +455,23 @@
     "uchkoprik": "Uchkoʻprik tumani",
     "ozbekiston": "Oʻzbekiston tumani",
     "yozyovon": "Yozyovon tumani",
-    "samarqand_region": "Samarqand viloyati"
+    "samarqand_region": "Samarqand viloyati",
+    "samarqand_city": "Samarqand sh.",
+    "kattaqorgon_city": "Kattaqoʻrgʻon sh.",
+    "bulungur": "Bulungur tumani",
+    "ishtikhon": "Ishtixon tumani",
+    "jomboy": "Jomboy tumani",
+    "kattaqorgon": "Kattaqoʻrgʻon tumani",
+    "narpay": "Narpay tumani",
+    "nurobod": "Nurobod tumani",
+    "oqdaryo": "Oqdaryo tumani",
+    "pastdargom": "Pastdargʻom tumani",
+    "paxtachi": "Paxtachi tumani",
+    "payariq": "Payariq tumani",
+    "qoshrabod": "Qoʻshrabod tumani",
+    "samarqand": "Samarqand tumani",
+    "tayloq": "Tayloq tumani",
+    "urgut": "Urgut tumani"
   },
   "districtsShort": {
     "fargona_city": "Fargʻona",
@@ -463,7 +492,23 @@
     "toshloq": "Toshloq",
     "uchkoprik": "Uchkoʻprik",
     "ozbekiston": "Oʻzbekiston",
-    "yozyovon": "Yozyovon"
+    "yozyovon": "Yozyovon",
+    "samarqand_city": "Samarqand",
+    "kattaqorgon_city": "Kattaqoʻrgʻon",
+    "bulungur": "Bulungur",
+    "ishtikhon": "Ishtixon",
+    "jomboy": "Jomboy",
+    "kattaqorgon": "Kattaqoʻrgʻon t.",
+    "narpay": "Narpay",
+    "nurobod": "Nurobod",
+    "oqdaryo": "Oqdaryo",
+    "pastdargom": "Pastdargʻom",
+    "paxtachi": "Paxtachi",
+    "payariq": "Payariq",
+    "qoshrabod": "Qoʻshrabod",
+    "samarqand": "Samarqand t.",
+    "tayloq": "Tayloq",
+    "urgut": "Urgut"
   },
   "fincontrol": {
     "common": {

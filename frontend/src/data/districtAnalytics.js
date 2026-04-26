@@ -7,6 +7,7 @@
 // translation context can omit it — the identity fallback returns the key.
 
 import { districtByKey } from './districts'
+import { samarqandDistricts, samarqandByKey } from './samarqand'
 
 // Heuristic profile per district: sector mix, infra maturity, growth tilt.
 // industry/agri/services/trade sum to 100. growth is % grp/yr. infra is 0–1.
@@ -1009,6 +1010,24 @@ export function buildFerganaOverview() {
     totalPopulationAbs,
     totalGrpBln,
     avgGrowth,
+    cities,
+    districts,
+    totalArea,
+  }
+}
+
+// Samarkand-region aggregate: same shape as buildFerganaOverview, headline
+// values verified from samstat.uz / NBU Excel briefs (Jan–Dec 2025).
+export function buildSamarqandOverview() {
+  const cities = samarqandDistricts.filter((d) => d.kind === 'city').length
+  const districts = samarqandDistricts.filter((d) => d.kind === 'district').length
+  const totalArea = samarqandDistricts.reduce((s, d) => s + d.area, 0)
+
+  return {
+    totalPopulationK: 4379.791,         // 4 379 791 (1 jan 2026)
+    totalPopulationAbs: 4379791,
+    totalGrpBln: 121489.5,              // mlrd soʻm (NBU Excel brief, 2025)
+    avgGrowth: 8.0,                     // 108.0% YoY
     cities,
     districts,
     totalArea,

@@ -5,20 +5,39 @@ import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
 import FcChart from '@/components/fincontrol/FcChart.vue'
 import FerganaMap from '@/components/FerganaMap.vue'
-import { districts, districtByKey } from '@/data/districts'
-import { buildDistrictAnalytics, buildFerganaOverview } from '@/data/districtAnalytics'
+import SamarqandMap from '@/components/SamarqandMap.vue'
+import { districts as ferganaDistricts, districtByKey as ferganaByKey } from '@/data/districts'
+import { samarqandDistricts, samarqandByKey } from '@/data/samarqand'
+import {
+  buildDistrictAnalytics,
+  buildFerganaOverview,
+  buildSamarqandOverview,
+} from '@/data/districtAnalytics'
 import '@/assets/districtAnalytics.css'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
+const region = computed(() => (route.query.region === 'samarqand' ? 'samarqand' : 'fergana'))
+const regionDistricts = computed(() =>
+  region.value === 'samarqand' ? samarqandDistricts : ferganaDistricts,
+)
+const regionDistrictByKey = computed(() =>
+  region.value === 'samarqand' ? samarqandByKey : ferganaByKey,
+)
+const RegionMap = computed(() => (region.value === 'samarqand' ? SamarqandMap : FerganaMap))
+
 const districtKey = computed(() => {
   const k = route.query.district
-  return k && districtByKey[k] ? k : null
+  // Drill-down still works for Fergana pilot keys + samarqand_region pseudo-entry.
+  if (k && ferganaByKey[k]) return k
+  return null
 })
-const selectedDistrict = computed(() => (districtKey.value ? districtByKey[districtKey.value] : null))
-const overview = computed(() => buildFerganaOverview())
+const selectedDistrict = computed(() => (districtKey.value ? ferganaByKey[districtKey.value] : null))
+const overview = computed(() =>
+  region.value === 'samarqand' ? buildSamarqandOverview() : buildFerganaOverview(),
+)
 
 // Map selection mirror — both overview-map click and list click set the route.
 const mapSelection = ref(districtKey.value)
@@ -48,7 +67,9 @@ const analytics = computed(() =>
 )
 
 const title = computed(() =>
-  districtKey.value ? t(`districtsList.${districtKey.value}`) : t('district.overviewTitle'),
+  districtKey.value
+    ? t(`districtsList.${districtKey.value}`)
+    : t(`district.overviewTitle.${region.value}`),
 )
 
 const tabs = [
@@ -62,9 +83,9 @@ const tabs = [
 const activeTab = ref('economic')
 const activeTabMeta = computed(() => tabs.find((x) => x.id === activeTab.value))
 
-// Split districts by kind for overview list
-const cityList = computed(() => districts.filter((d) => d.kind === 'city'))
-const districtList = computed(() => districts.filter((d) => d.kind === 'district'))
+// Split districts by kind for overview list (filtered to current region)
+const cityList = computed(() => regionDistricts.value.filter((d) => d.kind === 'city'))
+const districtList = computed(() => regionDistricts.value.filter((d) => d.kind === 'district'))
 
 // ========== Drill-down chart configs (only when a district is selected) ==========
 const grpTrendData = computed(() => {
@@ -178,28 +199,30 @@ const threatLevelClass = (level) => {
           type="button"
           class="hover:underline cursor-pointer"
           @click="selectDistrict(null)"
-        >{{ t('district.overviewTitle') }}</button>
+        >{{ t(`district.overviewTitle.${region}`) }}</button>
         <span class="text-slate-400">/</span>
         <span class="text-slate-700">{{ t(`district.kind.${selectedDistrict.kind}`) }}</span>
         <span class="text-slate-400">/</span>
         <span>{{ t(`districtsList.${districtKey}`) }}</span>
       </template>
       <template v-else>
-        <span>{{ t('district.overviewTitle') }}</span>
+        <span>{{ t(`district.overviewTitle.${region}`) }}</span>
       </template>
     </div>
 
     <!-- =============== OVERVIEW MODE =============== -->
     <template v-if="!districtKey">
-      <!-- Executive brief for Fergana oblast -->
+      <!-- Executive brief for the active region -->
       <div class="da-brief">
         <div class="relative z-10">
-          <div class="sub-header-eyebrow" style="color:#93C5FD;font-size:15px">{{ t('district.overviewEyebrow') }}</div>
+          <div class="sub-header-eyebrow" style="color:#93C5FD;font-size:15px">
+            {{ t(`district.overviewEyebrow.${region}`) }}
+          </div>
           <h2 class="font-black leading-[1.05] mt-3" style="font-family:'Manrope',sans-serif;letter-spacing:-0.02em;font-size:clamp(1.75rem,4.2vw,3.25rem)">
-            {{ t('district.overviewTitle') }}
+            {{ t(`district.overviewTitle.${region}`) }}
           </h2>
           <p class="text-blue-100/85 max-w-3xl mt-5 leading-relaxed" style="font-size:clamp(0.95rem,1.2vw,1.15rem)">
-            {{ t('district.overviewIntro') }}
+            {{ t(`district.overviewIntro.${region}`) }}
           </p>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-9 relative z-10">
@@ -236,8 +259,10 @@ const threatLevelClass = (level) => {
       <!-- Map + list -->
       <div class="grid grid-cols-12 gap-6">
         <div class="col-span-12 lg:col-span-8">
-          <div class="da-card-title mb-3"><span class="dot"></span>{{ t('district.mapTitle') }}</div>
-          <FerganaMap v-model="mapSelection" @select="selectDistrict" />
+          <div class="da-card-title mb-3">
+            <span class="dot"></span>{{ t(`district.mapTitle${region === 'samarqand' ? 'Samarqand' : ''}`) }}
+          </div>
+          <component :is="RegionMap" v-model="mapSelection" @select="selectDistrict" />
         </div>
 
         <aside class="col-span-12 lg:col-span-4 space-y-5">
@@ -1127,7 +1152,7 @@ const threatLevelClass = (level) => {
   <div v-if="unavailableToast"
     class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#1A2B4A] text-white px-5 py-3 rounded-xl shadow-lg text-sm font-semibold flex items-center gap-2">
     <AppIcon name="info" class="!text-[18px]" />
-    {{ t('district.unavailable') }}
+    {{ t(`district.unavailable.${region}`) }}
   </div>
   </div>
 </template>

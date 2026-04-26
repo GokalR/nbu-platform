@@ -226,8 +226,6 @@ const figureTiles = computed(() => {
 })
 
 const ANALYTICS_REGIONS = new Set(['fergana', 'samarqand'])
-// Regions that open straight into a viloyat-level dashboard (no district picker).
-const REGION_DASHBOARD_DISTRICT = { samarqand: 'samarqand_region' }
 const unavailableToast = ref(null)
 
 function reset() {
@@ -242,10 +240,7 @@ function gotoAnalytics() {
     setTimeout(() => { unavailableToast.value = null }, 3000)
     return
   }
-  const query = { region: selected.value || '' }
-  const regionDistrict = selected.value && REGION_DASHBOARD_DISTRICT[selected.value]
-  if (regionDistrict) query.district = regionDistrict
-  router.push({ name: 'districts', query })
+  router.push({ name: 'districts', query: { region: selected.value || '' } })
 }
 
 // Sorted region list (by population) for sidebar
