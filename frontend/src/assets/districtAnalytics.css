@@ -829,3 +829,102 @@
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
 }
+
+/* === Curated AI analysis card (per district + tab) ============================ */
+.da-root .da-ai-card {
+  background: linear-gradient(135deg, #003D7C 0%, #0054A6 60%, #1E40AF 100%);
+  color: #fff;
+  border-radius: 16px;
+  padding: 24px 24px 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 61, 124, 0.18);
+}
+.da-root .da-ai-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(900px circle at 100% 0%, rgba(124, 58, 237, 0.32), transparent 55%),
+              radial-gradient(700px circle at 0% 100%, rgba(34, 211, 238, 0.18), transparent 60%);
+  pointer-events: none;
+}
+.da-root .da-ai-card > * { position: relative; z-index: 1; }
+.da-root .da-ai-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7C3AED, #4F46E5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+}
+.da-root .da-ai-card-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+  line-height: 1.2;
+}
+.da-root .da-ai-card-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(219, 234, 254, 0.85);
+  margin-top: 3px;
+}
+.da-root .da-ai-card-badge {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+}
+.da-root .da-ai-card-summary {
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(241, 245, 249, 0.95);
+  max-width: 75ch;
+}
+.da-root .da-ai-card-block-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: rgba(219, 234, 254, 0.95);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.da-root .da-ai-card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.da-root .da-ai-card-list li {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(241, 245, 249, 0.92);
+  padding-left: 18px;
+  position: relative;
+}
+.da-root .da-ai-card-list li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}

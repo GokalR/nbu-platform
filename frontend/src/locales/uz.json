@@ -306,6 +306,30 @@
       "abroad": "Chet elda",
       "unemployed": "Ishsizlar",
       "unemploymentPct": "Ishsizlik, %"
+    },
+    "aiAnalysis": {
+      "badge": "AI · NBU Data Office",
+      "disclaimer": "farstat.uz tasdiqlangan maʼlumotlari asosida · 2025",
+      "insightsTitle": "Asosiy kuzatuvlar",
+      "risksTitle": "Risklar va imkoniyatlar",
+      "fargona_city": {
+        "economic": {
+          "title": "Iqtisodiy faollik AI-tahlili",
+          "summary": "Fargʻona — Fargʻona vodiysining eng yirik iqtisodiy markazi (335,1 ming aholi). 2021–2025-yillarda sanoat ishlab chiqarish 7 075,5 dan 12 666,6 mlrd soʻmgacha oʻsdi (+79%), xizmatlar sohasi esa 4 387,5 dan 12 191,0 mlrd soʻmgacha (+178%) — 2025-yilda birinchi marta hajm boʻyicha sanoatga yaqinlashdi. Asosiy kapitalga investitsiyalar 2,3 baravar oshdi — 7 128,4 mlrd soʻmga — bu kelajakdagi oʻsish uchun zamin yaratadi.",
+          "insights": [
+            "Xizmatlar — eng tez oʻsuvchi tarmoq: 5 yilda +178%, savdo va logistika yetakchi",
+            "Sanoat — eng yirik tarmoq; 2025-yilda oʻsish surati +12,1%gacha sekinlashdi",
+            "Chakana savdo 2,3 barobar oʻsdi — isteʼmol bozorining mustahkamlanishi belgisi",
+            "Shahar hududidagi qishloq xoʻjaligi (1 020,3 mlrd soʻm) ulushi pasaymoqda — urbanizatsiya uchun tipik"
+          ],
+          "risks": [
+            "Sanoatning toʻqimachilik va neft qayta ishlashga qaramligi — diversifikatsiya risklarni kamaytiradi",
+            "Investitsiyalar oʻsish surati viloyatdan ortda (+37,5% vs +50,7%) — kapital chiqishini kuzatish lozim",
+            "Tashqi savdo defitsiti (-42,6 mln dollar) — eksportbop qayta ishlashni rivojlantirish imkoniyati",
+            "Bank uchun imkoniyat: oʻrta biznes (xizmatlar va savdo) uchun investitsiya krediti hali toʻliq foydalanilmagan"
+          ]
+        }
+      }
     }
   },
   "ai": {
