@@ -40,26 +40,41 @@ const PROFILE = {
 // Sources: dashboard_fergan_city.html, DASHBOARD_margilan_city.html
 const REAL_DATA = {
   fargona_city: {
-    // Verified scalars (stat.uz / NBU Data Office, 2025)
+    // Verified scalars — farstat.uz district-breakdown PDFs, Jan-Dec 2025
+    // preliminary (folder fergana/, "Tumanlar bo'yicha ..." tables).
     populationK: 335.1,
     area: 110,
+    // 2025 sector totals (mlrd soʻm, current prices)
     industryBln: 12666.6,
     investBln: 7128.4,
     servicesBln: 12191.0,
     tradeBln: 6562.8,
     constructionBln: 3276.6,
-    agricultureBln: 1184.6,
+    agricultureBln: 1020.3,
     unemployment: 3.0,            // 4 700 unemployed of 153 200 active
     mahallas: 74,
-    constructionGrowth: 111.1,
     perCapita: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },
     benchmark: { industry: 14057, invest: 7688, services: 16993, trade: 9993, construction: 4537 },
-    // Verified 2025 single-year facts (no historical series to plot)
-    industryGrowthPct: 147.4,
-    servicesGrowthPct: 119.8,
-    tradeGrowthPct: 113.1,
-    investGrowthPct: 132.4,
-    agricultureGrowthPct: 101.5,
+    // Nominal YoY growth 2025/2024 (% — current prices, derived from PDFs)
+    industryGrowthPct: 112.1,
+    servicesGrowthPct: 131.1,
+    tradeGrowthPct: 121.6,
+    investGrowthPct: 137.5,
+    agricultureGrowthPct: 122.5,
+    constructionGrowth: 114.1,
+    // 5-year history 2021-2025 (mlrd soʻm, current prices) — verified from
+    // farstat.uz district-breakdown PDFs, used for trend charts.
+    fiveYear: {
+      industry:     [7075.5, 6935.4, 10296.9, 11303.3, 12666.6],
+      services:     [4387.5, 5574.6, 6744.2, 9299.6, 12191.0],
+      invest:       [3139.8, 4077.4, 4976.4, 5183.2, 7128.4],
+      trade:        [2897.4, 3603.3, 4603.2, 5396.3, 6562.8],
+      construction: [1742.5, 2463.6, 2928.6, 2872.2, 3276.6],
+      agriculture:  [587.3, 654.8, 754.6, 833.1, 1020.3],
+    },
+    // ⚠ Unverified from the farstat.uz PDFs in fergana/ — sourced from prior
+    // NBU Data Office briefing (April 2026); kept for now, replace when a
+    // verified city-level publication is added to the source folder.
     demographics: { men: 164800, women: 170300, womenPct: 50.8, families: 118600, households: 105000 },
     employment: { economicallyActive: 153200, employed: 146500, unemployed: 4700, unemploymentPct: 3.0 },
     poverty: { families: 1772, pct: 1.5, prevFamilies: 2998, prevPct: 4.1 },
@@ -67,7 +82,6 @@ const REAL_DATA = {
     population: {
       abroad: 12100,
     },
-    // Verified 2026 city plans (source: NBU Data Office briefing, 2026-04)
     plan2026: {
       infraBudgetBln: 42.8,
       tourismVisitorsK: 350,
@@ -75,11 +89,6 @@ const REAL_DATA = {
       preschools: 20,
       preschoolPlaces: 3000,
     },
-    // The following metrics were previously fabricated and have been removed
-    // pending verified sources: grpBln, avgSalary, unemploymentStart,
-    // tourism, sectors, investSources, entities, infra (coverage %),
-    // topMahallas, fiveYear history, population.workingAge,
-    // population.naturalIncrease.
   },
   margilon_city: {
     populationK: 261.9,          // 261,948
