@@ -615,6 +615,22 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
     },
   }
 
+  // Verified population data for the city — exposed so the view can render
+  // the population-history line chart and age-distribution bar chart on the
+  // Население tab. Both null when not available so the view skips them.
+  if (rd?.populationFiveYear) {
+    population.history = {
+      values: rd.populationFiveYear,
+      labels: rd.populationFiveYearLabels,
+    }
+  }
+  if (rd?.ageGroups2025) {
+    population.ageGroups = {
+      labels: Object.keys(rd.ageGroups2025),
+      values: Object.values(rd.ageGroups2025),
+    }
+  }
+
   const bankCredits     = rd?.bankCoverage?.smbCredits != null ? Math.round(rd.bankCoverage.smbCredits) : Math.round(55 + p.infra * 30)
   const bankExporters   = rd?.bankCoverage?.exporters  != null ? Math.round(rd.bankCoverage.exporters)  : Math.round(20 + p.textile * 40 + p.tourism * 15)
   const bankEmployed    = rd?.bankCoverage?.employed   != null ? Math.round(rd.bankCoverage.employed)   : null

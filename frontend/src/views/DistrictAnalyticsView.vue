@@ -164,6 +164,61 @@ const unemploymentOpts = {
   },
 }
 
+// Population history (verified, only for districts with rd.populationFiveYear)
+const populationHistoryData = computed(() => {
+  if (!analytics.value?.population?.history) return null
+  const h = analytics.value.population.history
+  return {
+    labels: h.labels,
+    datasets: [
+      {
+        label: t('district.cards.populationHistoryLegend'),
+        data: h.values,
+        borderColor: '#003D7C',
+        backgroundColor: 'rgba(0,61,124,0.10)',
+        borderWidth: 3,
+        tension: 0.35,
+        fill: true,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      },
+    ],
+  }
+})
+const populationHistoryOpts = {
+  plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.parsed.y.toFixed(1)} тыс. чел.` } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } },
+    y: { grid: { color: '#F0F4FA' }, ticks: { font: { size: 12 }, callback: (v) => `${v} k` } },
+  },
+}
+
+// Age distribution (verified, 17 brackets, year-end 2025)
+const ageGroupsData = computed(() => {
+  if (!analytics.value?.population?.ageGroups) return null
+  const a = analytics.value.population.ageGroups
+  return {
+    labels: a.labels,
+    datasets: [
+      {
+        label: t('district.cards.ageGroupsLegend'),
+        data: a.values,
+        backgroundColor: 'rgba(0,84,166,0.85)',
+        borderRadius: 4,
+        borderSkipped: false,
+        barPercentage: 0.85,
+      },
+    ],
+  }
+})
+const ageGroupsOpts = {
+  plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.parsed.y.toLocaleString('ru-RU') + ' чел.' } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' } } },
+    y: { grid: { color: '#F0F4FA' }, ticks: { font: { size: 11 }, callback: (v) => `${(v / 1000).toFixed(0)}k` } },
+  },
+}
+
 const radarPoints = computed(() => {
   if (!analytics.value) return null
   const axes = analytics.value.summary.radar
@@ -966,6 +1021,36 @@ const aiOverall = computed(() => {
             <div class="da-kpi-value">{{ k.value }}</div>
             <span class="da-kpi-delta" :class="`tone-${k.tone}`">{{ k.delta }}</span>
             <div class="da-kpi-sub">{{ k.sub }}</div>
+          </div>
+        </div>
+
+        <!-- Verified population history + age distribution (city-level data
+             only — only renders when rd.populationFiveYear / ageGroups2025
+             exist on the district record). -->
+        <div v-if="populationHistoryData || ageGroupsData" class="grid grid-cols-12 gap-6">
+          <div v-if="populationHistoryData" class="col-span-12 lg:col-span-5 da-card">
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <div class="da-card-title"><span class="dot" style="background:#003D7C"></span>{{ t('district.cards.populationHistoryTitle') }}</div>
+                <div class="da-card-sub">{{ t('district.cards.populationHistorySub') }}</div>
+              </div>
+              <span class="da-city-badge">{{ t('district.cards.cityLevel') }}</span>
+            </div>
+            <div class="mt-5">
+              <FcChart type="line" :data="populationHistoryData" :options="populationHistoryOpts" :height="260" />
+            </div>
+          </div>
+          <div v-if="ageGroupsData" class="col-span-12 lg:col-span-7 da-card">
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.ageGroupsTitle') }}</div>
+                <div class="da-card-sub">{{ t('district.cards.ageGroupsSub') }}</div>
+              </div>
+              <span class="da-city-badge">{{ t('district.cards.cityLevel') }}</span>
+            </div>
+            <div class="mt-5">
+              <FcChart type="bar" :data="ageGroupsData" :options="ageGroupsOpts" :height="260" />
+            </div>
           </div>
         </div>
 
