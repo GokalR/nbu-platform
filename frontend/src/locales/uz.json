@@ -182,9 +182,9 @@
       "eyebrow": "EXECUTIVE BRIEF"
     },
     "cards": {
-      "grpInvestTitle": "YaHM va investitsiyalar, 2021–2025",
-      "grpInvestForecast": "(+ prognoz)",
-      "grpInvestSub": "Asosiy makroiqtisodiy koʻrsatkichlar dinamikasi",
+      "grpInvestTitle": "Iqtisodiyot tarmoqlari, 2021–2025",
+      "grpInvestForecast": "mlrd soʻm",
+      "grpInvestSub": "Sanoat, xizmatlar va asosiy kapitalga investitsiyalar",
       "grpStructTitle": "YaHM tuzilmasi",
       "grpStructSub": "Sektorlar ulushi, 2025",
       "foreignTradeTitle": "Tashqi savdo",
@@ -298,6 +298,8 @@
     },
     "legends": {
       "grp": "YaHM, mlrd soʻm",
+      "industry": "Sanoat, mlrd soʻm",
+      "services": "Xizmatlar, mlrd soʻm",
       "invest": "Investitsiyalar, mlrd soʻm",
       "formal": "Rasmiy",
       "informal": "Norasmiy",

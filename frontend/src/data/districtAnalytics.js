@@ -67,7 +67,7 @@ const REAL_DATA = {
     fiveYear: {
       industry:     [7075.5, 6935.4, 10296.9, 11303.3, 12666.6],
       services:     [4387.5, 5574.6, 6744.2, 9299.6, 12191.0],
-      invest:       [3139.8, 4077.4, 4976.4, 5183.2, 7128.4],
+      investments:  [3139.8, 4077.4, 4976.4, 5183.2, 7128.4],
       trade:        [2897.4, 3603.3, 4603.2, 5396.3, 6562.8],
       construction: [1742.5, 2463.6, 2928.6, 2872.2, 3276.6],
       agriculture:  [587.3, 654.8, 754.6, 833.1, 1020.3],
@@ -347,15 +347,27 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       { label: t('districtAnalytics.econ.agriShort'),      value: `${fmt(agriBln)} ${t('regionAnalytics.units.bnShort')}`,    sub: sumUnit, tone: 'blue' },
       { label: t('regionAnalytics.econ.services'),         value: `${fmt(servicesBln)} ${t('regionAnalytics.units.bnShort')}`, sub: sumUnit, tone: 'blue' },
     ],
-    history: [2021, 2022, 2023, 2024, 2025].map((y, i) => {
-      const factor = 0.55 + i * 0.12
-      return {
-        year: y,
-        grp: Math.round(grpTotal * factor),
-        industry: Math.round(industryBln * factor),
-        invest: Math.round(investBln * factor * (i === 4 ? 2.4 : 1)),
-      }
-    }),
+    // 5-year trend: use verified series from rd.fiveYear when available
+    // (fargona_city, margilon_city). For non-pilot districts, scale current
+    // totals by a synthetic growth factor so the line still trends upward.
+    history: rd?.fiveYear
+      ? [2021, 2022, 2023, 2024, 2025].map((y, i) => ({
+          year: y,
+          industry: rd.fiveYear.industry[i],
+          invest: rd.fiveYear.investments[i],
+          services: rd.fiveYear.services ? rd.fiveYear.services[i] : null,
+        }))
+      : [2021, 2022, 2023, 2024, 2025].map((y, i) => {
+          const factor = 0.55 + i * 0.12
+          return {
+            year: y,
+            industry: Math.round(industryBln * factor),
+            invest: Math.round(investBln * factor * (i === 4 ? 2.4 : 1)),
+            services: Math.round(servicesBln * factor),
+          }
+        }),
+    // True when the trend chart shows verified rather than estimated values
+    historyVerified: !!rd?.fiveYear,
     sectors: rd?.sectors
       ? rd.sectors.map((s) => ({
           name: t(s.key === 'industry' ? 'regionAnalytics.sector.industry'

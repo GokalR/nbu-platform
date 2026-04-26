@@ -91,13 +91,18 @@ const districtList = computed(() => regionDistricts.value.filter((d) => d.kind =
 const grpTrendData = computed(() => {
   if (!analytics.value) return null
   const h = analytics.value.economic.history
-  return {
-    labels: h.map((r) => r.year),
-    datasets: [
-      { label: t('district.legends.grp'), data: h.map((r) => r.grp), borderColor: '#003D7C', backgroundColor: 'rgba(0,61,124,.1)', borderWidth: 3, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6 },
-      { label: t('district.legends.invest'), data: h.map((r) => r.invest), borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,.1)', borderWidth: 3, borderDash: [6, 4], tension: 0.4, fill: false, pointRadius: 4, pointHoverRadius: 6 },
-    ],
+  const datasets = [
+    { label: t('district.legends.industry'), data: h.map((r) => r.industry), borderColor: '#003D7C', backgroundColor: 'rgba(0,61,124,.10)', borderWidth: 3, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6 },
+    { label: t('district.legends.invest'),   data: h.map((r) => r.invest),   borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,.10)', borderWidth: 3, borderDash: [6, 4], tension: 0.4, fill: false, pointRadius: 4, pointHoverRadius: 6 },
+  ]
+  if (h[0]?.services != null) {
+    datasets.push({
+      label: t('district.legends.services'), data: h.map((r) => r.services),
+      borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.10)',
+      borderWidth: 3, tension: 0.4, fill: false, pointRadius: 4, pointHoverRadius: 6,
+    })
   }
+  return { labels: h.map((r) => r.year), datasets }
 })
 const grpTrendOpts = {
   plugins: { legend: { position: 'bottom', labels: { font: { size: 12, weight: 600 }, boxWidth: 12, padding: 14 } } },

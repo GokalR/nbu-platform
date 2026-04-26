@@ -182,9 +182,9 @@
       "eyebrow": "EXECUTIVE BRIEF"
     },
     "cards": {
-      "grpInvestTitle": "ВРП и инвестиции, 2021–2025",
-      "grpInvestForecast": "(+ прогноз)",
-      "grpInvestSub": "Динамика основных макроэкономических индикаторов",
+      "grpInvestTitle": "Сектора экономики, 2021–2025",
+      "grpInvestForecast": "млрд сум",
+      "grpInvestSub": "Промышленность, услуги и инвестиции в основной капитал",
       "grpStructTitle": "Структура ВРП",
       "grpStructSub": "Вклад секторов, 2025",
       "foreignTradeTitle": "Внешняя торговля",
@@ -298,6 +298,8 @@
     },
     "legends": {
       "grp": "ВРП, млрд сум",
+      "industry": "Промышленность, млрд сум",
+      "services": "Услуги, млрд сум",
       "invest": "Инвестиции, млрд сум",
       "formal": "Официально",
       "informal": "Неформально",
