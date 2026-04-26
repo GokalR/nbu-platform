@@ -617,14 +617,25 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
 
   if (rd?.fiveYear) {
     industryYears     = rd.fiveYear.industry
-    exportYears       = rd.fiveYear.export
-    importYears       = rd.fiveYear.import
     constructionYears = rd.fiveYear.construction
-    migrationYears    = rd.fiveYear.migration
-    enterprisesYears  = rd.fiveYear.enterprises
-    unemploymentYears = rd.fiveYear.unemployment
     investmentYears   = rd.fiveYear.investments
-    deficitYears      = importYears.map((im, i) => im - exportYears[i])
+    // Optional series — fall back to synthetic when the city dataset doesn't
+    // include them (fargona_city has no published 5Y export/import or
+    // migration/enterprises/unemployment trend).
+    if (rd.fiveYear.export && rd.fiveYear.import) {
+      exportYears  = rd.fiveYear.export
+      importYears  = rd.fiveYear.import
+      deficitYears = importYears.map((im, i) => im - exportYears[i])
+    } else {
+      const exportBaseline = Math.round(11.4 * scale * (p.growth / 8.0) * (1 + p.textile * 0.4))
+      exportYears  = [0.33, 0.42, 0.58, 0.47, 1.0].map((f) => Math.round(exportBaseline * f * 39))
+      const importBaseline = Math.round(40 * scale * 18)
+      importYears  = [1.04, 1.06, 1.07, 1.10, 1.0].map((f) => Math.round(importBaseline * f))
+      deficitYears = importYears.map((im, i) => im - exportYears[i])
+    }
+    migrationYears    = rd.fiveYear.migration    || null
+    enterprisesYears  = rd.fiveYear.enterprises  || null
+    unemploymentYears = rd.fiveYear.unemployment || null
   } else {
     industryYears = [0.58, 0.63, 0.68, 0.84, 1.0].map((f) => Math.round(industryBln * f))
     const exportBaseline = Math.round(11.4 * scale * (p.growth / 8.0) * (1 + p.textile * 0.4))
