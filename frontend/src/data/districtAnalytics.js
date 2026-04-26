@@ -82,6 +82,13 @@ const REAL_DATA = {
       '30-34': 32224, '35-39': 28005, '40-49': 41543, '50-59': 32395,
       '60-69': 25517, '70-74': 6073, '75-79': 3312, '80-84': 869, '85+': 983,
     },
+    // Verified housing supply — farstat.uz услуги/Aholining uy-joy bilan
+    // ta'minlanish darajasi.pdf (sq.m per resident, year-end).
+    housingSupply: {
+      current: 25.4,                        // 2024
+      history: [21.8, 23.4, 22.9, 24.2, 25.4],
+      historyLabels: [2020, 2021, 2022, 2023, 2024],
+    },
     // ── Fields below were intentionally REMOVED because no city-level source
     // was found in the fergana/ folder. Restore once a verified publication
     // is dropped in (see verification report):
@@ -497,7 +504,19 @@ export function buildDistrictAnalytics(districtKey, t = identity) {
       { name: t('regionAnalytics.infra.matrix.publicTransport'), status: p.infra >= 0.7 ? 'ok' : 'warn',                     note: t('districtAnalytics.infra.note.transport', { n: Math.round(p.infra * 100) }) },
       { name: t('regionAnalytics.infra.matrix.digital'),       status: 'warn',                                               note: t('districtAnalytics.infra.note.digital',    { n: Math.round(60 + p.infra * 30) }) },
     ] : null,
+    // Verified housing supply (m²/resident) — farstat.uz уцлуги folder.
+    // null when not in REAL_DATA so the view skips the verified card.
+    housing: rd?.housingSupply ? {
+      currentSqMPerPerson: rd.housingSupply.current,
+      history: rd.housingSupply.history,
+      historyLabels: rd.housingSupply.historyLabels,
+    } : null,
+    // budgetMlrd and roads below remain estimates for districts without
+    // verified rd.budget / rd.roads2025; flagged via `estimated: true` so
+    // the view can render an "Оценка" badge.
     budgetMlrd: Math.round(46.3 * scale * 10) / 10,
+    budgetEstimated: !rd?.budget,
+    roadsEstimated: !rd?.roads2025,
     roads: rd?.roads2025 ? {
       totalKm:   rd.roads2025.totalKm,
       asphaltKm: rd.roads2025.asphaltKm,

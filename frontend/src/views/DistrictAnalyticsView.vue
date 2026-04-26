@@ -809,11 +809,48 @@ const aiOverall = computed(() => {
 
       <!-- #2 Infrastructure -->
       <div v-else-if="activeTab === 'infra'" class="space-y-6">
-        <div v-if="analytics.infra.kpis" class="grid grid-cols-2 lg:grid-cols-5 gap-5">
+        <!-- Coverage estimate warning when no verified water/gas/sewage % -->
+        <div v-if="!analytics.infra.kpis" class="da-no-data">
+          <AppIcon name="info" class="!text-[24px] text-slate-400" />
+          <div class="da-no-data-title">{{ t('district.cards.noDataInfraCoverageTitle') }}</div>
+          <div class="da-no-data-sub">{{ t('district.cards.noDataInfraCoverage') }}</div>
+        </div>
+        <div v-else class="grid grid-cols-2 lg:grid-cols-5 gap-5">
           <div v-for="k in analytics.infra.kpis" :key="k.label" class="da-kpi">
             <div class="da-kpi-label">{{ k.label }}</div>
             <div class="da-kpi-value">{{ k.value }}</div>
             <span class="da-kpi-delta" :class="`tone-${k.tone}`">{{ k.delta }}</span>
+          </div>
+        </div>
+
+        <!-- Verified housing supply card (m² per resident, 2020-2024) -->
+        <div v-if="analytics.infra.housing" class="da-card">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.housingTitle') }}</div>
+              <div class="da-card-sub">{{ t('district.cards.housingSub') }}</div>
+            </div>
+            <span class="da-city-badge">{{ t('district.cards.cityLevel') }}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+            <div class="da-ft-tile md:col-span-1">
+              <div class="da-kpi-label">{{ t('district.cards.housingCurrent') }}</div>
+              <div class="da-ft-value text-primary">
+                {{ analytics.infra.housing.currentSqMPerPerson }}
+                <span class="da-ft-unit">{{ t('district.cards.housingUnit') }}</span>
+              </div>
+              <span class="da-chip tone-green">{{ t('district.cards.housingYear', { year: analytics.infra.housing.historyLabels[analytics.infra.housing.historyLabels.length - 1] }) }}</span>
+            </div>
+            <div class="md:col-span-2 grid grid-cols-5 gap-2 items-end">
+              <div v-for="(v, i) in analytics.infra.housing.history" :key="i" class="flex flex-col items-center gap-2">
+                <div class="text-xs font-bold text-slate-700 da-mono">{{ v }}</div>
+                <div
+                  class="w-full rounded-t bg-gradient-to-t from-primary to-primary-fixed"
+                  :style="{ height: `${(v / 30) * 80}px`, minHeight: '20px' }"
+                ></div>
+                <div class="text-[10px] text-slate-500 da-mono">{{ analytics.infra.housing.historyLabels[i] }}</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -842,14 +879,24 @@ const aiOverall = computed(() => {
 
           <div :class="['space-y-5', analytics.infra.matrix ? 'col-span-12 lg:col-span-5' : 'col-span-12']">
             <div class="da-card">
-              <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.devBudgetTitle') }}</div>
-              <div class="da-card-sub">{{ t('district.cards.devBudgetSub') }}</div>
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="da-card-title"><span class="dot" style="background:#059669"></span>{{ t('district.cards.devBudgetTitle') }}</div>
+                  <div class="da-card-sub">{{ t('district.cards.devBudgetSub') }}</div>
+                </div>
+                <span v-if="analytics.infra.budgetEstimated" class="da-estimate-badge">{{ t('district.cards.estimateBadge') }}</span>
+              </div>
               <div class="big-number mt-4 text-primary">{{ analytics.infra.budgetMlrd }}</div>
               <div class="text-sm text-slate-500 mt-1">{{ t('district.cards.bnSum') }}</div>
             </div>
             <div class="da-card">
-              <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.roadsTitle') }}</div>
-              <div class="da-card-sub">{{ t('district.cards.roadsTotal') }} {{ analytics.infra.roads.totalKm }} {{ t('district.cards.km') }}</div>
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="da-card-title"><span class="dot" style="background:#0054A6"></span>{{ t('district.cards.roadsTitle') }}</div>
+                  <div class="da-card-sub">{{ t('district.cards.roadsTotal') }} {{ analytics.infra.roads.totalKm }} {{ t('district.cards.km') }}</div>
+                </div>
+                <span v-if="analytics.infra.roadsEstimated" class="da-estimate-badge">{{ t('district.cards.estimateBadge') }}</span>
+              </div>
               <div class="space-y-3 mt-4 text-sm">
                 <div v-if="analytics.infra.roads.asphaltKm != null">
                   <div class="da-bar-row"><span>{{ t('district.cards.asphalt') }}</span><span class="da-mono font-bold">{{ analytics.infra.roads.asphaltKm }} {{ t('district.cards.km') }}</span></div>
