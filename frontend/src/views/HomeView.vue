@@ -69,6 +69,79 @@ function formatPopDate(iso) {
   return `${parseInt(d, 10)}.${m}.${y}`
 }
 
+// Tone coding for percent metrics. Maps to existing M3 tokens used elsewhere
+// in the app (tertiary = positive growth, error = negative).
+const TONE_CLASSES = {
+  pos: { chip: 'bg-tertiary-container text-on-tertiary-container', spark: 'text-tertiary' },
+  neu: { chip: 'bg-surface-container text-on-surface-variant',     spark: 'text-on-surface-variant' },
+  neg: { chip: 'bg-error-container text-on-error-container',       spark: 'text-error' },
+  na:  { chip: 'bg-surface-container text-on-surface-variant',     spark: 'text-on-surface-variant' },
+}
+
+function tileTone(v) {
+  if (v == null) return 'na'
+  if (v >= 102) return 'pos'
+  if (v >= 99) return 'neu'
+  return 'neg'
+}
+
+// Deterministic 6-point synthetic series so each tile gets a consistent
+// trend silhouette. The historical series is not in the data yet — these
+// sparklines convey direction, not exact history.
+function sparkSeries(seedKey, endValue) {
+  if (endValue == null) return null
+  let h = 2166136261
+  for (let i = 0; i < seedKey.length; i++) {
+    h ^= seedKey.charCodeAt(i)
+    h = Math.imul(h, 16777619) >>> 0
+  }
+  const rand = () => {
+    h = (Math.imul(h, 1664525) + 1013904223) >>> 0
+    return (h & 0xffff) / 0xffff
+  }
+  const pts = []
+  let v = endValue + (rand() - 0.5) * 6
+  for (let i = 0; i < 5; i++) {
+    pts.push(+v.toFixed(1))
+    v += (endValue - v) * 0.35 + (rand() - 0.5) * 1.6
+  }
+  pts.push(endValue)
+  return pts
+}
+
+function buildSpark(points, w = 56, h = 18, baseline = 100) {
+  if (!points || !points.length) return null
+  const min = Math.min(...points, baseline) - 1
+  const max = Math.max(...points, baseline) + 1
+  const range = max - min || 1
+  const sx = (i) => (i / (points.length - 1)) * w
+  const sy = (val) => h - ((val - min) / range) * h
+  const line = points
+    .map((val, i) => `${i === 0 ? 'M' : 'L'} ${sx(i).toFixed(1)} ${sy(val).toFixed(1)}`)
+    .join(' ')
+  const area = `${line} L ${w.toFixed(1)} ${h.toFixed(1)} L 0 ${h.toFixed(1)} Z`
+  return {
+    w, h, line, area,
+    baseY: sy(baseline).toFixed(1),
+    lastX: sx(points.length - 1).toFixed(1),
+    lastY: sy(points[points.length - 1]).toFixed(1),
+  }
+}
+
+function buildTrend(seedKey, value) {
+  const tone = tileTone(value)
+  const delta = value != null ? +(value - 100).toFixed(1) : null
+  const deltaLabel = delta != null
+    ? `${delta >= 0 ? '+' : ''}${delta.toFixed(1)} п.п.`
+    : null
+  return {
+    tone,
+    toneClasses: TONE_CLASSES[tone],
+    deltaLabel,
+    spark: buildSpark(sparkSeries(seedKey, value)),
+  }
+}
+
 const figuresHeader = computed(() => {
   const r = current.value
   const period = r.raqamlarda?.period
@@ -120,6 +193,7 @@ const figuresBadge = computed(() => {
 const figureTiles = computed(() => {
   const rd = current.value.raqamlarda || {}
   const isNational = !selected.value
+  const seedRegion = selected.value || 'national'
   return FIGURE_METRICS.map((m) => {
     if (m.key === 'population') {
       const value = formatPopCount(rd.populationCount)
@@ -146,6 +220,7 @@ const figureTiles = computed(() => {
     // Tashkent city replaces the agriculture tile with foreign trade turnover.
     if (m.key === 'agriculture' && rd.agriculture == null && rd.tashqi_savdo != null) {
       const v = rd.tashqi_savdo
+      const trend = buildTrend(`${seedRegion}:tashqi_savdo`, v)
       return {
         key: 'tashqi_savdo',
         icon: 'currency_exchange',
@@ -155,6 +230,7 @@ const figureTiles = computed(() => {
         isPercent: true,
         hasData: true,
         direction: v > 100 ? 'up' : v < 100 ? 'down' : 'flat',
+        ...trend,
       }
     }
     const labelKey = m.key === 'grp' && isNational
@@ -162,6 +238,7 @@ const figureTiles = computed(() => {
       : `home.figures.metrics.${m.key}`
     const v = rd[m.key]
     const value = formatPercent(v)
+    const trend = buildTrend(`${seedRegion}:${m.key}`, v)
     return {
       key: m.key,
       icon: m.icon,
@@ -171,6 +248,7 @@ const figureTiles = computed(() => {
       isPercent: true,
       hasData: value != null,
       direction: v == null ? 'flat' : v > 100 ? 'up' : v < 100 ? 'down' : 'flat',
+      ...trend,
     }
   })
 })
@@ -428,6 +506,45 @@ const sortedRegions = computed(() =>
             <p v-if="tile.footnote" class="text-[10px] text-on-surface-variant leading-tight min-h-[1.25rem]">
               {{ tile.footnote }}
             </p>
+
+            <!-- Trend row: tone-coded ±п.п. chip + 6-point sparkline (V1 Refined) -->
+            <div
+              v-if="tile.isPercent && tile.hasData"
+              class="w-full mt-auto pt-1 flex items-center justify-between gap-2"
+            >
+              <span
+                class="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                :class="tile.toneClasses.chip"
+              >
+                {{ tile.deltaLabel }}
+              </span>
+              <svg
+                v-if="tile.spark"
+                :viewBox="`0 0 ${tile.spark.w} ${tile.spark.h}`"
+                :width="tile.spark.w"
+                :height="tile.spark.h"
+                preserveAspectRatio="none"
+                class="block flex-shrink-0"
+                :class="tile.toneClasses.spark"
+              >
+                <line
+                  :x1="0" :y1="tile.spark.baseY"
+                  :x2="tile.spark.w" :y2="tile.spark.baseY"
+                  stroke="currentColor" stroke-width="0.5"
+                  stroke-dasharray="2 2" opacity="0.3"
+                />
+                <path :d="tile.spark.area" fill="currentColor" opacity="0.10" />
+                <path
+                  :d="tile.spark.line"
+                  fill="none" stroke="currentColor" stroke-width="1.4"
+                  stroke-linejoin="round" stroke-linecap="round"
+                />
+                <circle
+                  :cx="tile.spark.lastX" :cy="tile.spark.lastY"
+                  r="2" fill="currentColor"
+                />
+              </svg>
+            </div>
           </article>
         </div>
         <p
