@@ -1809,7 +1809,7 @@
       "onlineBanking": "Onlayn-banking"
     },
     "bank": {
-      "smbCredits": "KBB kreditlari",
+      "smbCredits": "KOB kreditlari",
       "newEntrepr": "Yangi tadbirkorlar",
       "exporters": "Eksportchilar",
       "employed": "Bandlar",
@@ -1830,7 +1830,7 @@
         "water": "Suv taʻminoti meʻyordan past",
         "sewage": "Kanalizatsiya modernizatsiya talab qiladi",
         "energyDeficit": "Energiya quvvatlari taqchilligi",
-        "oldEquipment": "KBB eskirgan jihozlari",
+        "oldEquipment": "KOB eskirgan jihozlari",
         "land": "Boʻsh yer taqchilligi",
         "informal": "Soya sektori ulushi yuqori",
         "digitalSkills": "Raqamli koʻnikmalar past",
@@ -1874,7 +1874,7 @@
     },
     "plan": {
       "water2026": "2026 suv taʻminoti rekonstruksiyasi",
-      "energySmb": "KBB uchun energiya samaradorligi",
+      "energySmb": "KOB uchun energiya samaradorligi",
       "smartTextile": "Smart Textile klasteri",
       "itParkBranch": "IT-park filiali"
     },
@@ -2034,7 +2034,7 @@
     "strategic": {
       "quickWins": "Tezkor yutuqlar",
       "modernize": "Infratuzilmani modernizatsiya qilish",
-      "smbSubsidy": "KBB subsidiyalari",
+      "smbSubsidy": "KOB subsidiyalari",
       "jobsAdded": "+{n} ish oʻrni",
       "energyEff": "Energiya samaradorligi",
       "sectorBreakthrough": "Sektoral yorib oʻtish",
@@ -2042,7 +2042,7 @@
       "addedValue35": "Qoʻsh. qiymat +35%",
       "tourHub": "Turistik markaz",
       "visitors": "{n}K tashrif/yil",
-      "cooperativeSmb": "Kooperativ KBB",
+      "cooperativeSmb": "Kooperativ KOB",
       "logisticsWh": "Logistika omborlari",
       "turnoverPlus40": "Aylanma +40%",
       "itJobs": "{n} IT-ish oʻrni",
@@ -2083,7 +2083,7 @@
         "weakIndustry": "Zaif sanoat",
         "monoAgrarian": "Monoagrar tuzilma",
         "enclave": "Anklav izolyatsiyasi",
-        "smbOldEquipment": "KBB eskirgan jihozlari"
+        "smbOldEquipment": "KOB eskirgan jihozlari"
       },
       "opp": {
         "tourismHub": "Turistik markaz",

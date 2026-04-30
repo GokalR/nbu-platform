@@ -423,56 +423,6 @@ const aiOverall = computed(() => {
         </aside>
       </div>
 
-      <!-- Districts grid preview -->
-      <div class="da-card" style="padding:0;overflow:hidden">
-        <div style="padding:24px 24px 12px">
-          <div class="flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <div class="da-card-title"><span class="dot"></span>{{ t('district.table.title') }}</div>
-              <div class="da-card-sub">{{ t('district.table.subtitle') }}</div>
-            </div>
-            <span class="bg-primary-fixed text-primary text-[11px] font-bold px-3 py-1.5 rounded-full tracking-widest uppercase">
-              geoBoundaries · stat.uz
-            </span>
-          </div>
-        </div>
-        <table class="da-table auto-layout">
-          <thead>
-            <tr>
-              <th style="width:5%">#</th>
-              <th style="width:22%">{{ t('district.table.colName') }}</th>
-              <th style="width:10%">{{ t('district.table.colType') }}</th>
-              <th style="width:18%; text-align:center">{{ t('district.table.colPopulation') }}</th>
-              <th style="width:15%; text-align:center">{{ t('district.table.colArea') }}</th>
-              <th style="width:15%; text-align:center">{{ t('district.table.colDensity') }}</th>
-              <th style="width:15%"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(d, i) in districts"
-              :key="d.key"
-              class="cursor-pointer da-kind-row"
-              :class="d.kind === 'city' ? 'is-city' : 'is-district'"
-              @click="selectDistrict(d.key)"
-            >
-              <td class="da-mono text-slate-400 font-bold">{{ (i + 1).toString().padStart(2, '0') }}</td>
-              <td class="font-bold text-base">{{ t(`districtsList.${d.key}`) }}</td>
-              <td>
-                <span class="da-chip" :class="d.kind === 'city' ? 'tone-blue' : 'tone-green'">
-                  {{ t(`district.kind.${d.kind}`) }}
-                </span>
-              </td>
-              <td style="text-align:center" class="da-mono font-bold">{{ d.population.toFixed(1) }} {{ t('district.units.thousand') }}</td>
-              <td style="text-align:center" class="da-mono">{{ d.area.toLocaleString('ru-RU') }} {{ t('district.units.kmSq') }}</td>
-              <td style="text-align:center" class="da-mono text-slate-500">{{ Math.round((d.population * 1000) / d.area).toLocaleString('ru-RU') }}{{ t('district.units.perKmSq') }}</td>
-              <td style="text-align:center">
-                <span class="text-primary font-bold text-xs hover:underline">{{ t('district.viewDetails') }} →</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </template>
 
     <!-- =============== DRILL-DOWN MODE =============== -->
