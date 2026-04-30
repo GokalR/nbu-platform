@@ -114,67 +114,95 @@ const REAL_DATA = {
     //   unemployment — pending city employment publication
   },
   margilon_city: {
-    populationK: 261.9,          // 261,948
-    area: 52,
-    industryBln: 2459,           // 2025
-    investBln: 1281,             // 2025 (+83% vs 2024)
-    grpBln: 5725,                // GTP 2025
-    servicesBln: 3564,           // derived: 13,599 per-capita × 261.9K
-    tradeBln: 5722,              // derived: 21,846 per-capita × 261.9K
-    constructionBln: 1807,       // derived: 6,899 per-capita × 261.9K
-    avgSalary: 3974,             // exact from dashboard
-    unemployment: 5.8,           // exact
-    unemploymentStart: 9.5,
-    mahallas: 50,                // exact
-    households: 46580,
-    constructionGrowth: 118.8,
-    tourism: { visitors: 380, objects: 42 },  // K visitors, heritage objects
-    perCapita: { industry: 9461, invest: 4928, services: 13599, trade: 21846, construction: 6899 },
-    // Margilan vs Fergana city benchmark
-    benchmark: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },
-    // 5-year history (2021–2025), exact from dashboard
-    fiveYear: {
-      industry:     [1440, 1554, 1683, 2079, 2459],
-      export:       [149, 191, 260, 213, 450],
-      import:       [777, 790, 800, 817, 745],
-      construction: [121.9, 88.9, 110.2, 102.7, 118.8],
-      migration:    [253, 630, 1772, 6240, 1180],
-      enterprises:  [4928, 4200, 3500, 3100, 2787],
-      unemployment: [9.5, 9.0, 7.8, 6.5, 5.8],
-      investments:  [780, 910, 1574, 700, 1281],
+    // ── Verified scalars — farstat.uz district-breakdown PDFs in fergana/
+    // folder (Jan-Dec 2025 preliminary, "Tumanlar bo'yicha ..." rows). ──
+    populationK: 261.9,                 // 1 yanvar 2026 (verified)
+    area: 52,                           // km² (admin-territorial)
+    mahallas: 50,                       // hududlar (admin source)
+    // 2025 sector totals (mlrd soʻm, current prices)
+    industryBln:     2458.9,
+    servicesBln:     3534.5,
+    tradeBln:        5677.8,
+    constructionBln: 1793.1,
+    investBln:       1280.9,
+    agricultureBln:   620.6,
+    // Nominal YoY growth 2025/2024 (% — current prices, derived from PDFs)
+    industryGrowthPct:     127.3,       // 2458.9 / 1931.0
+    servicesGrowthPct:     130.7,       // 3534.5 / 2704.6
+    tradeGrowthPct:        118.4,       // 5677.8 / 4794.3
+    constructionGrowth:    121.9,       // 1793.1 / 1470.6
+    investGrowthPct:       190.0,       // 1280.9 / 674.2  (×1.9 — sharp jump)
+    agricultureGrowthPct:  113.0,       // 620.6 / 549.0
+    // Per-capita (ths soʻm/person, 2025) — computed from verified totals
+    perCapita: {
+      industry:     9389,
+      services:    13496,
+      trade:       21680,
+      construction: 6846,
+      invest:       4891,
     },
-    // GTP sector structure (exact from dashboard)
+    // Benchmark = Fargona shahri per-capita (verified)
+    benchmark: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },
+    // 5-year history 2021-2025 (mlrd soʻm, current prices) — verified.
+    // export/import not published at city level (only viloyat-level), so
+    // those series are intentionally omitted here.
+    fiveYear: {
+      industry:     [1440.0, 1419.9, 1660.3, 1931.0, 2458.9],
+      services:     [1234.1, 1522.5, 1915.5, 2704.6, 3534.5],
+      trade:        [2919.5, 3474.6, 4239.7, 4794.3, 5677.8],
+      investments:  [ 834.8,  480.5,  797.2,  674.2, 1280.9],
+      construction: [1123.1, 1087.6, 1385.5, 1470.6, 1793.1],
+      agriculture:  [ 372.3,  407.8,  497.6,  549.0,  620.6],
+    },
+    // Verified population history 2019-2026 — 100% urban (no qishloq).
+    populationFiveYear:       [231.1, 235.0, 238.9, 242.5, 246.7, 253.5, 257.9, 261.9],
+    populationFiveYearLabels: [2019,  2020,  2021,  2022,  2023,  2024,  2025,  2026],
+    // Verified vital statistics — Tug'ilganlar / O'lganlar PDFs (Marg'ilon
+    // shahri rows, 2021-2025). Natural increase derived as births - deaths.
+    vitalStats: {
+      births:    [5917, 6493, 6570, 6417, 5917],
+      deaths:    [1241, 1195, 1191, 1093, 1160],
+      labels:    [2021, 2022, 2023, 2024, 2025],
+      births2025:           5917,
+      deaths2025:           1160,
+      naturalIncrease2025:  4757,       // 5917 - 1160
+      birthsBoys2025:       3027,
+      birthsGirls2025:      2890,
+    },
+    // Verified age structure 2025 — farstat.uz "Yosh guruhlari bo'yicha
+    // doimiy aholi soni" (Marg'ilon sh., 1 yanvar 2025; total 257 878).
+    ageGroups2025: {
+      '0-2': 19432, '3-5': 17101, '6-7': 9162, '8-15': 35668,
+      '16-17': 9120, '18-19': 7469, '20-24': 17400, '25-29': 20536,
+      '30-34': 21619, '35-39': 19119, '40-49': 29605, '50-59': 25328,
+      '60-69': 17600, '70-74': 4267, '75-79': 2778, '80-84': 995, '85+': 679,
+    },
+    // Sector structure 2025 (% of 6-sector sum 14 084.9 mlrd, computed from
+    // verified totals — "agri" replaces the prior "other" bucket).
     sectors: [
-      { key: 'trade',        pct: 38.2 },
-      { key: 'services',     pct: 23.8 },
-      { key: 'industry',     pct: 19.4 },
-      { key: 'construction', pct: 12.1 },
-      { key: 'other',        pct: 6.5 },
+      { key: 'trade',        pct: 40.3 },
+      { key: 'services',     pct: 25.1 },
+      { key: 'industry',     pct: 17.5 },
+      { key: 'construction', pct: 12.7 },
+      { key: 'agri',         pct:  4.4 },
     ],
-    // Investment financing sources 2025 (exact)
+    // ── Fields below come from the older NBU brief (DASHBOARD_margilan_city)
+    // and are NOT in the fergana/ folder. Kept so the dashboard renders the
+    // same panels as before; replace once city-level publications land. ──
     investSources: [
       { key: 'foreign',      pct: 44.3 },
       { key: 'enterprises',  pct: 19.1 },
       { key: 'govBudget',    pct: 16.0 },
       { key: 'population',   pct: 13.9 },
-      { key: 'restoration',  pct: 6.7 },
+      { key: 'restoration',  pct:  6.7 },
     ],
     entities: { active: 2787, inactive: 3080, opened: 350, closed: 752, ie: 7143, ooo: 562, farmer: 84, other: 120 },
     population: {
-      workingAge: 140164,        // exact
-      abroad: 15574,             // exact — citizens abroad
-      naturalIncrease: 4757,     // exact
-      pensioners: 28315,
-      migrationBalance: -687,
+      workingAge: 140164,
+      naturalIncrease: 4757,            // verified above; mirrored here for older callers
     },
-    infra: { water: 99, sewage: 62, gas: 89, roads: 75 },  // water 98.8% → 99%
+    infra: { water: 99, sewage: 62, gas: 89, roads: 75 },
     topMahallas: ['Kashkar', 'Pichoqchi', 'Turaqu\'rg\'on', 'Yuksalish', 'Go\'riavval'],
-    // Credit & social data
-    nplRate: 4.6,
-    socialRegistry: 2602,
-    socialRegistryPct: 4.2,
-    unregisteredSelfEmployed: 2682,
-    informalEconomy: 37,
   },
   // ── Samarkand viloyat (region-level) — verified 2025 data from NBU Excel briefs ──
   samarqand_region: {

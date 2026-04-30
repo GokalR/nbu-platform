@@ -451,108 +451,108 @@
       "margilon_city": {
         "overall": {
           "title": "AI · Margʻilon shahri umumiy xulosalari",
-          "summary": "Margʻilon — eksport-turistik rivojlanish modeli, ipak va toʻqimachilikning noyob konsentratsiyasi. 5 yilda ishsizlik 3,7 p.p. tushdi, eksport 3 baravar oʻsdi, oʻrtacha maosh 3 974 ming soʻm. Strategik prioritetlar: norasmiy sektorni qonuniylashtirish (37%) va farma hamda oziq-ovqat qayta ishlashga diversifikatsiya.",
+          "summary": "Margʻilon — Fargʻona vodiysining sharqiy qismidagi savdo-xizmat markazi (261,9 ming aholi, 100% shahar aholisi). 2021–2025-yillarda xizmatlar deyarli 2,9 baravarga oʻsdi (1 234 → 3 535 mlrd soʻm), savdo deyarli 2 baravarga (2 920 → 5 678 mlrd soʻm), 2025-yilda esa investitsiyalar 2024-yilga nisbatan 2 baravarga yaqin oʻsdi (×1,9). 2025-yilda barcha asosiy sektorlar viloyat real oʻsishidan yuqori nominal koʻrsatkich qayd etdi — bu kuchli isteʼmolchi bazasi fonida shahar iqtisodiyotining tezlashayotganini koʻrsatadi.",
           "tags": [
-            "✓ Eksport ×3 (5y)",
-            "✓ Ishsizlik −3,7 p.p.",
-            "⚠ 37% norasmiy iqtisodiyot",
-            "💡 Turistik klaster"
+            "✓ Xizmatlar ×2,9 (5y)",
+            "✓ Savdo ×1,9 (5y)",
+            "✓ Investitsiyalar +90% YoY 2025",
+            "💡 Savdo-xizmat klasteri"
           ]
         },
         "economic": {
           "title": "Iqtisodiy faollik AI-tahlili",
-          "summary": "Margʻilon — Fargʻona vodiysidagi ipak ishlab chiqarishning tarixiy poytaxti (261,9 ming aholi). Shahar YaHM tarkibi noyob: savdo (38,2%) yetakchi, soʻngra xizmatlar (23,8%) va sanoat (19,4%). 2021–2025-yillarda eksport rekord oʻsishni koʻrsatdi: 149 dan 450 mln dollargacha (×3) — asosan toʻqimachilik va ipak mahsulotlari hisobiga. Asosiy kapitalga investitsiyalar beqaror — 5 yilda ×1,6 oʻsish, 2024-yilda pasayish bilan.",
+          "summary": "Margʻilon iqtisodiyoti tarkibi viloyat uchun noyob: chakana savdo yetakchi (40,3%), soʻngra xizmatlar (25,1%) va sanoat (17,5%). Aholi jon boshiga savdo aylanmasi (21,7 mln soʻm/kishi) bilan Margʻilon viloyat tumanlari yetakchisi va oʻzining sanoat per-capita koʻrsatkichidan 2,3 barobar oldinda. 2025-yil dinamikasi: sanoat +27,3%, xizmatlar +30,7%, savdo +18,4%, qurilish +21,9%, investitsiyalar +90,0% (674 → 1 281 mlrd soʻm — rekord sakrash).",
           "insights": [
-            "Eksport ×3 (5y) — viloyat shaharlari orasida eng yuqori",
-            "Savdo YaHM tarkibida yetakchi (38,2%) — viloyat shaharlari uchun nomuddin",
-            "Toʻqimachilik va ipak — kuchli sanoat asosi va tarixiy ixtisoslashuv",
-            "Investitsiyalarning 44,3% — chet ellik, eksport yoʻnalishini tasdiqlaydi"
+            "Savdo 5 678 mlrd soʻm (40,3% tarkib) — Margʻilon vodiy chakana savdo markazi",
+            "Xizmatlar ×2,9 (5y): 1 234 → 3 535 mlrd — eng tez oʻsayotgan sektor",
+            "Investitsiyalar +90% YoY 2025 — 2024 pasayishidan keskin sakrash (674 → 1 281 mlrd)",
+            "Sanoat 2025-da +27,3% nominal vs viloyat real oʻsishi +7,3% — viloyatdan ajralib turuvchi"
           ],
           "risks": [
-            "Ipak/toʻqimachilikka qaramlik — farma va oziq-ovqat qayta ishlashga diversifikatsiya",
-            "Korxonalar soni kamaymoqda (4 928 → 2 787 (5y)) — biznes konsentratsiyasi",
-            "Norasmiy iqtisodiyot 37% — yashirin bandlikning yuqori darajasi",
-            "Bank uchun imkoniyat: «Margʻilon-Ipak» — toʻqimachilik shartnomalari uchun eksport krediti"
+            "Isteʼmol talabga bogʻliqlik: savdo 40,3% — inflyatsiya va daromadga sezgirlik",
+            "Qishloq xoʻjaligi atigi 4,4% — oziq-ovqat bazasi shahar tashqarisida",
+            "Investitsiya beqarorligi (835→480→797→674→1 281 mlrd) — turgʻun boʻlmagan oqim",
+            "Bank uchun imkoniyat: chakana savdoga aylanma kredit va ekvayring — yetarlicha qamrab olinmagan katta segment"
           ]
         },
         "infra": {
           "title": "Infratuzilma AI-tahlili",
-          "summary": "Asosiy infratuzilma yetarli darajada: suv 99%, gaz 89%, yoʻllar 75%, kanalizatsiya 62% — soʻnggi modernizatsiya talab qiladi. Margʻilon — turistik markaz (380 ming tashrif buyuruvchilar, 42 ta madaniy meros obyekti), bu shahar muhiti va jamoat xizmatlari sifatiga talablarni oshiradi.",
+          "summary": "Tuman darajasidagi tasdiqlangan infratuzilma maʼlumotlari (suv, gaz, kanalizatsiya, yoʻllar) PDF manbalarida nashr qilinmagan; bu paneldagi qamrov koʻrsatkichlari NBU brief asosida taxminiy va aniqlashtirishni talab qiladi. 2025-yilda Margʻilonda qurilish ishlari hajmi 1 793,1 mlrd soʻm (2024-yilga nisbatan +21,9%), bu viloyat real qurilish oʻsishidan (+17,4%) yuqori va faol investitsion bosqichdan dalolat beradi.",
           "insights": [
-            "Suv taʼminoti 99% — viloyat shaharlari yetakchisi",
-            "Gazlashtirish 89% va yoʻllar 75% — yuqori taʼminot darajasi",
-            "42 ta madaniy meros obyekti doimiy restavratsiya talab qiladi",
-            "Yiliga 380 ming turist — mehmonxona infratuzilmasiga barqaror talab"
+            "Qurilish +21,9% YoY 2025 — viloyat real oʻsishidan yuqori (+17,4%)",
+            "1 793 mlrd soʻm qurilish — shahar infratuzilmasini faol yangilanish indikatori",
+            "5 yillik dinamika: 1 123 → 1 793 mlrd (+60%) — barqaror qurilish sikli",
+            "50 mahalla — kommunal tarmoqlarga ulanish nuqtalarining yuqori zichligi"
           ],
           "risks": [
-            "Kanalizatsiya 62% — boshqa kategoriyalardan ortda, yangilash kerak",
-            "Turlar oqimi mehmonxona va ovqatlanish ob'ektlarini kengaytirishni talab qiladi",
-            "Bank uchun imkoniyat: mehmonxona rivojlanishiga loyihali kreditlar",
-            "Meros restavratsiyasi — davlat byudjeti bilan birga ESG-kreditlash imkoniyati"
+            "Shahar darajasidagi suv/gaz/kanalizatsiya qamrovi tasdiqlanmagan",
+            "Investitsiyalar 2025-da ×1,9 oʻsishi tarmoq ishlarini tezlashtirishni talab qiladi",
+            "Bank uchun imkoniyat: shahar qurilishi pudratchilarini loyihali moliyalashtirish",
+            "Real qamrov koʻrsatkichlarini aniqlashtirish — keyingi maʼlumotlar iteratsiyasi prioriteti"
           ]
         },
         "population": {
           "title": "Aholi va bandlik AI-tahlili",
-          "summary": "Margʻilon aholisi — 261,9 ming kishi, ulardan 140,2 mingi mehnat yoshida. 5 yilda ishsizlik 9,5%dan 5,8%gacha tushdi — taʼsirchan dinamika. Lekin 2024-yilda chet elga migratsiya cho'qqi qiymatga 6 240 kishigacha yetdi (2021-da 253), 2025-da esa 1 180 gacha tushdi. Sotsial reestr 2 602 oilani qamrab oladi (4,2%).",
+          "summary": "Margʻilon aholisi 2019-yilda 231,1 ming kishidan 2026-yilda 261,9 ming kishigacha oʻsdi — 7 yilda +13,3%, 100% shahar aholisi. 2025-yilda 5 917 tugʻilish va 1 160 oʻlim qayd etilgan; tabiiy oʻsish +4 757 kishi. Lekin tugʻilishlar soni 2023-yildagi 6 570 cho‘qqi qiymatdan 2025-yilda 5 917 gacha tushdi (−10%) — demografik oʻtishning erta signali. Yosh tarkibi (1 yanvar 2025): 0–15 yosh ulushi 31,5% (81,4 ming kishi), 20–59 yosh mehnat yoshi — 51,4% (133,2 ming kishi).",
           "insights": [
-            "Ishsizlik 5 yilda 9,5%dan 5,8%gacha tushdi — rekord pasayish",
-            "140,2 ming mehnat yoshidagi aholi — barqaror mehnat resursi bazasi",
-            "Migratsiya 2024-da choʻqqi 6 240, 2025-da 1 180 — migrantlarning qaytishi",
-            "Chet elda 15 574 fuqaro — pul oʻtkazmalarining barqaror oqimi"
+            "7 yilda aholi +30,8 ming (231,1 → 261,9 ming) — barqaror urbanizatsiya",
+            "Tabiiy oʻsish +4 757 (2025) — maktab va bogʻchalarga bosim",
+            "0–15 yosh: 81,4 ming (31,5%) — katta ijtimoiy segment",
+            "20–59 yosh mehnat yoshi: 133,2 ming (51,4%) — shahar ish kuchi rezervi"
           ],
           "risks": [
-            "Tabiiy oʻsish 4 757 — bolalar infratuzilmasiga bosim",
-            "Qaytuvchi migrantlarni reintegratsiya qilish imtiyozli kreditlash orqali",
-            "Bank uchun imkoniyat: migrantlar oilalari uchun ipoteka",
-            "37% norasmiy iqtisodiyot bank xizmatlari qamrovini pasaytiradi"
+            "Tugʻilish 6 570 (2023) dan 5 917 (2025) gacha kamayishi — demografik trendni kuzatish",
+            "Bola aholi oʻsishi maktabgacha tarmoqni kengaytirishni talab qiladi",
+            "Bank uchun imkoniyat: shahar yosh oilalari uchun ipoteka mahsulotlari",
+            "Tuman darajasidagi bandlik nashr qilinmaydi — qoʻshimcha manbalar kerak"
           ]
         },
         "mahalla": {
           "title": "Mahalla va bank salohiyati AI-tahlili",
-          "summary": "Shaharda 50 mahalla. Iqtisodiy faol top-5 — Kashkar, Pichoqchi, Turaqoʻrgʻon, Yuksalish, Goʻriavval — ipak ishlab chiqarish va savdoni jamlaydi. Sotsial reestr 2 602 oilani qamrab oladi (4,2%), norasmiy iqtisodiyot darajasi 37% — viloyat oʻrtachasidan yuqori. NPL darajasi 4,6% — chegaraviy.",
+          "summary": "Shaharda 50 mahalla — asosiy ijtimoiy-hududiy yacheykalar. Isteʼmol iqtisodiyoti tarkibi (savdo 40,3%, xizmatlar 25,1%) mahallalarda savdo-xizmat MSB ning yuqori konsentratsiyasini koʻrsatadi. fergana/-papkadagi PDF manbalarida mahalla darajasidagi moliyaviy koʻrsatkichlar nashr qilinmagan; bu paneldagi reyting va kredit maʼlumotlari taxminiy.",
           "insights": [
-            "50 mahalla — hunarmandchilik ishlab chiqarishining yuqori zichligi",
-            "Top-5 mahalla — ipak va toʻqimachilik klasteri",
-            "46 580 xonadon — barqaror mikromoliyalashtirish bazasi",
-            "Turizm 380 ming — suvenir-hunarmandchilik MSBni moliyalashtirish imkoniyati"
+            "50 mahalla — yuqori MSB zichligi bilan ixcham shahar tarkibi",
+            "Savdoning ustunligi ekvayring va POS-terminallarga yuqori talab yaratadi",
+            "Xizmatlar ×2,9 (5y) — mikrokreditlash uchun koʻp segmentli salohiyat",
+            "Hunarmandchilik ipak ishlab chiqarish konsentratsiyasi — tarixiy ixtisoslashuv"
           ],
           "risks": [
-            "NPL 4,6% — mikrokredit portfeli sifatini kuzatish",
-            "37% norasmiy iqtisodiyot — bank stimul bilan qonuniylashtirish imkoniyati",
-            "Bank uchun imkoniyat: Margʻilon hunarmandlari uchun «Ipak ustasi» paketi",
-            "Turistik nuqtalarda POS raqamlashtirish — prioritet"
+            "Mahalla darajasidagi kredit indikatorlari manbalar bilan tasdiqlanmagan",
+            "Baʼzi MSB norasmiy sektorda — standart mahsulotlar barchasini qamrab olmaydi",
+            "Bank uchun imkoniyat: «Margʻilon-chakana» — aylanma kredit + ekvayring paketi",
+            "Savdo mahallalarida POS raqamlashtirish — bank infratuzilmasi prioriteti"
           ]
         },
         "opportunities": {
           "title": "Rivojlanish imkoniyatlari AI-tahlili",
-          "summary": "Margʻilon — uchta strategik yoʻnalishdagi noyob shahar: eksport toʻqimachilik klasteri (5 yilda ×3 oʻsish), madaniy turizm (yiliga 380 ming, 42 meros obyekti), va tarixiy hunarmandchilik (ipak). Ishsizlikning 1,6 baravar pasayishi va 2025-yilda migrantlarning qaytishi mahalliy iqtisodiyotni kengaytirish uchun qulay zamin yaratadi.",
+          "summary": "Margʻilonda uchta tasdiqlangan oʻsish yoʻnalishi mavjud: xizmatlar tezlanishi (sektorlar yetakchisi — 5 yilda ×2,9), isteʼmol bozori (savdo 21,7 mln soʻm/kishi) va 2025-yilning investitsion sakrashi (×1,9). 2025-yilda olti asosiy sektor ikki xonali oʻsish koʻrsatdi: xizmatlar +30,7%, sanoat +27,3%, qurilish +21,9%, savdo +18,4%, qishloq xoʻjaligi +13,0%. Bu moliyalashtirish uchun koʻp sektorli salohiyat yaratadi.",
           "insights": [
-            "Eksport ×3 (5y) — viloyatdagi eng kuchli koʻrsatkich",
-            "Turizm 380 ming — mehmonxona, restoran va suvenir biznesi salohiyati",
-            "Xalqaro shartnomali ipak klaster — e-commerce platformalarini rivojlantirish",
-            "Migrantlarning qaytishi yiliga 5 060 — malakali kadrlar oqimi"
+            "Xizmatlar — 5 yillik oʻsish yetakchisi (×2,9): xizmat MSBni moliyalashtirishga yoʻnaltirish",
+            "Investitsiyalar +90% YoY 2025 — yirik shahar loyihalarida ishtirok etish darchasi",
+            "2025-da 6 sektor ikki xonali oʻsish bilan — diversifikatsiyalashgan salohiyat",
+            "7 yilda aholi +30,8 ming — ipoteka va isteʼmol kreditining oʻsayotgan bozori"
           ],
           "risks": [
-            "Korxonalar soni kamayishi (×0,57) MSB qoʻllab-quvvatlashni talab qiladi",
-            "Farma va oziq-ovqat qayta ishlashga investitsiya yetishmasligi",
-            "Bank uchun imkoniyat: «Margʻilon 2030» — eksport toʻqimachilikni qoʻllash dasturi",
-            "Buyumlarni onlayn sotish platformalarining rivoji — ekvayring uchun salohiyat"
+            "Investitsiyalar beqarorligi — 2026-yil barqarorligini kuzatish",
+            "Savdoga konsentratsiya makro shoklarga sezgirlikni oshiradi",
+            "Bank uchun imkoniyat: xizmatlar oʻsishi ostida «Margʻilon-servis» mahsulot liniyasi",
+            "Tugʻilishning kamayishi — uzoq muddatli chakana talab prognozlarida hisobga olish"
           ]
         },
         "summary": {
           "title": "AI-tahlil va strategik tavsiyalar",
-          "summary": "Margʻilon — eksport toʻqimachilik va madaniy turizmning noyob kombinatsiyasi bilan muvaffaqiyatli diversifikatsiyalanayotgan shahar. Ishsizlik 9,5%dan 5,8%gacha tushdi, eksport 3 baravar oʻsdi, oʻrtacha maosh 3 974 ming soʻm. Lekin biznes konsentratsiyasi (×0,57 korxona (5y)) va norasmiylikning yuqori darajasi (37%) — strategik xatarlar.",
+          "summary": "Margʻilon 2021–2025-yillarda — savdo-xizmat modeli orqali shahar oʻsishi namunasi: xizmatlar ×2,9, savdo ×1,9, 2025-da investitsiyalar 2024-ga nisbatan ×1,9. 2025-yilda olti tasdiqlangan sektorlar viloyat oʻrtacha real oʻsishidan yuqori. Strukturaviy kuchli signal — aholi jon boshiga savdoda yetakchilik (21,7 mln soʻm/kishi). Asosiy strategik vazifa — yuqori chakana faollikni barqaror investitsion oqimga va MSB qoʻllab-quvvatlashga aylantirish.",
           "insights": [
-            "Noyob eksport modeli — toʻqimachilik (5y) ×3",
-            "Turistik brend ishlamoqda: 380 ming tashrif, 42 obyekt",
-            "Ijtimoiy koʻrsatkichlar yaxshilanmoqda: ishsizlik (5y) −3,7 p.p.",
-            "Foreign-driven investitsiyalar 44,3% — rivojlanish modeli"
+            "Savdo 21,7 mln soʻm/kishi — Margʻilon viloyat chakana yetakchisi",
+            "Xizmatlar ×2,9 (5y) — sektorlar orasida eng kuchli 5 yillik oʻsish",
+            "Investitsiyalar +90% YoY 2025 — bozorning shaharga ishonchini koʻrsatadi",
+            "7 yilda aholi +13,3%, 100% shahar — barqaror mijozlar bazasi"
           ],
           "risks": [
-            "Biznes dekonsentratsiyasi: MSB qoʻllash — prioritet",
-            "Norasmiy iqtisodiyotni bank stimul bilan qonuniylashtirish",
-            "Bank strategiyasi: «Margʻilon Ipak» — eksport-turistik modelga kompleks mahsulot",
-            "Xalqaro savdoni kengaytirish uchun raqamlashtirish va e-commerce"
+            "Isteʼmol talabga bogʻliqlik — ishlab chiqarishga diversifikatsiya",
+            "Investitsiya oqimini barqarorlashtirish — 2026-yil dinamikasini kuzatish",
+            "Bank strategiyasi: savdo-xizmat modeli ostida «Margʻilon-2030» paketi",
+            "Bandlik/migratsiya/daromad boʻyicha shahar maʼlumotlari — manbalarni kengaytirish"
           ]
         }
       }
