@@ -45,8 +45,9 @@ const D = {
   popK: 319.6,
   area: 60,
   density: Math.round(319_600 / 60), // 5326/km²
-  populationFiveYear:       [248.7, 252.7, 256.4, 259.7, 303.6, 308.1, 313.6, 319.6],
-  populationFiveYearLabels: [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
+  // Population history matches GM Excel year columns: 2021–2025 + 2026 plan.
+  populationFiveYear:       [256.4, 259.7, 303.6, 308.1, 313.6, 319.6],
+  populationFiveYearLabels: [2021, 2022, 2023, 2024, 2025, 2026],
   fiveYear: {
     industry:     [4340.0, 5602.6, 5886.6, 6264.5, 9410.4],
     services:     [2486.1, 3176.2, 3625.2, 4917.6, 6371.1],
@@ -523,10 +524,11 @@ const sectorMix = [
     <section class="qoq-section qoq-grid-2">
       <div class="qoq-card">
         <div class="qoq-eyebrow">03 · Демография</div>
-        <h2 class="qoq-h2">Население 2019 → 2026</h2>
+        <h2 class="qoq-h2">Население 2021 → 2026</h2>
         <p class="qoq-lede">
-          Рост на 70,9 тыс. за 7 лет (+28,5%). Часть прироста между 2022 и 2023 — следствие
+          Рост на 63,2 тыс. за 5 лет (+24,6%). Часть прироста между 2022 и 2023 — следствие
           административно-территориального изменения, не естественной демографии.
+          Период совпадает с шаблоном Golden Mart.
         </p>
         <div class="qoq-chart-h300">
           <FcChart type="line" :data="popData" :options="popOpts" :height="280" />
