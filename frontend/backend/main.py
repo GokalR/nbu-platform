@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from models import Base, engine
+import gm_models  # noqa: F401  — registers Golden Mart tables with Base.metadata
 from routes.auth_routes import router as auth_router
 from routes.courses import router as courses_router
 from routes.dashboard import router as dashboard_router
