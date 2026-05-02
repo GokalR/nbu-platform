@@ -240,7 +240,7 @@ const yearCoverage = computed(() => {
           <header class="gma-section-head">
             <div class="gma-section-num">{{ String(section.n).padStart(2, '0') }}</div>
             <AppIcon :name="section.icon" class="gma-section-icon" />
-            <h2 class="gma-section-title">{{ section.title }}</h2>
+            <h2 class="gma-section-title">{{ locale === 'uz' ? (section.titleUz || section.title) : section.title }}</h2>
           </header>
           <div class="gma-fields">
             <div
@@ -250,7 +250,7 @@ const yearCoverage = computed(() => {
               :class="{ 'is-dirty': dirty.has(attr.key) }"
             >
               <label class="gma-row-label">
-                <span class="gma-row-label-text">{{ attr.label }}</span>
+                <span class="gma-row-label-text">{{ locale === 'uz' ? (attr.labelUz || attr.label) : attr.label }}</span>
                 <span class="gma-row-unit">{{ attr.unit }}</span>
               </label>
               <input

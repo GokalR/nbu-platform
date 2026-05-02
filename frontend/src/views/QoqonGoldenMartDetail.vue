@@ -9,7 +9,10 @@
  */
 import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
+
+const { locale } = useI18n()
 import {
   CITY_SECTIONS, CITY_TOTAL_FIELDS, CITY_TABS, tabSections,
 } from '@/data/goldenMart/citySchema.js'
@@ -141,7 +144,7 @@ function backToList() {
           <div class="gmd-section-num">{{ String(section.n).padStart(2, '0') }}</div>
           <div class="gmd-section-icon"><AppIcon :name="section.icon" /></div>
           <div class="gmd-section-meta">
-            <h2 class="gmd-section-title">{{ section.title }}</h2>
+            <h2 class="gmd-section-title">{{ locale === 'uz' ? (section.titleUz || section.title) : section.title }}</h2>
             <div class="gmd-section-sub">
               <span class="gmd-section-cov">
                 {{ sectionCoverage(section).filled }} / {{ sectionCoverage(section).total }} полей
@@ -164,7 +167,7 @@ function backToList() {
                 :key="attr.key"
                 :class="{ 'is-empty-row': data[attr.key] == null || data[attr.key] === '' }"
               >
-                <td class="gmd-cell-label">{{ attr.label }}</td>
+                <td class="gmd-cell-label">{{ locale === 'uz' ? (attr.labelUz || attr.label) : attr.label }}</td>
                 <td class="gmd-cell-unit">{{ attr.unit }}</td>
                 <td class="gmd-cell-val">
                   <template v-if="data[attr.key] != null && data[attr.key] !== ''">

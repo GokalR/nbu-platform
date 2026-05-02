@@ -15,10 +15,24 @@ Usage:
   PYTHONIOENCODING=utf-8 python goldenmarts/_md_to_schema_js.py
 """
 from __future__ import annotations
+import json
 import os
 import re
 
 HERE = os.path.dirname(__file__)
+
+# Russian → Uzbek translations for section titles + field labels.
+# Structured as { "_sections": {...}, "_fields": {...} }. Both maps key on
+# the Russian label and return the Uzbek translation. When a key is missing,
+# we fall back to the Russian label so the UI never goes blank.
+TRANSLATIONS_PATH = os.path.join(HERE, '_translations_uz.json')
+try:
+    with open(TRANSLATIONS_PATH, encoding='utf-8') as _f:
+        _UZ = json.load(_f)
+    UZ_SECTIONS = _UZ.get('_sections', {})
+    UZ_FIELDS   = _UZ.get('_fields', {})
+except FileNotFoundError:
+    UZ_SECTIONS, UZ_FIELDS = {}, {}
 
 # Hand-mapped icons per section number (consistent across levels).
 # Sections that don't exist at a given level are skipped automatically.
@@ -117,7 +131,8 @@ def emit_js(prefix: str, level: str, sections: list[dict]) -> str:
     lines.append(f' * AUTO-GENERATED from goldenmarts/GM_{level}.md (which itself is')
     lines.append(f' * generated from goldenmarts/golden_mart_{level}.xlsx via _to_md.py).')
     lines.append(' * Do not hand-edit. To change: edit the Excel, run _to_md.py, then')
-    lines.append(' * goldenmarts/_md_to_schema_js.py.')
+    lines.append(' * goldenmarts/_md_to_schema_js.py. Bilingual labels come from')
+    lines.append(' * goldenmarts/_translations_uz.json — missing keys fall back to RU.')
     lines.append(' *')
     lines.append(f' * Per-entity data files reference fields by `key` (positional s{{section}}_{{index}}).')
     lines.append(' */')
@@ -125,12 +140,20 @@ def emit_js(prefix: str, level: str, sections: list[dict]) -> str:
     lines.append(f'export const {prefix}_SECTIONS = [')
     for s in sections:
         icon = SECTION_ICONS.get(s['n'], 'help')
+        title_uz = UZ_SECTIONS.get(s['title'], s['title'])
         lines.append('  {')
-        lines.append(f'    n: {s["n"]}, title: {js_string(s["title"])}, icon: {js_string(icon)},')
+        lines.append(
+            f'    n: {s["n"]}, title: {js_string(s["title"])}, '
+            f'titleUz: {js_string(title_uz)}, icon: {js_string(icon)},'
+        )
         lines.append('    attrs: [')
         for a in s['attrs']:
+            label_uz = UZ_FIELDS.get(a['label'], a['label'])
             lines.append(
-                f'      {{ key: {js_string(a["key"])}, label: {js_string(a["label"])}, unit: {js_string(a["unit"])} }},'
+                f'      {{ key: {js_string(a["key"])}, '
+                f'label: {js_string(a["label"])}, '
+                f'labelUz: {js_string(label_uz)}, '
+                f'unit: {js_string(a["unit"])} }},'
             )
         lines.append('    ],')
         lines.append('  },')
