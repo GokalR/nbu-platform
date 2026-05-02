@@ -11,6 +11,7 @@ from routes.auth_routes import router as auth_router
 from routes.courses import router as courses_router
 from routes.dashboard import router as dashboard_router
 from routes.enrollment import router as enrollment_router
+from routes.gm import router as gm_router
 from routes.progress import router as progress_router
 from routes.videos import router as videos_router
 
@@ -42,6 +43,7 @@ app.include_router(enrollment_router)
 app.include_router(videos_router)
 app.include_router(progress_router)
 app.include_router(dashboard_router)
+app.include_router(gm_router)
 
 
 @app.get("/api/health")

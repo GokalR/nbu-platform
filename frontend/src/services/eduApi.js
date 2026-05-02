@@ -53,6 +53,25 @@ export const saveFlashcardProgress = (data) =>
 export const getDashboard = () => request('/api/me/dashboard')
 export const getDueFlashcards = () => request('/api/me/flashcards/due')
 
+// ── Golden Mart ──────────────────────────────────────
+export const gmListEntities = (level) =>
+  request(`/api/gm/entities${level ? `?level=${level}` : ''}`)
+
+export const gmGetEntityData = (level, key) =>
+  request(`/api/gm/data/${level}/${key}`)
+
+export const gmGetYear = (level, key, year) =>
+  request(`/api/gm/data/${level}/${key}/${year}`)
+
+export const gmWriteYear = (level, key, year, values) =>
+  request(`/api/gm/data/${level}/${key}/${year}`, {
+    method: 'PUT',
+    body: JSON.stringify({ values }),
+  })
+
+export const gmCoverage = (level, key) =>
+  request(`/api/gm/coverage/${level}/${key}`)
+
 // ── Auth ─────────────────────────────────────────────
 export const login = (email, password) =>
   request('/api/auth/login', {

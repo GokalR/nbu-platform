@@ -127,6 +127,12 @@ const routes = [
     component: () => import('@/views/regionalStrategist/RsMyResultsView.vue'),
     meta: { layout: 'regionalStrategist', titleKey: 'nav.regionalStrategist' },
   },
+  {
+    path: '/admin/golden-mart',
+    name: 'admin-golden-mart',
+    component: () => import('@/views/admin/GmAdminView.vue'),
+    meta: { titleKey: 'nav.admin', requiresAdmin: true },
+  },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
