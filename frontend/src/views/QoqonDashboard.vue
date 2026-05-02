@@ -8,13 +8,29 @@
  * Golden Mart template — separate component so the existing
  * DistrictAnalyticsView remains untouched for other cities.
  */
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
 import FcChart from '@/components/fincontrol/FcChart.vue'
 import FcSparkline from '@/components/fincontrol/FcSparkline.vue'
 import { buildDistrictAnalytics } from '@/data/districtAnalytics'
+
+// Hero style: 'A' glassmorphism quick-stats (default) | 'B' Fergana-style executive brief.
+// Persisted in localStorage so the user's choice sticks across sessions.
+const heroStyle = ref('A')
+onMounted(() => {
+  const saved = localStorage.getItem('qoqon_hero_style')
+  if (saved === 'A' || saved === 'B') heroStyle.value = saved
+})
+function setHero(s) {
+  heroStyle.value = s
+  localStorage.setItem('qoqon_hero_style', s)
+}
+
+function openDetail() {
+  router.push({ path: route.path, query: { ...route.query, view: 'goldenmart' } })
+}
 
 const { t, te, tm } = useI18n()
 const router = useRouter()
@@ -302,13 +318,20 @@ const sectorMix = [
 
 <template>
   <div class="qoq-shell">
-    <!-- ============== HERO ============== -->
-    <header class="qoq-hero">
+    <!-- ============== HERO — variant A (glassmorphism, default) ============== -->
+    <header v-if="heroStyle === 'A'" class="qoq-hero">
       <div class="qoq-hero-bg" />
       <div class="qoq-hero-content">
-        <button class="qoq-back" @click="back">
-          <AppIcon name="arrow_back" /> Назад к Ферганской области
-        </button>
+        <div class="qoq-hero-toolbar">
+          <button class="qoq-back" @click="back">
+            <AppIcon name="arrow_back" /> Назад к Ферганской области
+          </button>
+          <div class="qoq-style-toggle">
+            <span class="qoq-style-label">Стиль:</span>
+            <button :class="['qoq-style-btn', heroStyle === 'A' && 'active']" @click="setHero('A')">A</button>
+            <button :class="['qoq-style-btn', heroStyle === 'B' && 'active']" @click="setHero('B')">B</button>
+          </div>
+        </div>
         <div class="qoq-hero-eyebrow">Qoʻqon shahri · Индустриальный хаб западной Ферганы</div>
         <h1 class="qoq-hero-title">Коканд</h1>
         <p class="qoq-hero-sub">
@@ -336,6 +359,67 @@ const sectorMix = [
             <div class="qoq-quick-sub">Областного подчинения</div>
           </div>
         </div>
+        <button class="qoq-detail-cta" @click="openDetail">
+          <AppIcon name="dataset" />
+          <span>
+            <span class="qoq-cta-title">Подробные данные Golden Mart</span>
+            <span class="qoq-cta-sub">21 раздел · полный шаблон города</span>
+          </span>
+          <AppIcon name="arrow_forward" />
+        </button>
+      </div>
+    </header>
+
+    <!-- ============== HERO — variant B (Fergana-style executive brief) ============== -->
+    <header v-else class="qoq-heroB">
+      <div class="qoq-heroB-bg" />
+      <div class="qoq-heroB-content">
+        <div class="qoq-hero-toolbar">
+          <button class="qoq-back" @click="back">
+            <AppIcon name="arrow_back" /> Назад к Ферганской области
+          </button>
+          <div class="qoq-style-toggle">
+            <span class="qoq-style-label">Стиль:</span>
+            <button :class="['qoq-style-btn', heroStyle === 'A' && 'active']" @click="setHero('A')">A</button>
+            <button :class="['qoq-style-btn', heroStyle === 'B' && 'active']" @click="setHero('B')">B</button>
+          </div>
+        </div>
+        <div class="qoq-heroB-eyebrow">EXECUTIVE BRIEF · ГОРОД</div>
+        <h1 class="qoq-heroB-title">г. Коканд</h1>
+        <p class="qoq-heroB-sub">
+          {{ fmt(D.popK, 1) }} тыс. жителей · {{ D.area }} км² · плотность {{ fmt(D.density) }}/км² ·
+          100% городское население
+        </p>
+        <div class="qoq-heroB-kpis">
+          <div class="qoq-heroB-kpi">
+            <div class="qoq-heroB-kpi-label">Население</div>
+            <div class="qoq-heroB-kpi-val">{{ fmt(D.popK, 1) }}</div>
+            <div class="qoq-heroB-kpi-unit">тыс. чел. · 1 янв 2026</div>
+          </div>
+          <div class="qoq-heroB-kpi">
+            <div class="qoq-heroB-kpi-label">Промышленность 2025</div>
+            <div class="qoq-heroB-kpi-val">9 410</div>
+            <div class="qoq-heroB-kpi-unit">млрд сум · +50,2% YoY</div>
+          </div>
+          <div class="qoq-heroB-kpi">
+            <div class="qoq-heroB-kpi-label">Инвестиции 2025</div>
+            <div class="qoq-heroB-kpi-val" style="color:#FCD34D">×4,1</div>
+            <div class="qoq-heroB-kpi-unit">за 5 лет · 4 111 млрд сум</div>
+          </div>
+          <div class="qoq-heroB-kpi">
+            <div class="qoq-heroB-kpi-label">Естеств. прирост</div>
+            <div class="qoq-heroB-kpi-val" style="color:#A7F3D0">+5 410</div>
+            <div class="qoq-heroB-kpi-unit">★ рекорд области 2025</div>
+          </div>
+        </div>
+        <button class="qoq-detail-cta light" @click="openDetail">
+          <AppIcon name="dataset" />
+          <span>
+            <span class="qoq-cta-title">Подробные данные Golden Mart</span>
+            <span class="qoq-cta-sub">21 раздел · полный шаблон города</span>
+          </span>
+          <AppIcon name="arrow_forward" />
+        </button>
       </div>
     </header>
 
@@ -582,7 +666,61 @@ const sectorMix = [
   padding-bottom: 80px;
 }
 
-/* ── HERO ── */
+/* ── HERO TOOLBAR (shared) ── */
+.qoq-hero-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap;
+}
+.qoq-style-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+  padding: 4px; border-radius: 999px;
+}
+.qoq-style-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.6); text-transform: uppercase;
+  padding: 0 8px 0 10px;
+}
+.qoq-style-btn {
+  background: transparent; border: none; cursor: pointer;
+  width: 30px; height: 26px; border-radius: 999px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.7); transition: all 0.2s;
+}
+.qoq-style-btn:hover { color: #fff; }
+.qoq-style-btn.active {
+  background: #fff; color: #0F1B2D;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+}
+
+/* ── DETAIL CTA (shared between both heroes) ── */
+.qoq-detail-cta {
+  display: inline-flex; align-items: center; gap: 14px;
+  margin-top: 28px; padding: 16px 22px;
+  background: rgba(245,158,11,0.16);
+  border: 1px solid rgba(245,158,11,0.40);
+  border-radius: 14px; cursor: pointer;
+  color: #FCD34D; font-family: inherit;
+  transition: all 0.2s;
+}
+.qoq-detail-cta:hover {
+  background: rgba(245,158,11,0.24);
+  transform: translateX(4px);
+}
+.qoq-detail-cta.light {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(245,158,11,0.50);
+  color: #B45309;
+}
+.qoq-detail-cta.light:hover { background: #fff; }
+.qoq-detail-cta > span {
+  display: flex; flex-direction: column; align-items: flex-start;
+  text-align: left;
+}
+.qoq-cta-title { font-size: 15px; font-weight: 800; }
+.qoq-cta-sub { font-size: 11px; font-weight: 600; opacity: 0.75; margin-top: 2px; }
+
+/* ── HERO A — glassmorphism (default) ── */
 .qoq-hero {
   position: relative;
   background:
@@ -640,6 +778,65 @@ const sectorMix = [
 .qoq-quick-text { font-size: 24px; }
 .qoq-quick-u { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-left: 4px; }
 .qoq-quick-sub { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); }
+
+/* ── HERO B — Fergana-style executive brief ── */
+.qoq-heroB {
+  position: relative;
+  background: linear-gradient(135deg, #0A2848 0%, #103E6E 50%, #1E5BA8 100%);
+  color: #fff;
+  overflow: hidden;
+  padding: 48px 56px 56px;
+}
+.qoq-heroB-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(600px 240px at 15% 0%, rgba(252,211,77,0.12), transparent 60%),
+    radial-gradient(500px 240px at 85% 100%, rgba(167,243,208,0.10), transparent 60%);
+  pointer-events: none;
+}
+.qoq-heroB-content { position: relative; max-width: 1320px; margin: 0 auto; }
+.qoq-heroB-eyebrow {
+  margin-top: 24px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.20em;
+  color: #93C5FD; text-transform: uppercase;
+}
+.qoq-heroB-title {
+  font-size: clamp(40px, 6vw, 72px); font-weight: 900;
+  letter-spacing: -0.03em; line-height: 1.02; margin: 12px 0 14px;
+  color: #fff;
+}
+.qoq-heroB-sub {
+  font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.75);
+  max-width: 720px; margin: 0 0 32px;
+}
+.qoq-heroB-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+}
+.qoq-heroB-kpi {
+  background: rgba(255,255,255,0.96); color: #0F1B2D;
+  padding: 22px 24px; border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.16);
+}
+.qoq-heroB-kpi-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.10em;
+  color: #475569; text-transform: uppercase; margin-bottom: 8px;
+}
+.qoq-heroB-kpi-val {
+  font-size: 36px; font-weight: 900; line-height: 1;
+  letter-spacing: -0.025em; color: #0054A6;
+  font-variant-numeric: tabular-nums;
+}
+.qoq-heroB-kpi-unit {
+  font-size: 12px; font-weight: 600; color: #475569;
+  margin-top: 8px;
+}
+@media (max-width: 1024px) {
+  .qoq-heroB-kpis { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .qoq-heroB-kpis { grid-template-columns: 1fr; }
+  .qoq-heroB { padding: 36px 24px 40px; }
+}
 
 /* ── SECTIONS ── */
 .qoq-section {

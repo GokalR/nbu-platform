@@ -7,6 +7,7 @@ import FcChart from '@/components/fincontrol/FcChart.vue'
 import FerganaMap from '@/components/FerganaMap.vue'
 import SamarqandMap from '@/components/SamarqandMap.vue'
 import QoqonDashboard from '@/views/QoqonDashboard.vue'
+import QoqonGoldenMartDetail from '@/views/QoqonGoldenMartDetail.vue'
 import { districts as ferganaDistricts, districtByKey as ferganaByKey } from '@/data/districts'
 import { samarqandDistricts, samarqandByKey } from '@/data/samarqand'
 import {
@@ -302,9 +303,11 @@ const aiOverall = computed(() => {
 
 <template>
   <!-- Qoqon uses a redesigned standalone dashboard (sandbox for the unified
-       Golden Mart template). All other districts fall through to the
-       existing tabbed layout below. -->
-  <QoqonDashboard v-if="districtKey === 'qoqon_city'" />
+       Golden Mart template). When ?view=goldenmart is in the URL, the
+       schema-driven detail view (all 21 sections) renders instead.
+       All other districts fall through to the existing tabbed layout below. -->
+  <QoqonGoldenMartDetail v-if="districtKey === 'qoqon_city' && route.query.view === 'goldenmart'" />
+  <QoqonDashboard v-else-if="districtKey === 'qoqon_city'" />
   <div v-else>
   <section class="p-6 lg:p-8 space-y-8 da-root">
     <!-- Breadcrumb strip -->
