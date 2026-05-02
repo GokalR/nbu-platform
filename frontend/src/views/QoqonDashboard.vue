@@ -352,7 +352,7 @@ const sectorMix = [
           <div class="qoq-quick">
             <div class="qoq-quick-label">Плотность</div>
             <div class="qoq-quick-val">{{ fmt(D.density) }} <span class="qoq-quick-u">/км²</span></div>
-            <div class="qoq-quick-sub">★ Лидер виловати</div>
+            <div class="qoq-quick-sub">★ Лидер вилоята</div>
           </div>
           <div class="qoq-quick">
             <div class="qoq-quick-label">Тип</div>
@@ -475,7 +475,7 @@ const sectorMix = [
               {{ s.yoy >= 0 ? '+' : '' }}{{ s.yoy }}% YoY
             </span>
             <span v-if="s.regionReal != null" class="qoq-chip-soft">
-              виловати real +{{ s.regionReal }}%
+              вилоята real +{{ s.regionReal }}%
             </span>
           </div>
           <div class="qoq-spark-wrap">
@@ -590,7 +590,7 @@ const sectorMix = [
     <!-- ============== PER-CAPITA COMPARE ============== -->
     <section class="qoq-section qoq-grid-21">
       <div class="qoq-card">
-        <div class="qoq-eyebrow">05 · Сравнение с виловати</div>
+        <div class="qoq-eyebrow">05 · Сравнение с вилоята</div>
         <h2 class="qoq-h2">На душу населения · тыс. сум</h2>
         <p class="qoq-lede">
           Коканд против Ферганы и Маргилана: индустриальный лидер по объёму, но по душе населения
