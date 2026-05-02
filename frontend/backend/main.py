@@ -27,10 +27,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="NBU Education API", lifespan=lifespan)
 
-# CORS — allow the Vue dev server
+# CORS — dev servers + Cloudflare Pages production + custom domains
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://nbu-platform.pages.dev",
+    ],
+    # Allow any *.pages.dev preview deploy
+    allow_origin_regex=r"https://.*\.nbu-platform\.pages\.dev",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

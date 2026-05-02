@@ -20,9 +20,16 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from models import Base, engine, async_session
+import os
+from auth import hash_password
+from models import Base, User, engine, async_session
 import gm_models  # registers tables  # noqa: F401
 from gm_models import GmEntity, GmCity, GmRegion, GmCountry  # noqa: F401
+
+# Default seed admin — override via env vars before running seed in prod
+SEED_ADMIN_EMAIL = os.getenv('SEED_ADMIN_EMAIL', 'admin@nbu.uz')
+SEED_ADMIN_PASSWORD = os.getenv('SEED_ADMIN_PASSWORD', 'admin12345')
+SEED_ADMIN_NAME = os.getenv('SEED_ADMIN_NAME', 'NBU Admin')
 
 log = logging.getLogger("seed_gm")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -174,6 +181,27 @@ async def upsert_region_row(session, row):
 # ─────────────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────────────
+async def ensure_admin(session) -> None:
+    """Create or promote the default admin user (idempotent)."""
+    from sqlalchemy import select as _sel
+    result = await session.execute(_sel(User).where(User.email == SEED_ADMIN_EMAIL))
+    user = result.scalar_one_or_none()
+    if user is None:
+        session.add(User(
+            email=SEED_ADMIN_EMAIL,
+            password_hash=hash_password(SEED_ADMIN_PASSWORD),
+            full_name=SEED_ADMIN_NAME,
+            role='admin',
+        ))
+        log.info("Created admin user %s (role=admin).", SEED_ADMIN_EMAIL)
+    else:
+        if user.role != 'admin':
+            user.role = 'admin'
+            log.info("Promoted existing user %s to admin.", SEED_ADMIN_EMAIL)
+        else:
+            log.info("Admin user %s already exists.", SEED_ADMIN_EMAIL)
+
+
 async def seed():
     # Ensure tables exist (idempotent)
     async with engine.begin() as conn:
@@ -181,6 +209,9 @@ async def seed():
     log.info("Tables ensured.")
 
     async with async_session() as session:
+        # Default admin user (login credentials shown at the end)
+        await ensure_admin(session)
+
         # Entities
         for e in ENTITIES:
             await upsert_entity(session, e)
@@ -223,6 +254,13 @@ async def seed():
 
     await engine.dispose()
     log.info("Done.")
+    log.info("")
+    log.info("=" * 60)
+    log.info("ADMIN LOGIN — for /admin/golden-mart")
+    log.info("  email:    %s", SEED_ADMIN_EMAIL)
+    log.info("  password: %s", SEED_ADMIN_PASSWORD)
+    log.info("(override with SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD env vars)")
+    log.info("=" * 60)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,18 @@
 /**
  * Education API service — wraps all calls to the Python FastAPI backend.
- * All endpoints are proxied via Vite: /api → http://localhost:8000
+ *
+ *  - In dev: relative URLs ('/api/...') are proxied by Vite to localhost:8000.
+ *  - In prod: VITE_BACKEND_URL (e.g. https://nbu-platform-production.up.railway.app)
+ *    is prepended so requests go straight to Railway. The previous
+ *    Cloudflare Pages /api/* proxy rewrite was rejected at build time.
  */
+
+const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL || '').replace(/\/$/, '')
+
+function resolve(url) {
+  if (!url.startsWith('/api') && !url.startsWith('/health')) return url
+  return BACKEND_URL ? BACKEND_URL + url : url
+}
 
 function getAuthHeaders() {
   const token = localStorage.getItem('edu_token')
@@ -11,7 +22,7 @@ function getAuthHeaders() {
 }
 
 async function request(url, options = {}) {
-  const res = await fetch(url, {
+  const res = await fetch(resolve(url), {
     ...options,
     headers: { ...getAuthHeaders(), ...options.headers },
   })

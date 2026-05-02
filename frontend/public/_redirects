@@ -1,3 +1,14 @@
-/api/*   https://nbu-platform-production.up.railway.app/api/:splat   200
-/health  https://nbu-platform-production.up.railway.app/health       200
-/*       /index.html                                                  200
+# Cloudflare Pages redirects
+#
+# API and /health are handled by the frontend code itself: when
+# VITE_BACKEND_URL is set (in .env.production), api.js / eduApi.js prepend
+# the Railway URL to every /api request. So we don't need the Pages-level
+# proxy any more — the previous /api/* and /health 200-rewrites were being
+# rejected anyway because Cloudflare Pages doesn't allow proxy rewrites
+# to remote hosts.
+#
+# SPA fallback: serve index.html for any path that isn't a real file
+# (covers deep links like /districts?district=qoqon_city when accessed
+# directly). Pattern below excludes paths that contain a dot (which are
+# treated as static assets) so it doesn't cause an infinite-loop warning.
+/:path([^.]*)        /index.html        200
