@@ -555,6 +555,114 @@
             "Bandlik/migratsiya/daromad boʻyicha shahar maʼlumotlari — manbalarni kengaytirish"
           ]
         }
+      },
+      "qoqon_city": {
+        "overall": {
+          "title": "AI · Qoʻqon shahri umumiy xulosalari",
+          "summary": "Qoʻqon — Fargʻona vodiysining gʻarbiy qismidagi sanoat yetakchisi (319,6 ming aholi, 100% shahar aholisi, zichligi ~5 326 kishi/km² — viloyatdagi eng yuqori). Sanoat tarkibda hukmronlik qiladi (39,5%) va 2025-yilda nominal +50,2% oʻsdi — viloyat shaharlari orasida rekord (vs viloyat real oʻsishi +7,3%). 5 yilda asosiy kapitalga investitsiyalar 4,1 baravarga oʻsdi (998 → 4 111 mlrd soʻm) — viloyatda eng kuchli kapital oqimi.",
+          "tags": [
+            "✓ Sanoat +50,2% YoY 2025",
+            "✓ Investitsiyalar ×4,1 (5y)",
+            "✓ Viloyatdagi eng zich shahar",
+            "💡 Sanoat klasteri"
+          ]
+        },
+        "economic": {
+          "title": "Iqtisodiy faollik AI-tahlili",
+          "summary": "Qoʻqon iqtisodiyoti tarkibi — sanoatga yoʻnaltirilgan: sanoat 39,5%, savdo 27,7%, xizmatlar 26,7%, qurilish 4,5%, qishloq xoʻjaligi atigi 1,6%. Aholi jon boshiga sanoat hajmi (29,4 mln soʻm/kishi) boʻyicha Qoʻqon viloyatda 2-oʻrinda Fargʻonadan keyin (38,2 mln), Margʻilondan (9,4 mln) ancha oldinda. 2025-yil dinamikasi: sanoat +50,2%, investitsiyalar +110,1% (×2,1 bir yil ichida), xizmatlar +29,6%, savdo +15,3%, qurilish +17,9%, qishloq xoʻjaligi +18,6%.",
+          "insights": [
+            "Sanoat 9 410 mlrd soʻm — Qoʻqon viloyatning 2-sanoat markazi",
+            "Sanoat +50,2% YoY 2025 — viloyat rekordi (vs viloyat real oʻsishi +7,3%)",
+            "Investitsiyalar ×4,1 (5y) (998 → 4 111 mlrd) — eng katta kapital oqimi",
+            "Xizmatlar ×2,6 (5y) (2 486 → 6 371 mlrd) — ikkinchi tezkor sektor"
+          ],
+          "risks": [
+            "2025-da sanoat keskin sakrashi — 2026-yil barqarorligini kuzatish",
+            "Qishloq xoʻjaligi 1,6% — oziq-ovqat bazasi shahar tashqarisida",
+            "Sanoatga konsentratsiya xom-ashyo shoklariga sezgirlikni oshiradi",
+            "Bank uchun imkoniyat: sanoat pudratchilari va yetkazib beruvchilar uchun loyihali kreditlash"
+          ]
+        },
+        "infra": {
+          "title": "Infratuzilma AI-tahlili",
+          "summary": "Tuman darajasidagi tasdiqlangan kommunal infratuzilma maʼlumotlari (suv, gaz, kanalizatsiya, yoʻllar) PDF manbalarida nashr qilinmagan — bu paneldagi qamrov koʻrsatkichlari yetishmaydi. 2025-yilda Qoʻqonda qurilish ishlari hajmi 1 075,1 mlrd soʻm (2024-yilga nisbatan +17,9%), bu viloyat real qurilish oʻsishiga (+17,4%) mos. Aholi zichligi 5 326 kishi/km² — viloyatdagi eng yuqori, bu shahar tarmoqlariga talablarni oshiradi.",
+          "insights": [
+            "Qurilish +17,9% YoY 2025 — viloyat real oʻsishi darajasida",
+            "1 075 mlrd soʻm qurilish — shahar tarkibini yangilanish indikatori",
+            "5 yillik dinamika: 517 → 1 075 mlrd (+108%) — barqaror qurilish oʻsishi",
+            "Zichlik 5 326 kishi/km² — viloyatdagi eng ixcham shahar"
+          ],
+          "risks": [
+            "Shahar darajasidagi suv/gaz/kanalizatsiya qamrovi tasdiqlanmagan",
+            "Yuqori zichlik muhandislik tarmoqlarini tezkor modernizatsiyani talab qiladi",
+            "Bank uchun imkoniyat: kanalizatsiya va issiqlik tarmoqlarini modernizatsiya qilish uchun ESG-kreditlar",
+            "Real qamrov koʻrsatkichlarini aniqlashtirish — keyingi maʼlumotlar iteratsiyasi prioriteti"
+          ]
+        },
+        "population": {
+          "title": "Aholi va bandlik AI-tahlili",
+          "summary": "Qoʻqon aholisi 2019-yilda 248,7 ming kishidan 2026-yilda 319,6 ming kishigacha oʻsdi — 7 yilda +28,5%, 100% shahar aholisi. 2025-yilda 6 923 tugʻilish va 1 513 oʻlim qayd etilgan; tabiiy oʻsish +5 410 kishi — viloyat shaharlari orasida eng yuqori. Lekin oʻsishning bir qismi (≈+44 ming 2022→2023-da) — maʼmuriy-hududiy oʻzgarish natijasi, tabiiy demografiya emas. Yosh tarkibi (1 yanvar 2025): 0–15 yosh 30,8% (96,6 ming), 20–59 yosh — 51,5% (161,5 ming).",
+          "insights": [
+            "Tabiiy oʻsish +5 410 (2025) — viloyat aholi oʻsishi yetakchisi",
+            "7 yilda aholi +70,9 ming — qisman maʼmuriy chegara hisobiga (2022→2023)",
+            "20–59 yosh: 161,5 ming (51,5%) — katta mehnat bozori",
+            "0–15 yosh: 96,6 ming (30,8%) — maktab va bogʻchalarga bosim"
+          ],
+          "risks": [
+            "2022→2023 sakrashi (+44 ming) — oldingi yillar bilan solishtirishda hisobga olish",
+            "Yuqori tabiiy oʻsish ijtimoiy infratuzilmani kengaytirishni talab qiladi",
+            "Bank uchun imkoniyat: tez oʻsayotgan shaharning yosh oilalari uchun ipoteka",
+            "Tuman darajasidagi bandlik nashr qilinmaydi — qoʻshimcha manbalar kerak"
+          ]
+        },
+        "mahalla": {
+          "title": "Mahalla va bank salohiyati AI-tahlili",
+          "summary": "Shaharda ~56 mahalla. Sanoat iqtisodiyoti tarkibi (sanoat 39,5%) yirik va oʻrta korxonalarning yuqori ulushini koʻrsatadi, bu asosiy kredit talabini shakllantiradi. fergana/-papkadagi PDF manbalarida mahalla darajasidagi moliyaviy koʻrsatkichlar nashr qilinmagan; bu paneldagi reyting va kredit maʼlumotlari taxminiy.",
+          "insights": [
+            "~56 mahalla — sanoat ixtisoslashuvi bilan ixcham shahar tarkibi",
+            "Sanoatning ustunligi korporativ va loyihali kreditlarga talab yaratadi",
+            "Xizmatlar ×2,6 (5y) — KOB kreditlash uchun koʻp segmentli salohiyat",
+            "Yuqori aholi zichligi — chakana bank nuqtalari uchun qulay zamin"
+          ],
+          "risks": [
+            "Mahalla darajasidagi kredit indikatorlari manbalar bilan tasdiqlanmagan",
+            "5–10 yirik sanoat qarz oluvchiga bogʻliqlik — konsentratsiya xatari",
+            "Bank uchun imkoniyat: «Qoʻqon-sanoat» paketi — aylanma + loyihali kreditlar",
+            "Savdo hududlarida POS raqamlashtirish — prioritet"
+          ]
+        },
+        "opportunities": {
+          "title": "Rivojlanish imkoniyatlari AI-tahlili",
+          "summary": "Qoʻqonda uchta tasdiqlangan oʻsish yoʻnalishi mavjud: sanoat yetakchiligi (5 yilda ×2,2, 2025-da +50%), investitsiyalar portlovi (5 yilda ×4,1 — viloyatda eng katta), va tez oʻsayotgan xizmat segmenti (5 yilda ×2,6). 2025-yilda olti sektor ikki xonali oʻsish koʻrsatdi. Tabiiy oʻsish 5 410 kishi/yil — viloyat shaharlari orasida eng yuqori — oʻsayotgan isteʼmol bozorini shakllantiradi.",
+          "insights": [
+            "Sanoat ×2,2 (5y) — Qoʻqon viloyat sanoat dvigateli sifatida",
+            "Investitsiyalar ×4,1 (5y) — yirik loyihalarda ishtirok etish darchasi",
+            "Tabiiy oʻsish 5 410 — viloyat shaharlari orasida eng kuchli",
+            "Xizmatlar +30% YoY — oʻsayotgan talab bilan oʻrta sinf shakllanmoqda"
+          ],
+          "risks": [
+            "2025-da keskin sakrash (sanoat +50%, investitsiyalar +110%) — barqarorlikni kuzatish",
+            "Sanoatga yuqori konsentratsiya — xom-ashyo shoklaridan himoya strategiyasi",
+            "Bank uchun imkoniyat: sanoat oʻsishi ostida «Qoʻqon-2030» mahsulot liniyasi",
+            "Demografik bosim — uzoq muddatli ijtimoiy kreditlash modellariga kiritish"
+          ]
+        },
+        "summary": {
+          "title": "AI-tahlil va strategik tavsiyalar",
+          "summary": "Qoʻqon 2021–2025-yillarda — sanoat orqali shahar oʻsishi namunasi: sanoat ×2,2, investitsiyalar ×4,1, xizmatlar ×2,6. 2025-yilda olti tasdiqlangan sektorlar viloyat oʻrtacha real oʻsishidan yuqori, sanoat esa nominal +50,2% oʻsdi (vs viloyat real oʻsishi +7,3%). Strukturaviy kuchli signal — sanoat yetakchiligi (29,4 mln soʻm/kishi) va ixcham shahar tarkibi (5 326 kishi/km²). Asosiy strategik vazifa — 2025-yil investitsion sakrashini barqaror kreditlash bilan qoʻllab-quvvatlash.",
+          "insights": [
+            "Sanoat 29,4 mln soʻm/kishi — viloyatda Fargʻonadan keyin 2-oʻrin",
+            "Investitsiyalar ×4,1 (5y) — eng kuchli 5 yillik kapital oʻsishi",
+            "Tabiiy oʻsish +5 410 (2025) — viloyat rekordi",
+            "2025-da 6 sektor ikki xonali oʻsish bilan — diversifikatsiyalashgan salohiyat"
+          ],
+          "risks": [
+            "Sanoatga konsentratsiya — yuqori qayta ishlashga diversifikatsiya",
+            "2026 investitsion oqimini barqarorlashtirish — kalit indikator",
+            "Bank strategiyasi: sanoat yangilanishi ostida «Qoʻqon-sanoat» paketi",
+            "Shahar darajasidagi bandlik/daromad/infra maʼlumotlari — manbalarni kengaytirish"
+          ]
+        }
       }
     }
   },

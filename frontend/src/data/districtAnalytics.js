@@ -204,6 +204,81 @@ const REAL_DATA = {
     infra: { water: 99, sewage: 62, gas: 89, roads: 75 },
     topMahallas: ['Kashkar', 'Pichoqchi', 'Turaqu\'rg\'on', 'Yuksalish', 'Go\'riavval'],
   },
+  // ── Qoqon (Qoʻqon shahri) — sandbox city for the unified Golden Mart
+  // template. All scalars below verified from farstat.uz district-breakdown
+  // PDFs in fergana/ folder (Jan-Dec 2025 preliminary). ──
+  qoqon_city: {
+    populationK: 319.6,                 // 1 yanvar 2026 (verified)
+    area: 60,                           // km² (admin-territorial)
+    mahallas: 56,                       // approximate from admin source
+    // 2025 sector totals (mlrd soʻm, current prices) — verified
+    industryBln:     9410.4,
+    servicesBln:     6371.1,
+    tradeBln:        6589.0,
+    constructionBln: 1075.1,
+    investBln:       4111.2,
+    agricultureBln:   382.1,
+    // Nominal YoY growth 2025/2024 (% — current prices, derived from PDFs)
+    industryGrowthPct:     150.2,       // 9410.4 / 6264.5 — sharp +50% jump
+    servicesGrowthPct:     129.6,       // 6371.1 / 4917.6
+    tradeGrowthPct:        115.3,       // 6589.0 / 5713.8
+    constructionGrowth:    117.9,       // 1075.1 / 912.0
+    investGrowthPct:       210.1,       // 4111.2 / 1956.6 — investment doubled
+    agricultureGrowthPct:  118.6,       // 382.1 / 322.1
+    // Per-capita (ths soʻm/person, 2025) — computed from verified totals
+    perCapita: {
+      industry:    29445,               // 9410.4 / 319.6 — highest among Fergana cities
+      services:    19934,
+      trade:       20617,
+      construction: 3364,
+      invest:      12863,
+    },
+    // Benchmark = Fargona shahri per-capita (verified)
+    benchmark: { industry: 38187, invest: 21491, services: 36753, trade: 19785, construction: 9878 },
+    // 5-year history 2021-2025 (mlrd soʻm, current prices) — verified.
+    fiveYear: {
+      industry:     [4340.0, 5602.6, 5886.6, 6264.5, 9410.4],
+      services:     [2486.1, 3176.2, 3625.2, 4917.6, 6371.1],
+      trade:        [3451.4, 4077.2, 4986.1, 5713.8, 6589.0],
+      investments:  [ 997.9, 1032.3, 1591.5, 1956.6, 4111.2],
+      construction: [ 516.6,  647.4,  770.4,  912.0, 1075.1],
+      agriculture:  [ 240.6,  233.2,  330.5,  322.1,  382.1],
+    },
+    // Verified population history 2019-2026 — 100% urban (no qishloq).
+    // Note: the 2022→2023 jump (259.7 → 303.6) reflects an admin-territorial
+    // boundary change, not natural growth. Series shown as published.
+    populationFiveYear:       [248.7, 252.7, 256.4, 259.7, 303.6, 308.1, 313.6, 319.6],
+    populationFiveYearLabels: [2019,  2020,  2021,  2022,  2023,  2024,  2025,  2026],
+    // Verified vital statistics — Tug'ilganlar / O'lganlar PDFs (Qoʻqon
+    // shahri rows, 2021-2025). Natural increase derived as births - deaths.
+    vitalStats: {
+      births:    [5783, 6561, 7976, 7654, 6923],
+      deaths:    [1565, 1249, 1499, 1490, 1513],
+      labels:    [2021, 2022, 2023, 2024, 2025],
+      births2025:           6923,
+      deaths2025:           1513,
+      naturalIncrease2025:  5410,       // 6923 - 1513
+      birthsBoys2025:       3537,
+      birthsGirls2025:      3386,
+    },
+    // Verified age structure 2025 — farstat.uz "Yosh guruhlari bo'yicha
+    // doimiy aholi soni" (Qoʻqon sh., 1 yanvar 2025; total 313 597).
+    ageGroups2025: {
+      '0-2': 22968, '3-5': 19575, '6-7': 10777, '8-15': 43560,
+      '16-17': 10769, '18-19': 9845, '20-24': 21293, '25-29': 22670,
+      '30-34': 26460, '35-39': 24048, '40-49': 39225, '50-59': 27839,
+      '60-69': 22468, '70-74': 6323, '75-79': 3533, '80-84': 1361, '85+': 883,
+    },
+    // Sector structure 2025 (% of 6-sector sum 23 827.7 mlrd, computed from
+    // verified totals — Qoqon is industrial-heavy; agri tiny urban share).
+    sectors: [
+      { key: 'industry',     pct: 39.5 },
+      { key: 'trade',        pct: 27.7 },
+      { key: 'services',     pct: 26.7 },
+      { key: 'construction', pct:  4.5 },
+      { key: 'agri',         pct:  1.6 },
+    ],
+  },
   // ── Samarkand viloyat (region-level) — verified 2025 data from NBU Excel briefs ──
   samarqand_region: {
     populationK: 4297.5,           // 2025 total population (file 1: "Жами аҳоли")

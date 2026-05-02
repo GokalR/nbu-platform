@@ -6,6 +6,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import FcChart from '@/components/fincontrol/FcChart.vue'
 import FerganaMap from '@/components/FerganaMap.vue'
 import SamarqandMap from '@/components/SamarqandMap.vue'
+import QoqonDashboard from '@/views/QoqonDashboard.vue'
 import { districts as ferganaDistricts, districtByKey as ferganaByKey } from '@/data/districts'
 import { samarqandDistricts, samarqandByKey } from '@/data/samarqand'
 import {
@@ -46,7 +47,7 @@ watch(mapSelection, (v) => {
   if (v !== districtKey.value) selectDistrict(v)
 })
 
-const AVAILABLE_DISTRICTS = new Set(['fargona_city', 'margilon_city', 'samarqand_region'])
+const AVAILABLE_DISTRICTS = new Set(['fargona_city', 'margilon_city', 'qoqon_city', 'samarqand_region'])
 const unavailableToast = ref(null)
 
 function selectDistrict(key) {
@@ -300,7 +301,11 @@ const aiOverall = computed(() => {
 </script>
 
 <template>
-  <div>
+  <!-- Qoqon uses a redesigned standalone dashboard (sandbox for the unified
+       Golden Mart template). All other districts fall through to the
+       existing tabbed layout below. -->
+  <QoqonDashboard v-if="districtKey === 'qoqon_city'" />
+  <div v-else>
   <section class="p-6 lg:p-8 space-y-8 da-root">
     <!-- Breadcrumb strip -->
     <div class="flex items-center gap-2 text-primary font-bold tracking-wide text-xs uppercase flex-wrap">
