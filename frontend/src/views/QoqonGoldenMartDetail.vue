@@ -1,22 +1,25 @@
 <script setup>
 /**
- * Qoqon — Golden Mart detailed view.
+ * Qoqon — Golden Mart detailed view (tabbed).
  *
- * Renders all 21 sections from the unified Golden Mart city template.
- * Schema lives in goldenMart/citySchema.js, data in goldenMart/qoqon.js.
- * Fields without a verified value render a "Нет данных" pill so the
- * data-gap is visible (drives next-step source acquisition decisions).
+ * 21 sections grouped into 6 thematic tabs (mirroring the Fergana
+ * 6-tab pattern). User picks a tab, sees only that tab's sections
+ * rendered as cards. Sections without verified data render dashed
+ * with "Нет данных" pills so the data-gap is visible.
  */
 import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
-import { CITY_SECTIONS, CITY_TOTAL_FIELDS } from '@/data/goldenMart/citySchema.js'
+import {
+  CITY_SECTIONS, CITY_TOTAL_FIELDS, CITY_TABS, tabSections,
+} from '@/data/goldenMart/citySchema.js'
 import { QOQON_GM } from '@/data/goldenMart/qoqon.js'
 
 const router = useRouter()
 const route = useRoute()
 
 const data = QOQON_GM
+const activeTab = ref(CITY_TABS[0].id)
 
 const filledCount = computed(() =>
   CITY_SECTIONS.reduce(
@@ -26,13 +29,21 @@ const filledCount = computed(() =>
 )
 const coveragePct = computed(() => Math.round((filledCount.value / CITY_TOTAL_FIELDS) * 100))
 
-// Per-section coverage (for the section card subtitle)
 function sectionCoverage(section) {
   const filled = section.attrs.filter((a) => data[a.key] != null && data[a.key] !== '').length
   return { filled, total: section.attrs.length }
 }
 
-// Format value with unit
+function tabCoverage(tab) {
+  const sections = tabSections(tab.id)
+  let filled = 0, total = 0
+  for (const s of sections) {
+    const c = sectionCoverage(s)
+    filled += c.filled; total += c.total
+  }
+  return { filled, total }
+}
+
 function fmt(val, unit) {
   if (val == null || val === '') return null
   if (typeof val === 'number') {
@@ -43,24 +54,13 @@ function fmt(val, unit) {
   return String(val)
 }
 
-// Collapsible state — sections with >0 filled fields default open
-const collapsed = ref(
-  Object.fromEntries(
-    CITY_SECTIONS.map((s) => {
-      const cov = s.attrs.filter((a) => data[a.key] != null && data[a.key] !== '').length
-      return [s.n, cov === 0]
-    }),
-  ),
-)
-function toggle(n) { collapsed.value[n] = !collapsed.value[n] }
+const activeSections = computed(() => tabSections(activeTab.value))
 
 function backToOverview() {
-  // Stay on the same district, just drop &view=goldenmart
   const q = { ...route.query }
   delete q.view
   router.push({ path: route.path, query: q })
 }
-
 function backToList() {
   const q = { ...route.query }
   delete q.district
@@ -71,43 +71,65 @@ function backToList() {
 
 <template>
   <div class="gmd-shell">
-    <header class="gmd-head">
-      <div class="gmd-head-inner">
-        <button class="gmd-back-btn" @click="backToOverview">
-          <AppIcon name="arrow_back" /> К обзорной панели Коканда
-        </button>
-        <button class="gmd-back-btn ghost" @click="backToList">
-          <AppIcon name="map" /> К списку городов
-        </button>
-        <div class="gmd-eyebrow">Golden Mart · уровень города/тумана · 21 раздел</div>
-        <h1 class="gmd-title">Qoʻqon — детальные данные</h1>
-        <p class="gmd-sub">
-          Полный шаблон Golden Mart для города. Заполненные поля основаны на
-          верифицированных данных из <strong>fergana/</strong> PDF (farstat.uz).
-          Поля без верифицированного источника помечены «Нет данных».
+    <!-- Toolbar -->
+    <div class="gmd-toolbar">
+      <button class="gmd-back-btn" @click="backToOverview">
+        <AppIcon name="arrow_back" /> К обзорной панели
+      </button>
+      <button class="gmd-back-btn ghost" @click="backToList">
+        <AppIcon name="map" /> К списку городов
+      </button>
+    </div>
+
+    <!-- Hero brief — rounded blue panel like Fergana -->
+    <header class="gmd-brief">
+      <div class="gmd-brief-glow" />
+      <div class="gmd-brief-content">
+        <div class="gmd-brief-eyebrow">GOLDEN MART · ДЕТАЛЬНЫЕ ДАННЫЕ ГОРОДА</div>
+        <h1 class="gmd-brief-title">Qoʻqon</h1>
+        <p class="gmd-brief-sub">
+          Полный шаблон Golden Mart · 21 раздел · 6 тематических вкладок ·
+          источник значений: <strong>fergana/</strong> PDF (farstat.uz)
         </p>
-        <div class="gmd-coverage">
-          <div class="gmd-coverage-bar">
-            <div class="gmd-coverage-fill" :style="{ width: `${coveragePct}%` }" />
+        <div class="gmd-brief-coverage">
+          <div class="gmd-brief-cov-bar">
+            <div class="gmd-brief-cov-fill" :style="{ width: `${coveragePct}%` }" />
           </div>
-          <div class="gmd-coverage-meta">
-            <span class="gmd-coverage-pct">{{ coveragePct }}%</span>
-            <span class="gmd-coverage-text">
-              {{ filledCount }} из {{ CITY_TOTAL_FIELDS }} полей заполнено
+          <div class="gmd-brief-cov-meta">
+            <span class="gmd-brief-cov-pct">{{ coveragePct }}%</span>
+            <span class="gmd-brief-cov-text">
+              {{ filledCount }} из {{ CITY_TOTAL_FIELDS }} полей · остальные ждут источников
             </span>
           </div>
         </div>
       </div>
     </header>
 
+    <!-- Pill tab nav -->
+    <nav class="gmd-tab-nav">
+      <button
+        v-for="tab in CITY_TABS"
+        :key="tab.id"
+        class="gmd-tab"
+        :class="{ active: activeTab === tab.id }"
+        @click="activeTab = tab.id"
+      >
+        <span class="gmd-tab-num">{{ tab.num }}</span>
+        <AppIcon :name="tab.icon" class="gmd-tab-icon" />
+        <span class="gmd-tab-label">{{ tab.label }}</span>
+        <span class="gmd-tab-cov">{{ tabCoverage(tab).filled }}/{{ tabCoverage(tab).total }}</span>
+      </button>
+    </nav>
+
+    <!-- Active tab body -->
     <main class="gmd-main">
       <article
-        v-for="section in CITY_SECTIONS"
+        v-for="section in activeSections"
         :key="section.n"
         class="gmd-section"
-        :class="{ 'is-collapsed': collapsed[section.n], 'is-empty': sectionCoverage(section).filled === 0 }"
+        :class="{ 'is-empty': sectionCoverage(section).filled === 0 }"
       >
-        <header class="gmd-section-head" @click="toggle(section.n)">
+        <header class="gmd-section-head">
           <div class="gmd-section-num">{{ String(section.n).padStart(2, '0') }}</div>
           <div class="gmd-section-icon"><AppIcon :name="section.icon" /></div>
           <div class="gmd-section-meta">
@@ -124,12 +146,9 @@ function backToList() {
               <span v-else class="gmd-pill-partial">Частично</span>
             </div>
           </div>
-          <button class="gmd-section-toggle">
-            <AppIcon :name="collapsed[section.n] ? 'expand_more' : 'expand_less'" />
-          </button>
         </header>
 
-        <div v-if="!collapsed[section.n]" class="gmd-section-body">
+        <div class="gmd-section-body">
           <table class="gmd-table">
             <tbody>
               <tr
@@ -160,7 +179,7 @@ function backToList() {
         Источник значений: верифицированные строки <strong>Qoʻqon shahri</strong> в PDF
         farstat.uz.
       </div>
-      <div class="gmd-foot-key">qoqon_city · golden_mart_detail</div>
+      <div class="gmd-foot-key">qoqon_city · golden_mart_detail · tab: {{ activeTab }}</div>
     </footer>
   </div>
 </template>
@@ -173,88 +192,151 @@ function backToList() {
   --ink-muted: #475569;
   --line: #E2E8F0;
   --primary: #0054A6;
-  --gold: #F59E0B;
-  --green: #10B981;
+  --primary-dark: #003D7C;
 
   background: var(--bg);
   min-height: 100vh;
   font-family: 'Manrope', system-ui, sans-serif;
   color: var(--ink);
-  padding-bottom: 80px;
+  padding: 28px 56px 80px;
 }
 
-.gmd-head {
-  background:
-    radial-gradient(800px 360px at 30% 0%, rgba(0,84,166,0.18), transparent 60%),
-    linear-gradient(135deg, #061B36 0%, #0A2848 50%, #103E6E 100%);
-  color: #fff;
-  padding: 36px 56px 56px;
+/* Toolbar */
+.gmd-toolbar {
+  max-width: 1320px; margin: 0 auto 16px;
+  display: flex; align-items: center; gap: 10px;
 }
-.gmd-head-inner { max-width: 1200px; margin: 0 auto; }
 .gmd-back-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
-  color: #fff; font-size: 13px; font-weight: 700;
+  background: #fff; border: 1px solid var(--line); color: var(--ink);
+  font-size: 13px; font-weight: 700; font-family: inherit;
   padding: 8px 14px 8px 10px; border-radius: 999px; cursor: pointer;
-  transition: background 0.2s; margin-right: 10px;
+  transition: background 0.2s;
 }
-.gmd-back-btn:hover { background: rgba(255,255,255,0.16); }
+.gmd-back-btn:hover { background: rgba(0,84,166,0.04); }
 .gmd-back-btn.ghost { background: transparent; }
 
-.gmd-eyebrow {
-  margin-top: 24px;
-  font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
-  color: #FCD34D; text-transform: uppercase;
+/* Brief — rounded blue panel like Fergana */
+.gmd-brief {
+  max-width: 1320px; margin: 0 auto 24px;
+  background: linear-gradient(135deg, #001b3d 0%, #003D7C 65%, #0054A6 100%);
+  color: #fff;
+  border-radius: 24px;
+  padding: clamp(28px, 3vw, 40px);
+  box-shadow: 0 24px 56px -24px rgba(0,27,61,0.40);
+  position: relative;
+  overflow: hidden;
 }
-.gmd-title {
-  font-size: clamp(36px, 5vw, 56px); line-height: 1; font-weight: 900;
-  letter-spacing: -0.03em; margin: 8px 0 14px;
+.gmd-brief-glow {
+  position: absolute; top: -50%; right: -20%;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 60%);
+  pointer-events: none;
 }
-.gmd-sub {
-  font-size: 14px; font-weight: 500; line-height: 1.6;
-  color: rgba(255,255,255,0.72); max-width: 760px; margin: 0 0 24px;
+.gmd-brief-content { position: relative; }
+.gmd-brief-eyebrow {
+  font-size: 13px; font-weight: 800; letter-spacing: 0.16em;
+  color: #93C5FD; text-transform: uppercase;
 }
-.gmd-coverage {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-  padding: 16px 20px; border-radius: 14px; backdrop-filter: blur(8px);
+.gmd-brief-title {
+  font-size: clamp(36px, 5vw, 56px); font-weight: 900;
+  letter-spacing: -0.03em; line-height: 1; margin: 10px 0 14px;
 }
-.gmd-coverage-bar {
-  height: 8px; background: rgba(255,255,255,0.10); border-radius: 999px;
-  overflow: hidden; margin-bottom: 10px;
+.gmd-brief-sub {
+  font-size: 14px; font-weight: 600;
+  color: rgba(191,219,254,0.80); line-height: 1.55;
+  max-width: 720px; margin: 0 0 24px;
 }
-.gmd-coverage-fill {
-  height: 100%; background: linear-gradient(90deg, #FBBF24, #F59E0B);
-  border-radius: 999px; transition: width 0.5s ease;
+.gmd-brief-coverage {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  padding: 18px 22px; border-radius: 14px;
+  max-width: 520px;
 }
-.gmd-coverage-meta {
-  display: flex; justify-content: space-between; align-items: baseline;
-  font-size: 13px;
+.gmd-brief-cov-bar {
+  height: 8px; background: rgba(255,255,255,0.10);
+  border-radius: 999px; overflow: hidden; margin-bottom: 10px;
 }
-.gmd-coverage-pct { font-size: 22px; font-weight: 900; color: #FCD34D; font-variant-numeric: tabular-nums; }
-.gmd-coverage-text { color: rgba(255,255,255,0.6); font-weight: 600; }
+.gmd-brief-cov-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FBBF24, #F59E0B);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+.gmd-brief-cov-meta {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+}
+.gmd-brief-cov-pct {
+  font-size: 22px; font-weight: 900; color: #FCD34D;
+  font-variant-numeric: tabular-nums;
+}
+.gmd-brief-cov-text {
+  font-size: 12px; font-weight: 600;
+  color: rgba(191,219,254,0.70);
+}
 
+/* Pill tab nav */
+.gmd-tab-nav {
+  max-width: 1320px; margin: 0 auto 20px;
+  display: flex; gap: 4px; padding: 6px;
+  background: #ECEEF0; border-radius: 14px;
+  overflow-x: auto;
+}
+.gmd-tab {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 18px; border-radius: 10px;
+  font-size: 14px; font-weight: 700; font-family: inherit;
+  color: #424751; background: transparent; border: none;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.gmd-tab:hover { color: var(--primary-dark); }
+.gmd-tab.active {
+  background: #fff; color: var(--primary-dark);
+  box-shadow: 0 2px 6px rgba(0,27,61,0.08);
+}
+.gmd-tab-num {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px; font-weight: 800; opacity: 0.6;
+}
+.gmd-tab-icon { font-size: 16px; }
+.gmd-tab-cov {
+  font-family: ui-monospace, monospace;
+  font-size: 11px; font-weight: 700;
+  color: var(--ink-muted); opacity: 0.7;
+  padding: 2px 6px; border-radius: 6px;
+  background: rgba(15,23,42,0.04);
+}
+.gmd-tab.active .gmd-tab-cov {
+  background: rgba(0,84,166,0.10); color: var(--primary); opacity: 1;
+}
+
+/* Sections */
 .gmd-main {
-  max-width: 1200px; margin: 0 auto; padding: 32px 56px 0;
-  display: flex; flex-direction: column; gap: 14px;
+  max-width: 1320px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 18px;
 }
-
 .gmd-section {
   background: var(--surface); border: 1px solid var(--line);
   border-radius: 16px; overflow: hidden;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.gmd-section:hover { border-color: rgba(0,84,166,0.20); }
-.gmd-section.is-empty { background: rgba(248,250,252,0.7); border-style: dashed; }
+.gmd-section:hover {
+  border-color: rgba(0,84,166,0.18);
+  box-shadow: 0 1px 0 rgba(15,23,42,0.02), 0 12px 28px -16px rgba(15,23,42,0.10);
+}
+.gmd-section.is-empty {
+  background: rgba(248,250,252,0.7); border-style: dashed;
+}
 
 .gmd-section-head {
-  display: flex; align-items: center; gap: 14px;
-  padding: 18px 22px; cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 14px; padding: 18px 22px;
+  border-bottom: 1px dashed var(--line);
 }
-.gmd-section.is-collapsed .gmd-section-head:hover { background: rgba(0,84,166,0.03); }
-
 .gmd-section-num {
   font-family: ui-monospace, monospace;
-  font-size: 12px; font-weight: 800; color: var(--primary);
+  font-size: 11px; font-weight: 800; color: var(--primary);
   background: rgba(0,84,166,0.08);
   padding: 4px 8px; border-radius: 6px; letter-spacing: 0.05em;
 }
@@ -275,8 +357,7 @@ function backToList() {
 .gmd-section.is-empty .gmd-section-title { color: var(--ink-muted); }
 
 .gmd-section-sub {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  margin-top: 4px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;
 }
 .gmd-section-cov {
   font-size: 12px; font-weight: 700; color: var(--ink-muted);
@@ -298,40 +379,16 @@ function backToList() {
   padding: 3px 9px; border-radius: 999px;
 }
 
-.gmd-section-toggle {
-  background: transparent; border: none; cursor: pointer;
-  color: var(--ink-muted); width: 32px; height: 32px;
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-}
-.gmd-section-toggle:hover { background: rgba(0,84,166,0.06); color: var(--primary); }
-
-.gmd-section-body {
-  border-top: 1px dashed var(--line);
-}
-.gmd-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 14px;
-}
+.gmd-section-body { padding: 0; }
+.gmd-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .gmd-table tr { border-bottom: 1px solid var(--line); }
 .gmd-table tr:last-child { border-bottom: none; }
 .gmd-table tr.is-empty-row { background: rgba(248,250,252,0.5); }
 .gmd-table tr:hover { background: rgba(0,84,166,0.03); }
-
-.gmd-cell-label {
-  padding: 12px 22px; font-weight: 600; color: var(--ink);
-  width: 50%;
-}
-.gmd-cell-unit {
-  padding: 12px 16px; font-size: 12px; color: var(--ink-muted);
-  font-weight: 600; letter-spacing: 0.02em;
-  width: 18%; white-space: nowrap;
-}
-.gmd-cell-val {
-  padding: 12px 22px; text-align: right;
-  font-variant-numeric: tabular-nums;
-  width: 32%;
-}
-.gmd-val { font-weight: 800; font-size: 15px; color: var(--ink); }
+.gmd-cell-label { padding: 11px 22px; font-weight: 600; color: var(--ink); }
+.gmd-cell-unit { padding: 11px 12px; font-size: 11.5px; color: var(--ink-muted); font-weight: 600; white-space: nowrap; }
+.gmd-cell-val { padding: 11px 22px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gmd-val { font-weight: 800; font-size: 14px; color: var(--ink); }
 .gmd-no-data {
   font-size: 11px; font-weight: 700;
   background: rgba(15,23,42,0.05); color: var(--ink-muted);
@@ -339,7 +396,7 @@ function backToList() {
 }
 
 .gmd-foot {
-  max-width: 1200px; margin: 40px auto 0; padding: 20px 56px;
+  max-width: 1320px; margin: 40px auto 0; padding: 20px 0;
   display: flex; justify-content: space-between; align-items: center;
   font-size: 12px; color: var(--ink-muted); border-top: 1px solid var(--line);
   flex-wrap: wrap; gap: 12px;
@@ -351,7 +408,7 @@ function backToList() {
 }
 
 @media (max-width: 800px) {
-  .gmd-head, .gmd-main, .gmd-foot { padding-left: 24px; padding-right: 24px; }
+  .gmd-shell { padding: 20px 20px 60px; }
   .gmd-cell-label, .gmd-cell-val { padding-left: 14px; padding-right: 14px; }
 }
 </style>

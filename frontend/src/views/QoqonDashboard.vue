@@ -370,58 +370,80 @@ const sectorMix = [
       </div>
     </header>
 
-    <!-- ============== HERO — variant B (Fergana-style executive brief) ============== -->
-    <header v-else class="qoq-heroB">
-      <div class="qoq-heroB-bg" />
-      <div class="qoq-heroB-content">
-        <div class="qoq-hero-toolbar">
-          <button class="qoq-back" @click="back">
-            <AppIcon name="arrow_back" /> Назад к Ферганской области
-          </button>
-          <div class="qoq-style-toggle">
-            <span class="qoq-style-label">Стиль:</span>
-            <button :class="['qoq-style-btn', heroStyle === 'A' && 'active']" @click="setHero('A')">A</button>
-            <button :class="['qoq-style-btn', heroStyle === 'B' && 'active']" @click="setHero('B')">B</button>
-          </div>
-        </div>
-        <div class="qoq-heroB-eyebrow">EXECUTIVE BRIEF · ГОРОД</div>
-        <h1 class="qoq-heroB-title">г. Коканд</h1>
-        <p class="qoq-heroB-sub">
-          {{ fmt(D.popK, 1) }} тыс. жителей · {{ D.area }} км² · плотность {{ fmt(D.density) }}/км² ·
-          100% городское население
-        </p>
-        <div class="qoq-heroB-kpis">
-          <div class="qoq-heroB-kpi">
-            <div class="qoq-heroB-kpi-label">Население</div>
-            <div class="qoq-heroB-kpi-val">{{ fmt(D.popK, 1) }}</div>
-            <div class="qoq-heroB-kpi-unit">тыс. чел. · 1 янв 2026</div>
-          </div>
-          <div class="qoq-heroB-kpi">
-            <div class="qoq-heroB-kpi-label">Промышленность 2025</div>
-            <div class="qoq-heroB-kpi-val">9 410</div>
-            <div class="qoq-heroB-kpi-unit">млрд сум · +50,2% YoY</div>
-          </div>
-          <div class="qoq-heroB-kpi">
-            <div class="qoq-heroB-kpi-label">Инвестиции 2025</div>
-            <div class="qoq-heroB-kpi-val" style="color:#FCD34D">×4,1</div>
-            <div class="qoq-heroB-kpi-unit">за 5 лет · 4 111 млрд сум</div>
-          </div>
-          <div class="qoq-heroB-kpi">
-            <div class="qoq-heroB-kpi-label">Естеств. прирост</div>
-            <div class="qoq-heroB-kpi-val" style="color:#A7F3D0">+5 410</div>
-            <div class="qoq-heroB-kpi-unit">★ рекорд области 2025</div>
-          </div>
-        </div>
-        <button class="qoq-detail-cta light" @click="openDetail">
-          <AppIcon name="dataset" />
-          <span>
-            <span class="qoq-cta-title">Подробные данные Golden Mart</span>
-            <span class="qoq-cta-sub">21 раздел · полный шаблон города</span>
-          </span>
-          <AppIcon name="arrow_forward" />
+    <!-- ============== HERO — variant B (rounded executive brief, Fergana style) ============== -->
+    <div v-else class="qoq-heroB-wrap">
+      <div class="qoq-hero-toolbar dark">
+        <button class="qoq-back outline" @click="back">
+          <AppIcon name="arrow_back" /> Назад к Ферганской области
         </button>
+        <div class="qoq-style-toggle outline">
+          <span class="qoq-style-label">Стиль:</span>
+          <button :class="['qoq-style-btn', heroStyle === 'A' && 'active']" @click="setHero('A')">A</button>
+          <button :class="['qoq-style-btn', heroStyle === 'B' && 'active']" @click="setHero('B')">B</button>
+        </div>
       </div>
-    </header>
+
+      <header class="qoq-briefB">
+        <div class="qoq-briefB-glow" />
+        <div class="qoq-briefB-content">
+          <div class="qoq-briefB-eyebrow">EXECUTIVE BRIEF · ГОРОД</div>
+          <h1 class="qoq-briefB-title">г. Коканд</h1>
+          <p class="qoq-briefB-sub">
+            {{ fmt(D.popK, 1) }} тыс. жителей · {{ D.area }} км² · плотность {{ fmt(D.density) }}/км²
+          </p>
+          <div class="qoq-briefB-kpis">
+            <div class="qoq-briefB-kpi">
+              <div class="qoq-briefB-kpi-label">Промышленность</div>
+              <div class="qoq-briefB-kpi-val">9 410</div>
+              <div class="qoq-briefB-kpi-foot">
+                <span class="qoq-briefB-kpi-unit">млрд сум</span>
+                <span class="qoq-briefB-delta tone-green">+50,2%</span>
+              </div>
+            </div>
+            <div class="qoq-briefB-kpi">
+              <div class="qoq-briefB-kpi-label">Услуги</div>
+              <div class="qoq-briefB-kpi-val">6 371</div>
+              <div class="qoq-briefB-kpi-foot">
+                <span class="qoq-briefB-kpi-unit">млрд сум</span>
+                <span class="qoq-briefB-delta tone-green">+29,6%</span>
+              </div>
+            </div>
+            <div class="qoq-briefB-kpi">
+              <div class="qoq-briefB-kpi-label">Инвестиции</div>
+              <div class="qoq-briefB-kpi-val">4 111</div>
+              <div class="qoq-briefB-kpi-foot">
+                <span class="qoq-briefB-kpi-unit">млрд сум</span>
+                <span class="qoq-briefB-delta tone-green">×4,1</span>
+              </div>
+            </div>
+            <div class="qoq-briefB-kpi">
+              <div class="qoq-briefB-kpi-label">Прирост</div>
+              <div class="qoq-briefB-kpi-val">+5 410</div>
+              <div class="qoq-briefB-kpi-foot">
+                <span class="qoq-briefB-kpi-unit">2025</span>
+                <span class="qoq-briefB-delta tone-blue">★ рекорд</span>
+              </div>
+            </div>
+            <div class="qoq-briefB-kpi">
+              <div class="qoq-briefB-kpi-label">Население</div>
+              <div class="qoq-briefB-kpi-val">319 600</div>
+              <div class="qoq-briefB-kpi-foot">
+                <span class="qoq-briefB-kpi-unit">человек</span>
+                <span class="qoq-briefB-delta tone-blue">городское</span>
+              </div>
+            </div>
+          </div>
+          <button class="qoq-detail-cta on-brief" @click="openDetail">
+            <AppIcon name="dataset" />
+            <span>
+              <span class="qoq-cta-title">Подробные данные Golden Mart</span>
+              <span class="qoq-cta-sub">21 раздел · 6 тематических вкладок</span>
+            </span>
+            <AppIcon name="arrow_forward" />
+          </button>
+        </div>
+      </header>
+    </div>
 
     <!-- ============== SECTOR HERO GRID ============== -->
     <section class="qoq-section">
@@ -779,63 +801,121 @@ const sectorMix = [
 .qoq-quick-u { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-left: 4px; }
 .qoq-quick-sub { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); }
 
-/* ── HERO B — Fergana-style executive brief ── */
-.qoq-heroB {
-  position: relative;
-  background: linear-gradient(135deg, #0A2848 0%, #103E6E 50%, #1E5BA8 100%);
-  color: #fff;
-  overflow: hidden;
-  padding: 48px 56px 56px;
+/* ── HERO B — Fergana-style executive brief (rounded blue panel) ── */
+.qoq-heroB-wrap {
+  background: var(--bg);
+  padding: 28px 56px 0;
 }
-.qoq-heroB-bg {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(600px 240px at 15% 0%, rgba(252,211,77,0.12), transparent 60%),
-    radial-gradient(500px 240px at 85% 100%, rgba(167,243,208,0.10), transparent 60%);
+.qoq-hero-toolbar.dark {
+  max-width: 1320px; margin: 0 auto 16px;
+}
+.qoq-back.outline {
+  background: #fff; border: 1px solid var(--line); color: var(--ink);
+}
+.qoq-back.outline:hover { background: rgba(0,84,166,0.04); }
+.qoq-style-toggle.outline {
+  background: #fff; border: 1px solid var(--line);
+}
+.qoq-style-toggle.outline .qoq-style-label { color: var(--ink-muted); }
+.qoq-style-toggle.outline .qoq-style-btn { color: var(--ink-muted); }
+.qoq-style-toggle.outline .qoq-style-btn.active {
+  background: var(--primary); color: #fff;
+}
+
+.qoq-briefB {
+  max-width: 1320px; margin: 0 auto;
+  background: linear-gradient(135deg, #001b3d 0%, #003D7C 65%, #0054A6 100%);
+  color: #fff;
+  border-radius: 24px;
+  padding: clamp(28px, 3vw, 40px);
+  box-shadow: 0 24px 56px -24px rgba(0,27,61,0.40);
+  position: relative;
+  overflow: hidden;
+}
+.qoq-briefB-glow {
+  position: absolute; top: -50%; right: -20%;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 60%);
   pointer-events: none;
 }
-.qoq-heroB-content { position: relative; max-width: 1320px; margin: 0 auto; }
-.qoq-heroB-eyebrow {
-  margin-top: 24px;
-  font-size: 12px; font-weight: 800; letter-spacing: 0.20em;
+.qoq-briefB-content { position: relative; }
+.qoq-briefB-eyebrow {
+  font-size: 13px; font-weight: 800; letter-spacing: 0.16em;
   color: #93C5FD; text-transform: uppercase;
 }
-.qoq-heroB-title {
-  font-size: clamp(40px, 6vw, 72px); font-weight: 900;
-  letter-spacing: -0.03em; line-height: 1.02; margin: 12px 0 14px;
-  color: #fff;
+.qoq-briefB-title {
+  font-size: clamp(40px, 6vw, 64px); font-weight: 900;
+  letter-spacing: -0.03em; line-height: 1.0;
+  margin: 12px 0 16px; color: #fff;
 }
-.qoq-heroB-sub {
-  font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.75);
-  max-width: 720px; margin: 0 0 32px;
+.qoq-briefB-sub {
+  font-size: 15px; font-weight: 600;
+  color: rgba(191,219,254,0.80);
+  margin: 0 0 28px;
 }
-.qoq-heroB-kpis {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+.qoq-briefB-kpis {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
 }
-.qoq-heroB-kpi {
-  background: rgba(255,255,255,0.96); color: #0F1B2D;
-  padding: 22px 24px; border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.16);
+.qoq-briefB-kpi {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: clamp(18px, 1.6vw, 26px);
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-height: clamp(140px, 11vw, 170px);
+  box-shadow: 0 10px 25px -15px rgba(0,0,0,0.35);
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
 }
-.qoq-heroB-kpi-label {
-  font-size: 11px; font-weight: 800; letter-spacing: 0.10em;
-  color: #475569; text-transform: uppercase; margin-bottom: 8px;
+.qoq-briefB-kpi:hover {
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.24);
+  transform: translateY(-2px);
 }
-.qoq-heroB-kpi-val {
-  font-size: 36px; font-weight: 900; line-height: 1;
-  letter-spacing: -0.025em; color: #0054A6;
+.qoq-briefB-kpi-label {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #BFDBFE;
+}
+.qoq-briefB-kpi-val {
+  font-size: clamp(28px, 2.8vw, 42px); line-height: 1; font-weight: 900;
+  letter-spacing: -0.03em; color: #fff;
   font-variant-numeric: tabular-nums;
+  margin-top: 14px;
 }
-.qoq-heroB-kpi-unit {
-  font-size: 12px; font-weight: 600; color: #475569;
-  margin-top: 8px;
+.qoq-briefB-kpi-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.10);
 }
-@media (max-width: 1024px) {
-  .qoq-heroB-kpis { grid-template-columns: repeat(2, 1fr); }
+.qoq-briefB-kpi-unit {
+  font-size: 12px; font-weight: 700;
+  color: rgba(191,219,254,0.80); letter-spacing: 0.02em;
 }
-@media (max-width: 600px) {
-  .qoq-heroB-kpis { grid-template-columns: 1fr; }
-  .qoq-heroB { padding: 36px 24px 40px; }
+.qoq-briefB-delta {
+  font-size: 12px; font-weight: 800;
+  padding: 4px 10px; border-radius: 999px; letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.qoq-briefB-delta.tone-green {
+  color: #A7F3D0; background: rgba(16,185,129,0.18);
+}
+.qoq-briefB-delta.tone-blue {
+  color: #BFDBFE; background: rgba(59,130,246,0.22);
+}
+
+.qoq-detail-cta.on-brief {
+  margin-top: 28px;
+  background: rgba(252,211,77,0.16);
+  border-color: rgba(252,211,77,0.36);
+  color: #FCD34D;
+}
+.qoq-detail-cta.on-brief:hover { background: rgba(252,211,77,0.24); }
+
+@media (max-width: 1100px) {
+  .qoq-briefB-kpis { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .qoq-briefB-kpis { grid-template-columns: repeat(2, 1fr); }
+  .qoq-heroB-wrap { padding: 20px 20px 0; }
 }
 
 /* ── SECTIONS ── */

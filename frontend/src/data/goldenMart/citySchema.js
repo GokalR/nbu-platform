@@ -262,3 +262,24 @@ export const CITY_SECTIONS = [
 
 /** Total field count across all sections — useful for coverage calc. */
 export const CITY_TOTAL_FIELDS = CITY_SECTIONS.reduce((n, s) => n + s.attrs.length, 0)
+
+/**
+ * Thematic tabs grouping the 21 sections into 6 user-facing categories.
+ * Mirrors the Fergana 6-tab pattern. Each tab.sections is a list of
+ * section numbers (n) from CITY_SECTIONS.
+ */
+export const CITY_TABS = [
+  { id: 'basic',    num: '01', icon: 'badge',                  label: 'Базовая',          sections: [1] },
+  { id: 'economy',  num: '02', icon: 'finance',                label: 'Экономика',        sections: [2, 3, 4, 5, 6, 7] },
+  { id: 'people',   num: '03', icon: 'groups',                 label: 'Население',        sections: [8, 9, 11] },
+  { id: 'social',   num: '04', icon: 'school',                 label: 'Соц-инфра',        sections: [10, 14, 15, 16, 17] },
+  { id: 'finance',  num: '05', icon: 'account_balance_wallet', label: 'Финансы и цифра',  sections: [12, 13, 19] },
+  { id: 'mahalla',  num: '06', icon: 'storefront',             label: 'Махалля и среда',  sections: [18, 20, 21] },
+]
+
+/** Resolve a tab to its full section objects. */
+export function tabSections(tabId) {
+  const tab = CITY_TABS.find((t) => t.id === tabId)
+  if (!tab) return []
+  return tab.sections.map((n) => CITY_SECTIONS.find((s) => s.n === n)).filter(Boolean)
+}
