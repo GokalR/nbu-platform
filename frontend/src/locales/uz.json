@@ -108,6 +108,26 @@
       }
     }
   },
+  "gmAdmin": {
+    "eyebrow": "GOLDEN MART · ADMIN PANEL",
+    "title": "Shablon boʻyicha maʼlumotlarni toʻldirish",
+    "sub": "Obyekt, yil va boʻlimni tanlang — qiymatlarni kiriting va «Saqlash» tugmasini bosing. Oʻzgarishlar bazaga yoziladi va darhol ommaviy panellarda koʻrinadi.",
+    "levelLabel": "Daraja",
+    "levelCountry": "Davlat",
+    "levelRegion": "Viloyat",
+    "levelCity": "Shahar / tuman",
+    "entityLabel": "Obyekt",
+    "coveragePill": "Toʻldirildi: {filled} / {total} ({pct}%) barcha yillar boʻyicha",
+    "yearCoverage": "{filled} / {total} ({pct}%) — {year}-yil",
+    "saving": "Saqlanmoqda…",
+    "savedOk": "Saqlandi: {n} maydon",
+    "saveError": "Saqlash xatoligi",
+    "errNoDirty": "Saqlanmagan oʻzgarishlar yoʻq",
+    "dirtyCount": "Saqlanmagan maydonlar: {n}",
+    "noChanges": "Oʻzgarishlar yoʻq",
+    "saveButton": "{year}-yilni saqlash",
+    "emptyState": "Yuqoridagi roʻyxatdan obyekt tanlang"
+  },
   "district": {
     "unavailable": {
       "fergana": "Maʻlumotlar faqat Fargʻona va Margʻilon shaharlari uchun mavjud (pilot shaharlar)",

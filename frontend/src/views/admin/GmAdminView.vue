@@ -20,7 +20,7 @@ import {
   gmListEntities, gmGetEntityData, gmWriteYear, gmCoverage,
 } from '@/services/eduApi.js'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const YEARS = [2021, 2022, 2023, 2024, 2025, 2026]
 
@@ -122,16 +122,16 @@ async function save() {
       values[key] = row[key] ?? null
     }
     if (Object.keys(values).length === 0) {
-      saveError.value = 'Нет несохранённых изменений'
+      saveError.value = t('gmAdmin.errNoDirty')
       saving.value = false
       return
     }
     await gmWriteYear(level.value, selectedKey.value, activeYear.value, values)
-    saveOk.value = `Сохранено: ${Object.keys(values).length} полей`
+    saveOk.value = t('gmAdmin.savedOk', { n: Object.keys(values).length })
     dirty.value = new Set()
     cov.value = await gmCoverage(level.value, selectedKey.value)
   } catch (e) {
-    saveError.value = e.message || 'Ошибка сохранения'
+    saveError.value = e.message || t('gmAdmin.saveError')
   } finally {
     saving.value = false
   }
@@ -167,35 +167,31 @@ const yearCoverage = computed(() => {
 <template>
   <div class="gma">
     <header class="gma-head">
-      <div class="gma-eyebrow">GOLDEN MART · АДМИН ПАНЕЛЬ</div>
-      <h1 class="gma-title">Заполнение данных по шаблону</h1>
-      <p class="gma-sub">
-        Выберите объект, год и раздел — введите значения и нажмите «Сохранить».
-        Изменения пишутся в БД и сразу доступны на публичных дашбордах.
-      </p>
+      <div class="gma-eyebrow">{{ t('gmAdmin.eyebrow') }}</div>
+      <h1 class="gma-title">{{ t('gmAdmin.title') }}</h1>
+      <p class="gma-sub">{{ t('gmAdmin.sub') }}</p>
     </header>
 
     <!-- ── Picker ── -->
     <section class="gma-picker">
       <div class="gma-field">
-        <label class="gma-label">Уровень</label>
+        <label class="gma-label">{{ t('gmAdmin.levelLabel') }}</label>
         <select v-model="level" class="gma-select">
-          <option value="country">Страна</option>
-          <option value="region">Область</option>
-          <option value="city">Город / туман</option>
+          <option value="country">{{ t('gmAdmin.levelCountry') }}</option>
+          <option value="region">{{ t('gmAdmin.levelRegion') }}</option>
+          <option value="city">{{ t('gmAdmin.levelCity') }}</option>
         </select>
       </div>
       <div class="gma-field gma-flex">
-        <label class="gma-label">Объект</label>
+        <label class="gma-label">{{ t('gmAdmin.entityLabel') }}</label>
         <select v-model="selectedKey" class="gma-select">
           <option v-for="e in entities" :key="e.key" :value="e.key">
-            {{ e.name_ru }} ({{ e.key }})
+            {{ locale === 'uz' ? e.name_uz : e.name_ru }} ({{ e.key }})
           </option>
         </select>
       </div>
       <div v-if="cov.overall.total" class="gma-cov-pill">
-        Заполнено: {{ cov.overall.filled }} / {{ cov.overall.total }}
-        ({{ cov.overall.pct }}%) по всем годам
+        {{ t('gmAdmin.coveragePill', { filled: cov.overall.filled, total: cov.overall.total, pct: cov.overall.pct }) }}
       </div>
     </section>
 
@@ -212,8 +208,7 @@ const yearCoverage = computed(() => {
           <span class="gma-year-num">{{ y }}</span>
         </button>
         <span class="gma-year-cov">
-          {{ yearCoverage.filled }} / {{ yearCoverage.total }}
-          ({{ yearCoverage.pct }}%) в {{ activeYear }}
+          {{ t('gmAdmin.yearCoverage', { filled: yearCoverage.filled, total: yearCoverage.total, pct: yearCoverage.pct, year: activeYear }) }}
         </span>
       </nav>
 
@@ -274,25 +269,25 @@ const yearCoverage = computed(() => {
       <!-- ── Save bar ── -->
       <footer class="gma-foot">
         <div class="gma-status">
-          <span v-if="saving" class="gma-saving">Сохранение…</span>
+          <span v-if="saving" class="gma-saving">{{ t('gmAdmin.saving') }}</span>
           <span v-else-if="saveOk" class="gma-ok">✓ {{ saveOk }}</span>
           <span v-else-if="saveError" class="gma-err">✕ {{ saveError }}</span>
-          <span v-else-if="dirty.size">Несохранённых полей: {{ dirty.size }}</span>
-          <span v-else class="gma-clean">Нет изменений</span>
+          <span v-else-if="dirty.size">{{ t('gmAdmin.dirtyCount', { n: dirty.size }) }}</span>
+          <span v-else class="gma-clean">{{ t('gmAdmin.noChanges') }}</span>
         </div>
         <button
           class="gma-save"
           :disabled="!dirty.size || saving"
           @click="save"
         >
-          <AppIcon name="save" /> Сохранить год {{ activeYear }}
+          <AppIcon name="save" /> {{ t('gmAdmin.saveButton', { year: activeYear }) }}
         </button>
       </footer>
     </template>
 
     <div v-else class="gma-empty">
       <AppIcon name="inbox" />
-      <p>Выберите объект из списка выше</p>
+      <p>{{ t('gmAdmin.emptyState') }}</p>
     </div>
   </div>
 </template>
