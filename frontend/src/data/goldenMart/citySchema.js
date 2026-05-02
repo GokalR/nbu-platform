@@ -1,13 +1,12 @@
 /**
- * Golden Mart — City/Tuman schema (21 sections).
+ * Golden Mart — city schema.
  *
  * AUTO-GENERATED from goldenmarts/GM_city.md (which itself is
  * generated from goldenmarts/golden_mart_city.xlsx via _to_md.py).
  * Do not hand-edit. To change: edit the Excel, run _to_md.py, then
- * run goldenmarts/_md_to_schema_js.py.
+ * goldenmarts/_md_to_schema_js.py.
  *
- * Per-city data files (e.g. goldenMart/qoqon.js) reference fields
- * by `key` (numeric: s{section}_{index}, 1-indexed).
+ * Per-entity data files reference fields by `key` (positional s{section}_{index}).
  */
 
 export const CITY_SECTIONS = [
@@ -336,8 +335,8 @@ export const CITY_TABS = [
   { id: 'economy', num: '02', icon: 'finance', label: 'Экономика', sections: [2, 3, 4, 5, 6, 7] },
   { id: 'people', num: '03', icon: 'groups', label: 'Население', sections: [8, 9, 11] },
   { id: 'social', num: '04', icon: 'school', label: 'Соц-инфра', sections: [10, 14, 15, 16, 17] },
-  { id: 'finance', num: '05', icon: 'account_balance_wallet', label: 'Финансы и цифра', sections: [12, 13, 19] },
-  { id: 'mahalla', num: '06', icon: 'storefront', label: 'Махалля и среда', sections: [18, 20, 21] },
+  { id: 'finance', num: '05', icon: 'account_balance_wallet', label: 'Финансы и цифра', sections: [12, 13, 19, 20] },
+  { id: 'mahalla', num: '06', icon: 'storefront', label: 'Махалля и среда', sections: [18, 21] },
 ]
 
 export function tabSections(tabId) {

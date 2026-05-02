@@ -8,13 +8,14 @@
  * Golden Mart template — separate component so the existing
  * DistrictAnalyticsView remains untouched for other cities.
  */
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
 import FcChart from '@/components/fincontrol/FcChart.vue'
 import FcSparkline from '@/components/fincontrol/FcSparkline.vue'
 import { buildDistrictAnalytics } from '@/data/districtAnalytics'
+import { loadEntity } from '@/data/goldenMart/loader.js'
 
 // Hero style: 'A' glassmorphism quick-stats (default) | 'B' Fergana-style executive brief.
 // Persisted in localStorage so the user's choice sticks across sessions.
@@ -40,7 +41,9 @@ const KEY = 'qoqon_city'
 const analytics = computed(() => buildDistrictAnalytics(KEY, t))
 
 // ── Verified scalars (sourced through buildDistrictAnalytics → REAL_DATA) ──
-const D = {
+// Initial values are baked-in fallbacks. On mount we try the API and overlay
+// any non-null values returned — admin edits flow into the dashboard live.
+const D = reactive({
   // Pulled directly from REAL_DATA.qoqon_city for chart-friendly access.
   popK: 319.6,
   area: 60,
@@ -80,7 +83,55 @@ const D = {
     Fergana:  { industry: 38187, services: 36753, trade: 19785, construction: 9878, invest: 21491 },
     Margilan: { industry:  9389, services: 13496, trade: 21680, construction: 6846, invest:  4891 },
   },
-}
+})
+
+// ── Live data overlay: pull from API on mount; merge non-null values into D ──
+const dataSource = ref('static')
+
+onMounted(async () => {
+  try {
+    const loaded = await loadEntity('city', 'qoqon_city')
+    dataSource.value = loaded.source
+
+    // Scalars that map to D fields
+    if (loaded.scalars.s1_4 != null) D.area = +loaded.scalars.s1_4
+    if (loaded.scalars.s1_6 != null) {
+      D.popK = +loaded.scalars.s1_6 / 1000
+      D.density = Math.round(+loaded.scalars.s1_6 / D.area)
+    }
+    // Year arrays — use API series when present (yearly[k] = [2021..2026])
+    const py = loaded.yearly
+    if (py?.s1_6?.some((v) => v != null)) {
+      // Population history in thousands
+      D.populationFiveYear = py.s1_6.map((v) => v == null ? null : +v / 1000)
+    }
+    // Sector 5y series — slice 0..4 for years 2021..2025
+    const yearly5 = (key) => py?.[key]?.slice(0, 5).map((v) => v == null ? 0 : +v)
+    if (py?.s2_2?.some((v) => v != null)) D.fiveYear.industry     = yearly5('s2_2')
+    if (py?.s2_3?.some((v) => v != null)) D.fiveYear.services     = yearly5('s2_3')
+    if (py?.s2_4?.some((v) => v != null)) D.fiveYear.trade        = yearly5('s2_4')
+    if (py?.s2_5?.some((v) => v != null)) D.fiveYear.construction = yearly5('s2_5')
+    if (py?.s2_6?.some((v) => v != null)) D.fiveYear.agriculture  = yearly5('s2_6')
+    if (py?.s2_7?.some((v) => v != null)) D.fiveYear.investments  = yearly5('s2_7')
+    // Vital stats series
+    if (py?.s11_7?.some((v) => v != null)) D.vital.births = yearly5('s11_7')
+    if (py?.s11_8?.some((v) => v != null)) D.vital.deaths = yearly5('s11_8')
+    if (D.vital.births?.length === 5 && D.vital.deaths?.length === 5) {
+      D.vital.natural = D.vital.births.map((b, i) => b - D.vital.deaths[i])
+    }
+    // Age structure (2025 snapshot — scalars s1_12..s1_28)
+    const ageBracketKeys = ['0–2','3–5','6–7','8–15','16–17','18–19','20–24','25–29',
+                            '30–34','35–39','40–49','50–59','60–69','70–74','75–79','80–84','85+']
+    for (let i = 0; i < 17; i++) {
+      const apiKey = `s1_${12 + i}`
+      const v = loaded.scalars[apiKey]
+      if (v != null) D.ageGroups[ageBracketKeys[i]] = +v
+    }
+  } catch (e) {
+    console.warn('[QoqonDashboard] live data load failed, using static:', e.message)
+    dataSource.value = 'static-error'
+  }
+})
 
 // ── Helpers ──
 const fmt = (n, d = 0) =>

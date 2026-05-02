@@ -7,30 +7,38 @@
  * rendered as cards. Sections without verified data render dashed
  * with "Нет данных" pills so the data-gap is visible.
  */
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
 import {
   CITY_SECTIONS, CITY_TOTAL_FIELDS, CITY_TABS, tabSections,
 } from '@/data/goldenMart/citySchema.js'
-import { QOQON_GM } from '@/data/goldenMart/qoqon.js'
+import { loadEntity } from '@/data/goldenMart/loader.js'
 
 const router = useRouter()
 const route = useRoute()
 
-const data = QOQON_GM
+// Live data: API → fallback to static qoqon.js. Empty until mounted.
+const data = ref({})
+const dataSource = ref('loading')
+
+onMounted(async () => {
+  const loaded = await loadEntity('city', 'qoqon_city')
+  data.value = loaded.scalars
+  dataSource.value = loaded.source
+})
 const activeTab = ref(CITY_TABS[0].id)
 
 const filledCount = computed(() =>
   CITY_SECTIONS.reduce(
-    (n, s) => n + s.attrs.filter((a) => data[a.key] != null && data[a.key] !== '').length,
+    (n, s) => n + s.attrs.filter((a) => data.value[a.key] != null && data.value[a.key] !== '').length,
     0,
   ),
 )
 const coveragePct = computed(() => Math.round((filledCount.value / CITY_TOTAL_FIELDS) * 100))
 
 function sectionCoverage(section) {
-  const filled = section.attrs.filter((a) => data[a.key] != null && data[a.key] !== '').length
+  const filled = section.attrs.filter((a) => data.value[a.key] != null && data.value[a.key] !== '').length
   return { filled, total: section.attrs.length }
 }
 

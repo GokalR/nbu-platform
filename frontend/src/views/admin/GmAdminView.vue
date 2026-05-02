@@ -15,7 +15,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
-import { CITY_SECTIONS, CITY_TABS, tabSections } from '@/data/goldenMart/citySchema.js'
+import { schemaForLevel } from '@/data/goldenMart/schemaPicker.js'
 import {
   gmListEntities, gmGetEntityData, gmWriteYear, gmCoverage,
 } from '@/services/eduApi.js'
@@ -26,11 +26,15 @@ const YEARS = [2021, 2022, 2023, 2024, 2025, 2026]
 
 // ── State ─────────────────────────────────────────────
 const level = ref('city')
+const schema = computed(() => schemaForLevel(level.value))
+const SECTIONS = computed(() => schema.value.sections)
+const TABS = computed(() => schema.value.tabs)
+const TAB_SECTIONS = computed(() => schema.value.tabSections)
 const entities = ref([])
 const selectedKey = ref(null)
 const yearsData = ref({})         // { 2021: {s1_1: ..., ...}, 2022: {...}, ... }
 const activeYear = ref(2025)
-const activeTab = ref(CITY_TABS[0].id)
+const activeTab = ref('basic')
 const dirty = ref(new Set())      // field keys edited but not saved
 const saving = ref(false)
 const saveOk = ref(null)
@@ -84,11 +88,8 @@ async function loadEntityData(key) {
   }
 }
 
-// ── Active section list (depends on tab) ──────────────
-const activeSections = computed(() => {
-  // For now schema is city-only; later we'll branch on level
-  return tabSections(activeTab.value)
-})
+// ── Active section list (depends on tab + level) ──────
+const activeSections = computed(() => TAB_SECTIONS.value(activeTab.value))
 
 // ── Edit helpers ──────────────────────────────────────
 function valueOf(fieldKey) {
@@ -136,9 +137,9 @@ async function save() {
   }
 }
 
-// ── Coverage helpers ──────────────────────────────────
+// ── Coverage helpers (recompute on level change via SECTIONS reactive) ──
 function tabCoverage(tab) {
-  const sections = tabSections(tab.id)
+  const sections = TAB_SECTIONS.value(tab.id)
   const row = yearsData.value[activeYear.value] || {}
   let filled = 0, total = 0
   for (const s of sections) {
@@ -152,9 +153,9 @@ function tabCoverage(tab) {
 
 const yearCoverage = computed(() => {
   const row = yearsData.value[activeYear.value] || {}
-  const total = CITY_SECTIONS.reduce((n, s) => n + s.attrs.length, 0)
+  const total = SECTIONS.value.reduce((n, s) => n + s.attrs.length, 0)
   let filled = 0
-  for (const s of CITY_SECTIONS) {
+  for (const s of SECTIONS.value) {
     for (const a of s.attrs) {
       if (row[a.key] != null && row[a.key] !== '') filled++
     }
@@ -219,7 +220,7 @@ const yearCoverage = computed(() => {
       <!-- ── Tab strip (6 thematic) ── -->
       <nav class="gma-tabs">
         <button
-          v-for="tab in CITY_TABS"
+          v-for="tab in TABS"
           :key="tab.id"
           class="gma-tab"
           :class="{ active: activeTab === tab.id }"
