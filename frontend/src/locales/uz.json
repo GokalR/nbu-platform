@@ -108,6 +108,56 @@
       }
     }
   },
+  "qoqon": {
+    "back": "Fargʻona viloyatiga qaytish",
+    "styleLabel": "Uslub:",
+    "briefEyebrow": "EXECUTIVE BRIEF · SHAHAR",
+    "title": "Qoʻqon shahri",
+    "subStats": "{pop} ming aholi · {area} km² · zichlik {density}/km²",
+    "kpi": {
+      "industry": "Sanoat",
+      "services": "Xizmatlar",
+      "investments": "Investitsiyalar",
+      "naturalIncrease": "Tabiiy oʻsish",
+      "population": "Aholi",
+      "area": "Maydon",
+      "density": "Zichlik",
+      "type": "Tur"
+    },
+    "unit": {
+      "bnSum": "mlrd soʻm",
+      "people": "kishi",
+      "thousand": "ming",
+      "perKm2": "/km²",
+      "km2": "km²"
+    },
+    "year": {
+      "y2025": "2025",
+      "y2026Jan1": "1-yan 2026"
+    },
+    "base": {
+      "yoy": "yiliga (2024→2025)",
+      "fiveYear": "5 yilda (2021→2025)",
+      "fiveYearPop": "5 yilda (2021→2026)",
+      "birthsMinusDeaths": "tugʻilish − oʻlim",
+      "rankInRegion": "viloyatdagi oʻrin"
+    },
+    "chip": {
+      "record": "★ rekord",
+      "leader": "★ Viloyat yetakchisi",
+      "smallest": "Eng ixcham",
+      "city": "Shahar",
+      "regionLevel": "Viloyat boʻysunuvida",
+      "urban100": "100% shahar",
+      "atDate2026": "1-yan 2026"
+    },
+    "cta": {
+      "title": "Batafsil Golden Mart maʼlumotlari",
+      "sub": "21 boʻlim · 6 mavzuli vkladka"
+    },
+    "subtitle": "Industrial leader of the Western Fergana valley · 2025 yanvar–dekabr · farstat.uz",
+    "eyebrowGold": "Qoʻqon shahri · Gʻarbiy Fargʻona industrial markazi"
+  },
   "gmAdmin": {
     "eyebrow": "GOLDEN MART · ADMIN PANEL",
     "title": "Shablon boʻyicha maʼlumotlarni toʻldirish",

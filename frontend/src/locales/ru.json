@@ -108,6 +108,56 @@
       }
     }
   },
+  "qoqon": {
+    "back": "Назад к Ферганской области",
+    "styleLabel": "Стиль:",
+    "briefEyebrow": "EXECUTIVE BRIEF · ГОРОД",
+    "title": "г. Коканд",
+    "subStats": "{pop} тыс. жителей · {area} км² · плотность {density}/км²",
+    "kpi": {
+      "industry": "Промышленность",
+      "services": "Услуги",
+      "investments": "Инвестиции",
+      "naturalIncrease": "Естественный прирост",
+      "population": "Население",
+      "area": "Площадь",
+      "density": "Плотность",
+      "type": "Тип"
+    },
+    "unit": {
+      "bnSum": "млрд сум",
+      "people": "человек",
+      "thousand": "тыс.",
+      "perKm2": "/км²",
+      "km2": "км²"
+    },
+    "year": {
+      "y2025": "2025",
+      "y2026Jan1": "1 янв 2026"
+    },
+    "base": {
+      "yoy": "за год (2024→2025)",
+      "fiveYear": "за 5 лет (2021→2025)",
+      "fiveYearPop": "за 5 лет (2021→2026)",
+      "birthsMinusDeaths": "рождения − смерти",
+      "rankInRegion": "место в области"
+    },
+    "chip": {
+      "record": "★ рекорд",
+      "leader": "★ Лидер области",
+      "smallest": "Самый компактный",
+      "city": "Город",
+      "regionLevel": "Областного подчинения",
+      "urban100": "100% урбан",
+      "atDate2026": "1 янв 2026"
+    },
+    "cta": {
+      "title": "Подробные данные Golden Mart",
+      "sub": "21 раздел · 6 тематических вкладок"
+    },
+    "subtitle": "Industrial leader of the Western Fergana valley · 2025 yanvar–dekabr · farstat.uz",
+    "eyebrowGold": "Qoʻqon shahri · Индустриальный хаб западной Ферганы"
+  },
   "gmAdmin": {
     "eyebrow": "GOLDEN MART · АДМИН ПАНЕЛЬ",
     "title": "Заполнение данных по шаблону",

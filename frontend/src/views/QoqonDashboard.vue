@@ -376,46 +376,44 @@ const sectorMix = [
       <div class="qoq-hero-content">
         <div class="qoq-hero-toolbar">
           <button class="qoq-back" @click="back">
-            <AppIcon name="arrow_back" /> Назад к Ферганской области
+            <AppIcon name="arrow_back" /> {{ t('qoqon.back') }}
           </button>
           <div class="qoq-style-toggle">
-            <span class="qoq-style-label">Стиль:</span>
+            <span class="qoq-style-label">{{ t('qoqon.styleLabel') }}</span>
             <button :class="['qoq-style-btn', heroStyle === 'A' && 'active']" @click="setHero('A')">A</button>
             <button :class="['qoq-style-btn', heroStyle === 'B' && 'active']" @click="setHero('B')">B</button>
           </div>
         </div>
-        <div class="qoq-hero-eyebrow">Qoʻqon shahri · Индустриальный хаб западной Ферганы</div>
-        <h1 class="qoq-hero-title">Коканд</h1>
-        <p class="qoq-hero-sub">
-          Industrial leader of the Western Fergana valley · 2025 yanvar–dekabr · farstat.uz
-        </p>
+        <div class="qoq-hero-eyebrow">{{ t('qoqon.eyebrowGold') }}</div>
+        <h1 class="qoq-hero-title">{{ t('qoqon.title') }}</h1>
+        <p class="qoq-hero-sub">{{ t('qoqon.subtitle') }}</p>
         <div class="qoq-quick-stats">
           <div class="qoq-quick">
-            <div class="qoq-quick-label">Население</div>
-            <div class="qoq-quick-val">{{ fmt(D.popK, 1) }} <span class="qoq-quick-u">тыс.</span></div>
-            <div class="qoq-quick-sub">1 янв 2026 · 100% урбан</div>
+            <div class="qoq-quick-label">{{ t('qoqon.kpi.population') }}</div>
+            <div class="qoq-quick-val">{{ fmt(D.popK, 1) }} <span class="qoq-quick-u">{{ t('qoqon.unit.thousand') }}</span></div>
+            <div class="qoq-quick-sub">{{ t('qoqon.chip.atDate2026') }} · {{ t('qoqon.chip.urban100') }}</div>
           </div>
           <div class="qoq-quick">
-            <div class="qoq-quick-label">Площадь</div>
-            <div class="qoq-quick-val">{{ D.area }} <span class="qoq-quick-u">км²</span></div>
-            <div class="qoq-quick-sub">Самый компактный</div>
+            <div class="qoq-quick-label">{{ t('qoqon.kpi.area') }}</div>
+            <div class="qoq-quick-val">{{ D.area }} <span class="qoq-quick-u">{{ t('qoqon.unit.km2') }}</span></div>
+            <div class="qoq-quick-sub">{{ t('qoqon.chip.smallest') }}</div>
           </div>
           <div class="qoq-quick">
-            <div class="qoq-quick-label">Плотность</div>
-            <div class="qoq-quick-val">{{ fmt(D.density) }} <span class="qoq-quick-u">/км²</span></div>
-            <div class="qoq-quick-sub">★ Лидер вилоята</div>
+            <div class="qoq-quick-label">{{ t('qoqon.kpi.density') }}</div>
+            <div class="qoq-quick-val">{{ fmt(D.density) }} <span class="qoq-quick-u">{{ t('qoqon.unit.perKm2') }}</span></div>
+            <div class="qoq-quick-sub">{{ t('qoqon.chip.leader') }}</div>
           </div>
           <div class="qoq-quick">
-            <div class="qoq-quick-label">Тип</div>
-            <div class="qoq-quick-val qoq-quick-text">Город</div>
-            <div class="qoq-quick-sub">Областного подчинения</div>
+            <div class="qoq-quick-label">{{ t('qoqon.kpi.type') }}</div>
+            <div class="qoq-quick-val qoq-quick-text">{{ t('qoqon.chip.city') }}</div>
+            <div class="qoq-quick-sub">{{ t('qoqon.chip.regionLevel') }}</div>
           </div>
         </div>
         <button class="qoq-detail-cta" @click="openDetail">
           <AppIcon name="dataset" />
           <span>
-            <span class="qoq-cta-title">Подробные данные Golden Mart</span>
-            <span class="qoq-cta-sub">21 раздел · полный шаблон города</span>
+            <span class="qoq-cta-title">{{ t('qoqon.cta.title') }}</span>
+            <span class="qoq-cta-sub">{{ t('qoqon.cta.sub') }}</span>
           </span>
           <AppIcon name="arrow_forward" />
         </button>
@@ -426,10 +424,10 @@ const sectorMix = [
     <div v-else class="qoq-heroB-wrap">
       <div class="qoq-hero-toolbar dark">
         <button class="qoq-back outline" @click="back">
-          <AppIcon name="arrow_back" /> Назад к Ферганской области
+          <AppIcon name="arrow_back" /> {{ t('qoqon.back') }}
         </button>
         <div class="qoq-style-toggle outline">
-          <span class="qoq-style-label">Стиль:</span>
+          <span class="qoq-style-label">{{ t('qoqon.styleLabel') }}</span>
           <button :class="['qoq-style-btn', heroStyle === 'A' && 'active']" @click="setHero('A')">A</button>
           <button :class="['qoq-style-btn', heroStyle === 'B' && 'active']" @click="setHero('B')">B</button>
         </div>
@@ -438,108 +436,104 @@ const sectorMix = [
       <header class="qoq-briefB">
         <div class="qoq-briefB-glow" />
         <div class="qoq-briefB-content">
-          <div class="qoq-briefB-eyebrow">EXECUTIVE BRIEF · ГОРОД</div>
-          <h1 class="qoq-briefB-title">г. Коканд</h1>
+          <div class="qoq-briefB-eyebrow">{{ t('qoqon.briefEyebrow') }}</div>
+          <h1 class="qoq-briefB-title">{{ t('qoqon.title') }}</h1>
           <p class="qoq-briefB-sub">
-            {{ fmt(D.popK, 1) }} тыс. жителей · {{ D.area }} км² · плотность {{ fmt(D.density) }}/км²
+            {{ t('qoqon.subStats', { pop: fmt(D.popK, 1), area: D.area, density: fmt(D.density) }) }}
           </p>
           <div class="qoq-briefB-kpis">
             <!-- Промышленность: YoY + 5y -->
             <div class="qoq-briefB-kpi">
-              <div class="qoq-briefB-kpi-label">Промышленность</div>
+              <div class="qoq-briefB-kpi-label">{{ t('qoqon.kpi.industry') }}</div>
               <div class="qoq-briefB-kpi-val">9 410</div>
               <div class="qoq-briefB-kpi-unit-line">
-                <span class="qoq-briefB-kpi-unit">млрд сум</span>
-                <span class="qoq-briefB-kpi-year">2025</span>
+                <span class="qoq-briefB-kpi-unit">{{ t('qoqon.unit.bnSum') }}</span>
+                <span class="qoq-briefB-kpi-year">{{ t('qoqon.year.y2025') }}</span>
               </div>
               <div class="qoq-briefB-deltas">
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за год (2024→2025)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.yoy') }}</span>
                   <span class="qoq-briefB-delta tone-green">+50,2%</span>
                 </div>
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2025)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.fiveYear') }}</span>
                   <span class="qoq-briefB-delta tone-green">×2,2</span>
                 </div>
               </div>
             </div>
 
-            <!-- Услуги: YoY + 5y -->
+            <!-- Услуги -->
             <div class="qoq-briefB-kpi">
-              <div class="qoq-briefB-kpi-label">Услуги</div>
+              <div class="qoq-briefB-kpi-label">{{ t('qoqon.kpi.services') }}</div>
               <div class="qoq-briefB-kpi-val">6 371</div>
               <div class="qoq-briefB-kpi-unit-line">
-                <span class="qoq-briefB-kpi-unit">млрд сум</span>
-                <span class="qoq-briefB-kpi-year">2025</span>
+                <span class="qoq-briefB-kpi-unit">{{ t('qoqon.unit.bnSum') }}</span>
+                <span class="qoq-briefB-kpi-year">{{ t('qoqon.year.y2025') }}</span>
               </div>
               <div class="qoq-briefB-deltas">
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за год (2024→2025)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.yoy') }}</span>
                   <span class="qoq-briefB-delta tone-green">+29,6%</span>
                 </div>
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2025)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.fiveYear') }}</span>
                   <span class="qoq-briefB-delta tone-green">×2,6</span>
                 </div>
               </div>
             </div>
 
-            <!-- Инвестиции: YoY + 5y -->
+            <!-- Инвестиции -->
             <div class="qoq-briefB-kpi">
-              <div class="qoq-briefB-kpi-label">Инвестиции</div>
+              <div class="qoq-briefB-kpi-label">{{ t('qoqon.kpi.investments') }}</div>
               <div class="qoq-briefB-kpi-val">4 111</div>
               <div class="qoq-briefB-kpi-unit-line">
-                <span class="qoq-briefB-kpi-unit">млрд сум</span>
-                <span class="qoq-briefB-kpi-year">2025</span>
+                <span class="qoq-briefB-kpi-unit">{{ t('qoqon.unit.bnSum') }}</span>
+                <span class="qoq-briefB-kpi-year">{{ t('qoqon.year.y2025') }}</span>
               </div>
               <div class="qoq-briefB-deltas">
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за год (2024→2025)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.yoy') }}</span>
                   <span class="qoq-briefB-delta tone-green">×2,1</span>
                 </div>
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2025)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.fiveYear') }}</span>
                   <span class="qoq-briefB-delta tone-green">×4,1</span>
                 </div>
               </div>
             </div>
 
-            <!-- Прирост: contextual -->
+            <!-- Естественный прирост -->
             <div class="qoq-briefB-kpi">
-              <div class="qoq-briefB-kpi-label">Естественный прирост</div>
+              <div class="qoq-briefB-kpi-label">{{ t('qoqon.kpi.naturalIncrease') }}</div>
               <div class="qoq-briefB-kpi-val">+5 410</div>
               <div class="qoq-briefB-kpi-unit-line">
-                <span class="qoq-briefB-kpi-unit">человек</span>
-                <span class="qoq-briefB-kpi-year">2025</span>
+                <span class="qoq-briefB-kpi-unit">{{ t('qoqon.unit.people') }}</span>
+                <span class="qoq-briefB-kpi-year">{{ t('qoqon.year.y2025') }}</span>
               </div>
               <div class="qoq-briefB-deltas">
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">рождения − смерти</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.birthsMinusDeaths') }}</span>
                   <span class="qoq-briefB-delta tone-blue">6 923 − 1 513</span>
                 </div>
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">место в виловати</span>
-                  <span class="qoq-briefB-delta tone-blue">★ рекорд</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.rankInRegion') }}</span>
+                  <span class="qoq-briefB-delta tone-blue">{{ t('qoqon.chip.record') }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Население: contextual -->
+            <!-- Население — без строки тип расселения -->
             <div class="qoq-briefB-kpi">
-              <div class="qoq-briefB-kpi-label">Население</div>
+              <div class="qoq-briefB-kpi-label">{{ t('qoqon.kpi.population') }}</div>
               <div class="qoq-briefB-kpi-val">319 600</div>
               <div class="qoq-briefB-kpi-unit-line">
-                <span class="qoq-briefB-kpi-unit">человек</span>
-                <span class="qoq-briefB-kpi-year">1 янв 2026</span>
+                <span class="qoq-briefB-kpi-unit">{{ t('qoqon.unit.people') }}</span>
+                <span class="qoq-briefB-kpi-year">{{ t('qoqon.year.y2026Jan1') }}</span>
               </div>
               <div class="qoq-briefB-deltas">
                 <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2026)</span>
+                  <span class="qoq-briefB-delta-base">{{ t('qoqon.base.fiveYearPop') }}</span>
                   <span class="qoq-briefB-delta tone-green">+24,6%</span>
-                </div>
-                <div class="qoq-briefB-delta-row">
-                  <span class="qoq-briefB-delta-base">тип расселения</span>
-                  <span class="qoq-briefB-delta tone-blue">100% городское</span>
                 </div>
               </div>
             </div>
@@ -547,8 +541,8 @@ const sectorMix = [
           <button class="qoq-detail-cta on-brief" @click="openDetail">
             <AppIcon name="dataset" />
             <span>
-              <span class="qoq-cta-title">Подробные данные Golden Mart</span>
-              <span class="qoq-cta-sub">21 раздел · 6 тематических вкладок</span>
+              <span class="qoq-cta-title">{{ t('qoqon.cta.title') }}</span>
+              <span class="qoq-cta-sub">{{ t('qoqon.cta.sub') }}</span>
             </span>
             <AppIcon name="arrow_forward" />
           </button>
