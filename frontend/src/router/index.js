@@ -130,14 +130,19 @@ const routes = [
   {
     path: '/admin/golden-mart',
     name: 'admin-golden-mart',
-    component: () => import('@/views/admin/GmAdminView.vue'),
+    component: () => import('@/views/admin/GmAdminTableView.vue'),
     meta: { titleKey: 'nav.admin', requiresAdmin: true },
   },
   {
-    path: '/admin/golden-mart/table',
-    name: 'admin-golden-mart-table',
-    component: () => import('@/views/admin/GmAdminTableView.vue'),
+    path: '/admin/golden-mart/year',
+    name: 'admin-golden-mart-year',
+    component: () => import('@/views/admin/GmAdminView.vue'),
     meta: { titleKey: 'nav.admin', requiresAdmin: true },
+  },
+  // Legacy: /table used to be V2; keep redirect so old links still work.
+  {
+    path: '/admin/golden-mart/table',
+    redirect: '/admin/golden-mart',
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

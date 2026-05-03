@@ -174,7 +174,7 @@ const yearCoverage = computed(() => {
           <h1 class="gma-title">{{ t('gmAdmin.title') }}</h1>
           <p class="gma-sub">{{ t('gmAdmin.sub') }}</p>
         </div>
-        <button class="gma-toggle-v" @click="$router.push('/admin/golden-mart/table')">
+        <button class="gma-toggle-v" @click="$router.push('/admin/golden-mart')">
           <AppIcon name="swap_horiz" /> Версия 2 (таблица)
         </button>
       </div>

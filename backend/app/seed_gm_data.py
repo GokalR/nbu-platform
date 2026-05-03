@@ -18,10 +18,10 @@ Jan-Dec 2025 preliminary), same numbers that frontend qoqon.js carries.
 from __future__ import annotations
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from .db_async import async_session
+from .db_async import async_session, engine_async
 from . import models_gm as gm
 
 log = logging.getLogger("seed_gm_data")
@@ -167,6 +167,48 @@ def _build_city_rows(entity_key, region_key, identity, sectors, population, birt
             row.update(age_2025)
         rows.append(row)
     return rows
+
+
+async def sync_gm_columns():
+    """For each gm_* table, ALTER ADD any model column that's missing in the
+    live Postgres schema.
+
+    Required because create_all() only creates whole tables — it never adds
+    columns to existing ones. When the bilingual _uz columns (35 of them)
+    were introduced to the model after the first Railway deploy, the live
+    tables stayed on the old schema, causing every SELECT * to fail with
+    'column ... does not exist'. This migration brings the live schema up
+    to whatever the model declares. Idempotent (ADD COLUMN IF NOT EXISTS).
+    """
+    added = 0
+    async with engine_async.begin() as conn:
+        for model in (gm.GmCountry, gm.GmRegion, gm.GmCity, gm.GmEntity):
+            table_name = model.__tablename__
+            result = await conn.execute(
+                text(
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_name = :tn"
+                ),
+                {"tn": table_name},
+            )
+            existing = {row[0] for row in result}
+            for col in model.__table__.columns:
+                if col.name in existing:
+                    continue
+                col_type = col.type.compile(dialect=conn.dialect)
+                ddl = (
+                    f'ALTER TABLE {table_name} '
+                    f'ADD COLUMN IF NOT EXISTS "{col.name}" {col_type}'
+                )
+                await conn.execute(text(ddl))
+                added += 1
+                log.info(
+                    "[sync_gm_columns] +%s.%s (%s)", table_name, col.name, col_type
+                )
+    if added:
+        log.info("[startup] sync_gm_columns: %d columns added to live schema", added)
+    else:
+        log.info("[startup] sync_gm_columns: live schema matches model")
 
 
 async def migrate_enum_values():

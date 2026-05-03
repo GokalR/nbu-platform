@@ -168,7 +168,7 @@ function isDirty(year, fieldKey) {
 }
 
 function gotoV1() {
-  router.push('/admin/golden-mart')
+  router.push('/admin/golden-mart/year')
 }
 </script>
 

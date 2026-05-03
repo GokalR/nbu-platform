@@ -153,6 +153,16 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             log.warning("[startup] entities seed skipped: %s", e)
 
+        # Sync GM table columns — ALTER ADD any model column missing in live DB.
+        # Critical: create_all() only creates whole tables; it doesn't add new
+        # columns to existing ones, so the bilingual _uz columns weren't on the
+        # production tables until this ran.
+        try:
+            from .seed_gm_data import sync_gm_columns
+            await sync_gm_columns()
+        except Exception as e:
+            log.warning("[startup] sync_gm_columns skipped: %s", e)
+
         # Convert legacy RU/UZ text in enum columns to language-agnostic codes
         try:
             from .seed_gm_data import migrate_enum_values
