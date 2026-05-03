@@ -211,6 +211,52 @@ async def sync_gm_columns():
         log.info("[startup] sync_gm_columns: live schema matches model")
 
 
+async def fix_canonical_names():
+    """Force the bilingual identity pair (s1_1 RU / s1_1_uz UZ) to canonical
+    values for the small set of cities we have verified. Idempotent — safe
+    to run on every startup.
+
+    Why this exists: the early seed (before bilingual columns existed) wrote
+    `s1_1='Qoʻqon'` (UZ form) into the only available column. After we added
+    s1_1_uz, the new seed couldn't fix this because ON CONFLICT DO NOTHING
+    preserves existing rows. This step runs an explicit UPDATE (not insert)
+    so the names always converge to the right slot.
+
+    Only touches s1_1 / s1_1_uz; admin edits to other fields are preserved.
+    """
+    from sqlalchemy import update
+
+    canonical = {
+        'qoqon_city':    ('Коканд',   'Qoʻqon'),
+        'fargona_city':  ('Фергана',  'Fargʻona'),
+        'margilon_city': ('Маргилан', 'Margʻilon'),
+    }
+    region_canonical = {
+        'fergana_region': ('Фергана', 'Fargʻona'),
+    }
+
+    updated = 0
+    async with async_session() as session:
+        for key, (ru, uz) in canonical.items():
+            stmt = (
+                update(gm.GmCity)
+                .where(gm.GmCity.entity_key == key)
+                .values(s1_1=ru, s1_1_uz=uz)
+            )
+            result = await session.execute(stmt)
+            updated += result.rowcount
+        for key, (ru, uz) in region_canonical.items():
+            stmt = (
+                update(gm.GmRegion)
+                .where(gm.GmRegion.entity_key == key)
+                .values(s1_1=ru, s1_1_uz=uz)
+            )
+            result = await session.execute(stmt)
+            updated += result.rowcount
+        await session.commit()
+    log.info("[startup] fix_canonical_names: %d rows touched", updated)
+
+
 async def migrate_enum_values():
     """Convert legacy Russian/Uzbek text in enum-typed columns to language-
     agnostic codes. Idempotent: rows already on codes are no-op.

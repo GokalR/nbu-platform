@@ -170,6 +170,15 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             log.warning("[startup] enum migration skipped: %s", e)
 
+        # Force canonical bilingual names for known cities/regions (fixes
+        # rows seeded before s1_1_uz existed, where 'Qoʻqon' ended up in
+        # the RU slot and the UZ slot stayed null).
+        try:
+            from .seed_gm_data import fix_canonical_names
+            await fix_canonical_names()
+        except Exception as e:
+            log.warning("[startup] fix_canonical_names skipped: %s", e)
+
         # Seed verified GM data (Qoqon / Fergana / Margilan + Fergana region)
         # ON CONFLICT DO NOTHING — admin edits via panel are preserved.
         try:
