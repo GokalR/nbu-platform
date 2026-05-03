@@ -1,4 +1,4 @@
-"""Generate frontend/backend/gm_models.py from the 3 GM MD files.
+"""Generate backend/app/models_gm.py from the 3 GM MD files.
 
 Output is a single SQLAlchemy module declaring four tables:
   - gm_entities  (lookup: country/region/city display names + nesting)
@@ -10,7 +10,7 @@ Pipeline:
   golden_mart_*.xlsx
    → goldenmarts/_to_md.py            → GM_*.md
    → goldenmarts/_md_to_schema_js.py  → frontend/src/data/goldenMart/citySchema.js
-   → goldenmarts/_md_to_sqlalchemy.py → frontend/backend/gm_models.py    ← THIS
+   → goldenmarts/_md_to_sqlalchemy.py → backend/app/models_gm.py        ← THIS
 
 Whenever admins edit the Excel, run all three. The schema stays consistent
 across xlsx, MD, JS and Python.

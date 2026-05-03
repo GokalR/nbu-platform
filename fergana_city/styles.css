@@ -1,0 +1,113 @@
+/* NBU Region Metrics Panel — Material Design 3 tokens to match HomeView.vue */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0');
+
+:root {
+  /* M3 NBU palette — primary is corporate blue (matches NBU brand) */
+  --primary: #0046AD;
+  --on-primary: #FFFFFF;
+  --primary-fixed: #DCE5FF;
+  --primary-fixed-dim: #B3C8FF;
+  --on-primary-fixed: #001A47;
+
+  --secondary: #565F71;
+  --on-secondary: #FFFFFF;
+
+  --tertiary: #2E7D32;       /* growth / success — green */
+  --on-tertiary: #FFFFFF;
+  --tertiary-container: #C7E7C9;
+  --on-tertiary-container: #002106;
+
+  --error: #B3261E;
+  --on-error: #FFFFFF;
+  --error-container: #F9DEDC;
+  --on-error-container: #410E0B;
+
+  /* Surfaces — neutral cool whites */
+  --surface: #FAFAFC;
+  --surface-container-lowest: #FFFFFF;
+  --surface-container-low: #F4F5F9;
+  --surface-container: #EEEFF4;
+  --surface-container-high: #E8EAF0;
+
+  --on-surface: #1A1B1F;
+  --on-surface-variant: #44464F;
+  --outline: #74777F;
+  --outline-variant: #C4C6D0;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--on-surface);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.tabular { font-variant-numeric: tabular-nums; }
+.mono    { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+/* M3 elevation/shadow */
+.elev-1 { box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06); }
+.elev-2 { box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.08); }
+
+/* Buttons — match HomeView pattern (px-4 py-2 rounded-lg text-sm font-bold) */
+.btn {
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 9px 16px; border-radius: 10px;
+  border: 1px solid var(--outline-variant); background: var(--surface-container-lowest);
+  color: var(--on-surface); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.15s ease;
+}
+.btn:hover { background: var(--surface-container); }
+.btn-primary { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.btn-primary:hover { transform: scale(1.02); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--primary); }
+.btn-ghost:hover { background: var(--primary-fixed); }
+
+/* Eyebrow — uppercase tracking-widest text-on-surface-variant */
+.eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--on-surface-variant);
+}
+
+/* Badge — like home figuresBadge */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.badge-warn { background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.badge-error { background: var(--error-container); color: var(--on-error-container); }
+.badge-info  { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+
+/* Icon chip (round, like HomeView w-12 h-12 rounded-full bg-primary-fixed) */
+.icon-chip {
+  width: 48px; height: 48px; border-radius: 999px;
+  background: var(--primary-fixed); color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.icon-chip-sm { width: 36px; height: 36px; border-radius: 999px; }
+.icon-chip-square { border-radius: 8px; }
+
+/* Material Icons — reliable ligature CSS */
+.material-icons {
+  font-family: 'Material Icons' !important;
+  font-weight: normal; font-style: normal;
+  display: inline-block; line-height: 1;
+  text-transform: none; letter-spacing: normal;
+  word-wrap: normal; white-space: nowrap; direction: ltr;
+  font-feature-settings: 'liga' !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }

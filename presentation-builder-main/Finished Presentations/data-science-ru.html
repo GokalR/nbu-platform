@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Data Science · За пределами теории</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --white: #ffffff;
+    --off-white: #fafafa;
+    --line: #ececec;
+    --line-strong: #d4d4d4;
+    --muted: #9ca3af;
+    --grey: #6b7280;
+    --ink: #2c2c2c;
+    --black: #111827;
+    --accent: #c026d3;
+    --accent-light: #d946ef;
+    --accent-soft: #f5d0fe;
+    --accent-bg: #fdf4ff;
+    --accent-deep: #86198f;
+    --neutral: #94a3b8;
+    --neutral-soft: #e5e7eb;
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    background: var(--white);
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 70px 90px 100px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .content {
+    width: 100%;
+    max-width: 1180px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .content.center { align-items: center; text-align: center; }
+
+  /* Two-column layout for slides with side visual */
+  .split {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 56px;
+    width: 100%;
+    align-items: center;
+  }
+  .split .left, .split .right { min-width: 0; }
+
+  /* Typography */
+  h1, h2, h3, .mono { font-family: 'JetBrains Mono', monospace; }
+  h1 {
+    font-size: clamp(36px, 4.8vw, 58px);
+    line-height: 1.14;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--grey);
+  }
+  h1 .ink { color: var(--ink); }
+  h1 .accent { color: var(--accent-deep); }
+
+  h2 {
+    font-size: clamp(18px, 1.9vw, 24px);
+    font-weight: 500;
+    color: var(--grey);
+    margin-top: 18px;
+    line-height: 1.5;
+    max-width: 820px;
+  }
+
+  h3 {
+    font-size: clamp(18px, 1.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  p, li {
+    font-size: clamp(14px, 1.05vw, 16px);
+    color: var(--grey);
+    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 22px; height: 1px;
+    background: var(--muted);
+  }
+
+  .thin-rule {
+    width: 56px; height: 1px;
+    background: var(--line);
+    margin: 24px 0;
+  }
+
+  /* Triplet (3-up) */
+  .triplet {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 44px;
+    width: 100%;
+    margin-top: 30px;
+  }
+  .triplet .item .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .triplet .item h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(16px, 1.4vw, 19px);
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+  .triplet .item p { font-size: 14px; }
+
+  /* Metric cards (with mini chart slot) */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 36px;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .metric {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    background: var(--white);
+  }
+  .metric .big {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(38px, 4.6vw, 60px);
+    font-weight: 700;
+    color: var(--accent-deep);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .metric .label {
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+  .metric .sub {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+  }
+  .metric .chart {
+    margin-top: 14px;
+    height: 56px;
+  }
+
+  /* Big single stat */
+  .stat-hero .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(80px, 12vw, 168px);
+    color: var(--accent);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+  }
+  .stat-hero .caption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(16px, 1.6vw, 20px);
+    color: var(--ink);
+    margin-top: 14px;
+    line-height: 1.4;
+  }
+  .stat-hero .source {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    letter-spacing: 0.04em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Animated bars (reality gap) */
+  .bars {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 360px 1fr 60px;
+    align-items: center;
+    gap: 18px;
+  }
+  .bar-row .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--grey);
+  }
+  .bar-track {
+    height: 8px;
+    background: var(--off-white);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide.active .bar-fill.f50 { width: 50%; }
+  .slide.active .bar-fill.f40 { width: 40%; transition-delay: 0.15s; }
+  .slide.active .bar-fill.f10 { width: 10%; transition-delay: 0.3s; background: var(--neutral); }
+  .bar-row .pct {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Skills grid */
+  .skills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    width: 100%;
+    max-width: 920px;
+    margin-top: 24px;
+  }
+  .skill {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+    transition: border-color 0.3s ease;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .skill:hover { border-color: var(--accent-soft); }
+  .skill .ico {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--accent-bg);
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .skill .ico svg { width: 18px; height: 18px; }
+  .skill .body { min-width: 0; }
+  .skill .hdr {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .skill .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .skill h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--ink);
+  }
+  .skill p { font-size: 13.5px; }
+
+  /* Application chips grouped */
+  .chips-group { margin-top: 22px; max-width: 980px; width: 100%; }
+  .chips-group .group-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    margin-top: 18px;
+  }
+  .chips-group .group-label:first-child { margin-top: 0; }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    background: var(--white);
+    padding: 8px 14px;
+    border-radius: 999px;
+  }
+  .chip.accent { color: var(--accent-deep); border-color: var(--accent-soft); background: var(--accent-bg); }
+
+  /* Why list (numbered grid) */
+  .why {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 56px;
+    margin-top: 28px;
+    max-width: 1000px;
+    width: 100%;
+  }
+  .why .row {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .why .row .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 4px;
+  }
+  .why .row h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+  .why .row p { font-size: 13.5px; }
+
+  /* Stepper (slide 13) */
+  .stepper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    width: 100%;
+    max-width: 1020px;
+    margin-top: 32px;
+    position: relative;
+  }
+  .stepper::before {
+    content: "";
+    position: absolute;
+    top: 22px; left: 8%; right: 8%;
+    height: 1px;
+    background: var(--line);
+    z-index: 0;
+  }
+  .step {
+    text-align: center;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .step .dot {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1.5px solid var(--accent);
+    color: var(--accent-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    margin: 0 auto 16px;
+    transition: background 0.4s ease;
+  }
+  .slide.active .step:nth-child(1) .dot { background: var(--accent-bg); transition-delay: 0.1s; }
+  .slide.active .step:nth-child(2) .dot { background: var(--accent-bg); transition-delay: 0.3s; }
+  .slide.active .step:nth-child(3) .dot { background: var(--accent-bg); transition-delay: 0.5s; }
+  .step h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .step p { font-size: 13px; max-width: 280px; margin: 0 auto; }
+
+  /* Closing */
+  .closing-quote {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(24px, 3.4vw, 40px);
+    color: var(--ink);
+    line-height: 1.3;
+    max-width: 940px;
+    font-weight: 500;
+  }
+  .closing-quote .accent { color: var(--accent-deep); }
+
+  /* Salary range bar */
+  .salary-range {
+    width: 100%;
+    max-width: 720px;
+    margin-top: 30px;
+  }
+  .salary-track {
+    position: relative;
+    height: 6px;
+    background: linear-gradient(90deg, var(--neutral-soft), var(--accent-soft) 50%, var(--accent));
+    border-radius: 999px;
+    margin: 50px 0 70px;
+  }
+  .salary-marker {
+    position: absolute;
+    top: -8px;
+    width: 2px;
+    height: 22px;
+    background: var(--ink);
+  }
+  .salary-marker .lbl {
+    position: absolute;
+    bottom: -38px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .salary-marker .val {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-deep);
+    white-space: nowrap;
+  }
+
+  /* Donut wrapper */
+  .donut-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 44px;
+    width: 100%;
+    max-width: 720px;
+    margin-top: 28px;
+  }
+  .donut-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .donut-card .donut-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 14px;
+  }
+
+  /* Top progress / pager */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--accent);
+    width: 0;
+    transition: width 0.5s ease;
+    z-index: 1000;
+  }
+  .pager {
+    position: fixed;
+    bottom: 22px;
+    right: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    z-index: 1000;
+  }
+  .pager .cur { color: var(--ink); }
+  .footer-mark {
+    position: fixed;
+    bottom: 22px;
+    left: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    z-index: 1000;
+  }
+  .nav-hint {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 1000;
+    opacity: 0.7;
+  }
+  .nav-hint kbd {
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 10px;
+    margin: 0 3px;
+  }
+
+  /* SVG animation helpers */
+  .draw-line {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    transition: stroke-dashoffset 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+  }
+  .slide.active .draw-line { stroke-dashoffset: 0; }
+
+  .donut-fill {
+    transition: stroke-dasharray 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+  }
+
+  @media (max-width: 900px) {
+    .slide { padding: 40px 28px 80px; }
+    .triplet, .metrics, .skills, .why, .stepper, .donut-pair, .split { grid-template-columns: 1fr; gap: 22px; }
+    .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    .bar-row .pct { text-align: left; }
+    .stepper::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="stage" id="stage">
+
+  <!-- 1: Title -->
+  <section class="slide active" data-i="1">
+    <div class="content split">
+      <div class="left">
+        <h1><span class="ink">Data</span> Science<span class="accent">.</span></h1>
+        <h2>Что это такое на самом деле и почему это одна из самых ценных профессий десятилетия.</h2>
+      </div>
+      <div class="right">
+        <!-- Abstract decorative pattern: scatter of dots, no axes, no labels -->
+        <svg viewBox="0 0 420 360" style="width:100%; height:auto; max-height:380px;">
+          <g fill="#f5d0fe">
+            <circle cx="60"  cy="300" r="3"/>
+            <circle cx="92"  cy="270" r="3"/>
+            <circle cx="124" cy="288" r="3"/>
+            <circle cx="160" cy="246" r="3"/>
+            <circle cx="200" cy="220" r="3"/>
+            <circle cx="240" cy="240" r="3"/>
+            <circle cx="280" cy="180" r="3"/>
+            <circle cx="320" cy="150" r="3"/>
+          </g>
+          <g fill="#c026d3">
+            <circle cx="80"  cy="240" r="4"/>
+            <circle cx="140" cy="200" r="4"/>
+            <circle cx="180" cy="170" r="4"/>
+            <circle cx="220" cy="160" r="4"/>
+            <circle cx="260" cy="120" r="4"/>
+            <circle cx="300" cy="100" r="4"/>
+            <circle cx="340" cy="80"  r="4"/>
+          </g>
+          <circle cx="360" cy="60" r="6" fill="#86198f"/>
+          <!-- subtle trend line through the cloud -->
+          <path d="M 60 280 Q 200 200 360 70" fill="none" stroke="#c026d3" stroke-width="1" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2: Hook -->
+  <section class="slide" data-i="2">
+    <div class="content">
+      <h1><span class="ink">Что на самом деле делает</span> Data Scientist<span class="accent">?</span></h1>
+      <h2>Большинство думает, что вся работа в обучении моделей. На деле всё иначе: менее гламурно, гораздо интереснее и куда ценнее для бизнеса.</h2>
+    </div>
+  </section>
+
+  <!-- 3: Definition + Venn -->
+  <section class="slide" data-i="3">
+    <div class="content split">
+      <div class="left">
+        <h1><span class="ink">Превращаем хаотичные данные в</span> точные решения<span class="accent">.</span></h1>
+        <h2>Data Science на стыке статистики, кода и знаний бизнеса. Извлекаем закономерности из данных, чтобы компания могла действовать.</h2>
+        <div class="triplet" style="grid-template-columns:1fr; gap:18px; margin-top:24px;">
+          <div class="item"><div class="num">/ 01 СТАТИСТИКА</div><p style="font-size:13.5px;">Грамматика неопределённости. Понимать, что значит цифра, прежде чем ей доверять.</p></div>
+          <div class="item"><div class="num">/ 02 КОД</div><p style="font-size:13.5px;">Python, SQL и инженерные навыки, чтобы двигать данные в масштабе и надёжно поставлять модели.</p></div>
+          <div class="item"><div class="num">/ 03 БИЗНЕС</div><p style="font-size:13.5px;">Знать предметную область настолько, чтобы задать правильный вопрос, а не просто на него ответить.</p></div>
+        </div>
+      </div>
+      <div class="right">
+        <!-- 3-circle Venn -->
+        <svg viewBox="0 0 400 380" style="width:100%; height:auto; max-height:400px;">
+          <defs>
+            <style>
+              .venn-c { fill: #c026d3; fill-opacity: 0.10; stroke: #c026d3; stroke-width: 1.2; }
+            </style>
+          </defs>
+          <circle class="venn-c" cx="150" cy="140" r="100"/>
+          <circle class="venn-c" cx="250" cy="140" r="100"/>
+          <circle class="venn-c" cx="200" cy="240" r="100"/>
+          <text x="80"  y="100" font-family="JetBrains Mono" font-size="13" fill="#6b7280" font-weight="500">Статистика</text>
+          <text x="320" y="100" font-family="JetBrains Mono" font-size="13" fill="#6b7280" font-weight="500" text-anchor="end">Код</text>
+          <text x="200" y="350" font-family="JetBrains Mono" font-size="13" fill="#6b7280" font-weight="500" text-anchor="middle">Бизнес</text>
+          <!-- Center label -->
+          <rect x="148" y="178" width="104" height="28" fill="white" stroke="#c026d3" stroke-width="1.2" rx="14"/>
+          <text x="200" y="197" font-family="JetBrains Mono" font-size="12" fill="#86198f" font-weight="700" text-anchor="middle" letter-spacing="1">DATA SCIENCE</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4: By the numbers -->
+  <section class="slide" data-i="4">
+    <div class="content">
+      <h1><span class="ink">Профессия, которая</span> всё ещё растёт<span class="accent">.</span></h1>
+      <h2>Спрос на специалистов по данным опережает почти все технические роли по данным U.S. Bureau of Labor Statistics.</h2>
+      <div class="metrics">
+        <div class="metric">
+          <div class="big">+34%</div>
+          <div class="label">Прогноз роста рабочих мест</div>
+          <div class="sub">2024 / 2034 · BLS.gov</div>
+          <div class="chart">
+            <svg viewBox="0 0 240 56" preserveAspectRatio="none" style="width:100%; height:100%;">
+              <line x1="0" y1="48" x2="240" y2="48" stroke="#ececec"/>
+              <polyline class="draw-line" points="0,42 40,40 80,36 120,30 160,22 200,14 240,6" fill="none" stroke="#c026d3" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="240" cy="6" r="3" fill="#c026d3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="big">$120K</div>
+          <div class="label">Медианная зарплата в год</div>
+          <div class="sub">диапазон $78K · $193K+</div>
+          <div class="chart">
+            <svg viewBox="0 0 240 56" preserveAspectRatio="none" style="width:100%; height:100%;">
+              <line x1="20" y1="28" x2="220" y2="28" stroke="#e5e7eb" stroke-width="3" stroke-linecap="round"/>
+              <line x1="20" y1="28" x2="120" y2="28" stroke="#c026d3" stroke-width="3" stroke-linecap="round" class="draw-line"/>
+              <circle cx="20"  cy="28" r="4" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+              <circle cx="120" cy="28" r="5" fill="#c026d3"/>
+              <circle cx="220" cy="28" r="4" fill="#fff" stroke="#86198f" stroke-width="1.5"/>
+              <text x="20"  y="48" font-family="JetBrains Mono" font-size="9" fill="#9ca3af">$78K</text>
+              <text x="120" y="48" font-family="JetBrains Mono" font-size="9" fill="#86198f" text-anchor="middle" font-weight="700">$120K</text>
+              <text x="220" y="48" font-family="JetBrains Mono" font-size="9" fill="#9ca3af" text-anchor="end">$193K</text>
+            </svg>
+          </div>
+        </div>
+        <div class="metric">
+          <div class="big">+256%</div>
+          <div class="label">Рост вакансий с 2013</div>
+          <div class="sub">Market.us · LinkedIn</div>
+          <div class="chart">
+            <svg viewBox="0 0 240 56" preserveAspectRatio="none" style="width:100%; height:100%;">
+              <g fill="#f5d0fe">
+                <rect x="10"  y="40" width="22" height="8"/>
+                <rect x="42"  y="34" width="22" height="14"/>
+                <rect x="74"  y="28" width="22" height="20"/>
+                <rect x="106" y="22" width="22" height="26"/>
+                <rect x="138" y="16" width="22" height="32"/>
+                <rect x="170" y="10" width="22" height="38"/>
+              </g>
+              <rect x="202" y="4" width="22" height="44" fill="#c026d3"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5: Single big stat, growth, with comparison line chart -->
+  <section class="slide" data-i="5">
+    <div class="content split">
+      <div class="left">
+        <div class="stat-hero">
+          <div class="num">+34%</div>
+          <div class="caption">рост вакансий Data Science,<br/>2024 / 2034.</div>
+          <div class="source">источник: U.S. Bureau of Labor Statistics</div>
+        </div>
+        <h2 style="margin-top:24px;">Для сравнения средний рост по всем профессиям США около <span style="color:var(--ink); font-weight:600;">4%</span>. Мало где есть такая динамика.</h2>
+      </div>
+      <div class="right">
+        <!-- Comparison line chart -->
+        <svg viewBox="0 0 460 320" style="width:100%; height:auto; max-height:340px;">
+          <!-- y-axis labels -->
+          <g font-family="JetBrains Mono" font-size="10" fill="#9ca3af">
+            <text x="10" y="50">+40%</text>
+            <text x="10" y="120">+25%</text>
+            <text x="10" y="190">+10%</text>
+            <text x="10" y="260">0%</text>
+          </g>
+          <!-- grid -->
+          <g stroke="#ececec" stroke-width="1">
+            <line x1="50" y1="46"  x2="440" y2="46"/>
+            <line x1="50" y1="116" x2="440" y2="116"/>
+            <line x1="50" y1="186" x2="440" y2="186"/>
+            <line x1="50" y1="256" x2="440" y2="256"/>
+          </g>
+          <!-- Avg line (flat) -->
+          <polyline class="draw-line" points="50,250 100,248 150,247 200,246 250,245 300,243 350,241 400,239 440,237"
+                    fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 4"/>
+          <text x="446" y="240" font-family="JetBrains Mono" font-size="11" fill="#6b7280">Все · +4%</text>
+          <!-- DS line (steep) -->
+          <polyline class="draw-line" points="50,250 100,235 150,215 200,190 250,160 300,130 350,95 400,68 440,52"
+                    fill="none" stroke="#c026d3" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="440" cy="52" r="5" fill="#c026d3"/>
+          <text x="446" y="56" font-family="JetBrains Mono" font-size="11" fill="#86198f" font-weight="700">DS · +34%</text>
+          <!-- x-axis -->
+          <line x1="50" y1="280" x2="440" y2="280" stroke="#d4d4d4"/>
+          <g font-family="JetBrains Mono" font-size="10" fill="#9ca3af">
+            <text x="50"  y="300">2024</text>
+            <text x="245" y="300" text-anchor="middle">2029</text>
+            <text x="440" y="300" text-anchor="end">2034</text>
+          </g>
+          <text x="50" y="22" font-family="JetBrains Mono" font-size="10" fill="#9ca3af" letter-spacing="2">ПРОГНОЗ РОСТА · 10 ЛЕТ</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6: Salary range visualization -->
+  <section class="slide" data-i="6">
+    <div class="content">
+      <h1><span class="ink">Зарплатный диапазон в</span> США<span class="accent">.</span></h1>
+      <h2>Профессия, где сильная техническая работа оплачивается на уровне сильной технической работы. Топ специалисты получают как senior engineers.</h2>
+      <div class="salary-range">
+        <div class="salary-track">
+          <div class="salary-marker" style="left:0%;">
+            <div class="val" style="color:var(--grey);">$78K</div>
+            <div class="lbl">младший</div>
+          </div>
+          <div class="salary-marker" style="left:36.5%; height:30px; top:-12px; background:var(--accent);">
+            <div class="val">$120K</div>
+            <div class="lbl">медиана</div>
+          </div>
+          <div class="salary-marker" style="left:100%;">
+            <div class="val" style="color:var(--accent-deep);">$193K+</div>
+            <div class="lbl">senior</div>
+          </div>
+        </div>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); letter-spacing:0.04em; text-align:center;">источник: Market.us, BLS.gov</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7: Gender gap with donuts -->
+  <section class="slide" data-i="7">
+    <div class="content">
+      <h1><span class="ink">Пока в основном мужчины.</span> <span class="accent">Это меняется.</span></h1>
+      <h2>Глобально женщины составляют только 15 / 26% специалистов по данным. В США ближе к 38%. Поле формируется прямо сейчас.</h2>
+      <div class="donut-pair">
+        <div class="donut-card">
+          <svg viewBox="0 0 160 160" style="width:160px; height:160px;">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#f3f4f6" stroke-width="14"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#c026d3" stroke-width="14"
+                    class="donut-fill"
+                    stroke-dasharray="0 376.99"
+                    stroke-linecap="butt"
+                    transform="rotate(-90 80 80)"
+                    style="stroke-dasharray: 75.4 376.99;"/>
+            <text x="80" y="74" text-anchor="middle" font-family="JetBrains Mono" font-size="22" fill="#86198f" font-weight="700">20%</text>
+            <text x="80" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#9ca3af">женщины</text>
+          </svg>
+          <div class="donut-label">Глобально · 15 / 26%</div>
+        </div>
+        <div class="donut-card">
+          <svg viewBox="0 0 160 160" style="width:160px; height:160px;">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#f3f4f6" stroke-width="14"/>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="#c026d3" stroke-width="14"
+                    class="donut-fill"
+                    stroke-linecap="butt"
+                    transform="rotate(-90 80 80)"
+                    style="stroke-dasharray: 143.3 376.99;"/>
+            <text x="80" y="74" text-anchor="middle" font-family="JetBrains Mono" font-size="22" fill="#86198f" font-weight="700">38%</text>
+            <text x="80" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#9ca3af">женщины</text>
+          </svg>
+          <div class="donut-label">США · ~38%</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8: Reality gap bars -->
+  <section class="slide" data-i="8">
+    <div class="content">
+      <h1><span class="ink">Университет учит одному.</span> <span class="accent">Индустрия платит за другое.</span></h1>
+      <h2>На большинстве курсов время уходит на предобработку и алгоритмы. Реальная работа выглядит так:</h2>
+      <div class="bars">
+        <div class="bar-row">
+          <div class="lbl">Постановка задачи и перевод на язык бизнеса</div>
+          <div class="bar-track"><div class="bar-fill f50"></div></div>
+          <div class="pct">50%</div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl">Feature engineering и отбор признаков</div>
+          <div class="bar-track"><div class="bar-fill f40"></div></div>
+          <div class="pct">40%</div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl">Предобработка данных и моделирование</div>
+          <div class="bar-track"><div class="bar-fill f10"></div></div>
+          <div class="pct">10%</div>
+        </div>
+      </div>
+      <p style="margin-top:22px; font-size:13px; color:var(--muted);">Модель: лёгкая часть. Понять вопрос: вот это работа.</p>
+    </div>
+  </section>
+
+  <!-- 9: Skills with icons -->
+  <section class="slide" data-i="9">
+    <div class="content">
+      <h1><span class="ink">Четыре навыка делают</span> большую часть работы<span class="accent">.</span></h1>
+      <h2>Всё остальное надстраивается сверху. Освоите эти четыре, и сможете честно говорить с любой командой данных.</h2>
+      <div class="skills">
+        <div class="skill">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 L4 6 L4 14 C4 18 8 21 12 22 C16 21 20 18 20 14 L20 6 Z"/><circle cx="9" cy="10" r="1"/></svg></div>
+          <div class="body">
+            <div class="hdr"><span class="num">/ 01</span><h4>Python</h4></div>
+            <p>Pandas, NumPy, scikit-learn. Рабочий язык современной науки о данных. Уверенность в структурах, потоке управления и базовых алгоритмах.</p>
+          </div>
+        </div>
+        <div class="skill">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5 V12 C4 13.66 7.58 15 12 15 S20 13.66 20 12 V5"/><path d="M4 12 V19 C4 20.66 7.58 22 12 22 S20 20.66 20 19 V12"/></svg></div>
+          <div class="body">
+            <div class="hdr"><span class="num">/ 02</span><h4>SQL</h4></div>
+            <p>Чтение, объединение и преобразование данных в реляционных базах. Там, где почти каждый бизнес реально хранит информацию.</p>
+          </div>
+        </div>
+        <div class="skill">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21 V3"/><path d="M3 21 H21"/><path d="M7 17 L11 12 L15 14 L20 7"/><circle cx="20" cy="7" r="1.5" fill="currentColor"/></svg></div>
+          <div class="body">
+            <div class="hdr"><span class="num">/ 03</span><h4>Статистика</h4></div>
+            <p>Распределения, проверка гипотез и здоровая осторожность к собственным выводам. Базовый слой под любой моделью.</p>
+          </div>
+        </div>
+        <div class="skill">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="5"  cy="6"  r="2"/><circle cx="5"  cy="18" r="2"/><circle cx="19" cy="6"  r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 6 L10 11"/><path d="M7 18 L10 13"/><path d="M14 11 L17 6"/><path d="M14 13 L17 18"/></svg></div>
+          <div class="body">
+            <div class="hdr"><span class="num">/ 04</span><h4>Машинное обучение</h4></div>
+            <p>Линейные модели, деревья, кластеризация. Знание, когда что использовать, и когда простое правило обыграет всё сложное.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10: Applications grouped chips -->
+  <section class="slide" data-i="10">
+    <div class="content">
+      <h1><span class="ink">Где Data Science</span> действительно работает<span class="accent">.</span></h1>
+      <h2>Это редко гламурная исследовательская лаборатория. Чаще тихая система, которая решает: какому клиенту позвонить, какую транзакцию пометить, какой продукт порекомендовать.</h2>
+      <div class="chips-group">
+        <div class="group-label">Финансы и риски</div>
+        <div class="chips">
+          <span class="chip accent">Кредитный скоринг</span>
+          <span class="chip accent">Антифрод</span>
+          <span class="chip accent">Кредитные риски</span>
+          <span class="chip accent">Стратегия collection</span>
+        </div>
+        <div class="group-label">Маркетинг и продукт</div>
+        <div class="chips">
+          <span class="chip">Прогноз оттока</span>
+          <span class="chip">Сегментация клиентов</span>
+          <span class="chip">Next-best-offer</span>
+          <span class="chip">Рекомендательные системы</span>
+          <span class="chip">Маркетинг-атрибуция</span>
+          <span class="chip">Оптимизация цен</span>
+        </div>
+        <div class="group-label">Операции и AI</div>
+        <div class="chips">
+          <span class="chip">Прогноз спроса</span>
+          <span class="chip">NLP и работа с документами</span>
+          <span class="chip">Conversational analytics</span>
+          <span class="chip">Граф фрод-сети</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Career outcomes (3 habits) with flow arrow visual -->
+  <section class="slide" data-i="12">
+    <div class="content">
+      <h1><span class="ink">Думай как бизнес.</span> <span class="accent">Строй как инженер.</span></h1>
+      <h2>Data scientist'ы, за которых работодатели реально борются, делят три привычки. Ни одна из них про знание алгоритмов.</h2>
+      <!-- Flow visualization -->
+      <svg viewBox="0 0 1000 110" style="width:100%; max-width:980px; height:auto; margin-top:18px;">
+        <!-- Boxes -->
+        <g font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#86198f">
+          <rect x="20"  y="40" width="200" height="50" rx="10" fill="#fdf4ff" stroke="#c026d3" stroke-width="1.2"/>
+          <text x="120" y="70" text-anchor="middle">Вопрос бизнеса</text>
+          <rect x="280" y="40" width="200" height="50" rx="10" fill="#fdf4ff" stroke="#c026d3" stroke-width="1.2"/>
+          <text x="380" y="70" text-anchor="middle">Метрика и модель</text>
+          <rect x="540" y="40" width="200" height="50" rx="10" fill="#fdf4ff" stroke="#c026d3" stroke-width="1.2"/>
+          <text x="640" y="70" text-anchor="middle">Решение</text>
+          <rect x="800" y="40" width="180" height="50" rx="10" fill="#c026d3" stroke="#86198f" stroke-width="1.2"/>
+          <text x="890" y="70" text-anchor="middle" fill="#fff">Импакт ₽</text>
+        </g>
+        <!-- Arrows -->
+        <g stroke="#c026d3" stroke-width="1.5" fill="none">
+          <path d="M 220 65 L 270 65" marker-end="url(#arrow)"/>
+          <path d="M 480 65 L 530 65" marker-end="url(#arrow)"/>
+          <path d="M 740 65 L 790 65" marker-end="url(#arrow-w)"/>
+        </g>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M 0 0 L 6 4 L 0 8 Z" fill="#c026d3"/>
+          </marker>
+          <marker id="arrow-w" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M 0 0 L 6 4 L 0 8 Z" fill="#c026d3"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="triplet" style="margin-top:24px;">
+        <div class="item">
+          <div class="num">/ 01</div>
+          <h4>Перевод вопроса</h4>
+          <p>Превратить размытую цель бизнеса в измеримую. Затем выбрать самую простую модель, которая её решит.</p>
+        </div>
+        <div class="item">
+          <div class="num">/ 02</div>
+          <h4>Связь с деньгами</h4>
+          <p>Каждый выход модели привязать к числу, которое волнует CFO. AUC: средство, а не результат.</p>
+        </div>
+        <div class="item">
+          <div class="num">/ 03</div>
+          <h4>Ясная коммуникация</h4>
+          <p>Презентовать технические находки нетехническим стейкхолдерам без потери нюансов и их внимания.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Closing -->
+  <section class="slide" data-i="14">
+    <div class="content center">
+      <p class="closing-quote">
+        Цель Data Science не в том, чтобы строить модели<span class="accent">.</span><br/>
+        А в том, чтобы помочь бизнесу <span class="accent">принимать решения лучше</span>, быстрее, с меньшим числом догадок.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer-mark">DATA · SCIENCE</div>
+<div class="pager"><span class="cur" id="cur">01</span> <span style="opacity:.5;">/</span> <span id="tot">12</span></div>
+<div class="nav-hint"><kbd>←</kbd><kbd>→</kbd> навигация · <kbd>пробел</kbd> далее</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const progress = document.getElementById('progress');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  let i = 0;
+  tot.textContent = String(slides.length).padStart(2, '0');
+
+  function show(n) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    slides[i].classList.remove('active');
+    i = n;
+    slides[i].classList.add('active');
+    progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    cur.textContent = String(i + 1).padStart(2, '0');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); show(i + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); show(i - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault(); show(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); show(slides.length - 1);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, kbd')) return;
+    show(i + 1);
+  });
+
+  show(0);
+</script>
+
+</body>
+</html>

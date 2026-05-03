@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>NBU · Fergana city — sector dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="data-adapter.js"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="panel-v1.jsx"></script>
+
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const ARTBOARD_BG = '#F4F5F9'; // M3 surface-container-low
+
+function App() {
+  return (
+    <>
+      <DesignCanvas title="NBU · Fergana city — все секторы (verified)">
+        <DCSection id="full" title="01 / Full sector dashboard (baseline)">
+          <DCArtboard id="v1" label="6 sectors + population + vital stats + region context" width={1280} height={1500}>
+            <div style={{ padding: 24, background: ARTBOARD_BG, height: '100%', boxSizing: 'border-box', overflow: 'auto' }}>
+              <PanelV1/>
+            </div>
+          </DCArtboard>
+        </DCSection>
+      </DesignCanvas>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

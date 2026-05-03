@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Software Business — Level Up NOW</title>
+<style>
+  :root{
+    --space: #0a0b16;
+    --space2: #1a1b2e;
+    --neon-green: #4ade80;
+    --neon-red: #f87171;
+    --neon-cyan: #22d3ee;
+    --neon-yellow: #facc15;
+    --neon-purple: #a78bfa;
+    --pixel-white: #f0eadc;
+    --muted: #94a3b8;
+    --panel: rgba(16, 20, 39, 0.9);
+    --glow-green: 0 0 20px rgba(74, 222, 128, 0.5);
+    --glow-red: 0 0 20px rgba(248, 113, 113, 0.5);
+    --glow-cyan: 0 0 20px rgba(34, 211, 238, 0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, var(--space2) 0%, var(--space) 100%);
+  }
+
+  body {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    color: var(--pixel-white);
+    position: relative;
+  }
+
+  /* Starfield Background */
+  #stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+
+  /* HUD Display */
+  .hud {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 40px;
+    font-size: 12px;
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.8);
+    z-index: 1000;
+    letter-spacing: 1px;
+  }
+
+  .hud span {
+    color: var(--neon-yellow);
+  }
+
+  /* Stage Container */
+  .stage {
+    width: min(1400px, calc(100vw - 80px));
+    height: min(800px, calc(100vh - 160px));
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(26, 27, 46, 0.95), rgba(10, 11, 22, 0.95));
+    box-shadow:
+      0 0 60px rgba(34, 211, 238, 0.3),
+      inset 0 0 120px rgba(34, 211, 238, 0.05);
+  }
+
+  /* Slides */
+  .slides-container {
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+  }
+
+  .slides-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .slide {
+    min-height: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 50px;
+    position: relative;
+    gap: 20px;
+  }
+
+  .slide .content {
+    max-width: 1100px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: clamp(32px, 4.5vw, 56px);
+    line-height: 1.3;
+    margin: 0 0 20px 0;
+    background: linear-gradient(180deg, var(--neon-cyan) 0%, var(--neon-purple) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow:
+      0 0 30px rgba(34, 211, 238, 0.8),
+      0 4px 0 rgba(10, 11, 22, 0.5);
+    letter-spacing: 2px;
+  }
+
+  h2 {
+    font-size: clamp(14px, 1.8vw, 18px);
+    line-height: 1.6;
+    margin: 0 0 30px 0;
+    color: var(--muted);
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+
+  .big {
+    font-size: clamp(18px, 2.5vw, 24px);
+    line-height: 1.5;
+    margin: 20px 0;
+    color: var(--pixel-white);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .huge {
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.2;
+    margin: 20px 0;
+    background: linear-gradient(180deg, var(--neon-yellow) 0%, var(--neon-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow:
+      0 0 40px rgba(250, 204, 21, 0.8),
+      0 6px 0 rgba(10, 11, 22, 0.5);
+  }
+
+  /* Game Badges */
+  .badge {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 8px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(30px);
+    image-rendering: pixelated;
+    border: 2px solid;
+  }
+
+  .badge-danger {
+    background: linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(239, 68, 68, 0.1));
+    color: var(--neon-red);
+    border-color: var(--neon-red);
+    box-shadow: var(--glow-red);
+  }
+
+  .badge-success {
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(34, 197, 94, 0.1));
+    color: var(--neon-green);
+    border-color: var(--neon-green);
+    box-shadow: var(--glow-green);
+  }
+
+  .badge-primary {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(6, 182, 212, 0.1));
+    color: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+    box-shadow: var(--glow-cyan);
+  }
+
+  /* Metric Cards */
+  .metric-card {
+    background: var(--panel);
+    border: 3px solid var(--neon-cyan);
+    border-radius: 16px;
+    padding: 30px;
+    margin: 10px;
+    min-width: 200px;
+    box-shadow: var(--glow-cyan);
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--neon-cyan), var(--neon-purple), var(--neon-cyan));
+    border-radius: 16px;
+    opacity: 0.5;
+    z-index: -1;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+  }
+
+  .metric-value {
+    font-size: clamp(28px, 4vw, 48px);
+    margin-bottom: 10px;
+    background: linear-gradient(180deg, var(--neon-yellow) 0%, var(--neon-green) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* Comparison Cards */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 30px auto;
+    max-width: 900px;
+  }
+
+  .comparison-card {
+    background: var(--panel);
+    border-radius: 20px;
+    padding: 30px;
+    opacity: 0;
+    transform: translateY(30px);
+    position: relative;
+  }
+
+  .comparison-old {
+    border: 3px solid var(--neon-red);
+    box-shadow: var(--glow-red);
+  }
+
+  .comparison-new {
+    border: 3px solid var(--neon-green);
+    box-shadow: var(--glow-green);
+  }
+
+  .comparison-card h3 {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .comparison-old h3 {
+    color: var(--neon-red);
+  }
+
+  .comparison-new h3 {
+    color: var(--neon-green);
+  }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 40px auto;
+    max-width: 1000px;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+    z-index: -1;
+  }
+
+  .timeline-item {
+    background: var(--panel);
+    border: 2px solid var(--neon-cyan);
+    border-radius: 12px;
+    padding: 15px 20px;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  /* Power Bar */
+  .power-bar {
+    width: 80%;
+    height: 40px;
+    background: rgba(10, 11, 22, 0.8);
+    border: 3px solid var(--neon-cyan);
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 20px auto;
+    position: relative;
+  }
+
+  .power-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-yellow));
+    width: 0;
+    transition: width 2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.8);
+  }
+
+  /* Game Button */
+  .game-btn {
+    background: linear-gradient(180deg, var(--neon-green), #22c55e);
+    color: var(--space);
+    border: none;
+    padding: 15px 40px;
+    font-size: 14px;
+    font-family: inherit;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    font-weight: bold;
+    box-shadow:
+      0 4px 0 #16a34a,
+      0 8px 20px rgba(74, 222, 128, 0.5);
+    transform: translateY(0);
+    transition: all 0.1s;
+  }
+
+  .game-btn:hover {
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 0 #16a34a,
+      0 4px 20px rgba(74, 222, 128, 0.8);
+  }
+
+  .game-btn:active {
+    transform: translateY(4px);
+    box-shadow:
+      0 0 0 #16a34a,
+      0 2px 10px rgba(74, 222, 128, 0.8);
+  }
+
+  /* Blink Animation */
+  .blink {
+    animation: blink 1s steps(2, end) infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0.1; }
+  }
+
+  /* Slide Animations */
+  .animate-in {
+    animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-in-scale {
+    animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Navigation Dots */
+  .navigation-dots {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+    background: rgba(10, 11, 22, 0.8);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 2px solid var(--neon-cyan);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .dot.active {
+    background: var(--neon-cyan);
+    box-shadow: 0 0 10px var(--neon-cyan);
+  }
+
+  /* Press Start Text */
+  .press-start {
+    font-size: 18px;
+    color: var(--neon-yellow);
+    margin: 30px 0;
+    text-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
+  }
+
+  /* Level Counter */
+  .level-counter {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    font-size: 14px;
+    color: var(--neon-purple);
+    text-shadow: 0 0 10px rgba(167, 139, 250, 0.8);
+  }
+
+  /* Grid Layout */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 1000px;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .slide {
+      padding: 40px 25px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 6vw, 36px);
+    }
+
+    .comparison-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .timeline {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .timeline::before {
+      display: none;
+    }
+
+    .hud {
+      font-size: 10px;
+      gap: 20px;
+    }
+
+    .huge {
+      font-size: clamp(28px, 8vw, 42px);
+    }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Starfield Canvas -->
+<canvas id="stars"></canvas>
+
+<!-- HUD Display -->
+<div class="hud">
+  <div>SCORE <span>000000</span></div>
+  <div>HIGH SCORE <span>999999</span></div>
+  <div>LIVES <span>3</span></div>
+</div>
+
+<!-- Stage Container -->
+<div class="stage">
+  <div class="slides-container">
+
+    <!-- Slide 1: Title Screen -->
+    <div class="slide visible" data-slide="0">
+      <div class="content">
+        <div class="level-counter">LEVEL 01</div>
+        <h1>START YOUR AI BUSINESS</h1>
+        <div class="huge">NOW!</div>
+        <h2>The Opportunity of Our Lifetime</h2>
+        <div class="press-start blink">PRESS SPACE TO START</div>
+        <div class="badge badge-primary">100 MILLION USERS</div>
+        <div class="badge badge-success">$4.4 TRILLION OPPORTUNITY</div>
+        <div class="badge badge-primary">FASTEST ADOPTION EVER</div>
+      </div>
+    </div>
+
+    <!-- Slide 2: The Hook -->
+    <div class="slide" data-slide="1">
+      <div class="content">
+        <div class="level-counter">LEVEL 02</div>
+        <h1>1995: Internet Revolution</h1>
+        <div class="comparison-grid">
+          <div class="comparison-card comparison-old">
+            <h3>THEN</h3>
+            <div class="badge badge-danger">16M Users</div>
+            <div class="badge badge-danger">7 Years to 100M</div>
+            <div class="badge badge-danger">Slow Adoption</div>
+          </div>
+          <div class="comparison-card comparison-new">
+            <h3>NOW</h3>
+            <div class="badge badge-success">AI Revolution</div>
+            <div class="badge badge-success">2 Months to 100M</div>
+            <div class="badge badge-success">10X Faster</div>
+          </div>
+        </div>
+        <h2>Those who started then captured TRILLIONS</h2>
+      </div>
+    </div>
+
+    <!-- Slide 3: Speed Records -->
+    <div class="slide" data-slide="2">
+      <div class="content">
+        <div class="level-counter">LEVEL 03</div>
+        <h1>BREAKING ALL RECORDS</h1>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="metric-value">2 mo</div>
+            <div class="metric-label">ChatGPT</div>
+          </div>
+          <div class="timeline-item">
+            <div class="metric-value">9 mo</div>
+            <div class="metric-label">TikTok</div>
+          </div>
+          <div class="timeline-item">
+            <div class="metric-value">2.5 yr</div>
+            <div class="metric-label">Instagram</div>
+          </div>
+          <div class="timeline-item">
+            <div class="metric-value">7 yr</div>
+            <div class="metric-label">Internet</div>
+          </div>
+        </div>
+        <div class="big">Fastest Technology Adoption in Human History</div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Market Size -->
+    <div class="slide" data-slide="3">
+      <div class="content">
+        <div class="level-counter">LEVEL 04</div>
+        <h1>THE NUMBERS ARE INSANE</h1>
+        <div class="stats-grid">
+          <div class="metric-card">
+            <div class="metric-value">$4.4T</div>
+            <div class="metric-label">ANNUAL VALUE ADD</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">32X</div>
+            <div class="metric-label">GROWTH BY 2032</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">$1.3T</div>
+            <div class="metric-label">MARKET BY 2032</div>
+          </div>
+        </div>
+        <h2>Larger than the entire UK economy</h2>
+      </div>
+    </div>
+
+    <!-- Slide 5: Every Industry -->
+    <div class="slide" data-slide="4">
+      <div class="content">
+        <div class="level-counter">LEVEL 05</div>
+        <h1>AI IS EATING EVERYTHING</h1>
+        <div class="badge badge-primary">CUSTOMER SERVICE</div>
+        <div class="badge badge-primary">HEALTHCARE</div>
+        <div class="badge badge-primary">EDUCATION</div>
+        <div class="badge badge-primary">FINANCE</div>
+        <div class="badge badge-primary">MANUFACTURING</div>
+        <div class="badge badge-primary">RETAIL</div>
+        <div class="badge badge-primary">LOGISTICS</div>
+        <div class="badge badge-primary">MARKETING</div>
+        <h2>80% of enterprises will use AI by 2026</h2>
+      </div>
+    </div>
+
+    <!-- Slide 6: The Gap -->
+    <div class="slide" data-slide="5">
+      <div class="content">
+        <div class="level-counter">LEVEL 06</div>
+        <h1>THE DEPLOYMENT GAP</h1>
+        <div class="power-bar">
+          <div class="power-fill" style="width: 75%"></div>
+        </div>
+        <div class="big">75% of CEOs say AI is critical</div>
+        <div class="power-bar">
+          <div class="power-fill" style="width: 28%"></div>
+        </div>
+        <div class="big">Only 28% have deployed it</div>
+        <div class="badge badge-success">THIS GAP = YOUR OPPORTUNITY</div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Barriers Collapsed -->
+    <div class="slide" data-slide="6">
+      <div class="content">
+        <div class="level-counter">LEVEL 07</div>
+        <h1>BARRIERS DESTROYED</h1>
+        <div class="comparison-grid">
+          <div class="comparison-card comparison-old">
+            <h3>10 YEARS AGO</h3>
+            <div class="badge badge-danger">Millions in Funding</div>
+            <div class="badge badge-danger">Team of PhDs</div>
+            <div class="badge badge-danger">Years of R&D</div>
+          </div>
+          <div class="comparison-card comparison-new">
+            <h3>TODAY</h3>
+            <div class="badge badge-success">Laptop + API Key</div>
+            <div class="badge badge-success">97% Cost Drop</div>
+            <div class="badge badge-success">55% Faster Dev</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: First Mover -->
+    <div class="slide" data-slide="7">
+      <div class="content">
+        <div class="level-counter">LEVEL 08</div>
+        <h1>FIRST-MOVER ADVANTAGE</h1>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="badge badge-primary">2008</div>
+            <div>Mobile Apps</div>
+          </div>
+          <div class="timeline-item">
+            <div class="badge badge-primary">2024</div>
+            <div>AI Apps</div>
+          </div>
+        </div>
+        <div class="big">Early movers become billion-dollar companies</div>
+        <div class="badge badge-success">3X FASTER GROWTH</div>
+        <div class="badge badge-success">2X HIGHER VALUATIONS</div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Success Stories -->
+    <div class="slide" data-slide="8">
+      <div class="content">
+        <div class="level-counter">LEVEL 09</div>
+        <h1>IT'S ALREADY HAPPENING</h1>
+        <div class="stats-grid">
+          <div class="metric-card">
+            <div class="metric-value">$1.5B</div>
+            <div class="metric-label">JASPER AI</div>
+            <div class="badge badge-success">18 MONTHS</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">$200M</div>
+            <div class="metric-label">MIDJOURNEY</div>
+            <div class="badge badge-success">11 EMPLOYEES</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">$42.5B</div>
+            <div class="metric-label">AI FUNDING 2023</div>
+            <div class="badge badge-success">12 MO TO $1M ARR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Viral Growth -->
+    <div class="slide" data-slide="9">
+      <div class="content">
+        <div class="level-counter">LEVEL 10</div>
+        <h1>NO MARKETING NEEDED</h1>
+        <div class="huge">100M</div>
+        <h2>Users with ZERO marketing budget</h2>
+        <div class="badge badge-primary">WOW MOMENTS</div>
+        <div class="badge badge-primary">VIRAL GROWTH</div>
+        <div class="badge badge-primary">NATURAL SHARING</div>
+        <div class="big">AI products sell themselves</div>
+      </div>
+    </div>
+
+    <!-- Slide 11: Economic Pressure -->
+    <div class="slide" data-slide="10">
+      <div class="content">
+        <div class="level-counter">LEVEL 11</div>
+        <h1>COMPANIES ARE DESPERATE</h1>
+        <div class="metric-card" style="max-width: 500px; margin: 30px auto;">
+          <div class="metric-value">40%</div>
+          <div class="metric-label">PRODUCTIVITY INCREASE NEEDED</div>
+        </div>
+        <div class="big">"What's your AI strategy?"</div>
+        <h2>Every CEO is being asked by their board</h2>
+        <div class="badge badge-danger">THEY DON'T HAVE ANSWERS</div>
+        <div class="badge badge-success">PANIC BUYING MODE</div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Risk of Waiting -->
+    <div class="slide" data-slide="11">
+      <div class="content">
+        <div class="level-counter">LEVEL 12</div>
+        <h1>THE WINDOW IS CLOSING</h1>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="badge badge-success">1999</div>
+            <div>E-commerce Revolutionary</div>
+          </div>
+          <div class="timeline-item">
+            <div class="badge badge-danger">2009</div>
+            <div>Commonplace</div>
+          </div>
+          <div class="timeline-item">
+            <div class="badge badge-danger">2019</div>
+            <div>Table Stakes</div>
+          </div>
+        </div>
+        <div class="big">AI compression happening FASTER</div>
+        <h2>By 2027, leaders will be established</h2>
+      </div>
+    </div>
+
+    <!-- Slide 13: Personal Leverage -->
+    <div class="slide" data-slide="12">
+      <div class="content">
+        <div class="level-counter">LEVEL 13</div>
+        <h1>YOU HAVE SUPERPOWERS</h1>
+        <div class="stats-grid">
+          <div class="metric-card">
+            <div class="metric-value">29%</div>
+            <div class="metric-label">MORE PRODUCTIVE</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">8</div>
+            <div class="metric-label">AVG EMPLOYEES TO PROFIT</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">10X</div>
+            <div class="metric-label">OUTPUT MULTIPLIER</div>
+          </div>
+        </div>
+        <h2>Build a real business with fraction of resources</h2>
+      </div>
+    </div>
+
+    <!-- Slide 14: The Playbook -->
+    <div class="slide" data-slide="13">
+      <div class="content">
+        <div class="level-counter">LEVEL 14</div>
+        <h1>THE WINNING FORMULA</h1>
+        <div class="badge badge-primary">1. IDENTIFY PROBLEM</div>
+        <div class="badge badge-primary">2. BUILD AI SOLUTION</div>
+        <div class="badge badge-primary">3. SHIP IN WEEKS</div>
+        <div class="badge badge-primary">4. ITERATE FAST</div>
+        <div class="big">You don't need to build AGI</div>
+        <h2>Just solve real problems with existing tools</h2>
+      </div>
+    </div>
+
+    <!-- Slide 15: Revolution Comparison -->
+    <div class="slide" data-slide="14">
+      <div class="content">
+        <div class="level-counter">LEVEL 15</div>
+        <h1>EVERY REVOLUTION CREATES GIANTS</h1>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="badge badge-primary">INTERNET</div>
+            <div>Amazon, Google</div>
+          </div>
+          <div class="timeline-item">
+            <div class="badge badge-primary">MOBILE</div>
+            <div>Uber, Instagram</div>
+          </div>
+          <div class="timeline-item">
+            <div class="badge badge-success">AI</div>
+            <div>???</div>
+          </div>
+        </div>
+        <div class="huge">YOUR NAME HERE</div>
+      </div>
+    </div>
+
+    <!-- Slide 16: Final CTA -->
+    <div class="slide" data-slide="15">
+      <div class="content">
+        <div class="level-counter">BOSS LEVEL</div>
+        <h1>GAME OVER?</h1>
+        <div class="huge">OR LEVEL UP?</div>
+        <div class="badge badge-success">INFRASTRUCTURE READY</div>
+        <div class="badge badge-success">MARKET DESPERATE</div>
+        <div class="badge badge-success">TOOLS AVAILABLE</div>
+        <div class="badge badge-success">OPPORTUNITY NOW</div>
+        <div class="big">Someone else is already building</div>
+        <button class="game-btn">INSERT COIN TO START</button>
+        <div class="press-start blink">THE RACE HAS BEGUN</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Navigation Dots -->
+<div class="navigation-dots"></div>
+
+<script>
+  // Starfield Animation
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const stars = [];
+  const numStars = 200;
+
+  for (let i = 0; i < numStars; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      radius: Math.random() * 1.5,
+      speed: Math.random() * 0.5 + 0.1,
+      opacity: Math.random()
+    });
+  }
+
+  function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(34, 211, 238, ${star.opacity})`;
+      ctx.fill();
+
+      star.y += star.speed;
+      if (star.y > canvas.height) {
+        star.y = -10;
+        star.x = Math.random() * canvas.width;
+      }
+
+      star.opacity = Math.sin(Date.now() * 0.001 + star.x) * 0.5 + 0.5;
+    });
+
+    requestAnimationFrame(animateStars);
+  }
+
+  animateStars();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  // Slide Navigation
+  const slidesContainer = document.querySelector('.slides-container');
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.querySelector('.navigation-dots');
+  let currentSlide = 0;
+  let currentAnimationStep = 0;
+  let slideAnimations = {};
+
+  // Create navigation dots
+  slides.forEach((_, index) => {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    if (index === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => scrollToSlide(index));
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = document.querySelectorAll('.dot');
+
+  // Initialize slide animations
+  function initializeSlideElements(slideIndex) {
+    const slide = slides[slideIndex];
+    const hasAnimations = slideAnimations[slideIndex];
+
+    if (!hasAnimations) {
+      // Show all elements immediately on non-animated slides
+      slide.querySelectorAll('.badge, .metric-card, .comparison-card, .timeline-item').forEach(el => {
+        el.classList.add('animate-in');
+      });
+    }
+  }
+
+  // Define animations for each slide
+  slideAnimations[0] = [
+    () => slides[0].querySelector('h1').classList.add('animate-in'),
+    () => slides[0].querySelector('.huge').classList.add('animate-in-scale'),
+    () => slides[0].querySelector('h2').classList.add('animate-in'),
+    () => slides[0].querySelector('.press-start').classList.add('animate-in'),
+    () => slides[0].querySelectorAll('.badge')[0].classList.add('animate-in'),
+    () => slides[0].querySelectorAll('.badge')[1].classList.add('animate-in'),
+    () => slides[0].querySelectorAll('.badge')[2].classList.add('animate-in')
+  ];
+
+  slideAnimations[1] = [
+    () => slides[1].querySelector('h1').classList.add('animate-in'),
+    () => slides[1].querySelectorAll('.comparison-card')[0].classList.add('animate-in-scale'),
+    () => slides[1].querySelectorAll('.comparison-card')[0].querySelectorAll('.badge')[0].classList.add('animate-in'),
+    () => slides[1].querySelectorAll('.comparison-card')[0].querySelectorAll('.badge')[1].classList.add('animate-in'),
+    () => slides[1].querySelectorAll('.comparison-card')[0].querySelectorAll('.badge')[2].classList.add('animate-in'),
+    () => slides[1].querySelectorAll('.comparison-card')[1].classList.add('animate-in-scale'),
+    () => slides[1].querySelectorAll('.comparison-card')[1].querySelectorAll('.badge')[0].classList.add('animate-in'),
+    () => slides[1].querySelectorAll('.comparison-card')[1].querySelectorAll('.badge')[1].classList.add('animate-in'),
+    () => slides[1].querySelectorAll('.comparison-card')[1].querySelectorAll('.badge')[2].classList.add('animate-in'),
+    () => slides[1].querySelector('h2').classList.add('animate-in')
+  ];
+
+  slideAnimations[2] = [
+    () => slides[2].querySelector('h1').classList.add('animate-in'),
+    () => slides[2].querySelectorAll('.timeline-item')[0].classList.add('animate-in-scale'),
+    () => slides[2].querySelectorAll('.timeline-item')[1].classList.add('animate-in-scale'),
+    () => slides[2].querySelectorAll('.timeline-item')[2].classList.add('animate-in-scale'),
+    () => slides[2].querySelectorAll('.timeline-item')[3].classList.add('animate-in-scale'),
+    () => slides[2].querySelector('.big').classList.add('animate-in')
+  ];
+
+  slideAnimations[3] = [
+    () => slides[3].querySelector('h1').classList.add('animate-in'),
+    () => slides[3].querySelectorAll('.metric-card')[0].classList.add('animate-in-scale'),
+    () => slides[3].querySelectorAll('.metric-card')[1].classList.add('animate-in-scale'),
+    () => slides[3].querySelectorAll('.metric-card')[2].classList.add('animate-in-scale'),
+    () => slides[3].querySelector('h2').classList.add('animate-in')
+  ];
+
+  slideAnimations[4] = [
+    () => slides[4].querySelector('h1').classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[0].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[1].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[2].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[3].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[4].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[5].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[6].classList.add('animate-in'),
+    () => slides[4].querySelectorAll('.badge')[7].classList.add('animate-in'),
+    () => slides[4].querySelector('h2').classList.add('animate-in')
+  ];
+
+  slideAnimations[5] = [
+    () => slides[5].querySelector('h1').classList.add('animate-in'),
+    () => {
+      slides[5].querySelectorAll('.power-bar')[0].classList.add('animate-in');
+      setTimeout(() => {
+        slides[5].querySelectorAll('.power-fill')[0].style.width = '75%';
+      }, 100);
+    },
+    () => slides[5].querySelectorAll('.big')[0].classList.add('animate-in'),
+    () => {
+      slides[5].querySelectorAll('.power-bar')[1].classList.add('animate-in');
+      setTimeout(() => {
+        slides[5].querySelectorAll('.power-fill')[1].style.width = '28%';
+      }, 100);
+    },
+    () => slides[5].querySelectorAll('.big')[1].classList.add('animate-in'),
+    () => slides[5].querySelector('.badge').classList.add('animate-in-scale')
+  ];
+
+  // Score animation
+  let score = 0;
+  const scoreElement = document.querySelector('.hud span');
+
+  function updateScore() {
+    score += Math.floor(Math.random() * 1000);
+    if (score > 999999) score = 999999;
+    scoreElement.textContent = String(score).padStart(6, '0');
+  }
+
+  setInterval(updateScore, 2000);
+
+  // Scroll to slide
+  function scrollToSlide(index) {
+    slides[index].scrollIntoView({ behavior: 'smooth' });
+    currentSlide = index;
+    currentAnimationStep = 0;
+
+    // Update dots
+    dots.forEach((dot, i) => {
+      if (i === index) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+
+    // Initialize elements for the new slide
+    initializeSlideElements(index);
+
+    // Reset and play animations for the slide
+    if (slideAnimations[index]) {
+      // Reset all animations
+      slides[index].querySelectorAll('.animate-in, .animate-in-scale').forEach(el => {
+        el.classList.remove('animate-in', 'animate-in-scale');
+      });
+
+      // Reset power bars
+      slides[index].querySelectorAll('.power-fill').forEach(el => {
+        el.style.width = '0';
+      });
+
+      // Start first animation
+      setTimeout(() => {
+        if (slideAnimations[index][0]) {
+          slideAnimations[index][0]();
+          currentAnimationStep = 1;
+        }
+      }, 100);
+    }
+  }
+
+  // Handle keyboard navigation
+  function nextAction() {
+    const animations = slideAnimations[currentSlide];
+
+    if (animations && currentAnimationStep < animations.length) {
+      // Execute next animation
+      animations[currentAnimationStep]();
+      currentAnimationStep++;
+    } else {
+      // Move to next slide
+      if (currentSlide < slides.length - 1) {
+        scrollToSlide(currentSlide + 1);
+      }
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextAction();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (currentSlide > 0) {
+        scrollToSlide(currentSlide - 1);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (currentSlide < slides.length - 1) {
+        scrollToSlide(currentSlide + 1);
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (currentSlide > 0) {
+        scrollToSlide(currentSlide - 1);
+      }
+    }
+  });
+
+  // Detect scroll position
+  slidesContainer.addEventListener('scroll', () => {
+    const scrollPosition = slidesContainer.scrollTop;
+    const slideHeight = slides[0].offsetHeight;
+    const newSlide = Math.round(scrollPosition / slideHeight);
+
+    if (newSlide !== currentSlide) {
+      currentSlide = newSlide;
+      currentAnimationStep = 0;
+
+      // Update dots
+      dots.forEach((dot, i) => {
+        if (i === currentSlide) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+
+      // Initialize new slide
+      initializeSlideElements(currentSlide);
+    }
+  });
+
+  // Initialize first slide
+  initializeSlideElements(0);
+  if (slideAnimations[0]) {
+    setTimeout(() => {
+      slideAnimations[0][0]();
+      currentAnimationStep = 1;
+    }, 500);
+  }
+</script>
+
+</body>
+</html>

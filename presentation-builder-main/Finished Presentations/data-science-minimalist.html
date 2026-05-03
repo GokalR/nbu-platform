@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Data Science — Beyond Theory to Real Impact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --white: #ffffff;
+    --off-white: #fafafa;
+    --line: #ececec;
+    --muted: #9ca3af;
+    --grey: #6b7280;
+    --ink: #2c2c2c;
+    --black: #111827;
+    --accent: #c026d3;        /* magenta */
+    --accent-soft: #f5d0fe;
+    --accent-deep: #86198f;
+    --positive: #4ade80;
+    --neutral: #94a3b8;
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+
+  /* Stage */
+  .stage {
+    position: fixed;
+    inset: 0;
+    background: var(--white);
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 96px 100px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .slide.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .content {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+  }
+  .content.center { align-items: center; text-align: center; }
+
+  /* Typography */
+  h1, h2, h3, .mono { font-family: 'JetBrains Mono', monospace; }
+  h1 {
+    font-size: clamp(40px, 5.4vw, 64px);
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--grey);
+  }
+  h1 .ink { color: var(--ink); }
+  h1 .accent { color: var(--accent-deep); }
+
+  h2 {
+    font-size: clamp(20px, 2.2vw, 28px);
+    font-weight: 500;
+    color: var(--grey);
+    margin-top: 18px;
+    line-height: 1.45;
+    max-width: 820px;
+  }
+
+  h3 {
+    font-size: clamp(18px, 1.6vw, 22px);
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  p, li {
+    font-size: clamp(15px, 1.15vw, 17px);
+    color: var(--grey);
+    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 22px; height: 1px;
+    background: var(--muted);
+  }
+
+  .thin-rule {
+    width: 56px; height: 1px;
+    background: var(--line);
+    margin: 28px 0;
+  }
+
+  /* Pillars / triplets */
+  .triplet {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+    width: 100%;
+    margin-top: 36px;
+  }
+  .triplet .item .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  .triplet .item h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(17px, 1.5vw, 20px);
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+  .triplet .item p { font-size: 15px; }
+
+  /* Big number metrics */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 64px;
+    width: 100%;
+    margin-top: 28px;
+  }
+  .metric .big {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(48px, 6.4vw, 84px);
+    font-weight: 700;
+    color: var(--accent-deep);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .metric .label {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--grey);
+    letter-spacing: 0.05em;
+  }
+  .metric .sub {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* One-stat slide */
+  .stat-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .stat-hero .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(96px, 14vw, 200px);
+    color: var(--accent);
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+  }
+  .stat-hero .caption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(20px, 2vw, 26px);
+    color: var(--ink);
+    margin-top: 18px;
+  }
+  .stat-hero .source {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 14px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Bars (reality gap) */
+  .bars {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 320px 1fr 60px;
+    align-items: center;
+    gap: 18px;
+  }
+  .bar-row .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--grey);
+  }
+  .bar-track {
+    height: 8px;
+    background: var(--off-white);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .slide.active .bar-fill.f50 { width: 50%; }
+  .slide.active .bar-fill.f40 { width: 40%; transition-delay: 0.15s; }
+  .slide.active .bar-fill.f10 { width: 10%; transition-delay: 0.3s; background: var(--neutral); }
+  .bar-row .pct {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* Skills 2x2 */
+  .skills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 28px;
+  }
+  .skill {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 28px;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+  .skill:hover { border-color: var(--accent-soft); }
+  .skill .hdr {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .skill .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .skill h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .skill p { font-size: 14.5px; }
+
+  /* Application chips */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+    max-width: 920px;
+  }
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    background: var(--white);
+    padding: 9px 16px;
+    border-radius: 999px;
+  }
+  .chip.accent { color: var(--accent-deep); border-color: var(--accent-soft); background: #fdf4ff; }
+
+  /* Why-list */
+  .why {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px 56px;
+    margin-top: 32px;
+    max-width: 980px;
+    width: 100%;
+  }
+  .why .row {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .why .row .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    padding-top: 4px;
+  }
+  .why .row h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .why .row p { font-size: 14.5px; }
+
+  /* Closing */
+  .closing-quote {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(28px, 4vw, 48px);
+    color: var(--ink);
+    line-height: 1.25;
+    max-width: 900px;
+  }
+  .closing-quote .accent { color: var(--accent-deep); }
+
+  /* Top progress / page index */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--accent);
+    width: 0;
+    transition: width 0.5s ease;
+    z-index: 1000;
+  }
+  .pager {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    z-index: 1000;
+  }
+  .pager .cur { color: var(--ink); }
+
+  .footer-mark {
+    position: fixed;
+    bottom: 24px;
+    left: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    z-index: 1000;
+  }
+
+  .nav-hint {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    z-index: 1000;
+    opacity: 0.7;
+  }
+  .nav-hint kbd {
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 10px;
+    margin: 0 3px;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .slide { padding: 50px 32px 80px; }
+    .triplet, .metrics, .skills, .why { grid-template-columns: 1fr; gap: 24px; }
+    .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    .bar-row .pct { text-align: left; }
+  }
+  @media (max-height: 700px) {
+    .slide { padding: 50px 64px 70px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="stage" id="stage">
+
+  <!-- 1: Title -->
+  <section class="slide active" data-i="1">
+    <div class="content">
+      <span class="eyebrow">A field guide</span>
+      <h1><span class="ink">Data</span> Science<span class="accent">.</span></h1>
+      <h2>Beyond theory — what the work really is, and why it has become one of the most valuable professions of the decade.</h2>
+      <div class="thin-rule"></div>
+      <p style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); letter-spacing:0.04em;">A short, honest introduction</p>
+    </div>
+  </section>
+
+  <!-- 2: Hook / question -->
+  <section class="slide" data-i="2">
+    <div class="content">
+      <span class="eyebrow">First question</span>
+      <h1><span class="ink">What does a</span> Data Scientist <span class="ink">actually do?</span></h1>
+      <h2>Most people think it's about training models all day. The truth is less glamorous, more interesting, and far more valuable to the business.</h2>
+    </div>
+  </section>
+
+  <!-- 3: Definition -->
+  <section class="slide" data-i="3">
+    <div class="content">
+      <span class="eyebrow">Definition</span>
+      <h1><span class="ink">Turning</span> messy data <span class="ink">into</span> better decisions<span class="accent">.</span></h1>
+      <h2>Data science sits at the intersection of statistics, code and domain expertise — extracting patterns from data so a business can act on them.</h2>
+      <div class="triplet">
+        <div class="item">
+          <div class="num">/ 01</div>
+          <h4>Statistics</h4>
+          <p>The grammar of uncertainty — knowing what a number actually means before believing it.</p>
+        </div>
+        <div class="item">
+          <div class="num">/ 02</div>
+          <h4>Programming</h4>
+          <p>Python, SQL and the engineering muscle to move data at scale and ship models reliably.</p>
+        </div>
+        <div class="item">
+          <div class="num">/ 03</div>
+          <h4>Domain</h4>
+          <p>Understanding the business well enough to ask the right question — not just answer it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4: By the numbers (3 metrics) -->
+  <section class="slide" data-i="4">
+    <div class="content">
+      <span class="eyebrow">By the numbers</span>
+      <h1><span class="ink">A profession</span> that's still scaling<span class="accent">.</span></h1>
+      <h2>Demand for data scientists is outpacing almost every other technical role tracked by the U.S. Bureau of Labor Statistics.</h2>
+      <div class="metrics">
+        <div class="metric">
+          <div class="big">+34%</div>
+          <div class="label">Projected job growth</div>
+          <div class="sub">2024 — 2034 · BLS.gov</div>
+        </div>
+        <div class="metric">
+          <div class="big">$120K</div>
+          <div class="label">Median salary / year</div>
+          <div class="sub">Range $78K — $193K+</div>
+        </div>
+        <div class="metric">
+          <div class="big">+256%</div>
+          <div class="label">Job postings since 2013</div>
+          <div class="sub">Market.us · LinkedIn</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5: Single big stat — growth -->
+  <section class="slide" data-i="5">
+    <div class="content">
+      <span class="eyebrow">Demand</span>
+      <div class="stat-hero">
+        <div class="num">+34%</div>
+        <div class="caption">growth in data-science roles, 2024 — 2034.</div>
+        <div class="source">Source — U.S. Bureau of Labor Statistics</div>
+      </div>
+      <h2 style="margin-top:34px;">For context, the average across all U.S. occupations is around <span style="color:var(--ink); font-weight:600;">4%</span>. Few careers move at this speed.</h2>
+    </div>
+  </section>
+
+  <!-- 6: Salary -->
+  <section class="slide" data-i="6">
+    <div class="content">
+      <span class="eyebrow">Compensation</span>
+      <div class="stat-hero">
+        <div class="num">$120K</div>
+        <div class="caption">median annual salary in the U.S.</div>
+        <div class="source">Range: $78,000 — $193,000+ · Market.us</div>
+      </div>
+      <h2 style="margin-top:34px;">A career where strong technical work is paid like strong technical work — at the very top, well into senior-engineer territory.</h2>
+    </div>
+  </section>
+
+  <!-- 7: Gender gap (honest reality) -->
+  <section class="slide" data-i="7">
+    <div class="content">
+      <span class="eyebrow">An open seat</span>
+      <h1><span class="ink">Still</span> mostly men<span class="accent">.</span> <span class="ink">Still room to change that.</span></h1>
+      <h2>Globally, women make up only 15 — 26% of data-science professionals. In the U.S. that figure is closer to 38%. The talent pool is being built right now.</h2>
+      <div class="metrics" style="grid-template-columns: 1fr 1fr; max-width:780px;">
+        <div class="metric">
+          <div class="big">15-26%</div>
+          <div class="label">Women in DS · Global</div>
+          <div class="sub">USD Online · CareerExplorer</div>
+        </div>
+        <div class="metric">
+          <div class="big">~38%</div>
+          <div class="label">Women in DS · United States</div>
+          <div class="sub">Market.us</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8: Reality gap — bars -->
+  <section class="slide" data-i="8">
+    <div class="content">
+      <span class="eyebrow">The honest part</span>
+      <h1><span class="ink">University teaches one thing.</span> <span class="accent">Industry rewards another.</span></h1>
+      <h2>Most courses spend their time on preprocessing and algorithms. Real data-science work looks closer to this:</h2>
+      <div class="bars">
+        <div class="bar-row">
+          <div class="lbl">Problem definition &amp; business translation</div>
+          <div class="bar-track"><div class="bar-fill f50"></div></div>
+          <div class="pct">50%</div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl">Feature engineering &amp; selection</div>
+          <div class="bar-track"><div class="bar-fill f40"></div></div>
+          <div class="pct">40%</div>
+        </div>
+        <div class="bar-row">
+          <div class="lbl">Data preprocessing &amp; modelling</div>
+          <div class="bar-track"><div class="bar-fill f10"></div></div>
+          <div class="pct">10%</div>
+        </div>
+      </div>
+      <p style="margin-top:22px; font-size:13px; color:var(--muted);">The model is the easy part. Understanding the question is the job.</p>
+    </div>
+  </section>
+
+  <!-- 9: Core skills 2x2 -->
+  <section class="slide" data-i="9">
+    <div class="content">
+      <span class="eyebrow">The toolbelt</span>
+      <h1><span class="ink">Four skills do</span> most of the work<span class="accent">.</span></h1>
+      <h2>Everything else stacks on top of these. Master these four and you can have an honest conversation with any data team in the world.</h2>
+      <div class="skills">
+        <div class="skill">
+          <div class="hdr"><span class="num">/ 01</span><h4>Python</h4></div>
+          <p>Pandas, NumPy, scikit-learn — the working language of modern data science. Comfortable with structures, control flow and basic algorithms.</p>
+        </div>
+        <div class="skill">
+          <div class="hdr"><span class="num">/ 02</span><h4>SQL</h4></div>
+          <p>Reading, joining and shaping data inside relational databases — where almost every business actually keeps its information.</p>
+        </div>
+        <div class="skill">
+          <div class="hdr"><span class="num">/ 03</span><h4>Statistics</h4></div>
+          <p>Distributions, hypothesis testing and a healthy fear of overconfidence. The base layer beneath every model you'll ever touch.</p>
+        </div>
+        <div class="skill">
+          <div class="hdr"><span class="num">/ 04</span><h4>Machine Learning</h4></div>
+          <p>Linear models, trees, clustering — knowing when to reach for which, and when a simple rule will outperform anything fancier.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10: What DS actually does — chips of real applications -->
+  <section class="slide" data-i="10">
+    <div class="content">
+      <span class="eyebrow">In the wild</span>
+      <h1><span class="ink">Where data science</span> actually shows up<span class="accent">.</span></h1>
+      <h2>It is rarely a glamorous research lab. More often, it's the quiet system deciding which customer to call, which transaction to flag, which product to recommend.</h2>
+      <div class="chips">
+        <span class="chip accent">Credit scoring</span>
+        <span class="chip">Fraud detection</span>
+        <span class="chip">Churn prediction</span>
+        <span class="chip accent">Customer segmentation</span>
+        <span class="chip">Next-best-offer</span>
+        <span class="chip">Recommendation systems</span>
+        <span class="chip accent">Demand forecasting</span>
+        <span class="chip">NLP &amp; document intelligence</span>
+        <span class="chip">Conversational analytics</span>
+        <span class="chip accent">Risk &amp; collection strategy</span>
+        <span class="chip">Marketing attribution</span>
+        <span class="chip">Pricing optimisation</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11: Why it's a great profession -->
+  <section class="slide" data-i="11">
+    <div class="content">
+      <span class="eyebrow">Why it's a great profession</span>
+      <h1><span class="ink">Compounding</span> career, not a job<span class="accent">.</span></h1>
+      <h2>Data science rewards curiosity. Every project teaches you a new corner of a business — and those lessons stack.</h2>
+      <div class="why">
+        <div class="row">
+          <div class="n">01</div>
+          <div>
+            <h4>High leverage</h4>
+            <p>One model can change how millions of decisions get made. Few jobs let an individual move a company's number that directly.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="n">02</div>
+          <div>
+            <h4>Paid like engineering</h4>
+            <p>Strong technical comp, with senior salaries comparable to platform and backend roles in the same companies.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="n">03</div>
+          <div>
+            <h4>Domain mobility</h4>
+            <p>The same toolkit travels — from banking to retail to healthcare to climate. You pick the field, you keep the craft.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="n">04</div>
+          <div>
+            <h4>Intellectually alive</h4>
+            <p>You're paid to be curious. Each project is a small research problem, and the next one rarely looks like the last.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12: Career outcomes -->
+  <section class="slide" data-i="12">
+    <div class="content">
+      <span class="eyebrow">What good looks like</span>
+      <h1><span class="ink">Think like</span> the business<span class="ink">. Build like</span> an engineer<span class="accent">.</span></h1>
+      <h2>The data scientists employers actually fight for share three habits — none of which are about knowing more algorithms.</h2>
+      <div class="triplet">
+        <div class="item">
+          <div class="num">/ 01</div>
+          <h4>Translate the question</h4>
+          <p>Turn a vague business goal into something measurable, then pick the smallest model that can answer it.</p>
+        </div>
+        <div class="item">
+          <div class="num">/ 02</div>
+          <h4>Connect to revenue &amp; cost</h4>
+          <p>Tie every model output back to a number a CFO would care about. AUC is a means, not the deliverable.</p>
+        </div>
+        <div class="item">
+          <div class="num">/ 03</div>
+          <h4>Communicate clearly</h4>
+          <p>Present technical findings to non-technical stakeholders without losing the nuance — or their attention.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13: How to get there -->
+  <section class="slide" data-i="13">
+    <div class="content">
+      <span class="eyebrow">Getting started</span>
+      <h1><span class="ink">There is</span> no shortcut<span class="ink">. There is</span> a path<span class="accent">.</span></h1>
+      <h2>The fastest people in this field aren't the ones with the most certificates — they're the ones who've shipped the most real things.</h2>
+      <div class="why" style="grid-template-columns: 1fr;">
+        <div class="row">
+          <div class="n">01</div>
+          <div>
+            <h4>Get comfortable with the four basics</h4>
+            <p>Python, SQL, statistics, ML fundamentals. Not glamorous, but everything stacks on top of these.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="n">02</div>
+          <div>
+            <h4>Work with messy, real data — not toy datasets</h4>
+            <p>Kaggle is practice. Real banking, retail or operational data is where the actual skills are forged.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="n">03</div>
+          <div>
+            <h4>Build a portfolio that solves problems, not riddles</h4>
+            <p>End-to-end projects with a clear business question, a dataset, a model, and a recommendation. Three of these beat ten certificates.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14: Closing thought -->
+  <section class="slide" data-i="14">
+    <div class="content center">
+      <span class="eyebrow">One thought to leave with</span>
+      <p class="closing-quote">
+        The point of data science isn't to build models<span class="accent">.</span><br/>
+        It's to help a business <span class="accent">make better decisions</span>, faster, with fewer guesses.
+      </p>
+      <div class="thin-rule"></div>
+      <p style="font-family:'JetBrains Mono',monospace; color:var(--muted); font-size:13px; letter-spacing:0.08em;">— thank you —</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer-mark">DATA · SCIENCE</div>
+<div class="pager"><span class="cur" id="cur">01</span> <span style="opacity:.5;">/</span> <span id="tot">14</span></div>
+<div class="nav-hint"><kbd>←</kbd><kbd>→</kbd> navigate · <kbd>space</kbd> next</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const progress = document.getElementById('progress');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  let i = 0;
+  tot.textContent = String(slides.length).padStart(2, '0');
+
+  function show(n) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    slides[i].classList.remove('active');
+    i = n;
+    slides[i].classList.add('active');
+    progress.style.width = ((i + 1) / slides.length * 100) + '%';
+    cur.textContent = String(i + 1).padStart(2, '0');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); show(i + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); show(i - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault(); show(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); show(slides.length - 1);
+    }
+  });
+
+  // click anywhere to advance
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, kbd')) return;
+    show(i + 1);
+  });
+
+  // initial progress
+  show(0);
+</script>
+
+</body>
+</html>

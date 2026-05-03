@@ -1,0 +1,3848 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <title>Farg'ona Analytics Map</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f1f2f7;
+      --bg-elevated: rgba(254, 254, 254, 0.84);
+      --bg-strong: #fefefe;
+      --bg-soft: rgba(254, 254, 254, 0.92);
+      --bg-muted: rgba(217, 218, 218, 0.42);
+      --text: #2b2a29;
+      --text-soft: #7688a1;
+      --text-faint: #898989;
+      --line: rgba(178, 179, 179, 0.28);
+      --line-strong: rgba(137, 137, 137, 0.22);
+      --shadow-lg: 0 28px 70px rgba(43, 42, 41, 0.12);
+      --shadow-md: 0 14px 32px rgba(43, 42, 41, 0.1);
+      --shadow-sm: 0 8px 18px rgba(43, 42, 41, 0.07);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --space-1: 8px;
+      --space-2: 12px;
+      --space-3: 16px;
+      --space-4: 20px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --opportunity: #149fa8;
+      --opportunity-soft: rgba(20, 159, 168, 0.14);
+      --medium: #d7b56d;
+      --medium-soft: rgba(215, 181, 109, 0.2);
+      --danger: #c16e67;
+      --danger-soft: rgba(193, 110, 103, 0.16);
+      --accent: #193f72;
+      --accent-strong: #2957a2;
+      --accent-soft: rgba(25, 63, 114, 0.1);
+      --premium: #d7b56d;
+      --premium-soft: rgba(215, 181, 109, 0.18);
+      --surface-chip: rgba(217, 218, 218, 0.45);
+      --surface-chip-strong: rgba(217, 218, 218, 0.7);
+      --glass-stroke: rgba(255, 255, 255, 0.7);
+      --signal: #ff6254;
+      --signal-strong: #f04438;
+      --signal-soft: rgba(255, 98, 84, 0.16);
+      --signal-shadow: 0 18px 42px rgba(240, 68, 56, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      min-height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(41, 87, 162, 0.12), transparent 34%),
+        radial-gradient(circle at top right, rgba(215, 181, 109, 0.12), transparent 28%),
+        linear-gradient(180deg, #fafafc 0%, #f1f2f7 100%);
+      color: var(--text);
+      font-family: "Manrope", "Segoe UI", sans-serif;
+    }
+
+    body {
+      height: 100dvh;
+      min-height: 100vh;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page-shell {
+      height: 100dvh;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 20px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: grid;
+      gap: 18px;
+      margin: 0;
+      padding: 22px;
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      flex-shrink: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-main {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .brand-block {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      width: fit-content;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text);
+      background: var(--premium-soft);
+      border-radius: 999px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 0 6px rgba(215, 181, 109, 0.18);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .metric-card {
+      padding: 14px 16px;
+      background: rgba(254, 254, 254, 0.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .metric-note {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .toolbar-group,
+    .search-shell {
+      display: grid;
+      gap: 10px;
+      padding: 14px 16px;
+      background: rgba(254, 254, 254, 0.82);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toolbar-group {
+      min-width: 0;
+    }
+
+    .toolbar-group--layers {
+      justify-self: end;
+      min-width: 0;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .filter-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .filter-field span {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .filter-field select {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(254, 254, 254, 0.98);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--text-soft) 50%),
+        linear-gradient(135deg, var(--text-soft) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 3px),
+        calc(100% - 12px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    .filter-field select:focus-visible {
+      border-color: rgba(25, 63, 114, 0.28);
+      box-shadow: 0 0 0 4px rgba(25, 63, 114, 0.12);
+    }
+
+    .filter-field select:disabled {
+      color: var(--text);
+      opacity: 1;
+      background-color: rgba(241, 242, 247, 0.96);
+      cursor: default;
+    }
+
+    .group-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .search-shell {
+      grid-template-columns: 20px 1fr auto;
+      align-items: center;
+    }
+
+    .search-shell svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-faint);
+    }
+
+    .search-shell input {
+      width: 100%;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-shell input::placeholder {
+      color: var(--text-faint);
+    }
+
+    .search-note {
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--premium-soft);
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid transparent;
+      padding: 11px 16px;
+      background: rgba(254, 254, 254, 0.96);
+      color: var(--text-soft);
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      color: var(--text);
+    }
+
+    button:focus-visible {
+      outline: none;
+      border-color: rgba(25, 63, 114, 0.28);
+      box-shadow: 0 0 0 4px rgba(25, 63, 114, 0.12);
+    }
+
+    button.active {
+      color: var(--bg-strong);
+      background: linear-gradient(135deg, var(--accent-strong) 0%, var(--accent) 100%);
+      box-shadow: 0 12px 22px rgba(25, 63, 114, 0.22);
+    }
+
+    .layer-toggle.active[data-tone="opportunity"] {
+      background: linear-gradient(135deg, #149fa8 0%, #0f7f88 100%);
+      box-shadow: 0 12px 22px rgba(20, 159, 168, 0.24);
+    }
+
+    .layer-toggle.active[data-tone="medium"] {
+      color: var(--text);
+      background: linear-gradient(135deg, #e0c07c 0%, #d7b56d 100%);
+      box-shadow: 0 12px 22px rgba(215, 181, 109, 0.24);
+    }
+
+    .layer-toggle.active[data-tone="danger"] {
+      background: linear-gradient(135deg, #cf827b 0%, #c16e67 100%);
+      box-shadow: 0 12px 22px rgba(193, 110, 103, 0.2);
+    }
+
+    .workspace {
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .map-shell {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(330px, 24vw, 390px);
+      grid-template-rows: minmax(0, 1fr);
+      gap: 24px;
+      padding: 24px;
+      border-radius: 34px;
+      overflow: hidden;
+      background: rgba(217, 218, 218, 0.4);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-lg);
+      isolation: isolate;
+    }
+
+    #map {
+      grid-column: 1;
+      grid-row: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .map-veil {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      align-self: stretch;
+      justify-self: stretch;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(241, 242, 247, 0.08) 0%, rgba(241, 242, 247, 0) 22%, rgba(241, 242, 247, 0) 66%, rgba(254, 254, 254, 0.24) 100%),
+        radial-gradient(circle at right center, rgba(254, 254, 254, 0.28), transparent 32%);
+      border-radius: 30px;
+      z-index: 2;
+    }
+
+    .map-hover-layer {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      align-self: stretch;
+      justify-self: stretch;
+      pointer-events: none;
+      border-radius: 30px;
+      z-index: 18;
+      overflow: hidden;
+    }
+
+    .map-hover-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: min(238px, calc(100% - 24px));
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(25, 63, 114, 0.1);
+      background:
+        linear-gradient(180deg, rgba(254, 254, 254, 0.98) 0%, rgba(248, 249, 252, 0.95) 100%);
+      box-shadow:
+        0 16px 32px rgba(43, 42, 41, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+      color: var(--text);
+      opacity: 0;
+      transform: translate(-9999px, -9999px);
+      transition: opacity 0.16s ease;
+    }
+
+    .map-hover-card::before {
+      content: "";
+      position: absolute;
+      inset: 12px auto 12px 0;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(20, 159, 168, 0.92), rgba(25, 63, 114, 0.9));
+    }
+
+    .map-hover-card.is-visible {
+      opacity: 1;
+    }
+
+    .map-hover-card[data-tone="medium"]::before {
+      background: linear-gradient(180deg, rgba(215, 181, 109, 0.95), rgba(143, 109, 41, 0.88));
+    }
+
+    .map-hover-card[data-tone="danger"]::before {
+      background: linear-gradient(180deg, rgba(193, 110, 103, 0.95), rgba(145, 48, 44, 0.88));
+    }
+
+    .map-hover-card__eyebrow {
+      display: inline-flex;
+      margin: 0 0 7px 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--premium-soft);
+    }
+
+    .map-hover-card[data-tone="opportunity"] .map-hover-card__eyebrow {
+      color: var(--opportunity);
+      background: rgba(20, 159, 168, 0.12);
+    }
+
+    .map-hover-card[data-tone="medium"] .map-hover-card__eyebrow {
+      color: #8f6d29;
+      background: rgba(215, 181, 109, 0.18);
+    }
+
+    .map-hover-card[data-tone="danger"] .map-hover-card__eyebrow {
+      color: var(--danger);
+      background: rgba(193, 110, 103, 0.14);
+    }
+
+    .map-hover-card__title {
+      margin: 0 0 5px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .map-hover-card__body {
+      margin: 0 0 0 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-soft);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .map-hover-card__reasons {
+      display: grid;
+      gap: 6px;
+      margin: 10px 0 0 10px;
+    }
+
+    .map-hover-card__reason {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 10px;
+      line-height: 1.45;
+      color: var(--text-soft);
+    }
+
+    .map-hover-card__reason::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-top: 4px;
+      border-radius: 50%;
+      background: var(--opportunity);
+      flex: 0 0 auto;
+    }
+
+    .map-hover-card__accent {
+      margin: 10px 0 0 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text);
+      background: rgba(25, 63, 114, 0.06);
+      border: 1px solid rgba(25, 63, 114, 0.08);
+    }
+
+    .map-hover-card[data-tone="opportunity"] .map-hover-card__accent {
+      background: rgba(20, 159, 168, 0.08);
+      border-color: rgba(20, 159, 168, 0.14);
+    }
+
+    .map-hover-card[data-tone="medium"] .map-hover-card__accent {
+      background: rgba(215, 181, 109, 0.12);
+      border-color: rgba(215, 181, 109, 0.18);
+    }
+
+    .map-hover-card[data-tone="danger"] .map-hover-card__accent {
+      background: rgba(193, 110, 103, 0.09);
+      border-color: rgba(193, 110, 103, 0.16);
+    }
+
+    .sidebar {
+      grid-column: 2;
+      grid-row: 1;
+      position: relative;
+      display: grid;
+      gap: 20px;
+      align-content: start;
+      align-self: stretch;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      min-width: 0;
+      padding: 0 6px 0 0;
+      z-index: 12;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(178, 179, 179, 0.7);
+      border-radius: 999px;
+    }
+
+    .sidebar-card {
+      position: relative;
+      padding: 22px;
+      background: rgba(241, 242, 247, 0.84);
+      border: 1px solid rgba(178, 179, 179, 0.22);
+      border-radius: var(--radius-lg);
+      box-shadow:
+        0 18px 38px rgba(43, 42, 41, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px);
+    }
+
+    .sidebar-card--feature {
+      padding: 24px;
+      background:
+        linear-gradient(180deg, rgba(254, 254, 254, 0.98) 0%, rgba(241, 242, 247, 0.94) 100%);
+    }
+
+    .sidebar-card--feature::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 5px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      background: linear-gradient(90deg, rgba(25, 63, 114, 0.95), rgba(255, 98, 84, 0.8), rgba(215, 181, 109, 0.86));
+      opacity: 0.9;
+    }
+
+    .sidebar-card--muted {
+      background: rgba(241, 242, 247, 0.9);
+    }
+
+    .panel-overline {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 16px;
+    }
+
+    .feature-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .feature-title {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 2vw, 28px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .feature-subtitle {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 44ch;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 13px;
+      min-width: 136px;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 999px;
+      white-space: nowrap;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 12px 24px rgba(43, 42, 41, 0.08);
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      box-shadow: 0 0 0 5px currentColor;
+      opacity: 0.24;
+    }
+
+    .status-badge[data-tone="opportunity"] {
+      color: var(--opportunity);
+      background: var(--opportunity-soft);
+    }
+
+    .status-badge[data-tone="medium"] {
+      color: #8f6d29;
+      background: var(--medium-soft);
+    }
+
+    .status-badge[data-tone="danger"] {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .stat-grid,
+    .summary-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-stat {
+      padding: 14px 15px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(245, 246, 250, 0.8) 100%);
+      border: 1px solid rgba(178, 179, 179, 0.18);
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .mini-stat__label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .mini-stat__value {
+      display: block;
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .recommendation-block {
+      margin-top: 16px;
+      padding: 17px 18px;
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(135deg, rgba(215, 181, 109, 0.22), rgba(255, 255, 255, 0.4));
+      border: 1px solid rgba(215, 181, 109, 0.24);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .point-card {
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 248, 252, 0.9) 100%);
+      border: 1px solid rgba(25, 63, 114, 0.1);
+      box-shadow:
+        inset 0 1px 0 rgba(254, 254, 254, 0.84),
+        0 14px 28px rgba(25, 63, 114, 0.08);
+    }
+
+    .point-card__header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .point-card__signal {
+      position: relative;
+      width: 13px;
+      height: 13px;
+      margin-top: 4px;
+      border-radius: 999px;
+      background: var(--signal);
+      box-shadow:
+        0 0 0 5px var(--signal-soft),
+        0 0 0 12px rgba(255, 98, 84, 0.08);
+      flex: 0 0 auto;
+      animation: label-drift 2.4s ease-in-out infinite;
+    }
+
+    .point-card__label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 7px;
+    }
+
+    .point-card__value {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 0;
+    }
+
+    .point-card__meta {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+
+    .point-card__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .point-card__chips:empty,
+    .point-reasons:empty {
+      display: none;
+    }
+
+    .point-card__chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(25, 63, 114, 0.09);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .point-card__chip strong {
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .point-reasons {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .point-reason {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 11px 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text);
+      background: rgba(25, 63, 114, 0.045);
+      border: 1px solid rgba(25, 63, 114, 0.07);
+      border-radius: 15px;
+    }
+
+    .point-reason::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      margin-top: 6px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 4px rgba(255, 98, 84, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .recommendation-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .recommendation-copy,
+    .note {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+
+    .insight-panel {
+      margin-top: 16px;
+      padding: 16px 17px;
+      border-radius: var(--radius-md);
+      background: rgba(25, 63, 114, 0.05);
+      border: 1px solid rgba(25, 63, 114, 0.08);
+    }
+
+    .insight-copy {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .section-pill {
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-soft);
+      background: var(--surface-chip);
+      border-radius: 999px;
+    }
+
+    .recommendation-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .rec-card {
+      position: relative;
+      padding: 18px;
+      background: rgba(254, 254, 254, 0.98);
+      border: 1px solid rgba(178, 179, 179, 0.22);
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(43, 42, 41, 0.06);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+      overflow: hidden;
+    }
+
+    .rec-card::before {
+      content: "";
+      position: absolute;
+      inset: 16px auto 16px 0;
+      width: 4px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(25, 63, 114, 0.86), rgba(255, 98, 84, 0.78));
+      opacity: 0.34;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .rec-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px rgba(43, 42, 41, 0.1);
+      border-color: rgba(118, 136, 161, 0.34);
+    }
+
+    .rec-card:hover::before {
+      opacity: 0.6;
+      transform: scaleY(1.02);
+    }
+
+    .rec-card.active {
+      border-color: rgba(25, 63, 114, 0.2);
+      box-shadow: 0 18px 32px rgba(25, 63, 114, 0.12);
+      background: rgba(254, 254, 254, 1);
+    }
+
+    .rec-card.active::before {
+      opacity: 0.95;
+    }
+
+    .rec-card__top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .rec-card__title {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .rec-card__subtitle {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-tag[data-tone="opportunity"] {
+      color: var(--opportunity);
+      background: var(--opportunity-soft);
+    }
+
+    .status-tag[data-tone="medium"] {
+      color: #8f6d29;
+      background: var(--medium-soft);
+    }
+
+    .status-tag[data-tone="danger"] {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .rec-card__body {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+
+    .rec-card__meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rec-card__meta span {
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(245, 247, 250, 0.9);
+      border: 1px solid rgba(178, 179, 179, 0.18);
+      border-radius: 999px;
+    }
+
+    .legend {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      align-self: end;
+      justify-self: start;
+      margin: 24px;
+      z-index: 12;
+      width: fit-content;
+      padding: 16px 18px;
+      background: rgba(254, 254, 254, 0.88);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
+    }
+
+    .legend-title {
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .legend .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-soft);
+      margin: 8px 0;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex: 0 0 auto;
+    }
+
+    .selection-chip {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      align-self: start;
+      justify-self: start;
+      margin: 24px;
+      z-index: 12;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(254, 254, 254, 0.88);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
+    }
+
+    .selection-chip::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--accent-strong) 0%, var(--accent) 100%);
+      box-shadow: 0 0 0 6px rgba(25, 63, 114, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .empty-state {
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: var(--bg-soft);
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.65;
+      border: 1px dashed rgba(178, 179, 179, 0.38);
+    }
+
+    /* ─── Keyframe Animations ─── */
+    @keyframes marker-fadein {
+      from { opacity: 0; transform: scale(0.6); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes focus-fadein {
+      0%   { opacity: 0; transform: translateY(16px) scale(0.9); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes focus-pulse {
+      0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0.8; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+
+    @keyframes focus-card-float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-3px); }
+    }
+
+    @keyframes label-drift {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-2px); }
+    }
+
+    /* ─── Map Marker: small business dot ─── */
+    .map-marker {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      animation: marker-fadein 0.3s ease-out both;
+    }
+
+    .map-marker__pin {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(255,255,255,0.95);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease, width 0.18s ease, height 0.18s ease;
+      will-change: transform;
+    }
+
+    .map-marker:hover .map-marker__pin {
+      width: 26px;
+      height: 26px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .map-marker__icon {
+      width: 0;
+      height: 0;
+      display: block;
+      flex: 0 0 auto;
+      opacity: 0;
+      transition: width 0.18s ease, height 0.18s ease, opacity 0.18s ease;
+    }
+
+    .map-marker:hover .map-marker__icon {
+      width: 13px;
+      height: 13px;
+      opacity: 1;
+    }
+
+    /* Category colors — muted, cohesive */
+    .map-marker--education_center .map-marker__pin { background: #6366f1; }
+    .map-marker--cafe              .map-marker__pin { background: #f59e0b; }
+    .map-marker--bookstore         .map-marker__pin { background: #8b5cf6; }
+    .map-marker--stationery_store  .map-marker__pin { background: #ec4899; }
+    .map-marker--grocery_store     .map-marker__pin { background: #14b8a6; }
+    .map-marker--restaurant        .map-marker__pin { background: #f97316; }
+
+    /* ─── Recommendation Pin: proper map pin with icon ─── */
+    .rec-pin {
+      position: relative;
+      width: 44px;
+      height: 62px;
+      animation: pin-drop 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+      cursor: pointer;
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.28));
+    }
+
+    /* The pin shape via SVG background — clean teardrop pointing down */
+    .rec-pin__body {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 44px;
+      height: 56px;
+      clip-path: path('M22 0C9.85 0 0 9.85 0 22c0 8.78 5.14 16.36 12.57 19.92L22 56l9.43-14.08C38.86 38.36 44 30.78 44 22 44 9.85 34.15 0 22 0z');
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 12px;
+      background: #10b981;
+      animation: pin-breathe 3s ease-in-out infinite;
+      transition: filter 0.2s ease;
+    }
+
+    .rec-pin:hover .rec-pin__body {
+      filter: brightness(1.1);
+    }
+
+    /* Inner icon circle with lines (like screenshot 3) */
+    .rec-pin__icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rec-pin__icon::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(255,255,255,0.35) 3px,
+        rgba(255,255,255,0.35) 5px
+      );
+      border-radius: 50%;
+    }
+
+    /* Ground shadow beneath the pin */
+    .rec-pin__shadow {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 20px;
+      height: 6px;
+      margin-left: -10px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.18);
+      filter: blur(2px);
+      animation: pin-shadow-pulse 3s ease-in-out infinite;
+    }
+
+    /* Sonar pulse ring from the pin tip */
+    .rec-pin__ping {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid #10b981;
+      animation: pin-pulse 2.5s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .rec-pin__ping--2 {
+      animation-delay: 1.25s;
+    }
+
+    /* Hide unused elements */
+    .rec-pin__rank { display: none; }
+    .rec-pin__label { display: none; }
+
+    /* Tag colors */
+    .rec-pin--best .rec-pin__body { background: #10b981; }
+    .rec-pin--best .rec-pin__ping { border-color: rgba(16, 185, 129, 0.6); }
+
+    .rec-pin--good .rec-pin__body { background: #f59e0b; }
+    .rec-pin--good .rec-pin__ping { border-color: rgba(245, 158, 11, 0.6); }
+
+    .rec-pin--moderate .rec-pin__body { background: #ef4444; }
+    .rec-pin--moderate .rec-pin__ping { border-color: rgba(239, 68, 68, 0.55); }
+
+    /* Active state */
+    .rec-pin.is-active {
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+      z-index: 10;
+    }
+
+    .rec-pin.is-active .rec-pin__body {
+      animation: pin-breathe 2s ease-in-out infinite;
+    }
+
+    .rec-pin.is-active .rec-pin__ping {
+      animation-duration: 1.8s;
+    }
+
+    /* ─── Cluster Badge: frosted glass ─── */
+    .cluster-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1.5px solid rgba(0,0,0,0.08);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #374151;
+      letter-spacing: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      white-space: nowrap;
+      transform: translate(-50%, -50%);
+      animation: marker-fadein 0.3s ease-out both;
+    }
+
+    .map-area-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px 6px 7px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.10),
+        0 4px 14px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(10px);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+      white-space: nowrap;
+    }
+
+    .map-area-label.is-active {
+      transform: translateY(-2px);
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.13),
+        0 8px 20px rgba(0, 0, 0, 0.11);
+    }
+
+    .map-area-label__tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .map-area-label__title {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .map-area-label--opportunity .map-area-label__tag {
+      color: var(--opportunity);
+      background: var(--opportunity-soft);
+    }
+
+    .map-area-label--medium .map-area-label__tag {
+      color: #8f6d29;
+      background: var(--medium-soft);
+    }
+
+    .map-area-label--danger .map-area-label__tag {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .rec-focus {
+      position: relative;
+      width: 176px;
+      height: 118px;
+      animation: focus-fadein 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+      cursor: pointer;
+    }
+
+    .rec-focus__card {
+      position: absolute;
+      left: 14px;
+      bottom: 30px;
+      min-width: 136px;
+      max-width: 176px;
+      padding: 10px 12px 10px 50px;
+      border-radius: 18px;
+      border: 1px solid rgba(25, 63, 114, 0.08);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 252, 0.94) 100%);
+      box-shadow:
+        0 16px 34px rgba(43, 42, 41, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      transform: translateY(8px) scale(0.92);
+      transition: opacity 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .rec-focus__card::after {
+      content: "";
+      position: absolute;
+      left: 28px;
+      bottom: -8px;
+      width: 14px;
+      height: 14px;
+      background: inherit;
+      border-right: 1px solid rgba(25, 63, 114, 0.08);
+      border-bottom: 1px solid rgba(25, 63, 114, 0.08);
+      transform: rotate(45deg);
+      border-radius: 0 0 4px 0;
+    }
+
+    .rec-focus__badge {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      width: 30px;
+      height: 30px;
+      margin-top: -15px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, rgba(255, 98, 84, 0.96), rgba(240, 68, 56, 0.96));
+      box-shadow: 0 12px 22px rgba(240, 68, 56, 0.22);
+      color: white;
+    }
+
+    .rec-focus__badge svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .rec-focus__kicker {
+      margin-bottom: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .rec-focus__title {
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .rec-focus__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .rec-focus__meta span {
+      padding: 4px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-soft);
+      background: rgba(25, 63, 114, 0.05);
+      border: 1px solid rgba(25, 63, 114, 0.07);
+    }
+
+    .rec-focus__stem {
+      position: absolute;
+      left: 86px;
+      bottom: 15px;
+      width: 2px;
+      height: 26px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 98, 84, 0.92));
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    .rec-focus__pulse {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.6px solid rgba(255, 98, 84, 0.46);
+      animation: focus-pulse 2.6s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .rec-focus__pulse--2 {
+      animation-delay: 1.3s;
+    }
+
+    .rec-focus__dot {
+      position: absolute;
+      left: 79px;
+      bottom: 7px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.98);
+      background:
+        radial-gradient(circle at 38% 38%, rgba(255, 255, 255, 0.98) 0, rgba(255, 255, 255, 0.98) 18%, rgba(255, 157, 145, 0.96) 18%, var(--signal) 58%, var(--signal-strong) 100%);
+      box-shadow:
+        0 0 0 6px var(--signal-soft),
+        var(--signal-shadow);
+    }
+
+    .rec-focus.is-active {
+      z-index: 12;
+    }
+
+    .rec-focus.is-active .rec-focus__card,
+    .rec-focus:hover .rec-focus__card {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      box-shadow:
+        0 18px 38px rgba(43, 42, 41, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      animation: focus-card-float 4.2s ease-in-out infinite;
+    }
+
+    .rec-focus.is-active .rec-focus__stem,
+    .rec-focus:hover .rec-focus__stem {
+      opacity: 1;
+    }
+
+    .rec-focus:not(.is-active) .rec-focus__pulse {
+      opacity: 0.72;
+    }
+
+    .rec-focus.is-active .rec-focus__dot,
+    .rec-focus:hover .rec-focus__dot {
+      box-shadow:
+        0 0 0 8px rgba(255, 98, 84, 0.18),
+        0 18px 36px rgba(240, 68, 56, 0.3);
+    }
+
+    .map-area-label {
+      position: relative;
+      gap: 10px;
+      padding: 8px 13px 8px 8px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(25, 63, 114, 0.08);
+      box-shadow:
+        0 14px 30px rgba(43, 42, 41, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      animation: label-drift 5.8s ease-in-out infinite;
+    }
+
+    .map-area-label::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      bottom: -8px;
+      width: 14px;
+      height: 14px;
+      background: inherit;
+      border-right: 1px solid rgba(25, 63, 114, 0.08);
+      border-bottom: 1px solid rgba(25, 63, 114, 0.08);
+      transform: rotate(45deg);
+      border-radius: 0 0 4px 0;
+    }
+
+    .map-area-label.is-active {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow:
+        0 18px 36px rgba(43, 42, 41, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .map-area-label__tag {
+      min-width: 30px;
+      height: 28px;
+      padding: 0 9px;
+      border-radius: 10px;
+    }
+
+    .map-area-label__copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .map-area-label__eyebrow {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .map-area-label__title {
+      max-width: 164px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .balloon-card {
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      color: var(--text);
+    }
+
+    .balloon-eyebrow {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--premium-soft);
+      color: var(--accent);
+    }
+
+    .balloon-card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .balloon-card p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-soft);
+    }
+
+    .balloon-card__meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .balloon-card__meta span {
+      padding: 6px 8px;
+      background: var(--surface-chip);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-soft);
+    }
+
+    @media (max-width: 1280px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-metrics {
+        min-width: 100%;
+      }
+    }
+
+    @media (max-width: 1140px) {
+      .map-shell {
+        grid-template-columns: minmax(0, 1fr) 340px;
+        grid-template-rows: minmax(0, 1fr);
+        padding: 20px;
+      }
+
+      #map {
+        min-height: 0;
+        height: 100%;
+      }
+
+      .sidebar {
+        padding: 0;
+      }
+
+      .legend {
+        margin: 20px;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .page-shell {
+        padding: 16px;
+      }
+
+      .topbar {
+        padding: 18px;
+        border-radius: 24px;
+      }
+
+      .topbar-main {
+        flex-direction: column;
+      }
+
+      .hero-metrics,
+      .stat-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .map-shell {
+        grid-template-columns: minmax(0, 1fr) 300px;
+        grid-template-rows: minmax(0, 1fr);
+        gap: 16px;
+        padding: 16px;
+        border-radius: 24px;
+      }
+
+      .selection-chip {
+        margin: 16px;
+      }
+
+      .legend {
+        margin: 16px;
+      }
+
+      .sidebar {
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="topbar-main">
+        <div class="brand-block">
+          <div class="eyebrow">Geo analytics dashboard</div>
+          <div>
+            <h1>Farg'ona biznes landshafti xaritasi</h1>
+            <p class="sub" id="stats">
+              Ta'lim, savdo va xizmat nuqtalarini, issiqlik qatlamini hamda hududiy tavsiyalarni bitta premium panelda boshqaring.
+            </p>
+          </div>
+        </div>
+        <div class="hero-metrics" id="hero-metrics"></div>
+      </div>
+
+      <div class="toolbar">
+        <label class="search-shell" for="search-input">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0a7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <input id="search-input" type="search" placeholder="Lokatsiya yoki format bo'yicha qidiring" />
+          <span class="search-note">Faol filtr</span>
+        </label>
+
+        <div class="toolbar-group toolbar-group--layers">
+          <span class="group-label">Xarita qatlamlari</span>
+          <div class="segmented-control">
+            <button id="btn-markers" class="active layer-toggle" data-tone="danger" type="button">Markerlar</button>
+            <button id="btn-heatmap" class="active layer-toggle" data-tone="medium" type="button">Issiqlik</button>
+            <button id="btn-hints" class="active layer-toggle" data-tone="opportunity" type="button">Hududlar</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="map-shell">
+        <div id="map"></div>
+        <div class="map-veil"></div>
+        <div class="map-hover-layer"><div class="map-hover-card" id="map-hover-card"></div></div>
+        <div class="selection-chip" id="selection-chip"></div>
+
+        <aside class="sidebar">
+          <section class="sidebar-card sidebar-card--feature">
+            <div class="panel-overline" id="selected-zone-kicker">Tanlangan hudud</div>
+            <div class="feature-header">
+              <div>
+                <h2 class="feature-title" id="selected-zone-title">Sharqiy turar-joy yo'nalishi</h2>
+                <p class="feature-subtitle" id="selected-zone-subtitle"></p>
+              </div>
+              <span class="status-badge" id="selected-zone-badge"></span>
+            </div>
+            <div class="stat-grid" id="zone-stats"></div>
+            <div class="point-card">
+              <div class="point-card__header">
+                <div>
+                  <div class="point-card__label">Aniq mikrolokatsiya</div>
+                  <div class="point-card__value" id="selected-point-address">Aniq nuqta hisoblanmoqda</div>
+                </div>
+                <span class="point-card__signal" aria-hidden="true"></span>
+              </div>
+              <p class="point-card__meta" id="selected-point-why"></p>
+              <div class="point-card__chips" id="selected-point-chips"></div>
+              <div class="point-reasons" id="selected-point-reasons"></div>
+            </div>
+            <div class="recommendation-block">
+              <div class="recommendation-label">Keyingi qadam</div>
+              <p class="recommendation-copy" id="selected-zone-recommendation"></p>
+            </div>
+            <div class="insight-panel">
+              <div class="recommendation-label">Nega shu hudud</div>
+              <p class="insight-copy" id="selected-zone-insight"></p>
+            </div>
+          </section>
+
+          <section class="sidebar-card">
+            <div class="section-head">
+              <h3>Portfel ko'rsatkichi</h3>
+              <span class="section-pill" id="portfolio-chip"></span>
+            </div>
+            <div class="summary-grid" id="summary-stats"></div>
+          </section>
+
+          <section class="sidebar-card">
+            <div class="section-head">
+              <h3>Hudud tavsiyalari</h3>
+              <span class="section-pill" id="recs-count">0 hudud</span>
+            </div>
+            <div class="recommendation-list" id="recs"></div>
+          </section>
+
+          <section class="sidebar-card sidebar-card--muted">
+            <div class="section-head">
+              <h3>Ma'lumot izohi</h3>
+            </div>
+            <p class="note">
+              Joriy analitika yuklangan real biznes datasetlari va sharh ma'lumotlari asosida ishlaydi. Qo'shimcha backend signal, footfall yoki tranzaksiya manbasi qo'shilsa, shu bloklar yanada aniqroq boyitiladi.
+            </p>
+          </section>
+        </aside>
+
+        <div class="legend">
+          <p class="legend-title">Raqobat xaritasi</p>
+          <div class="row"><span class="swatch" style="background:#c16e67"></span>Yuqori raqobat, kirish uchun aniq farqlanish talab etiladi</div>
+          <div class="row"><span class="swatch" style="background:#d7b56d"></span>Muvozanatli segment, differensial servis ishlaydi</div>
+          <div class="row"><span class="swatch" style="background:#149fa8"></span>Imkoniyat zonasi, yangi format sinovi uchun qulay</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="map_data.generated.js"></script>
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=19d81b42-59fd-4d25-b7b5-bd60bebc7c5b&lang=ru_RU"></script>
+  <script src="https://yandex.github.io/mapsapi-heatmap/dist/Heatmap.min.js"></script>
+  <script>
+    const APP_CONFIG = {
+      cityTitle: "Farg'ona biznes landshafti",
+      defaultRecommendationId: "",
+      heroSummary: "Ta'lim, savdo va xizmat nuqtalari bo'yicha bozor zichligi, reyting sifati va strategik hududlarni kuzatish paneli.",
+    };
+
+    const UI_TEXT = {
+      all: "Barchasi",
+      visiblePoints: "Ko'rinayotgan nuqtalar",
+      averageRating: "Ortacha reyting",
+      opportunityAreas: "Imkoniyat hududlari",
+      selectedZone: "Tanlangan hudud",
+      selectedZoneFallback: "Faol hudud tanlanmagan",
+      portfolioVisible: "Faol nuqtalar",
+      portfolioBalance: "Format balansi",
+      portfolioSearch: "Qidiruv holati",
+      portfolioFocus: "Asosiy fokus",
+      noSearch: "Qidiruvsiz",
+      visibleRecommendations: "hudud",
+      allCities: "Barcha shaharlar",
+    };
+
+    const REGION_META = {
+      fergana_region: { label: "Farg'ona viloyati" },
+    };
+
+    const ACTIVE_SCOPE = {
+      region: "fergana_region",
+      city: "fergana_city",
+    };
+
+    const CITY_META = {
+      fergana_city: { label: "Farg'ona shahri", region: "fergana_region" },
+      margilan_city: { label: "Marg'ilon", region: "fergana_region" },
+      corridor_zone: { label: "Shaharlararo koridor", region: "fergana_region" },
+    };
+
+    const PLACE_META = {
+      education_center: { label: "O'quv markazlari", singular: "O'quv markazi", short: "EDU" },
+      bookstore: { label: "Kitob do'konlari", singular: "Kitob do'koni", short: "BOOK" },
+      stationery_store: { label: "Kanselyariya do'konlari", singular: "Kanselyariya", short: "STAT" },
+      grocery_store: { label: "Mahsulot do'konlari", singular: "Mahsulot do'koni", short: "SHOP" },
+      cafe: { label: "Kafe / kofexonalar", singular: "Kafe", short: "CAFE" },
+    };
+
+    const STATUS_META = {
+      best: {
+        label: "Eng yaxshi",
+        short: "Sara",
+        tone: "opportunity",
+        fill: "#10b981",
+        stroke: "#059669",
+        activeFill: "#059669",
+        activeStroke: "#047857",
+      },
+      good: {
+        label: "Yaxshi",
+        short: "Yaxshi",
+        tone: "medium",
+        fill: "#f59e0b",
+        stroke: "#d97706",
+        activeFill: "#d97706",
+        activeStroke: "#b45309",
+      },
+      moderate: {
+        label: "O'rtacha",
+        short: "O'rt.",
+        tone: "danger",
+        fill: "#ef4444",
+        stroke: "#dc2626",
+        activeFill: "#dc2626",
+        activeStroke: "#b91c1c",
+      },
+    };
+
+    const RECOMMENDATION_RANK_ORDER = ["best", "good", "moderate"];
+    const SUPPORT_CATEGORY_WEIGHTS = {
+      bookstore: 1.45,
+      stationery_store: 1.3,
+      grocery_store: 0.95,
+      cafe: 0.82,
+    };
+    const LANDMARK_CATEGORY_BIAS = {
+      bookstore: 1.32,
+      stationery_store: 1.18,
+      cafe: 1.04,
+      grocery_store: 0.56,
+    };
+    const GENERIC_LANDMARK_PATTERNS = [
+      /^продукты$/i,
+      /^магазин продуктов$/i,
+      /^канцтовары$/i,
+      /^магазин$/i,
+      /^grocery/i,
+      /^shop$/i,
+    ];
+
+    function inferCityKeyFromPoint(point) {
+      const lat = point[0];
+      const lng = point[1];
+      if (lat >= 40.462) return "margilan_city";
+      if (lat >= 40.418 || lng <= 71.758 || lat <= 40.358) return "corridor_zone";
+      return "fergana_city";
+    }
+
+    const FALLBACK_PLACES = [
+      { n: "Chorsu Restaurant", c: "restaurant", p: [40.3842, 71.7843], r: 4.5 },
+      { n: "Oshxona Registon", c: "restaurant", p: [40.3858, 71.7828], r: 4.3 },
+      { n: "Sharq Taronasi", c: "restaurant", p: [40.3835, 71.7867], r: 4.1 },
+      { n: "Milliy Taomlar", c: "restaurant", p: [40.3871, 71.7851], r: 4.4 },
+      { n: "Xon Saroy", c: "restaurant", p: [40.3819, 71.7819], r: 4.6 },
+      { n: "Beshqozon", c: "restaurant", p: [40.3890, 71.7889], r: 4.2 },
+      { n: "Cafe Aroma", c: "cafe", p: [40.3847, 71.7854], r: 4.7 },
+      { n: "Coffee Point", c: "cafe", p: [40.3863, 71.7840], r: 4.5 },
+      { n: "Sweet Bakery", c: "cafe", p: [40.3838, 71.7872], r: 4.3 },
+      { n: "Cappuccino House", c: "cafe", p: [40.3852, 71.7812], r: 4.4 },
+      { n: "Morning Brew", c: "cafe", p: [40.3878, 71.7835], r: 4.2 },
+      { n: "Park Restaurant", c: "restaurant", p: [40.3795, 71.7895], r: 4.3 },
+      { n: "Green Garden", c: "restaurant", p: [40.3780, 71.7870], r: 4.0 },
+      { n: "Parkovka Cafe", c: "cafe", p: [40.3802, 71.7905], r: 4.1 },
+      { n: "Ice Cream Park", c: "cafe", p: [40.3788, 71.7882], r: 4.4 },
+      { n: "Mustaqillik Grill", c: "restaurant", p: [40.3921, 71.7805], r: 4.2 },
+      { n: "Golden Kazan", c: "restaurant", p: [40.3955, 71.7812], r: 4.5 },
+      { n: "Laziz Shashlik", c: "restaurant", p: [40.3988, 71.7820], r: 4.1 },
+      { n: "Tea Garden", c: "cafe", p: [40.3935, 71.7800], r: 4.3 },
+      { n: "Urban Coffee", c: "cafe", p: [40.3970, 71.7815], r: 4.6 },
+      { n: "Osiyo Restaurant", c: "restaurant", p: [40.3720, 71.7825], r: 4.0 },
+      { n: "Do'stlik Choyxona", c: "restaurant", p: [40.3695, 71.7790], r: 3.9 },
+      { n: "Lunch Break", c: "cafe", p: [40.3710, 71.7810], r: 4.0 },
+      { n: "Edge Diner", c: "restaurant", p: [40.3810, 71.8050], r: 3.8 },
+      { n: "Family Restaurant", c: "restaurant", p: [40.4050, 71.7680], r: 4.2 },
+      { n: "Quick Bite", c: "cafe", p: [40.4020, 71.7720], r: 3.9 },
+      { n: "Roadside Choyxona", c: "restaurant", p: [40.3480, 71.7620], r: 3.7 },
+      { n: "Grand Dining", c: "restaurant", p: [40.3870, 71.7920], r: 4.7 },
+      { n: "Business Lunch", c: "restaurant", p: [40.3882, 71.7935], r: 4.3 },
+      { n: "Lobby Cafe", c: "cafe", p: [40.3875, 71.7925], r: 4.6 },
+      { n: "Espresso Bar", c: "cafe", p: [40.3890, 71.7940], r: 4.5 },
+      { n: "Kumtepa Oshxona", c: "restaurant", p: [40.4690, 71.7250], r: 4.3 },
+      { n: "Bazaar Cafe", c: "cafe", p: [40.4705, 71.7240], r: 4.0 },
+      { n: "Market Lunch", c: "cafe", p: [40.4695, 71.7260], r: 3.9 },
+      { n: "Yodgorlik Restaurant", c: "restaurant", p: [40.4712, 71.7239], r: 4.5 },
+      { n: "Ipak Yo'li", c: "restaurant", p: [40.4730, 71.7280], r: 4.4 },
+      { n: "Atlas Cafe", c: "cafe", p: [40.4725, 71.7265], r: 4.6 },
+      { n: "Silk Road Coffee", c: "cafe", p: [40.4740, 71.7250], r: 4.3 },
+      { n: "Margilan Plov", c: "restaurant", p: [40.4700, 71.7220], r: 4.7 },
+      { n: "Highway Grill", c: "restaurant", p: [40.4280, 71.7500], r: 3.8 },
+      { n: "Neighborhood Cafe", c: "cafe", p: [40.4150, 71.7800], r: 3.9 },
+    ].map((place) => ({
+      ...place,
+      region: "fergana_region",
+      city: inferCityKeyFromPoint(place.p),
+    }));
+
+    const PLACES = window.IMPORTED_MAP_DATA && Array.isArray(window.IMPORTED_MAP_DATA.places) && window.IMPORTED_MAP_DATA.places.length
+      ? window.IMPORTED_MAP_DATA.places
+      : FALLBACK_PLACES;
+
+    const RECOMMENDATIONS = [
+      {
+        id: "east-growth",
+        tag: "gap",
+        title: "Sharqiy turar-joy yo'nalishi",
+        subtitle: "Shahar markazidan sharqqa chiqish oqimi",
+        body: "Hududda kundalik yashash oqimi baland, ammo ovqatlanish nuqtalari soni past. Yangi formatni sinash uchun xavf nisbatan past.",
+        recommendation: "Takeaway, nonushta va oilaviy formatni birlashtirgan ixcham nuqta ochish maqsadga muvofiq.",
+        explanation: "Aholi oqimi ertalab va kechqurun kuchayadi. Past raqobat servis tezligi va narx pozitsiyasi bilan tez ajralib chiqish imkonini beradi.",
+        metrics: [
+          { label: "Zichlik", value: "1.8 / km2" },
+          { label: "Ijara bosimi", value: "Past" },
+          { label: "Talab signali", value: "Yuqori" },
+          { label: "Mos format", value: "Kafe + takeaway" },
+        ],
+        circle: { c: [40.3810, 71.8050], r: 1400 },
+        region: "fergana_region",
+        city: "fergana_city",
+      },
+      {
+        id: "corridor-roadside",
+        tag: "gap",
+        title: "Farg'ona - Marg'ilon koridori",
+        subtitle: "Yo'l bo'yi tez xizmat formatlari uchun ochiq zona",
+        body: "Magistral bo'ylab ko'rinadigan ovqatlanish nuqtalari siyrak. Uzoq masofa qatnovi va tranzit oqimi sabab qisqa to'xtash formatlari ishlaydi.",
+        recommendation: "Roadside kafe, grill yoki express choyxona uchun yo'lga yaqin yengil footprint tavsiya etiladi.",
+        explanation: "Drayver segmenti uchun qulay kirish-chiqish va tez servis asosiy farqlovchi omil bo'ladi.",
+        metrics: [
+          { label: "Zichlik", value: "0.9 / km2" },
+          { label: "Piyoda oqimi", value: "O'rta" },
+          { label: "Tranzit oqimi", value: "Yuqori" },
+          { label: "Mos format", value: "Roadside grill" },
+        ],
+        circle: { c: [40.4280, 71.7500], r: 2000 },
+        region: "fergana_region",
+        city: "corridor_zone",
+      },
+      {
+        id: "south-expansion",
+        tag: "gap",
+        title: "Janubiy kengayish hududi",
+        subtitle: "Rivojlanayotgan turar-joy perimetri",
+        body: "Hududda yangi uy-joy rivojlanmoqda, ammo kafe va xizmat ko'rsatish nuqtalari kam. O'rtacha chek bilan oilaviy format joy olishi mumkin.",
+        recommendation: "Qulay narx segmentidagi oilaviy restoran yoki choyxona uchun joy tayyor.",
+        explanation: "Ijaraning nisbatan pastligi start xarajatini pasaytiradi va uzoqroq payback bilan ishlashni osonlashtiradi.",
+        metrics: [
+          { label: "Zichlik", value: "1.2 / km2" },
+          { label: "Ijara bosimi", value: "Past" },
+          { label: "Oila segmenti", value: "Yuqori" },
+          { label: "Mos format", value: "Oilaviy restoran" },
+        ],
+        circle: { c: [40.3480, 71.7620], r: 1500 },
+        region: "fergana_region",
+        city: "corridor_zone",
+      },
+      {
+        id: "mustaqillik-core",
+        tag: "hot",
+        title: "Mustaqillik va markaziy bozor",
+        subtitle: "Eng zich va yuqori ko'rinishli savdo tuguni",
+        body: "Talab yuqori, lekin raqobat ham juda zich. Bu hududga faqat kuchli brend, aniq mahsulot farqi yoki premium servis bilan kirish tavsiya etiladi.",
+        recommendation: "Brend positioning, dizayn va menyu farqlanishi bo'lmasa, bu hududga kirishni kechiktirish ma'qul.",
+        explanation: "Yuqori footfall tez o'sish beradi, ammo marketing va operatsion xarajatlar ham yuqori bo'ladi.",
+        metrics: [
+          { label: "Zichlik", value: "5.6 / km2" },
+          { label: "Talab signali", value: "Juda yuqori" },
+          { label: "Ijara bosimi", value: "Yuqori" },
+          { label: "Mos format", value: "Premium / flagship" },
+        ],
+        rect: [[40.3820, 71.7810], [40.3900, 71.7890]],
+        region: "fergana_region",
+        city: "fergana_city",
+      },
+      {
+        id: "margilan-hub",
+        tag: "hot",
+        title: "Marg'ilon ipak markazi",
+        subtitle: "Turistik va premium talab to'plangan klaster",
+        body: "Turist oqimi va yuqori reytingli nuqtalar ko'paygan. Yangi kiruvchi loyiha aniq story va premium servis bilan kelishi kerak.",
+        recommendation: "Mualliflik oshxonasi yoki destination-format kafe bo'lsa, shu hudud mos keladi.",
+        explanation: "Turistik hududlarda vizual tajriba va xizmat darajasi oddiy narx raqobatidan kuchliroq ishlaydi.",
+        metrics: [
+          { label: "Zichlik", value: "4.8 / km2" },
+          { label: "Turist oqimi", value: "Yuqori" },
+          { label: "Chek hajmi", value: "O'rta+" },
+          { label: "Mos format", value: "Destination cafe" },
+        ],
+        rect: [[40.4680, 71.7200], [40.4760, 71.7300]],
+        region: "fergana_region",
+        city: "margilan_city",
+      },
+      {
+        id: "park-balance",
+        tag: "mid",
+        title: "Al-Farg'oniy bog'i atrofi",
+        subtitle: "Muvozanatli va oilaviy oqimga ega hudud",
+        body: "Bu zona haddan tashqari to'yingan emas, lekin talab mavjud. Tinch atmosfera, ochiq veranda yoki dessert-oriented format ishlashi mumkin.",
+        recommendation: "Mavsumiy veranda, dessert bar yoki family-cafe uchun pilot hudud sifatida sinab ko'rish mumkin.",
+        explanation: "Bog' atrofidagi segmentda tashrif motivi ko'proq dam olish bilan bog'liq bo'lgani uchun tajriba va qulaylik muhim.",
+        metrics: [
+          { label: "Zichlik", value: "3.1 / km2" },
+          { label: "Piyoda oqimi", value: "Barqaror" },
+          { label: "Oilaviy segment", value: "Yuqori" },
+          { label: "Mos format", value: "Family cafe" },
+        ],
+        circle: { c: [40.3790, 71.7890], r: 600 },
+        region: "fergana_region",
+        city: "fergana_city",
+      },
+    ];
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatRating(value) {
+      return Number(value).toFixed(1);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function formatCoordinates(point) {
+      return `${Number(point[0]).toFixed(5)}, ${Number(point[1]).toFixed(5)}`;
+    }
+
+    function interpolatePoint(origin, target, factor) {
+      return [
+        origin[0] + (target[0] - origin[0]) * factor,
+        origin[1] + (target[1] - origin[1]) * factor,
+      ];
+    }
+
+    function getBearingBetween(origin, target) {
+      const lat1 = origin[0] * Math.PI / 180;
+      const lat2 = target[0] * Math.PI / 180;
+      const lngDelta = (target[1] - origin[1]) * Math.PI / 180;
+      const y = Math.sin(lngDelta) * Math.cos(lat2);
+      const x =
+        Math.cos(lat1) * Math.sin(lat2) -
+        Math.sin(lat1) * Math.cos(lat2) * Math.cos(lngDelta);
+      return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    }
+
+    function getStableNoise(seed, index) {
+      const value = `${seed}:${index}`;
+      let hash = 0;
+      for (let i = 0; i < value.length; i += 1) {
+        hash = (hash * 33 + value.charCodeAt(i)) % 2147483647;
+      }
+      return (hash % 1000) / 1000;
+    }
+
+    function trimLabel(value, maxLength = 30) {
+      const text = String(value || "").trim();
+      if (text.length <= maxLength) return text;
+      return `${text.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+    }
+
+    function getSupportCategoryWeight(placeOrCategory) {
+      const category = typeof placeOrCategory === "string" ? placeOrCategory : placeOrCategory?.c;
+      return SUPPORT_CATEGORY_WEIGHTS[category] || 0.72;
+    }
+
+    function getLandmarkCategoryBias(place) {
+      return LANDMARK_CATEGORY_BIAS[place?.c] || 0.66;
+    }
+
+    function isGenericLandmarkName(place) {
+      const value = String(place?.n || "").trim();
+      if (!value) return true;
+      return GENERIC_LANDMARK_PATTERNS.some((pattern) => pattern.test(value));
+    }
+
+    function weightedAveragePoint(items, getPoint, getWeight, fallbackPoint) {
+      let lat = 0;
+      let lng = 0;
+      let totalWeight = 0;
+      items.forEach((item) => {
+        const weight = Number(getWeight(item));
+        if (!Number.isFinite(weight) || weight <= 0) return;
+        const point = getPoint(item);
+        if (!point || point.length < 2) return;
+        lat += point[0] * weight;
+        lng += point[1] * weight;
+        totalWeight += weight;
+      });
+      if (!totalWeight) return fallbackPoint;
+      return [lat / totalWeight, lng / totalWeight];
+    }
+
+    function dedupePoints(points) {
+      const seen = new Set();
+      return points.filter((point) => {
+        const key = `${point[0].toFixed(6)}:${point[1].toFixed(6)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function averageRating(items) {
+      const ratedItems = items.filter((item) => Number.isFinite(Number(item.r)) && Number(item.r) > 0);
+      if (!ratedItems.length) return 0;
+      return ratedItems.reduce((sum, item) => sum + Number(item.r), 0) / ratedItems.length;
+    }
+
+    function metersBetween(a, b) {
+      const rad = Math.PI / 180;
+      const earth = 6371000;
+      const dLat = (b[0] - a[0]) * rad;
+      const dLng = (b[1] - a[1]) * rad;
+      const lat1 = a[0] * rad;
+      const lat2 = b[0] * rad;
+      const sinLat = Math.sin(dLat / 2);
+      const sinLng = Math.sin(dLng / 2);
+      const calc = sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLng * sinLng;
+      return 2 * earth * Math.atan2(Math.sqrt(calc), Math.sqrt(1 - calc));
+    }
+
+    function pointInsideRecommendation(point, recommendation) {
+      return metersBetween(point, getRecommendationCenter(recommendation)) <= getRecommendationRadius(recommendation);
+    }
+
+    function getRecommendationCenter(recommendation) {
+      if (recommendation.circle) return recommendation.circle.c;
+      if (recommendation.rect) {
+        return [
+          (recommendation.rect[0][0] + recommendation.rect[1][0]) / 2,
+          (recommendation.rect[0][1] + recommendation.rect[1][1]) / 2,
+        ];
+      }
+      return [40.3842, 71.7843];
+    }
+
+    function getRecommendationRadius(recommendation) {
+      if (typeof recommendation.radius === "number") return recommendation.radius;
+      if (recommendation.circle && typeof recommendation.circle.r === "number") return recommendation.circle.r;
+      return getCoverageRadiusMeters();
+    }
+
+    function buildRecommendationDisplayPolygon(recommendation, pointData) {
+      const center = getRecommendationCenter(recommendation);
+      const radius = getRecommendationRadius(recommendation);
+      const primaryBearing = pointData ? getBearingBetween(center, pointData.point) : 26;
+      const secondaryBearing = pointData?.weightedAnchor
+        ? getBearingBetween(center, pointData.weightedAnchor)
+        : (primaryBearing + 110) % 360;
+      const steps = 12;
+
+      return Array.from({ length: steps }, (_, index) => {
+        const bearing = index * (360 / steps);
+        const seed = getStableNoise(recommendation.id, index);
+        const primaryInfluence = Math.max(0, Math.cos((bearing - primaryBearing) * Math.PI / 180));
+        const secondaryInfluence = Math.max(0, Math.cos((bearing - secondaryBearing) * Math.PI / 180));
+        const distanceRatio = 0.28 + seed * 0.16 + primaryInfluence * 0.24 + secondaryInfluence * 0.12;
+        const distance = clamp(radius * distanceRatio, 160, radius * 0.72);
+        return projectPoint(center, bearing, distance);
+      });
+    }
+
+    function getRecommendationLabelPoint(recommendation, pointData) {
+      const center = getRecommendationCenter(recommendation);
+      const radius = getRecommendationRadius(recommendation);
+      const primaryBearing = pointData ? getBearingBetween(center, pointData.point) : 36;
+      const labelBearing = (primaryBearing + 215) % 360;
+      return projectPoint(center, labelBearing, clamp(radius * 0.22, 110, 260));
+    }
+
+    function getRecommendationFocusTitle(recommendation, pointData) {
+      if (pointData?.nearestPlace && !isGenericLandmarkName(pointData.nearestPlace)) {
+        return pointData.nearestPlace.n;
+      }
+      return recommendation.title;
+    }
+
+    function getRecommendationPriority(recommendation) {
+      if (recommendation.id === APP_CONFIG.defaultRecommendationId) return 100;
+      if (recommendation.tag === "gap") return 30;
+      if (recommendation.tag === "mid") return 20;
+      return 10;
+    }
+
+    function averagePoint(points) {
+      if (!points.length) return [40.3842, 71.7843];
+      const total = points.reduce((sum, point) => {
+        sum[0] += point[0];
+        sum[1] += point[1];
+        return sum;
+      }, [0, 0]);
+      return [total[0] / points.length, total[1] / points.length];
+    }
+
+    function getCoverageRadiusMeters() {
+      return 500;
+    }
+
+    function getCoverageDensity(count, radiusMeters) {
+      const areaKm2 = (Math.PI * radiusMeters * radiusMeters) / 1000000;
+      return count / areaKm2;
+    }
+
+    function classifyRecommendationTag(count, avgRating) {
+      if (count >= 6 || (count >= 5 && avgRating >= 4.2)) return "hot";
+      if (count >= 3) return "mid";
+      return "gap";
+    }
+
+    function getNearestPoint(target, places) {
+      if (!places.length) {
+        return { place: null, distance: Infinity };
+      }
+      return places.reduce((best, place) => {
+        const distance = metersBetween(target, place.p || place);
+        return distance < best.distance ? { place, distance } : best;
+      }, { place: null, distance: Infinity });
+    }
+
+    function initializeZoneCenters(points, desiredCount) {
+      const anchor = averagePoint(points);
+      const first = points.reduce((best, point) => (
+        metersBetween(anchor, point) < metersBetween(anchor, best) ? point : best
+      ), points[0]);
+      const centers = [first];
+
+      while (centers.length < desiredCount) {
+        let candidate = points[0];
+        let farthestDistance = -1;
+        points.forEach((point) => {
+          const distance = Math.min(...centers.map((center) => metersBetween(point, center)));
+          if (distance > farthestDistance) {
+            farthestDistance = distance;
+            candidate = point;
+          }
+        });
+        centers.push(candidate);
+      }
+
+      return centers.map((point) => [...point]);
+    }
+
+    function buildEducationClusters(educationPlaces, desiredCount) {
+      if (!educationPlaces.length) return [];
+
+      let centers = initializeZoneCenters(educationPlaces.map((place) => place.p), Math.min(desiredCount, educationPlaces.length));
+
+      function refillEmptyGroups(groups) {
+        groups.forEach((group) => {
+          if (group.length) return;
+          const donorIndex = groups.reduce((bestIndex, candidateGroup, candidateIndex) => (
+            candidateGroup.length > groups[bestIndex].length ? candidateIndex : bestIndex
+          ), 0);
+          const donorGroup = groups[donorIndex];
+          if (donorGroup.length <= 1) return;
+
+          const donorCenter = averagePoint(donorGroup.map((place) => place.p));
+          donorGroup.sort((left, right) => (
+            metersBetween(right.p, donorCenter) - metersBetween(left.p, donorCenter)
+          ));
+
+          const movedPlace = donorGroup.shift();
+          if (movedPlace) group.push(movedPlace);
+        });
+      }
+
+      for (let iteration = 0; iteration < 8; iteration += 1) {
+        const groups = centers.map(() => []);
+        educationPlaces.forEach((place) => {
+          let bestIndex = 0;
+          let bestDistance = Infinity;
+          centers.forEach((center, index) => {
+            const distance = metersBetween(place.p, center);
+            if (distance < bestDistance) {
+              bestDistance = distance;
+              bestIndex = index;
+            }
+          });
+          groups[bestIndex].push(place);
+        });
+
+        refillEmptyGroups(groups);
+        centers = groups.map((group, index) => (
+          group.length ? averagePoint(group.map((place) => place.p)) : centers[index]
+        ));
+      }
+
+      const finalGroups = centers.map(() => []);
+      educationPlaces.forEach((place) => {
+        let bestIndex = 0;
+        let bestDistance = Infinity;
+        centers.forEach((center, index) => {
+          const distance = metersBetween(place.p, center);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestIndex = index;
+          }
+        });
+        finalGroups[bestIndex].push(place);
+      });
+
+      refillEmptyGroups(finalGroups);
+      return finalGroups
+        .map((places, index) => ({ center: places.length ? averagePoint(places.map((place) => place.p)) : centers[index], places }))
+        .filter((group) => group.places.length);
+    }
+
+    function getDirectionalZoneTitle(point, anchor) {
+      const latDiff = point[0] - anchor[0];
+      const lngDiff = point[1] - anchor[1];
+      const latAbs = Math.abs(latDiff);
+      const lngAbs = Math.abs(lngDiff);
+
+      if (latAbs < 0.0012 && lngAbs < 0.0012) return "Markaziy";
+      if (lngAbs >= latAbs) return lngDiff >= 0 ? "Sharqiy" : "G'arbiy";
+      return latDiff >= 0 ? "Shimoliy" : "Janubiy";
+    }
+
+    function getRecommendationCopy(tag, count) {
+      if (tag === "gap") {
+        return {
+          body: "Bu mikro-hududda mavjud nuqtalar siyrakroq joylashgan va yangi biznes yoki filial uchun aniq bo'shliq ko'rinadi.",
+          recommendation: "Yengil footprint bilan sinov nuqtasi, yangi filial yoki yaqin xizmat formatini shu joyda ishga tushirish maqsadga muvofiq.",
+          explanation: "Qisqa radius ichida raqobatchilar orasidagi masofa kengroq bo'lgani uchun kirish yumshoqroq va talabni bosqichma-bosqich tekshirish osonroq.",
+          format: "Pilot format",
+          subtitle: `${count} ta manzil bilan engil raqobat`,
+        };
+      }
+      if (tag === "mid") {
+        return {
+          body: "Bu hududda talab barqaror va bir nechta mavjud nuqta bor, lekin bozor hali haddan tashqari to'yinmagan.",
+          recommendation: "Aniq xizmat farqi, narx pozitsiyasi yoki segmentlash bilan bu hududda o'sish imkoniyati saqlanadi.",
+          explanation: "Raqobat mavjud bo'lsa ham, lokal oqim va xizmat sifati bilan ajralib chiqish imkoniyati saqlanib qoladi.",
+          format: "Differensial servis",
+          subtitle: `${count} ta manzil bilan muvozanatli klaster`,
+        };
+      }
+      return {
+        body: "Bu mikro-hudud eng zich lokal klasterlardan biri bo'lib, mavjud nuqtalar bir-biriga juda yaqin joylashgan.",
+        recommendation: "Yangi kirish faqat kuchli konsept, premium servis yoki aniq mahsulot farqi bilan ko'rib chiqilishi kerak.",
+        explanation: "Yuqori zichlik footfall ustunligi beradi, ammo reklama, ijara va operatsion bosim ham balandroq bo'ladi.",
+        format: "Kuchli konsept",
+        subtitle: `${count} ta manzil bilan zich klaster`,
+      };
+    }
+
+    function projectPoint(origin, bearingDeg, distanceMeters) {
+      const earth = 6378137;
+      const bearing = bearingDeg * Math.PI / 180;
+      const angularDistance = distanceMeters / earth;
+      const lat1 = origin[0] * Math.PI / 180;
+      const lng1 = origin[1] * Math.PI / 180;
+
+      const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(angularDistance) +
+        Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing)
+      );
+
+      const lng2 = lng1 + Math.atan2(
+        Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(lat1),
+        Math.cos(angularDistance) - Math.sin(lat1) * Math.sin(lat2)
+      );
+
+      return [lat2 * 180 / Math.PI, lng2 * 180 / Math.PI];
+    }
+
+    function getDirectionalLabel(origin, point) {
+      const latDiff = point[0] - origin[0];
+      const lngDiff = point[1] - origin[1];
+      const latAbs = Math.abs(latDiff);
+      const lngAbs = Math.abs(lngDiff);
+
+      if (latAbs < 0.0009 && lngAbs < 0.0009) return "markaziy qismi";
+      if (lngAbs >= latAbs) return lngDiff >= 0 ? "sharqiy qismi" : "g'arbiy qismi";
+      return latDiff >= 0 ? "shimoliy qismi" : "janubiy qismi";
+    }
+
+    function getWeightedZoneAnchor(center, supportBaselines) {
+      return weightedAveragePoint(
+        supportBaselines,
+        (entry) => entry.place.p,
+        (entry) => entry.weight,
+        center
+      );
+    }
+
+    function scoreSupportAnchor(place, weightedAnchor, center, radius) {
+      const anchorDistance = metersBetween(place.p, weightedAnchor);
+      const centerDistance = metersBetween(place.p, center);
+      const usefulNameBonus = isGenericLandmarkName(place) ? 0 : 0.6;
+      const categoryWeight = getSupportCategoryWeight(place);
+      const centerBias = Math.max(0, 1 - centerDistance / Math.max(radius * 0.95, 1));
+      const anchorBias = Math.max(0, 1 - anchorDistance / Math.max(radius * 0.85, 1));
+      return categoryWeight * 2.8 + usefulNameBonus + centerBias + anchorBias;
+    }
+
+    function buildRecommendationCandidates(center, radius, weightedAnchor, supportBaselines) {
+      const candidates = [center, weightedAnchor];
+      const bearings = [0, 45, 90, 135, 180, 225, 270, 315];
+      const latticeDistances = [140, 280, 430, 620].filter((distance) => distance < radius * 0.82);
+
+      latticeDistances.forEach((distance) => {
+        bearings.forEach((bearing) => {
+          candidates.push(projectPoint(weightedAnchor, bearing, distance));
+        });
+      });
+
+      const anchorCandidates = supportBaselines
+        .slice()
+        .sort((left, right) => right.anchorScore - left.anchorScore)
+        .slice(0, 10);
+
+      anchorCandidates.forEach((entry) => {
+        candidates.push(entry.place.p);
+      });
+
+      anchorCandidates.slice(0, 6).forEach((entry) => {
+        [0, 90, 180, 270].forEach((bearing) => {
+          candidates.push(projectPoint(entry.place.p, bearing, 90));
+        });
+      });
+
+      return dedupePoints(candidates);
+    }
+
+    function evaluateRecommendationCandidate(point, recommendation, allCompetitors, localPlaces, supportBaselines, weightedAnchor) {
+      const radius = getRecommendationRadius(recommendation);
+      const center = getRecommendationCenter(recommendation);
+      const nearestCompetitor = getNearestPoint(point, allCompetitors);
+      const supportPlaces = supportBaselines.map((entry) => entry.place);
+      const nearestSupport = getNearestPoint(point, supportPlaces);
+      const nearestOccupiedPlace = getNearestPoint(point, localPlaces);
+      const centerDistance = metersBetween(point, center);
+      const boundaryClearance = radius - centerDistance;
+      const weightedAnchorDistance = metersBetween(point, weightedAnchor);
+
+      let weightedSupportReach = 0;
+      let supportWithinWalkCount = 0;
+      let studentSignalWeight = 0;
+      let familySignalWeight = 0;
+      let studentSignalCount = 0;
+      let familySignalCount = 0;
+      let coverageGainWeighted = 0;
+      let coverageGainCount = 0;
+
+      supportBaselines.forEach((entry) => {
+        const distance = metersBetween(point, entry.place.p);
+        const weight = entry.weight;
+
+        if (distance <= 420) {
+          weightedSupportReach += weight * (1 - distance / 420);
+        }
+        if (distance <= 320) {
+          supportWithinWalkCount += 1;
+        }
+        if (entry.isStudent && distance <= 320) {
+          studentSignalWeight += weight * (1 - distance / 320);
+          studentSignalCount += 1;
+        }
+        if (entry.isFamily && distance <= 320) {
+          familySignalWeight += weight * (1 - distance / 320);
+          familySignalCount += 1;
+        }
+        if (distance + 90 < entry.nearestCompetitorDistance) {
+          coverageGainWeighted += weight * (1 - Math.min(distance, 500) / 500);
+          coverageGainCount += 1;
+        }
+      });
+
+      const competitionClearance = clamp(nearestCompetitor.distance / 550, 0, 1.35);
+      const supportAccess = clamp(weightedSupportReach / 7.5, 0, 1.3);
+      const coverageAdvantage = clamp(coverageGainWeighted / 8, 0, 1.25);
+      const studentContext = clamp(studentSignalWeight / 3.2, 0, 1.2);
+      const familyContext = clamp(familySignalWeight / 5.5, 0, 1.2);
+      const anchorAlignment = Math.max(0, 1 - weightedAnchorDistance / Math.max(radius * 0.72, 280));
+      const centerAlignment = Math.max(0, 1 - centerDistance / Math.max(radius * 0.86, 320));
+      const overlapPenalty = nearestOccupiedPlace.distance < 35 ? 0.5 : nearestOccupiedPlace.distance < 70 ? 0.24 : 0;
+      const closeCompetitionPenalty = nearestCompetitor.distance < 120
+        ? (120 - nearestCompetitor.distance) / 120 * 1.15
+        : nearestCompetitor.distance < 220
+          ? (220 - nearestCompetitor.distance) / 220 * 0.34
+          : 0;
+      const edgePenalty = boundaryClearance < 120 ? (120 - boundaryClearance) / 120 : 0;
+      const score = competitionClearance * 28 +
+        supportAccess * 24 +
+        coverageAdvantage * 22 +
+        studentContext * 14 +
+        familyContext * 10 +
+        anchorAlignment * 10 +
+        centerAlignment * 6 -
+        overlapPenalty * 28 -
+        closeCompetitionPenalty * 24 -
+        edgePenalty * 10;
+
+      return {
+        point,
+        score,
+        nearestCompetitorDistance: nearestCompetitor.distance,
+        nearestSupportDistance: nearestSupport.distance,
+        nearestOccupiedDistance: nearestOccupiedPlace.distance,
+        centerDistance,
+        boundaryClearance,
+        weightedAnchorDistance,
+        weightedSupportReach,
+        supportWithinWalkCount,
+        studentSignalWeight,
+        familySignalWeight,
+        studentSignalCount,
+        familySignalCount,
+        coverageGainWeighted,
+        coverageGainCount,
+      };
+    }
+
+    function pickRecommendationLandmark(point, supportPlaces, fallbackPlaces) {
+      const sourcePool = supportPlaces.length ? supportPlaces : fallbackPlaces;
+      if (!sourcePool.length) return { place: null, distance: Infinity };
+
+      const nearbyPreferred = sourcePool.filter((place) => !isGenericLandmarkName(place) && metersBetween(point, place.p) <= 360);
+      const nearbyPool = sourcePool.filter((place) => metersBetween(point, place.p) <= 260);
+      const pool = nearbyPreferred.length ? nearbyPreferred : nearbyPool.length ? nearbyPool : sourcePool;
+
+      return pool.reduce((best, place) => {
+        const distance = metersBetween(point, place.p);
+        const usefulNameBonus = isGenericLandmarkName(place) ? 0 : 92;
+        const categoryBias = getLandmarkCategoryBias(place) * 74;
+        const score = usefulNameBonus + categoryBias - distance * 0.82;
+        return score > best.score ? { place, distance, score } : best;
+      }, { place: null, distance: Infinity, score: -Infinity });
+    }
+
+    function buildRecommendationAddress(recommendation, point, landmark, landmarkDistance) {
+      const center = getRecommendationCenter(recommendation);
+      const coordinates = formatCoordinates(point);
+      if (landmark && landmarkDistance <= 260 && !isGenericLandmarkName(landmark)) {
+        return `${landmark.n} yaqinida (${coordinates})`;
+      }
+      return `${recommendation.title}, ${getDirectionalLabel(center, point)} (${coordinates})`;
+    }
+
+    function getPointContextSummary(pointData) {
+      const parts = [];
+      if (pointData.studentSignalCount) {
+        parts.push(`${pointData.studentSignalCount} ta talaba signali`);
+      }
+      if (pointData.familySignalCount) {
+        parts.push(`${pointData.familySignalCount} ta oila oqimi`);
+      }
+      if (!parts.length && pointData.supportWithinWalkCount) {
+        parts.push(`${pointData.supportWithinWalkCount} ta kundalik signal`);
+      }
+      return parts.join(" va ");
+    }
+
+    function buildRecommendationReasonBullets(pointData) {
+      const contextSummary = getPointContextSummary(pointData) || "kundalik talab oqimi";
+      return [
+        `${Math.round(pointData.nearestCompetitorDistance)} m tampon: yaqin raqobat bosimi pastroq.`,
+        `${pointData.supportWithinWalkCount} ta signal 320 m ichida, shu jumladan ${contextSummary}.`,
+        `${pointData.coverageGainCount} ta talab nuqtasiga mavjud markazlarga qaraganda qulayroq qamrov beradi.`,
+      ];
+    }
+
+    function buildRecommendationPointReason(pointData) {
+      const contextSummary = getPointContextSummary(pointData) || "kundalik xizmat oqimi";
+      return `${Math.round(pointData.nearestCompetitorDistance)} metr raqobat tamponi saqlanadi, ${pointData.supportWithinWalkCount} ta yaqin signalga ulanadi va ${pointData.coverageGainCount} ta talab nuqtasida mavjud markazlardan ko'ra qulayroq qamrov beradi. ${contextSummary.charAt(0).toUpperCase()}${contextSummary.slice(1)} shu nuqtaning biznes foydasini kuchaytiradi.`;
+    }
+
+    function buildRecommendationTooltipBody(pointData) {
+      return `Zonadagi kandidatlarni solishtirganda shu nuqta ${Math.round(pointData.nearestCompetitorDistance)} m tampon, ${pointData.supportWithinWalkCount} ta yaqin signal va ${pointData.coverageGainCount} ta coverage ustunligi berdi.`;
+    }
+
+    function buildRecommendationPointBalloon(recommendation, pointData) {
+      const status = STATUS_META[recommendation.tag] || STATUS_META.good;
+      return `
+        <div class="balloon-card">
+          <span class="balloon-eyebrow">${escapeHtml(status.label)} nuqta</span>
+          <h4>${escapeHtml(pointData.address)}</h4>
+          <p>${escapeHtml(pointData.reason)}</p>
+          <div class="balloon-card__meta">
+            <span>${Math.round(pointData.nearestCompetitorDistance)} m tampon</span>
+            <span>${pointData.supportWithinWalkCount} ta signal</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function getSupportMixValue(recommendation, category) {
+      return recommendation.supportMix?.[category] || 0;
+    }
+
+    function getEducationEcosystemStats(recommendation) {
+      const studentSupport = getSupportMixValue(recommendation, "bookstore") + getSupportMixValue(recommendation, "stationery_store");
+      const familyFlow = getSupportMixValue(recommendation, "grocery_store") + getSupportMixValue(recommendation, "cafe");
+      return {
+        studentSupport,
+        familyFlow,
+        bookstores: getSupportMixValue(recommendation, "bookstore"),
+        stationery: getSupportMixValue(recommendation, "stationery_store"),
+        cafes: getSupportMixValue(recommendation, "cafe"),
+        groceries: getSupportMixValue(recommendation, "grocery_store"),
+      };
+    }
+
+    function getNearbyBusinessScenarioCopy(recommendation) {
+      const ecosystem = getEducationEcosystemStats(recommendation);
+      if (ecosystem.studentSupport >= 8) {
+        return "kanselyariya, kitob burchagi yoki copy-print";
+      }
+      if (ecosystem.familyFlow >= 12) {
+        return "mini-kafe yoki tezkor tamaddi nuqtasi";
+      }
+      return "kichik kanselyariya, qahva nuqtasi yoki talaba servisi kioski";
+    }
+
+    function getZoneHoverNarrative(recommendation, pointData) {
+      const status = STATUS_META[recommendation.tag] || STATUS_META.good;
+      if (recommendation.tag === "best") {
+        return {
+          eyebrow: `${status.label} hudud`,
+          body: "Bu hudud yangi o'quv markazi uchun kirish bosimi nisbatan yumshoq va kundalik oqim bilan yaxshi ushlanadi.",
+        };
+      }
+      if (recommendation.tag === "good") {
+        return {
+          eyebrow: `${status.label} hudud`,
+          body: "Filial yoki ixcham format uchun yaxshi variant: oqim bor, raqobat esa boshqariladigan darajada.",
+        };
+      }
+      return {
+        eyebrow: `${status.label} hudud`,
+        body: pointData && pointData.nearestCompetitorDistance < 180
+          ? "Talab bor, lekin raqobat zichroq. Bu yerga faqat aniq farqlanish bilan kirish ma'qul."
+          : "Talab saqlanadi, ammo bu hudud yuqoridagi variantlarga qaraganda ehtiyotkorroq pozitsiyalashni talab qiladi.",
+      };
+    }
+
+    function buildZoneHoverReasons(recommendation, pointData) {
+      const ecosystem = getEducationEcosystemStats(recommendation);
+      const competitionLine = pointData
+        ? `Tavsiya nuqtasi eng yaqin o'quv markazidan taxminan ${Math.round(pointData.nearestCompetitorDistance)} m uzoqda.`
+        : `${recommendation.coveredCount} ta o'quv markazi shu hududda tahlil qilindi.`;
+      return [
+        competitionLine,
+        `${ecosystem.studentSupport} ta o'quvga yaqin signal va ${ecosystem.familyFlow} ta kundalik oqim nuqtasi bu hududni ushlab turadi.`,
+      ];
+    }
+
+    function buildZoneHoverCard(recommendation, pointData) {
+      const narrative = getZoneHoverNarrative(recommendation, pointData);
+      const status = STATUS_META[recommendation.tag] || STATUS_META.good;
+      const reasons = buildZoneHoverReasons(recommendation, pointData);
+      return {
+        eyebrow: narrative.eyebrow,
+        title: recommendation.title,
+        body: narrative.body,
+        reasons,
+        accent: `Yonida yaxshi ishlashi mumkin: ${getNearbyBusinessScenarioCopy(recommendation)}.`,
+        tone: status.tone,
+      };
+    }
+
+    function buildPointHoverCard(recommendation, pointData) {
+      const shortTitle = pointData.nearestPlace && !isGenericLandmarkName(pointData.nearestPlace)
+        ? `${pointData.nearestPlace.n} atrofi`
+        : "Tavsiya mikrolokatsiya";
+      const status = STATUS_META[recommendation.tag] || STATUS_META.good;
+      const reasons = [
+        `Eng yaqin o'quv markazigacha taxminan ${Math.round(pointData.nearestCompetitorDistance)} m tampon bor.`,
+        `${pointData.supportWithinWalkCount} ta yaqin signal bu nuqtani kuchaytiradi.`,
+      ];
+      return {
+        eyebrow: "Aniq tavsiya",
+        title: shortTitle,
+        body: "Hudud ichida eng muvozanatli kirish nuqtasi sifatida ajratildi.",
+        reasons,
+        accent: `Mos qo'shimcha format: ${getNearbyBusinessScenarioCopy(recommendation)}.`,
+        tone: status.tone,
+      };
+    }
+
+    function buildClusterSvg() {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"/>`;
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+    }
+
+    function buildPlaceBalloon(place) {
+      const category = PLACE_META[place.c] || { singular: "Nuqta", label: "Nuqtalar" };
+      return `
+        <div class="balloon-card">
+          <span class="balloon-eyebrow">${escapeHtml(category.singular)}</span>
+          <h4>${escapeHtml(place.n)}</h4>
+          <p>${escapeHtml(place.a || "Manzil ko'rsatilmagan.")}</p>
+          <div class="balloon-card__meta">
+            <span>Reyting ${formatRating(place.r || 0)}</span>
+            <span>Sharh ${escapeHtml(String(place.rc || 0))}</span>
+            <span>${escapeHtml(category.label)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function buildRecommendationBalloon(recommendation, pointData) {
+      const status = STATUS_META[recommendation.tag];
+      return `
+        <div class="balloon-card">
+          <span class="balloon-eyebrow">${escapeHtml(status.label)}</span>
+          <h4>${escapeHtml(recommendation.title)}</h4>
+          <p>${escapeHtml(recommendation.body)}</p>
+          <div class="balloon-card__meta">
+            <span>${escapeHtml(pointData ? pointData.address : recommendation.subtitle)}</span>
+            <span>${escapeHtml(recommendation.metrics[1]?.value || recommendation.metrics[0]?.value || "")}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    ymaps.ready(init);
+
+    function init() {
+      const dom = {
+        mapCanvas: document.getElementById("map"),
+        mapHoverCard: document.getElementById("map-hover-card"),
+        stats: document.getElementById("stats"),
+        heroMetrics: document.getElementById("hero-metrics"),
+        searchInput: document.getElementById("search-input"),
+        selectionChip: document.getElementById("selection-chip"),
+        portfolioChip: document.getElementById("portfolio-chip"),
+        summaryStats: document.getElementById("summary-stats"),
+        recs: document.getElementById("recs"),
+        recsCount: document.getElementById("recs-count"),
+        selectedZoneKicker: document.getElementById("selected-zone-kicker"),
+        selectedZoneTitle: document.getElementById("selected-zone-title"),
+        selectedZoneSubtitle: document.getElementById("selected-zone-subtitle"),
+        selectedZoneBadge: document.getElementById("selected-zone-badge"),
+        zoneStats: document.getElementById("zone-stats"),
+        selectedPointAddress: document.getElementById("selected-point-address"),
+        selectedPointWhy: document.getElementById("selected-point-why"),
+        selectedPointChips: document.getElementById("selected-point-chips"),
+        selectedPointReasons: document.getElementById("selected-point-reasons"),
+        selectedZoneRecommendation: document.getElementById("selected-zone-recommendation"),
+        selectedZoneInsight: document.getElementById("selected-zone-insight"),
+        layers: {
+          markers: document.getElementById("btn-markers"),
+          heatmap: document.getElementById("btn-heatmap"),
+          hints: document.getElementById("btn-hints"),
+        },
+      };
+
+      let searchQuery = "";
+      let activeRecommendationId = APP_CONFIG.defaultRecommendationId;
+      let heatmap = null;
+      let heatmapToken = 0;
+      const recommendationObjects = new Map();
+      const recommendationPointCache = new Map();
+
+      const clusterer = new ymaps.Clusterer({
+        groupByCoordinates: false,
+        clusterIcons: [{ href: buildClusterSvg(), size: [36, 36], offset: [-18, -18] }],
+        clusterIconContentLayout: ymaps.templateLayoutFactory.createClass(
+          '<div class="cluster-badge">$[properties.geoObjects.length]</div>'
+        ),
+      });
+
+      const hintsGroup = new ymaps.GeoObjectCollection();
+
+      const CATEGORY_ICONS = {
+        education_center:
+          '<path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+          '<path d="M6 12v5c3 3 9 3 12 0v-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
+        cafe:
+          '<path d="M17 8h1a4 4 0 0 1 0 8h-1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+          '<path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
+        bookstore:
+          '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+          '<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
+        stationery_store:
+          '<path d="M12 20h9" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+          '<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
+        grocery_store:
+          '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+          '<line x1="3" y1="6" x2="21" y2="6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' +
+          '<path d="M16 10a4 4 0 0 1-8 0" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>',
+        restaurant:
+          '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>' +
+          '<line x1="7" y1="2" x2="7" y2="22" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' +
+          '<line x1="21" y1="22" x2="21" y2="2" stroke="white" stroke-width="1.8" stroke-linecap="round"/>',
+      };
+
+      const markerLayout = ymaps.templateLayoutFactory.createClass(
+        '<div class="map-marker map-marker--$[properties.category]">' +
+          '<div class="map-marker__pin">' +
+            '<svg class="map-marker__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">$[properties.iconSvg]</svg>' +
+          '</div>' +
+        '</div>'
+      );
+
+      const areaLabelLayout = ymaps.templateLayoutFactory.createClass(
+        '<div class="map-area-label map-area-label--$[properties.tone] $[properties.stateClass]">' +
+          '<span class="map-area-label__tag">$[properties.statusShort]</span>' +
+          '<div class="map-area-label__copy">' +
+            '<span class="map-area-label__eyebrow">$[properties.statusLabel]</span>' +
+            '<span class="map-area-label__title">$[properties.iconContent]</span>' +
+          '</div>' +
+        "</div>"
+      );
+
+      const recommendationPinLayout = ymaps.templateLayoutFactory.createClass(
+        '<div class="rec-focus $[properties.stateClass]">' +
+          '<div class="rec-focus__card">' +
+            '<span class="rec-focus__badge">' +
+              '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+                '<path d="M12 4v16M4 12h16M7.5 7.5l9 9M16.5 7.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
+              '</svg>' +
+            '</span>' +
+            '<div class="rec-focus__kicker">$[properties.pointKicker]</div>' +
+            '<div class="rec-focus__title">$[properties.pointTitle]</div>' +
+            '<div class="rec-focus__meta">' +
+              '<span>$[properties.pointMetricPrimary]</span>' +
+              '<span>$[properties.pointMetricSecondary]</span>' +
+            '</div>' +
+          '</div>' +
+          '<span class="rec-focus__stem"></span>' +
+          '<span class="rec-focus__pulse"></span>' +
+          '<span class="rec-focus__pulse rec-focus__pulse--2"></span>' +
+          '<span class="rec-focus__dot"></span>' +
+        '</div>'
+      );
+
+      const map = new ymaps.Map("map", {
+        center: [40.3842, 71.7843],
+        zoom: 12,
+        controls: ["zoomControl", "fullscreenControl"],
+      }, {
+        suppressMapOpenBlock: true,
+      });
+
+      function renderMapHoverCard(card) {
+        if (!card) {
+          dom.mapHoverCard.classList.remove("is-visible");
+          dom.mapHoverCard.innerHTML = "";
+          return;
+        }
+
+        dom.mapHoverCard.dataset.tone = card.tone || "medium";
+        const reasons = (card.reasons || []).filter(Boolean).slice(0, 2);
+        dom.mapHoverCard.innerHTML = `
+          <div class="map-hover-card__eyebrow">${escapeHtml(card.eyebrow || "Hudud")}</div>
+          <p class="map-hover-card__title">${escapeHtml(card.title || "")}</p>
+          <p class="map-hover-card__body">${escapeHtml(card.body || "")}</p>
+          ${reasons.length ? `
+            <div class="map-hover-card__reasons">
+              ${reasons.map((reason) => `<div class="map-hover-card__reason">${escapeHtml(reason)}</div>`).join("")}
+            </div>
+          ` : ""}
+          ${card.accent ? `<div class="map-hover-card__accent">${escapeHtml(card.accent)}</div>` : ""}
+        `;
+        dom.mapHoverCard.classList.add("is-visible");
+      }
+
+      function getMapHoverPagePosition(coords) {
+        if (!coords || !map.converter || !map.options.get("projection")) return null;
+        const projection = map.options.get("projection");
+        const globalPixels = projection.toGlobalPixels(coords, map.getZoom());
+        const pagePosition = map.converter.globalToPage(globalPixels);
+        if (Array.isArray(pagePosition)) {
+          return { x: pagePosition[0], y: pagePosition[1] };
+        }
+        if (pagePosition && typeof pagePosition === "object") {
+          return {
+            x: pagePosition[0] ?? pagePosition.x,
+            y: pagePosition[1] ?? pagePosition.y,
+          };
+        }
+        return null;
+      }
+
+      function placeMapHoverCard(coords) {
+        const pagePosition = getMapHoverPagePosition(coords);
+        if (!pagePosition) return;
+
+        const rect = dom.mapCanvas.getBoundingClientRect();
+        const cardWidth = dom.mapHoverCard.offsetWidth || 210;
+        const cardHeight = dom.mapHoverCard.offsetHeight || 110;
+        const padding = 12;
+        let x = pagePosition.x - rect.left + 14;
+        let y = pagePosition.y - rect.top - cardHeight * 0.5;
+
+        x = clamp(x, padding, rect.width - cardWidth - padding);
+        y = clamp(y, padding, rect.height - cardHeight - padding);
+
+        dom.mapHoverCard.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      }
+
+      function showMapHoverCard(card, coords) {
+        renderMapHoverCard(card);
+        placeMapHoverCard(coords);
+      }
+
+      function moveMapHoverCard(coords) {
+        if (!dom.mapHoverCard.classList.contains("is-visible")) return;
+        placeMapHoverCard(coords);
+      }
+
+      function hideMapHoverCard() {
+        dom.mapHoverCard.classList.remove("is-visible");
+        dom.mapHoverCard.style.transform = "translate(-9999px, -9999px)";
+      }
+
+      map.events.add("actionbegin", hideMapHoverCard);
+      map.events.add("click", hideMapHoverCard);
+
+      function getScopeLabel() {
+        const regionLabel = REGION_META[ACTIVE_SCOPE.region].label;
+        const cityLabel = CITY_META[ACTIVE_SCOPE.city].label;
+        return `${regionLabel} / ${cityLabel}`;
+      }
+
+      function applyMarkersVisibility() {
+        const markersEnabled = dom.layers.markers.classList.contains("active");
+        map.geoObjects.remove(clusterer);
+
+        if (markersEnabled) {
+          map.geoObjects.add(clusterer);
+        }
+      }
+
+      function applyHeatmapVisibility() {
+        const heatmapEnabled = dom.layers.heatmap.classList.contains("active");
+
+        if (heatmap) {
+          heatmap.setMap(heatmapEnabled ? map : null);
+        }
+      }
+
+      function applyTerritoryVisibility() {
+        const hintsEnabled = dom.layers.hints.classList.contains("active");
+        map.geoObjects.remove(hintsGroup);
+
+        if (hintsEnabled) {
+          map.geoObjects.add(hintsGroup);
+        }
+      }
+
+      function applyLayerVisibility() {
+        applyMarkersVisibility();
+        applyHeatmapVisibility();
+        applyTerritoryVisibility();
+      }
+
+      function getScopedPlaces() {
+        return PLACES.filter((place) => {
+          const matchesRegion = place.region === ACTIVE_SCOPE.region;
+          const matchesCity = place.city === ACTIVE_SCOPE.city;
+          return matchesRegion && matchesCity;
+        });
+      }
+
+      function getVisiblePlaces() {
+        const scopedPlaces = getScopedPlaces();
+        if (!searchQuery) return scopedPlaces;
+        const normalized = searchQuery.toLowerCase();
+        return scopedPlaces.filter((place) => {
+          return [place.n, PLACE_META[place.c].label, PLACE_META[place.c].singular]
+            .join(" ")
+            .toLowerCase()
+            .includes(normalized);
+        });
+      }
+
+      function getVisibleRecommendations() {
+        const scopedPlaces = getScopedPlaces();
+        if (!scopedPlaces.length) return [];
+
+        const cityAnchor = averagePoint(scopedPlaces.map((place) => place.p));
+        const competitorPlaces = scopedPlaces.filter((place) => place.c === "education_center");
+        if (!competitorPlaces.length) return [];
+
+        const clusters = buildEducationClusters(competitorPlaces, Math.min(3, competitorPlaces.length));
+        const baseClusters = clusters.map((cluster) => {
+          const center = averagePoint(cluster.places.map((place) => place.p));
+          const farthestDistance = Math.max(...cluster.places.map((place) => metersBetween(center, place.p)));
+          return {
+            center,
+            farthestDistance,
+            places: cluster.places,
+          };
+        });
+        const sharedRadius = Math.max(
+          900,
+          Math.min(1850, Math.max(...baseClusters.map((cluster) => cluster.farthestDistance)) + 320)
+        );
+
+        const enrichedClusters = baseClusters.map((cluster) => {
+          const center = cluster.center;
+          const radius = sharedRadius;
+          const nearbyDemand = scopedPlaces.filter((place) => metersBetween(center, place.p) <= radius);
+          const supportPlaces = nearbyDemand.filter((place) => place.c !== "education_center");
+          const density = getCoverageDensity(cluster.places.length, radius);
+          const avgRating = averageRating(cluster.places);
+          const anchorDistance = metersBetween(center, cityAnchor);
+          const demandSignal = supportPlaces.length;
+          const supportMix = supportPlaces.reduce((acc, place) => {
+            acc[place.c] = (acc[place.c] || 0) + 1;
+            return acc;
+          }, {});
+          return {
+            center,
+            radius,
+            places: cluster.places,
+            nearbyDemand,
+            supportPlaces,
+            density,
+            avgRating,
+            anchorDistance,
+            demandSignal,
+            supportMix,
+          };
+        });
+
+        const baseRecommendations = enrichedClusters.map((cluster, index) => {
+          const titlePrefix = getDirectionalZoneTitle(cluster.center, cityAnchor);
+          return {
+            id: `education-zone-${index + 1}-${cluster.center[0].toFixed(4).replace(".", "-")}-${cluster.center[1].toFixed(4).replace(".", "-")}`,
+            tag: "good",
+            title: `${titlePrefix} ta'lim zonasi`,
+            subtitle: "",
+            body: "",
+            recommendation: "",
+            explanation: "",
+            metrics: [],
+            circle: { c: cluster.center, r: cluster.radius },
+            radius: cluster.radius,
+            density: cluster.density,
+            avgRating: cluster.avgRating,
+            demandSignal: cluster.demandSignal,
+            anchorDistance: cluster.anchorDistance,
+            supportMix: cluster.supportMix,
+            coveredCount: cluster.places.length,
+            supportCount: cluster.supportPlaces.length,
+            supportPerCompetitor: cluster.supportPlaces.length / Math.max(cluster.places.length, 1),
+            region: ACTIVE_SCOPE.region,
+            city: ACTIVE_SCOPE.city,
+            competitorPlaces: cluster.places,
+            allCompetitorPlaces: competitorPlaces,
+            supportPlaces: cluster.supportPlaces,
+            localDemandPlaces: cluster.nearbyDemand,
+            cityAnchor,
+          };
+        });
+
+        const scoredRecommendations = baseRecommendations.map((recommendation) => {
+          const pointData = getRecommendationPointData(recommendation, scopedPlaces);
+          const marketValidation = clamp(Math.log1p(recommendation.coveredCount) / Math.log(18), 0, 1.4);
+          const supportVolume = clamp(recommendation.supportCount / 80, 0, 1.4);
+          const supportRatioBonus = clamp(recommendation.supportPerCompetitor / 10, 0, 1.2);
+          const densityPenalty = clamp((recommendation.density - 1.4) / 3.8, 0, 1.2);
+          const pointCoverageBonus = pointData ? clamp(pointData.coverageGainCount / 8, 0, 1.3) : 0;
+          const pointScore = pointData ? pointData.score : 0;
+          const opportunityScore = pointScore +
+            marketValidation * 18 +
+            supportVolume * 18 +
+            supportRatioBonus * 10 +
+            pointCoverageBonus * 8 -
+            densityPenalty * 14;
+
+          return {
+            recommendation,
+            pointData,
+            opportunityScore,
+          };
+        });
+
+        return scoredRecommendations
+          .sort((left, right) => right.opportunityScore - left.opportunityScore || left.recommendation.anchorDistance - right.recommendation.anchorDistance)
+          .map((entry, index) => {
+            const tag = RECOMMENDATION_RANK_ORDER[index] || "moderate";
+            const status = STATUS_META[tag] || STATUS_META.good;
+            const recommendation = entry.recommendation;
+            const pointData = entry.pointData;
+            const supportMix = recommendation.supportMix || {};
+            const studentSignals = (supportMix.bookstore || 0) + (supportMix.stationery_store || 0);
+            const familySignals = (supportMix.grocery_store || 0) + (supportMix.cafe || 0);
+            const body = pointData
+              ? `${recommendation.supportCount} ta talab signali va ${recommendation.coveredCount} ta mavjud o'quv markazi ichida aynan shu mikrolokatsiya ${Math.round(pointData.nearestCompetitorDistance)} m raqobat tamponi hamda ${pointData.coverageGainCount} ta qo'shimcha qamrov ustunligi bilan ajralib chiqdi.`
+              : `${recommendation.supportCount} ta talab signali va ${recommendation.coveredCount} ta mavjud o'quv markazi tahlil qilindi.`;
+            const recommendationCopy = pointData
+              ? `${status.label} variant sifatida ${pointData.address} tavsiya qilinadi. Bu nuqta ${pointData.supportWithinWalkCount} ta yaqin signalga ulanadi va yangi ta'lim markazi uchun eng toza kirish nuqtasini beradi.`
+              : `${status.label} variant sifatida zona ichida qo'shimcha ko'rik talab etiladi.`;
+            const explanation = pointData
+              ? `${status.label} reytingi ${recommendation.supportCount} ta atrof biznesi, ${studentSignals} ta talaba signali, ${familySignals} ta oila oqimi va ${pointData.coverageGainCount} ta qo'shimcha qamrov natijasida berildi.`
+              : `${status.label} reytingi zona talab signallari va raqobat zichligi bo'yicha belgilandi.`;
+
+            return {
+              ...recommendation,
+              tag,
+              rankLabel: status.label,
+              priorityIndex: index + 1,
+              opportunityScore: entry.opportunityScore,
+              subtitle: `${status.label} daraja | ${recommendation.coveredCount} ta raqobatchi, ${recommendation.supportCount} ta talab signali`,
+              body,
+              recommendation: recommendationCopy,
+              explanation,
+              metrics: [
+                { label: "Daraja", value: status.label },
+                { label: "Raqobat tamponi", value: pointData ? `${Math.round(pointData.nearestCompetitorDistance)} m` : "Hisoblanmoqda" },
+                { label: "Piyoda signal", value: pointData ? `${pointData.supportWithinWalkCount} ta` : `${recommendation.supportCount} ta` },
+                { label: "Qo'shimcha qamrov", value: pointData ? `${pointData.coverageGainCount} ta` : "0 ta" },
+              ],
+            };
+          });
+      }
+
+      function getRecommendationPointData(recommendation, places) {
+        const cacheKey = `${recommendation.id}:${places.length}`;
+        if (recommendationPointCache.has(cacheKey)) {
+          return recommendationPointCache.get(cacheKey);
+        }
+
+        const center = getRecommendationCenter(recommendation);
+        const radius = getRecommendationRadius(recommendation);
+        const allCompetitors = (recommendation.allCompetitorPlaces && recommendation.allCompetitorPlaces.length)
+          ? recommendation.allCompetitorPlaces
+          : places.filter((place) => place.c === "education_center");
+        const localCompetitors = (recommendation.competitorPlaces && recommendation.competitorPlaces.length)
+          ? recommendation.competitorPlaces
+          : allCompetitors.filter((place) => pointInsideRecommendation(place.p, recommendation));
+        const localSupportPlaces = (recommendation.supportPlaces && recommendation.supportPlaces.length)
+          ? recommendation.supportPlaces
+          : places.filter((place) => place.c !== "education_center" && pointInsideRecommendation(place.p, recommendation));
+        const localPlaces = (recommendation.localDemandPlaces && recommendation.localDemandPlaces.length)
+          ? recommendation.localDemandPlaces
+          : places.filter((place) => pointInsideRecommendation(place.p, recommendation));
+        const supportBaselines = localSupportPlaces.map((place) => ({
+          place,
+          weight: getSupportCategoryWeight(place),
+          nearestCompetitorDistance: allCompetitors.length ? getNearestPoint(place.p, allCompetitors).distance : radius,
+          isStudent: place.c === "bookstore" || place.c === "stationery_store",
+          isFamily: place.c === "grocery_store" || place.c === "cafe",
+        }));
+        const weightedAnchor = getWeightedZoneAnchor(center, supportBaselines);
+        supportBaselines.forEach((entry) => {
+          entry.anchorScore = scoreSupportAnchor(entry.place, weightedAnchor, center, radius);
+        });
+
+        const candidates = buildRecommendationCandidates(center, radius, weightedAnchor, supportBaselines);
+        let bestCandidate = null;
+
+        candidates.forEach((point) => {
+          if (!pointInsideRecommendation(point, recommendation)) return;
+          const evaluated = evaluateRecommendationCandidate(
+            point,
+            recommendation,
+            allCompetitors,
+            localPlaces,
+            supportBaselines,
+            weightedAnchor
+          );
+          if (!bestCandidate || evaluated.score > bestCandidate.score) {
+            bestCandidate = evaluated;
+          }
+        });
+
+        if (!bestCandidate) return null;
+
+        const landmarkChoice = pickRecommendationLandmark(
+          bestCandidate.point,
+          localSupportPlaces,
+          localPlaces
+        );
+
+        const data = {
+          ...bestCandidate,
+          weightedAnchor,
+          nearestPlace: landmarkChoice.place,
+          nearestLandmarkDistance: landmarkChoice.distance,
+          coordinates: formatCoordinates(bestCandidate.point),
+          address: buildRecommendationAddress(
+            recommendation,
+            bestCandidate.point,
+            landmarkChoice.place,
+            landmarkChoice.distance
+          ),
+          reasonBullets: [],
+        };
+        data.reasonBullets = buildRecommendationReasonBullets(data);
+        data.reason = buildRecommendationPointReason(data);
+        data.shortWhy = buildRecommendationTooltipBody(data);
+
+        recommendationPointCache.set(cacheKey, data);
+        return data;
+      }
+
+      function getZoneAnalytics(recommendation, places) {
+        const inside = places.filter((place) => pointInsideRecommendation(place.p, recommendation));
+        return {
+          count: inside.length,
+          avgRating: averageRating(inside),
+        };
+      }
+
+      function getPortfolioStats(categoryPlaces, visiblePlaces, recommendations) {
+        const categoryCounts = categoryPlaces.reduce((acc, place) => {
+          acc[place.c] = (acc[place.c] || 0) + 1;
+          return acc;
+        }, {});
+        const dominantCategoryKey = Object.entries(categoryCounts).sort((left, right) => right[1] - left[1])[0]?.[0] || null;
+        const avg = averageRating(categoryPlaces);
+        const focusRecommendation = recommendations[0] || null;
+        return {
+          categoryCounts,
+          dominantCategoryKey,
+          avg,
+          visibleCount: visiblePlaces.length,
+          totalCount: categoryPlaces.length,
+          focusRecommendation,
+        };
+      }
+
+      function updateHeroMetrics(categoryPlaces, visiblePlaces, recommendations) {
+        const stats = getPortfolioStats(categoryPlaces, visiblePlaces, recommendations);
+        const rankedCount = recommendations.length;
+        const scopeLabel = getScopeLabel();
+        dom.heroMetrics.innerHTML = [
+          {
+            label: UI_TEXT.visiblePoints,
+            value: String(visiblePlaces.length),
+            note: `${scopeLabel} bo'yicha ${stats.totalCount} ta baza`,
+          },
+          {
+            label: UI_TEXT.averageRating,
+            value: stats.totalCount ? formatRating(stats.avg) : "0.0",
+            note: "Barcha manzillar bo'yicha",
+          },
+          {
+            label: UI_TEXT.opportunityAreas,
+            value: String(rankedCount),
+            note: rankedCount ? "Sara, yaxshi va o'rtacha hududlar tayyor" : "Faol imkoniyat aniqlanmadi",
+          },
+        ].map((item) => `
+          <div class="metric-card">
+            <span class="metric-label">${escapeHtml(item.label)}</span>
+            <span class="metric-value">${escapeHtml(item.value)}</span>
+            <span class="metric-note">${escapeHtml(item.note)}</span>
+          </div>
+        `).join("");
+      }
+
+      function updateHeaderStats(categoryPlaces, visiblePlaces) {
+        const scopeLabel = getScopeLabel();
+        const searchNote = searchQuery ? ` Qidiruv: "${searchQuery}".` : "";
+        dom.stats.textContent =
+          `${scopeLabel} uchun ko'rinayotgan nuqtalar ${visiblePlaces.length} ta, joriy hudud bazasi ${categoryPlaces.length} ta. ${APP_CONFIG.heroSummary}` + searchNote;
+      }
+
+      function updateSelectionChip(visiblePlaces, recommendations) {
+        const scopeLabel = getScopeLabel();
+        const searchLabel = searchQuery ? `"${searchQuery}"` : UI_TEXT.noSearch;
+        const activeRecommendation = recommendations.find((item) => item.id === activeRecommendationId) || recommendations[0];
+        const zoneLabel = activeRecommendation ? activeRecommendation.title : UI_TEXT.selectedZoneFallback;
+        dom.selectionChip.textContent = `${scopeLabel} | Barcha manzillar | ${visiblePlaces.length} ta nuqta | ${searchLabel} | Fokus: ${zoneLabel}`;
+      }
+
+      function renderSummaryStats(categoryPlaces, visiblePlaces, recommendations) {
+        const stats = getPortfolioStats(categoryPlaces, visiblePlaces, recommendations);
+        const searchState = searchQuery ? `"${searchQuery}"` : "Faol emas";
+        const scopeLabel = getScopeLabel();
+        const categoryCount = Object.keys(stats.categoryCounts).length;
+        const balance = stats.dominantCategoryKey
+          ? `${PLACE_META[stats.dominantCategoryKey]?.singular || "Kategoriya"} ustun`
+          : "Muvozanatli";
+        dom.portfolioChip.textContent = `${stats.totalCount} ta baza`;
+        dom.summaryStats.innerHTML = [
+          { label: UI_TEXT.portfolioVisible, value: `${stats.visibleCount} ta` },
+          { label: UI_TEXT.portfolioBalance, value: `${balance}` },
+          { label: UI_TEXT.portfolioSearch, value: searchState },
+          { label: UI_TEXT.portfolioFocus, value: stats.focusRecommendation ? stats.focusRecommendation.title : `${categoryCount} kategoriya` },
+        ].map((item) => `
+          <div class="mini-stat">
+            <span class="mini-stat__label">${escapeHtml(item.label)}</span>
+            <span class="mini-stat__value">${escapeHtml(item.value)}</span>
+          </div>
+        `).join("");
+      }
+
+      function updateSelectedRecommendation(categoryPlaces) {
+        const visibleRecommendations = getVisibleRecommendations();
+        if (!visibleRecommendations.length) {
+          dom.selectedZoneKicker.textContent = UI_TEXT.selectedZone;
+          dom.selectedZoneTitle.textContent = UI_TEXT.selectedZoneFallback;
+          dom.selectedZoneSubtitle.textContent = "Joriy hudud bo'yicha tavsiya hududi mavjud emas.";
+          dom.selectedZoneBadge.textContent = "Noma'lum";
+          dom.selectedZoneBadge.dataset.tone = "medium";
+          dom.zoneStats.innerHTML = "";
+          dom.selectedPointAddress.textContent = "Aniq ochilish nuqtasi topilmadi.";
+          dom.selectedPointWhy.textContent = "Imkoniyat zonasi mavjud bo'lsa, shu yerda tavsiya marker va yaqin orientir ko'rsatiladi.";
+          dom.selectedPointChips.innerHTML = "";
+          dom.selectedPointReasons.innerHTML = "";
+          dom.selectedZoneRecommendation.textContent = "Hudud tanlovini kengaytirib, boshqa zonalarni ko'ring.";
+          dom.selectedZoneInsight.textContent = "Hududlar qatlamini yoqib, xarita ustidagi tavsiya zonalarini ko'rishingiz mumkin.";
+          return;
+        }
+
+        const recommendation = visibleRecommendations.find((item) => item.id === activeRecommendationId) || visibleRecommendations[0];
+        activeRecommendationId = recommendation.id;
+        const status = STATUS_META[recommendation.tag];
+        const analytics = getZoneAnalytics(recommendation, categoryPlaces);
+        const pointData = getRecommendationPointData(recommendation, categoryPlaces);
+
+        dom.selectedZoneKicker.textContent = `${UI_TEXT.selectedZone} | ${status.label} daraja`;
+        dom.selectedZoneTitle.textContent = recommendation.title;
+        dom.selectedZoneSubtitle.textContent = recommendation.body;
+        dom.selectedZoneBadge.textContent = status.label;
+        dom.selectedZoneBadge.dataset.tone = status.tone;
+        dom.zoneStats.innerHTML = recommendation.metrics.map((metric) => `
+          <div class="mini-stat">
+            <span class="mini-stat__label">${escapeHtml(metric.label)}</span>
+            <span class="mini-stat__value">${escapeHtml(metric.value)}</span>
+          </div>
+        `).join("") + `
+          <div class="mini-stat">
+            <span class="mini-stat__label">Joriy nuqtalar</span>
+            <span class="mini-stat__value">${analytics.count} ta</span>
+          </div>
+          <div class="mini-stat">
+            <span class="mini-stat__label">Hudud reytingi</span>
+            <span class="mini-stat__value">${analytics.count ? formatRating(analytics.avgRating) : "0.0"}</span>
+          </div>
+        `;
+        dom.selectedPointAddress.textContent = pointData
+          ? pointData.address
+          : "Aniq ochilish nuqtasi faqat imkoniyat zonalari uchun ko'rsatiladi.";
+        dom.selectedPointWhy.textContent = pointData
+          ? pointData.reason
+          : "Bu hudud tavsiya emas, balki kuzatuv yoki raqobat zonasi sifatida ko'rsatilgan.";
+        dom.selectedPointChips.innerHTML = pointData
+          ? [
+              { label: "Tampon", value: `${Math.round(pointData.nearestCompetitorDistance)} m` },
+              { label: "Signal", value: `${pointData.supportWithinWalkCount} ta` },
+              { label: "Qamrov", value: `+${pointData.coverageGainCount}` },
+            ].map((item) => `
+              <span class="point-card__chip">
+                <strong>${escapeHtml(item.label)}</strong> ${escapeHtml(item.value)}
+              </span>
+            `).join("")
+          : "";
+        dom.selectedPointReasons.innerHTML = pointData
+          ? pointData.reasonBullets.map((reason) => `<div class="point-reason">${escapeHtml(reason)}</div>`).join("")
+          : "";
+        dom.selectedZoneRecommendation.textContent = recommendation.recommendation;
+        dom.selectedZoneInsight.textContent = recommendation.explanation;
+      }
+
+      function renderRecommendationList(categoryPlaces) {
+        const visibleRecommendations = getVisibleRecommendations();
+        dom.recsCount.textContent = `${visibleRecommendations.length} ${UI_TEXT.visibleRecommendations}`;
+
+        if (!visibleRecommendations.length) {
+          dom.recs.innerHTML = `<div class="empty-state">Joriy hudud bo'yicha tavsiya hududi topilmadi.</div>`;
+          return;
+        }
+
+        dom.recs.innerHTML = visibleRecommendations.map((recommendation) => {
+          const status = STATUS_META[recommendation.tag];
+          const isActive = recommendation.id === activeRecommendationId;
+          const pointData = getRecommendationPointData(recommendation, categoryPlaces);
+          return `
+            <article class="rec-card ${isActive ? "active" : ""}" data-rec-id="${escapeHtml(recommendation.id)}">
+              <div class="rec-card__top">
+                <div>
+                  <h4 class="rec-card__title">${escapeHtml(recommendation.title)}</h4>
+                  <p class="rec-card__subtitle">${escapeHtml(recommendation.subtitle)}</p>
+                </div>
+                <span class="status-tag" data-tone="${status.tone}">${escapeHtml(status.label)}</span>
+              </div>
+              <p class="rec-card__body">${escapeHtml(recommendation.recommendation)}</p>
+              <div class="rec-card__meta">
+                <span>${recommendation.coveredCount} ta o'quv markazi</span>
+                <span>${pointData ? `${Math.round(pointData.nearestCompetitorDistance)} m tampon` : "Nuqta aniqlanmoqda"}</span>
+                <span>${pointData ? `${pointData.supportWithinWalkCount} ta signal` : `${recommendation.supportCount} ta signal`}</span>
+                <span>${pointData ? `${pointData.coverageGainCount} ta qo'shimcha qamrov` : "Qamrov hisoblanmoqda"}</span>
+                ${pointData ? `<span>${escapeHtml(pointData.address)}</span>` : ""}
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        Array.from(dom.recs.querySelectorAll("[data-rec-id]")).forEach((node) => {
+          node.addEventListener("click", () => {
+            const id = node.getAttribute("data-rec-id");
+            setActiveRecommendation(id, { focusMap: true });
+          });
+        });
+      }
+
+      function buildMarkerPlacemark(place) {
+        const category = PLACE_META[place.c] || { singular: "Nuqta", short: "LOC" };
+        return new ymaps.Placemark(place.p, {
+          balloonContentBody: buildPlaceBalloon(place),
+          hintContent: `${place.n} | ${category.singular}`,
+          category: place.c,
+          categoryShort: category.short,
+          score: formatRating(place.r),
+          iconSvg: CATEGORY_ICONS[place.c] || '<circle cx="12" cy="12" r="5" fill="white"/>',
+        }, {
+          iconLayout: markerLayout,
+          iconOffset: [-7, -7],
+          iconShape: {
+            type: "Rectangle",
+            coordinates: [[-7, -7], [7, 7]],
+          },
+        });
+      }
+
+      function rebuildMarkers(visiblePlaces) {
+        clusterer.removeAll();
+        clusterer.add(visiblePlaces.map(buildMarkerPlacemark));
+      }
+
+      function rebuildHeatmap(visiblePlaces) {
+        const token = ++heatmapToken;
+        const features = visiblePlaces.map((place) => ({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: place.p },
+          properties: { weight: place.r },
+        }));
+
+        if (heatmap) heatmap.setMap(null);
+
+        ymaps.modules.require(["Heatmap"], (Heatmap) => {
+          if (token !== heatmapToken) return;
+          heatmap = new Heatmap(features, {
+            radius: 34,
+            dissipating: false,
+            opacity: 0.65,
+            intensityOfMidpoint: 0.25,
+            gradient: {
+              0.1: "rgba(99,102,241,0.35)",
+              0.35: "rgba(16,185,129,0.55)",
+              0.6: "rgba(245,158,11,0.7)",
+              0.85: "rgba(239,68,68,0.8)",
+              1.0: "rgba(190,18,60,0.88)",
+            },
+          });
+          applyHeatmapVisibility();
+        });
+      }
+
+      function getAreaStyle(tag, isActive) {
+        const status = STATUS_META[tag] || STATUS_META.good;
+        return {
+          fillColor: isActive ? status.activeFill : status.fill,
+          strokeColor: isActive ? status.activeStroke : status.stroke,
+          strokeWidth: isActive ? 3.1 : 2.2,
+          strokeOpacity: isActive ? 0.88 : 0.58,
+          fillOpacity: isActive ? 0.18 : 0.08,
+          strokeStyle: "shortdash",
+          zIndex: isActive ? 620 : 420,
+        };
+      }
+
+      function getActiveSelectionStyle(tag) {
+        const status = STATUS_META[tag] || STATUS_META.good;
+        return {
+          fillColor: status.activeFill,
+          strokeColor: status.activeStroke,
+          strokeWidth: 4,
+          strokeOpacity: 0.92,
+          fillOpacity: 0.26,
+          strokeStyle: "shortdash",
+          zIndex: 640,
+        };
+      }
+
+      function rebuildRecommendationsOverlay() {
+        map.geoObjects.remove(hintsGroup);
+        hintsGroup.removeAll();
+        recommendationObjects.clear();
+
+        getVisibleRecommendations().forEach((recommendation) => {
+          const status = STATUS_META[recommendation.tag];
+          const pointData = getRecommendationPointData(recommendation, getScopedPlaces());
+          const balloonContent = buildRecommendationBalloon(recommendation, pointData);
+          const zoneHoverCard = buildZoneHoverCard(recommendation, pointData);
+          const center = getRecommendationCenter(recommendation);
+          const objects = [];
+          const displayPolygon = buildRecommendationDisplayPolygon(recommendation, pointData);
+          const area = new ymaps.Polygon([displayPolygon], {
+            balloonContent,
+            overlayRole: "area",
+          }, getAreaStyle(recommendation.tag, recommendation.id === activeRecommendationId));
+          area.events.add("click", () => setActiveRecommendation(recommendation.id, { focusMap: true }));
+          area.events.add("mouseenter", (event) => {
+            setActiveRecommendation(recommendation.id);
+            showMapHoverCard(zoneHoverCard, event.get("coords") || center);
+          });
+          area.events.add("mousemove", (event) => {
+            moveMapHoverCard(event.get("coords") || center);
+          });
+          area.events.add("mouseleave", () => {
+            hideMapHoverCard();
+          });
+          hintsGroup.add(area);
+          objects.push(area);
+
+          const labelPoint = getRecommendationLabelPoint(recommendation, pointData);
+          const areaLabel = new ymaps.Placemark(labelPoint, {
+            iconContent: escapeHtml(trimLabel(recommendation.title, 24)),
+            statusShort: escapeHtml(status.short),
+            statusLabel: escapeHtml(status.label),
+            tone: status.tone,
+            stateClass: recommendation.id === activeRecommendationId ? "is-active" : "",
+            overlayRole: "label",
+            balloonContent,
+          }, {
+            iconLayout: areaLabelLayout,
+            iconOffset: [-26, -56],
+            iconShape: {
+              type: "Rectangle",
+              coordinates: [[-26, -56], [154, 16]],
+            },
+            zIndex: recommendation.id === activeRecommendationId ? 670 : 470,
+          });
+          areaLabel.events.add("click", () => setActiveRecommendation(recommendation.id, { focusMap: true }));
+          areaLabel.events.add("mouseenter", (event) => {
+            setActiveRecommendation(recommendation.id);
+            showMapHoverCard(zoneHoverCard, event.get("coords") || labelPoint);
+          });
+          areaLabel.events.add("mousemove", (event) => {
+            moveMapHoverCard(event.get("coords") || labelPoint);
+          });
+          areaLabel.events.add("mouseleave", () => {
+            hideMapHoverCard();
+          });
+          hintsGroup.add(areaLabel);
+          objects.push(areaLabel);
+
+          if (pointData) {
+            const pointHoverCard = buildPointHoverCard(recommendation, pointData);
+            const recommendationMarker = new ymaps.Placemark(pointData.point, {
+              overlayRole: "focus",
+              stateClass: recommendation.id === activeRecommendationId ? "is-active" : "",
+              pointKicker: escapeHtml(`${status.label} nuqta`),
+              pointTitle: escapeHtml(trimLabel(getRecommendationFocusTitle(recommendation, pointData), 28)),
+              pointMetricPrimary: escapeHtml(`${Math.round(pointData.nearestCompetitorDistance)} m tampon`),
+              pointMetricSecondary: escapeHtml(`${pointData.supportWithinWalkCount} ta signal`),
+              balloonContent: buildRecommendationPointBalloon(recommendation, pointData),
+            }, {
+              iconLayout: recommendationPinLayout,
+              iconOffset: [-88, -118],
+              iconShape: {
+                type: "Rectangle",
+                coordinates: [[-88, -118], [88, 0]],
+              },
+              zIndex: recommendation.id === activeRecommendationId ? 710 : 520,
+            });
+            recommendationMarker.events.add("click", () => setActiveRecommendation(recommendation.id, { focusMap: true }));
+            recommendationMarker.events.add("mouseenter", (event) => {
+              setActiveRecommendation(recommendation.id);
+              showMapHoverCard(pointHoverCard, event.get("coords") || pointData.point);
+            });
+            recommendationMarker.events.add("mousemove", (event) => {
+              moveMapHoverCard(event.get("coords") || pointData.point);
+            });
+            recommendationMarker.events.add("mouseleave", () => {
+              hideMapHoverCard();
+            });
+            hintsGroup.add(recommendationMarker);
+            objects.push(recommendationMarker);
+          }
+
+          recommendationObjects.set(recommendation.id, { recommendation, objects });
+        });
+        applyTerritoryVisibility();
+        startZoneBreathe();
+      }
+
+      function syncRecommendationStyles() {
+        recommendationObjects.forEach((entry, id) => {
+          const isActive = id === activeRecommendationId;
+          entry.objects.forEach((object) => {
+            if (object.geometry && object.geometry.getType && object.geometry.getType() === "Point") {
+              object.properties.set("stateClass", isActive ? "is-active" : "");
+              object.options.set("zIndex", isActive
+                ? (object.properties.get("overlayRole") === "focus" ? 710 : 670)
+                : (object.properties.get("overlayRole") === "focus" ? 520 : 470));
+            } else {
+              object.options.set(getAreaStyle(entry.recommendation.tag, isActive));
+            }
+          });
+        });
+      }
+
+      let zoneBreatheTimer = null;
+      function startZoneBreathe() {
+        if (zoneBreatheTimer) clearInterval(zoneBreatheTimer);
+        let tick = 0;
+        zoneBreatheTimer = setInterval(() => {
+          tick++;
+          const phase = (Math.sin(tick * 0.08) + 1) / 2;
+          recommendationObjects.forEach((entry, id) => {
+            const isActive = id === activeRecommendationId;
+            entry.objects.forEach((obj) => {
+              if (obj.geometry && obj.geometry.getType && obj.geometry.getType() === "Polygon") {
+                const base = isActive ? 0.18 : 0.08;
+                const range = isActive ? 0.08 : 0.04;
+                obj.options.set("fillOpacity", base + phase * range);
+                const sw = isActive ? 3.1 : 2.2;
+                obj.options.set("strokeWidth", sw + phase * 0.7);
+              }
+            });
+          });
+        }, 60);
+      }
+
+      function focusRecommendationOnMap(recommendation) {
+        const pointData = getRecommendationPointData(recommendation, getScopedPlaces());
+        map.setCenter(pointData ? pointData.point : getRecommendationCenter(recommendation), pointData ? 16 : 13, { duration: 260 });
+      }
+
+      function fitMapToScope(visiblePlaces, visibleRecommendations) {
+        if (visiblePlaces.length > 1) {
+          const bounds = ymaps.util.bounds.fromPoints(visiblePlaces.map((place) => place.p));
+          map.setBounds(bounds, { checkZoomRange: true, zoomMargin: [80, 420, 80, 80] });
+          return;
+        }
+        if (visiblePlaces.length === 1) {
+          map.setCenter(visiblePlaces[0].p, 14, { duration: 220 });
+          return;
+        }
+        const activeRecommendation = visibleRecommendations.find((item) => item.id === activeRecommendationId) || visibleRecommendations[0];
+        if (activeRecommendation) {
+          focusRecommendationOnMap(activeRecommendation);
+        }
+      }
+
+      function setActiveRecommendation(id, options = {}) {
+        const visibleRecommendations = getVisibleRecommendations();
+        const next = visibleRecommendations.find((recommendation) => recommendation.id === id);
+        if (!next) return;
+        activeRecommendationId = id;
+        updateSelectedRecommendation(getScopedPlaces());
+        renderRecommendationList(getScopedPlaces());
+        syncRecommendationStyles();
+        if (options.focusMap) {
+          focusRecommendationOnMap(next);
+        }
+      }
+
+      function renderAll(options = {}) {
+        const categoryPlaces = getScopedPlaces();
+        const visiblePlaces = getVisiblePlaces();
+        const visibleRecommendations = getVisibleRecommendations();
+
+        if (!visibleRecommendations.some((item) => item.id === activeRecommendationId)) {
+          activeRecommendationId = visibleRecommendations[0] ? visibleRecommendations[0].id : "";
+        }
+
+        updateHeroMetrics(categoryPlaces, visiblePlaces, visibleRecommendations);
+        updateHeaderStats(categoryPlaces, visiblePlaces);
+        updateSelectionChip(visiblePlaces, visibleRecommendations);
+        renderSummaryStats(categoryPlaces, visiblePlaces, visibleRecommendations);
+        rebuildMarkers(visiblePlaces);
+        rebuildHeatmap(visiblePlaces);
+        rebuildRecommendationsOverlay();
+        updateSelectedRecommendation(categoryPlaces);
+        renderRecommendationList(categoryPlaces);
+        applyLayerVisibility();
+
+        if (!visiblePlaces.length) {
+          dom.selectionChip.textContent = `${getScopeLabel()} | Barcha manzillar | 0 ta nuqta | ${searchQuery ? `"${searchQuery}"` : UI_TEXT.noSearch}`;
+        }
+
+        if (options.refocus) {
+          fitMapToScope(visiblePlaces, visibleRecommendations);
+        }
+      }
+
+      dom.searchInput.addEventListener("input", (event) => {
+        searchQuery = event.target.value.trim();
+        renderAll();
+      });
+
+      dom.layers.markers.addEventListener("click", () => {
+        const enabled = !dom.layers.markers.classList.contains("active");
+        dom.layers.markers.classList.toggle("active", enabled);
+        applyMarkersVisibility();
+      });
+
+      dom.layers.heatmap.addEventListener("click", () => {
+        const enabled = !dom.layers.heatmap.classList.contains("active");
+        dom.layers.heatmap.classList.toggle("active", enabled);
+        applyHeatmapVisibility();
+      });
+
+      dom.layers.hints.addEventListener("click", () => {
+        const enabled = !dom.layers.hints.classList.contains("active");
+        dom.layers.hints.classList.toggle("active", enabled);
+        applyTerritoryVisibility();
+      });
+
+      renderAll({ refocus: true });
+    }
+  </script>
+  </body>
+</html>

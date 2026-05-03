@@ -20,12 +20,12 @@ goldenmarts/
         │
         └── python goldenmarts/_md_to_sqlalchemy.py
                 ▼
-            frontend/backend/gm_models.py                 (backend)
+            backend/app/models_gm.py                 (backend)
 ```
 
 ## Tables
 
-Defined in `frontend/backend/gm_models.py` (auto-generated):
+Defined in `backend/app/models_gm.py` (auto-generated):
 
 | Table         | Rows                  | Columns                |
 |---------------|-----------------------|------------------------|
@@ -44,7 +44,7 @@ field 2 = Промышленность – объём for the city table).
 PYTHONIOENCODING=utf-8 python goldenmarts/_to_md.py             # xlsx → md
 PYTHONIOENCODING=utf-8 python goldenmarts/_md_to_schema_js.py   # md → frontend JS
 PYTHONIOENCODING=utf-8 python goldenmarts/_md_to_sqlalchemy.py  # md → backend SQLAlchemy
-cd frontend/backend && python seed_gm.py                        # repopulate DB
+cd backend && python -m app.seed_gm                             # (or rely on lifespan auto-seed)
 ```
 
 Backend `Base.metadata.create_all` (in `main.py` lifespan) handles new
