@@ -43,6 +43,51 @@ log = logging.getLogger("nbu-unified")
 settings = get_settings()
 
 
+async def ensure_seed_entities() -> None:
+    """Auto-seed GM entities (countries, regions, cities) on every startup.
+    Idempotent — only inserts entities whose key isn't already in the table.
+    Without this the admin panel's "Объект" dropdown is empty.
+    """
+    from . import models_gm as gm
+    SEEDS = [
+        # Country
+        {"key": "uzbekistan", "level": "country", "parent_key": None,
+         "name_ru": "Узбекистан",          "name_uz": "Oʻzbekiston",         "iso_kind": None},
+        # Regions (viloyats)
+        {"key": "fergana_region", "level": "region", "parent_key": "uzbekistan",
+         "name_ru": "Ферганская область",   "name_uz": "Fargʻona viloyati",   "iso_kind": "viloyat"},
+        {"key": "samarqand_region", "level": "region", "parent_key": "uzbekistan",
+         "name_ru": "Самаркандская область","name_uz": "Samarqand viloyati",  "iso_kind": "viloyat"},
+        # Fergana viloyat cities
+        {"key": "fargona_city",  "level": "city", "parent_key": "fergana_region",
+         "name_ru": "г. Фергана",           "name_uz": "Fargʻona shahri",     "iso_kind": "shahar"},
+        {"key": "qoqon_city",    "level": "city", "parent_key": "fergana_region",
+         "name_ru": "г. Коканд",            "name_uz": "Qoʻqon shahri",       "iso_kind": "shahar"},
+        {"key": "margilon_city", "level": "city", "parent_key": "fergana_region",
+         "name_ru": "г. Маргилан",          "name_uz": "Margʻilon shahri",    "iso_kind": "shahar"},
+        {"key": "quvasoy_city",  "level": "city", "parent_key": "fergana_region",
+         "name_ru": "г. Кувасай",           "name_uz": "Quvasoy shahri",      "iso_kind": "shahar"},
+        # Samarkand viloyat cities (room for expansion)
+        {"key": "samarqand_city",  "level": "city", "parent_key": "samarqand_region",
+         "name_ru": "г. Самарканд",         "name_uz": "Samarqand shahri",    "iso_kind": "shahar"},
+        {"key": "kattaqorgon_city", "level": "city", "parent_key": "samarqand_region",
+         "name_ru": "г. Каттакурган",       "name_uz": "Kattaqoʻrgʻon shahri","iso_kind": "shahar"},
+    ]
+    inserted, existed = 0, 0
+    async with async_session() as session:
+        for seed in SEEDS:
+            existing = await session.execute(
+                select(gm.GmEntity).where(gm.GmEntity.key == seed["key"])
+            )
+            if existing.scalar_one_or_none() is None:
+                session.add(gm.GmEntity(**seed))
+                inserted += 1
+            else:
+                existed += 1
+        await session.commit()
+    log.info("[startup] gm_entities: %d inserted, %d already existed", inserted, existed)
+
+
 async def ensure_seed_admin() -> None:
     """Auto-seed the default admin on startup so Railway has a working admin
     login without needing to run a separate seed step. On every startup,
@@ -101,6 +146,12 @@ async def lifespan(app: FastAPI):
             await ensure_seed_admin()
         except Exception as e:
             log.warning("[startup] admin seed skipped: %s", e)
+
+        # Seed GM entities (countries, regions, cities) — admin panel dropdown
+        try:
+            await ensure_seed_entities()
+        except Exception as e:
+            log.warning("[startup] entities seed skipped: %s", e)
 
     asyncio.create_task(_ensure_schemas())
     yield
