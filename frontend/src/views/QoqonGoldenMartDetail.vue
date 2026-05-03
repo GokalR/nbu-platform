@@ -11,7 +11,7 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
-import { isEnumField, enumLabel } from '@/data/goldenMart/enums.js'
+import { isEnumField, isFreeTextField, enumLabel, valueForLocale } from '@/data/goldenMart/enums.js'
 
 const { t, locale } = useI18n()
 import {
@@ -170,13 +170,13 @@ function backToList() {
               <tr
                 v-for="attr in section.attrs"
                 :key="attr.key"
-                :class="{ 'is-empty-row': data[attr.key] == null || data[attr.key] === '' }"
+                :class="{ 'is-empty-row': valueForLocale(data, attr, locale) == null || valueForLocale(data, attr, locale) === '' }"
               >
                 <td class="gmd-cell-label">{{ locale === 'uz' ? (attr.labelUz || attr.label) : attr.label }}</td>
                 <td class="gmd-cell-unit">{{ attr.unit }}</td>
                 <td class="gmd-cell-val">
-                  <template v-if="data[attr.key] != null && data[attr.key] !== ''">
-                    <span class="gmd-val">{{ fmt(data[attr.key], attr.unit, attr.key) }}</span>
+                  <template v-if="valueForLocale(data, attr, locale) != null && valueForLocale(data, attr, locale) !== ''">
+                    <span class="gmd-val">{{ fmt(valueForLocale(data, attr, locale), attr.unit, attr.key) }}</span>
                   </template>
                   <template v-else>
                     <span class="gmd-no-data">Нет данных</span>

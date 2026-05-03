@@ -53,12 +53,14 @@ QOQON_AGE_2025 = {
     's1_28':   883,
 }
 
-# Identity fields — same every year for Qoqon. Enum fields (s1_2, s1_3)
-# store language-agnostic codes; UI translates via gmEnum.* i18n keys.
+# Identity fields — same every year for Qoqon.
+#  • Enum fields (s1_2, s1_3) store language-agnostic codes; UI translates.
+#  • Free-form text (s1_1 Название) is bilingual — both s1_1 (RU) + s1_1_uz (UZ).
 QOQON_IDENTITY = {
-    's1_1': 'Qoʻqon',     # Название (free-form text — admin's language)
-    's1_2': 'city',       # Тип объекта → enum: city|tuman
-    's1_3': 'no',         # Админ. центр области → enum: yes|no
+    's1_1':    'Коканд',  # Название (RU)
+    's1_1_uz': 'Qoʻqon',  # Название (UZ)
+    's1_2': 'city',       # Тип объекта → enum
+    's1_3': 'no',         # Админ. центр → enum
     's1_4': 60,           # Площадь, km²
     's1_5': 56,           # Махаллей
 }
@@ -79,11 +81,12 @@ FERGANA_POPULATION = [293_500, 299_200, 314_500, 321_800, 328_400, 335_100]
 FERGANA_BIRTHS = [6291, 6893, 7373, 6871, 6226]
 FERGANA_DEATHS = [1751, 1901, 1740, 1750, 1786]
 FERGANA_IDENTITY = {
-    's1_1': 'Fargʻona',
+    's1_1':    'Фергана',
+    's1_1_uz': 'Fargʻona',
     's1_2': 'city',
     's1_3': 'yes',
-    's1_4': 110,          # km²
-    's1_5': 74,           # mahallas
+    's1_4': 110,
+    's1_5': 74,
 }
 FERGANA_AGE_2025 = {
     's1_12': 20784, 's1_13': 17391, 's1_14': 9615, 's1_15': 40235,
@@ -109,7 +112,8 @@ MARGILAN_POPULATION = [238_900, 242_500, 246_700, 253_500, 257_900, 261_900]
 MARGILAN_BIRTHS = [5917, 6493, 6570, 6417, 5917]
 MARGILAN_DEATHS = [1241, 1195, 1191, 1093, 1160]
 MARGILAN_IDENTITY = {
-    's1_1': 'Margʻilon',
+    's1_1':    'Маргилан',
+    's1_1_uz': 'Margʻilon',
     's1_2': 'city',
     's1_3': 'no',
     's1_4': 52,

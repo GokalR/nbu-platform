@@ -19,7 +19,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
 import { schemaForLevel } from '@/data/goldenMart/schemaPicker.js'
-import { isEnumField, enumOptions, enumI18nKey } from '@/data/goldenMart/enums.js'
+import { isEnumField, isFreeTextField, enumOptions, enumI18nKey } from '@/data/goldenMart/enums.js'
 import {
   gmListEntities, gmGetEntityData, gmWriteYear, gmCoverage,
 } from '@/services/eduApi.js'
@@ -271,6 +271,7 @@ function gotoV1() {
                     class="gma-td-cell"
                     :class="{ 'is-dirty': isDirty(y, attr.key) }"
                   >
+                    <!-- Enum: dropdown -->
                     <select
                       v-if="isEnumField(attr.key)"
                       class="gma-cell-input gma-cell-select"
@@ -282,6 +283,24 @@ function gotoV1() {
                         {{ t(enumI18nKey(attr.key, code)) }}
                       </option>
                     </select>
+                    <!-- Free-form text: stacked RU + UZ -->
+                    <div v-else-if="isFreeTextField(attr)" class="gma-cell-bilingual">
+                      <input
+                        class="gma-cell-input gma-cell-bi-input"
+                        type="text"
+                        placeholder="RU"
+                        :value="valueOf(y, attr.key)"
+                        @input="setValue(y, attr.key, $event.target.value, attr.unit)"
+                      />
+                      <input
+                        class="gma-cell-input gma-cell-bi-input"
+                        type="text"
+                        placeholder="UZ"
+                        :value="valueOf(y, `${attr.key}_uz`)"
+                        @input="setValue(y, `${attr.key}_uz`, $event.target.value, attr.unit)"
+                      />
+                    </div>
+                    <!-- Numeric: single input -->
                     <input
                       v-else
                       class="gma-cell-input"
@@ -499,6 +518,20 @@ function gotoV1() {
   transition: all 0.15s;
 }
 .gma-cell-select { font-family: inherit; text-align: left; cursor: pointer; }
+
+/* Stacked bilingual inputs in table cell */
+.gma-cell-bilingual {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.gma-cell-bi-input {
+  text-align: left !important;
+  font-family: inherit !important;
+  font-size: 11.5px !important;
+  padding: 3px 6px !important;
+}
+.gma-cell-bi-input::placeholder {
+  font-weight: 700; font-size: 9px; opacity: 0.5;
+}
 .gma-cell-input:hover {
   border-color: var(--line); background: #fff;
 }

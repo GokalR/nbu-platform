@@ -16,7 +16,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
 import { schemaForLevel } from '@/data/goldenMart/schemaPicker.js'
-import { isEnumField, enumOptions, enumI18nKey } from '@/data/goldenMart/enums.js'
+import { isEnumField, isFreeTextField, enumOptions, enumI18nKey } from '@/data/goldenMart/enums.js'
 import {
   gmListEntities, gmGetEntityData, gmWriteYear, gmCoverage,
 } from '@/services/eduApi.js'
@@ -261,6 +261,7 @@ const yearCoverage = computed(() => {
                 <span class="gma-row-label-text">{{ locale === 'uz' ? (attr.labelUz || attr.label) : attr.label }}</span>
                 <span class="gma-row-unit">{{ attr.unit }}</span>
               </label>
+              <!-- Enum: dropdown -->
               <select
                 v-if="isEnumField(attr.key)"
                 class="gma-input gma-select-enum"
@@ -272,11 +273,29 @@ const yearCoverage = computed(() => {
                   {{ t(enumI18nKey(attr.key, code)) }}
                 </option>
               </select>
+              <!-- Free-form text: paired RU + UZ inputs -->
+              <div v-else-if="isFreeTextField(attr)" class="gma-input gma-bilingual">
+                <input
+                  class="gma-bilingual-input"
+                  type="text"
+                  placeholder="RU"
+                  :value="valueOf(attr.key)"
+                  @input="setValue(attr.key, $event.target.value, attr.unit)"
+                />
+                <input
+                  class="gma-bilingual-input"
+                  type="text"
+                  placeholder="UZ"
+                  :value="valueOf(`${attr.key}_uz`)"
+                  @input="setValue(`${attr.key}_uz`, $event.target.value, attr.unit)"
+                />
+              </div>
+              <!-- Numeric / single-text: single input -->
               <input
                 v-else
                 class="gma-input"
                 :value="valueOf(attr.key)"
-                :type="attr.unit === 'текст' || attr.unit === 'да/нет' ? 'text' : 'number'"
+                :type="attr.unit === 'да/нет' ? 'text' : 'number'"
                 :step="attr.unit === '%' || attr.unit === '‰' ? '0.01' : 'any'"
                 :placeholder="`s${section.n}_${attr.key.split('_')[1]}`"
                 @input="setValue(attr.key, $event.target.value, attr.unit)"
@@ -476,6 +495,25 @@ const yearCoverage = computed(() => {
   border-color: var(--primary); outline: 2px solid rgba(0,84,166,0.15);
 }
 .gma-row.is-dirty .gma-input { border-color: var(--gold); }
+
+/* Bilingual paired input for free-form text */
+.gma-bilingual {
+  display: flex; gap: 6px;
+  padding: 0; border: none; background: transparent;
+}
+.gma-bilingual-input {
+  flex: 1;
+  background: #fff; border: 1px solid var(--line);
+  padding: 7px 10px; border-radius: 6px;
+  font-family: inherit; font-size: 13px;
+  color: var(--ink);
+}
+.gma-bilingual-input:focus {
+  border-color: var(--primary); outline: 2px solid rgba(0,84,166,0.15);
+}
+.gma-bilingual-input::placeholder {
+  color: var(--ink-muted); font-weight: 700; font-size: 11px; opacity: 0.6;
+}
 
 /* Save bar */
 .gma-foot {

@@ -38,6 +38,15 @@ TEXT_UNITS = {
     'выс/ср/низ',
 }
 
+# Enum fields — stored as language-agnostic codes ('city', 'no', 'high'),
+# translated via gmEnum.* i18n keys in the UI. NOT bilingual (one column).
+# Must match frontend/src/data/goldenMart/enums.js ENUM_FIELDS.
+ENUM_FIELDS = {
+    's1_2',                                         # Тип объекта (city|tuman)
+    's1_3',                                         # Админ. центр (yes|no)
+    's21_2', 's21_5', 's21_8', 's21_11', 's21_14',  # Priority for problems 1..5
+}
+
 
 def parse_md(path: str):
     with open(path, encoding='utf-8') as f:
@@ -98,7 +107,13 @@ def emit_class(class_name: str, table_name: str, sections: list, level: str) -> 
         out.append(f'    # ── §{sec["n"]} ({len(sec["attrs"])} fields) ──')
         for attr in sec['attrs']:
             t = col_type(attr['unit'])
-            out.append(f'    {attr["key"]} = Column({t}, nullable=True)  # {attr["label"]} ({attr["unit"]})')
+            key = attr['key']
+            out.append(f'    {key} = Column({t}, nullable=True)  # {attr["label"]} ({attr["unit"]})')
+            # Free-form text (unit='текст' AND not an enum field) → bilingual:
+            # add a companion `_uz` column. Admin form will render two inputs;
+            # detail view picks based on locale.
+            if attr['unit'] == 'текст' and key not in ENUM_FIELDS:
+                out.append(f'    {key}_uz = Column(Text, nullable=True)  # {attr["label"]} (UZ)')
         out.append('')
     return '\n'.join(out)
 

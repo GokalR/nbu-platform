@@ -30,6 +30,31 @@ export function isEnumField(fieldKey) {
   return fieldKey in ENUM_FIELDS
 }
 
+/**
+ * Free-form text field (admin types content, not picked from enum).
+ * These have a paired `_uz` column in DB so admin enters both languages.
+ * Public detail view picks `data[key_uz]` when locale==='uz', else `data[key]`.
+ */
+export function isFreeTextField(attr) {
+  if (!attr) return false
+  return attr.unit === 'текст' && !isEnumField(attr.key)
+}
+
+/**
+ * Pick the right value for the current locale from a row.
+ * - Free-form text: try `_uz` if locale='uz' and value present, else fall back to `key`
+ * - Enum: same value (it's a code, translated via i18n at render)
+ * - Numeric: same value
+ */
+export function valueForLocale(row, attr, locale) {
+  if (!row) return null
+  if (isFreeTextField(attr) && locale === 'uz') {
+    const uz = row[`${attr.key}_uz`]
+    if (uz != null && uz !== '') return uz
+  }
+  return row[attr.key]
+}
+
 export function enumOptions(fieldKey) {
   return ENUM_FIELDS[fieldKey]?.codes || []
 }
