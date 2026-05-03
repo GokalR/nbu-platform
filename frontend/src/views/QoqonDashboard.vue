@@ -444,44 +444,103 @@ const sectorMix = [
             {{ fmt(D.popK, 1) }} тыс. жителей · {{ D.area }} км² · плотность {{ fmt(D.density) }}/км²
           </p>
           <div class="qoq-briefB-kpis">
+            <!-- Промышленность: YoY + 5y -->
             <div class="qoq-briefB-kpi">
               <div class="qoq-briefB-kpi-label">Промышленность</div>
               <div class="qoq-briefB-kpi-val">9 410</div>
-              <div class="qoq-briefB-kpi-foot">
+              <div class="qoq-briefB-kpi-unit-line">
                 <span class="qoq-briefB-kpi-unit">млрд сум</span>
-                <span class="qoq-briefB-delta tone-green">+50,2%</span>
+                <span class="qoq-briefB-kpi-year">2025</span>
+              </div>
+              <div class="qoq-briefB-deltas">
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за год (2024→2025)</span>
+                  <span class="qoq-briefB-delta tone-green">+50,2%</span>
+                </div>
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2025)</span>
+                  <span class="qoq-briefB-delta tone-green">×2,2</span>
+                </div>
               </div>
             </div>
+
+            <!-- Услуги: YoY + 5y -->
             <div class="qoq-briefB-kpi">
               <div class="qoq-briefB-kpi-label">Услуги</div>
               <div class="qoq-briefB-kpi-val">6 371</div>
-              <div class="qoq-briefB-kpi-foot">
+              <div class="qoq-briefB-kpi-unit-line">
                 <span class="qoq-briefB-kpi-unit">млрд сум</span>
-                <span class="qoq-briefB-delta tone-green">+29,6%</span>
+                <span class="qoq-briefB-kpi-year">2025</span>
+              </div>
+              <div class="qoq-briefB-deltas">
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за год (2024→2025)</span>
+                  <span class="qoq-briefB-delta tone-green">+29,6%</span>
+                </div>
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2025)</span>
+                  <span class="qoq-briefB-delta tone-green">×2,6</span>
+                </div>
               </div>
             </div>
+
+            <!-- Инвестиции: YoY + 5y -->
             <div class="qoq-briefB-kpi">
               <div class="qoq-briefB-kpi-label">Инвестиции</div>
               <div class="qoq-briefB-kpi-val">4 111</div>
-              <div class="qoq-briefB-kpi-foot">
+              <div class="qoq-briefB-kpi-unit-line">
                 <span class="qoq-briefB-kpi-unit">млрд сум</span>
-                <span class="qoq-briefB-delta tone-green">×4,1</span>
+                <span class="qoq-briefB-kpi-year">2025</span>
+              </div>
+              <div class="qoq-briefB-deltas">
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за год (2024→2025)</span>
+                  <span class="qoq-briefB-delta tone-green">×2,1</span>
+                </div>
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2025)</span>
+                  <span class="qoq-briefB-delta tone-green">×4,1</span>
+                </div>
               </div>
             </div>
+
+            <!-- Прирост: contextual -->
             <div class="qoq-briefB-kpi">
-              <div class="qoq-briefB-kpi-label">Прирост</div>
+              <div class="qoq-briefB-kpi-label">Естественный прирост</div>
               <div class="qoq-briefB-kpi-val">+5 410</div>
-              <div class="qoq-briefB-kpi-foot">
-                <span class="qoq-briefB-kpi-unit">2025</span>
-                <span class="qoq-briefB-delta tone-blue">★ рекорд</span>
+              <div class="qoq-briefB-kpi-unit-line">
+                <span class="qoq-briefB-kpi-unit">человек</span>
+                <span class="qoq-briefB-kpi-year">2025</span>
+              </div>
+              <div class="qoq-briefB-deltas">
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">рождения − смерти</span>
+                  <span class="qoq-briefB-delta tone-blue">6 923 − 1 513</span>
+                </div>
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">место в виловати</span>
+                  <span class="qoq-briefB-delta tone-blue">★ рекорд</span>
+                </div>
               </div>
             </div>
+
+            <!-- Население: contextual -->
             <div class="qoq-briefB-kpi">
               <div class="qoq-briefB-kpi-label">Население</div>
               <div class="qoq-briefB-kpi-val">319 600</div>
-              <div class="qoq-briefB-kpi-foot">
+              <div class="qoq-briefB-kpi-unit-line">
                 <span class="qoq-briefB-kpi-unit">человек</span>
-                <span class="qoq-briefB-delta tone-blue">городское</span>
+                <span class="qoq-briefB-kpi-year">1 янв 2026</span>
+              </div>
+              <div class="qoq-briefB-deltas">
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">за 5 лет (2021→2026)</span>
+                  <span class="qoq-briefB-delta tone-green">+24,6%</span>
+                </div>
+                <div class="qoq-briefB-delta-row">
+                  <span class="qoq-briefB-delta-base">тип расселения</span>
+                  <span class="qoq-briefB-delta tone-blue">100% городское</span>
+                </div>
               </div>
             </div>
           </div>
@@ -913,9 +972,9 @@ const sectorMix = [
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 18px;
-  padding: clamp(18px, 1.6vw, 26px);
-  display: flex; flex-direction: column; justify-content: space-between;
-  min-height: clamp(140px, 11vw, 170px);
+  padding: clamp(18px, 1.6vw, 24px);
+  display: flex; flex-direction: column;
+  min-height: clamp(190px, 14vw, 220px);
   box-shadow: 0 10px 25px -15px rgba(0,0,0,0.35);
   transition: background 0.2s, transform 0.2s, border-color 0.2s;
 }
@@ -929,24 +988,43 @@ const sectorMix = [
   text-transform: uppercase; color: #BFDBFE;
 }
 .qoq-briefB-kpi-val {
-  font-size: clamp(28px, 2.8vw, 42px); line-height: 1; font-weight: 900;
+  font-size: clamp(28px, 2.8vw, 40px); line-height: 1; font-weight: 900;
   letter-spacing: -0.03em; color: #fff;
   font-variant-numeric: tabular-nums;
-  margin-top: 14px;
+  margin-top: 12px;
 }
-.qoq-briefB-kpi-foot {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; margin-top: 14px; padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.10);
+.qoq-briefB-kpi-unit-line {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 8px; margin-top: 8px;
 }
 .qoq-briefB-kpi-unit {
-  font-size: 12px; font-weight: 700;
-  color: rgba(191,219,254,0.80); letter-spacing: 0.02em;
+  font-size: 11px; font-weight: 700;
+  color: rgba(191,219,254,0.75); letter-spacing: 0.02em;
+}
+.qoq-briefB-kpi-year {
+  font-family: ui-monospace, monospace;
+  font-size: 11px; font-weight: 700;
+  color: rgba(191,219,254,0.55); letter-spacing: 0.04em;
+}
+.qoq-briefB-deltas {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: auto; padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.qoq-briefB-delta-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.qoq-briefB-delta-base {
+  font-size: 10.5px; font-weight: 600;
+  color: rgba(191,219,254,0.65); letter-spacing: 0.01em;
+  line-height: 1.2;
 }
 .qoq-briefB-delta {
-  font-size: 12px; font-weight: 800;
-  padding: 4px 10px; border-radius: 999px; letter-spacing: 0.02em;
+  font-size: 11.5px; font-weight: 800;
+  padding: 3px 9px; border-radius: 999px; letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums; white-space: nowrap;
+  flex-shrink: 0;
 }
 .qoq-briefB-delta.tone-green {
   color: #A7F3D0; background: rgba(16,185,129,0.18);
