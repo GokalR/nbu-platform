@@ -153,6 +153,14 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             log.warning("[startup] entities seed skipped: %s", e)
 
+        # Seed verified GM data (Qoqon / Fergana / Margilan + Fergana region)
+        # ON CONFLICT DO NOTHING — admin edits via panel are preserved.
+        try:
+            from .seed_gm_data import seed_gm_data
+            await seed_gm_data()
+        except Exception as e:
+            log.warning("[startup] gm data seed skipped: %s", e)
+
     asyncio.create_task(_ensure_schemas())
     yield
     await engine_async.dispose()
