@@ -107,3 +107,23 @@ app.include_router(gm_router)
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/api/health/admin")
+async def admin_health():
+    """Diagnostic — shows whether the seed admin exists in DB. No password
+    or hash is returned. Lets us see if auto-seed actually ran on this
+    deploy. Remove once admin login is reliably working in prod.
+    """
+    from sqlalchemy import select as _sel
+    email = os.getenv("SEED_ADMIN_EMAIL", "admin@nbu.uz")
+    async with async_session() as session:
+        result = await session.execute(_sel(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+    return {
+        "expected_email": email,
+        "user_found": user is not None,
+        "user_email": user.email if user else None,
+        "user_role": user.role if user else None,
+        "auto_seed_password_env_set": os.getenv("SEED_ADMIN_PASSWORD") is not None,
+    }
