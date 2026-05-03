@@ -15,6 +15,7 @@ import {
   buildFerganaOverview,
   buildSamarqandOverview,
 } from '@/data/districtAnalytics'
+import { loadEntity, reshapeCityToDistrictAnalytics } from '@/data/goldenMart/loader.js'
 import '@/assets/districtAnalytics.css'
 
 const { t, te, tm } = useI18n()
@@ -63,9 +64,33 @@ function selectDistrict(key) {
   router.push({ path: route.path, query })
 }
 
-// Drill-down analytics (null in overview mode)
+// Live data fetched from /api/gm/data/city/{key} for the 3 cities we have
+// verified DB coverage for. When liveRd is non-null buildDistrictAnalytics
+// uses these values instead of the static REAL_DATA block, so admin edits
+// in the DB show up here without rebuilding the bundle.
+const LIVE_CITY_KEYS = new Set(['fargona_city', 'margilon_city', 'qoqon_city'])
+const liveRd = ref(null)
+
+watch(
+  districtKey,
+  async (k) => {
+    liveRd.value = null
+    if (!k || !LIVE_CITY_KEYS.has(k)) return
+    try {
+      const loaded = await loadEntity('city', k)
+      const rd = reshapeCityToDistrictAnalytics(loaded)
+      if (rd) liveRd.value = rd
+    } catch (e) {
+      console.warn('[DistrictAnalyticsView] live load failed for', k, e)
+    }
+  },
+  { immediate: true },
+)
+
+// Drill-down analytics (null in overview mode). liveRd takes priority over
+// the static REAL_DATA block when present.
 const analytics = computed(() =>
-  districtKey.value ? buildDistrictAnalytics(districtKey.value, t) : null,
+  districtKey.value ? buildDistrictAnalytics(districtKey.value, t, liveRd.value) : null,
 )
 
 const title = computed(() =>

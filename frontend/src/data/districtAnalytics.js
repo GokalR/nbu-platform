@@ -419,11 +419,13 @@ function kindLabels(t, kind) {
   }
 }
 
-export function buildDistrictAnalytics(districtKey, t = identity) {
+export function buildDistrictAnalytics(districtKey, t = identity, liveRd = null) {
   const d = districtByKey[districtKey]
   if (!d) return null
   const p = PROFILE[districtKey] || PROFILE.oltiariq
-  const rd = REAL_DATA[districtKey] // may be undefined for non-pilot districts
+  // Prefer DB-loaded `liveRd` over the static REAL_DATA block. Both are
+  // shaped identically; when liveRd is null we fall back to the bundled data.
+  const rd = liveRd ?? REAL_DATA[districtKey] // may be undefined for non-pilot districts
   const popK = rd ? rd.populationK : d.population
   const popAbs = Math.round(popK * 1000)
   const scale = popK / BENCH_POP
