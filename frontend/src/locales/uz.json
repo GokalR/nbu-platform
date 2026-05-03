@@ -156,7 +156,86 @@
       "sub": "21 boʻlim · 6 mavzuli vkladka"
     },
     "subtitle": "Industrial leader of the Western Fergana valley · 2025 yanvar–dekabr · farstat.uz",
-    "eyebrowGold": "Qoʻqon shahri · Gʻarbiy Fargʻona industrial markazi"
+    "eyebrowGold": "Qoʻqon shahri · Gʻarbiy Fargʻona industrial markazi",
+    "sectors": {
+      "eyebrow": "01 · Olti sektor",
+      "title": "2025 iqtisodiyot tarkibi",
+      "lede": "Olti tasdiqlangan sektor 2025-yilda ikki xonali nominal oʻsishni koʻrsatdi. Sanoat +50,2% — viloyat rekordi, regional real oʻsish atigi +7,3%.",
+      "sourceTag": "farstat.uz · Tumanlar boʻyicha jadvallar",
+      "regionRealPrefix": "viloyat real",
+      "fiveYearPrefix": "5 yilda",
+      "labels": {
+        "industry": "Sanoat",
+        "services": "Xizmatlar",
+        "trade": "Chakana savdo",
+        "investments": "Investitsiyalar",
+        "construction": "Qurilish",
+        "agriculture": "Qishloq xoʻj."
+      }
+    },
+    "invest": {
+      "eyebrow": "02 · Investitsion portlash",
+      "title": "Kapital 5 yilda ×4,1",
+      "lede": "Fargʻona viloyati shaharlari orasida asosiy kapitalga investitsiyalar eng kuchli oqimi. 2025-yilda hajm 2024-yilga nisbatan ikki barobar oshdi (×2,1) — bozorning shaharga ishonchi belgisi.",
+      "stat1Num": "+312%",
+      "stat1Label": "5 yillik oʻsish (2021→2025)",
+      "stat2Num": "×2,1",
+      "stat2Label": "2024 → 2025 (bir yil ichida)",
+      "stat3Num": "4 111",
+      "stat3Label": "2025 yilda mlrd soʻm",
+      "chartLabel": "Investitsiyalar, mlrd soʻm",
+      "chartTooltip": "mlrd soʻm"
+    },
+    "demo": {
+      "eyebrow": "03 · Demografiya",
+      "title": "Aholi 2021 → 2026",
+      "lede": "5 yilda +63,2 ming oʻsish (+24,6%). 2022 va 2023 yillar oʻrtasidagi oʻsishning bir qismi — maʼmuriy-hududiy oʻzgarish natijasi, tabiiy demografiya emas. Davr Golden Mart shabloniga mos.",
+      "annotation": "2022→2023 sakrash (+44 ming, +17%) — maʼmuriy chegaralar oʻzgarishi",
+      "vital": {
+        "eyebrow": "Tabiiy oʻsish 2025",
+        "tag": "★ Viloyat rekordi",
+        "births": "Tugʻilish",
+        "deaths": "Oʻlim",
+        "natural": "Oʻsish",
+        "note": "2025-yilda Fargʻona viloyati shaharlari orasida eng yuqori tabiiy oʻsish."
+      },
+      "popChartLabel": "Aholi, ming"
+    },
+    "age": {
+      "eyebrow": "04 · Yosh tarkibi",
+      "title": "Yosh guruhlari · 1 yan 2025 · 313 597 kishi",
+      "lede": "0–15 yosh: 96 649 (30,8%) · 20–59 yosh: 161 535 (51,5%) · 60+: 35 568 (11,3%). 20–59 yosh mehnat guruhlari ajratib koʻrsatilgan."
+    },
+    "compare": {
+      "eyebrow": "05 · Viloyat bilan taqqoslash",
+      "title": "Aholi jon boshiga · ming soʻm",
+      "lede": "Qoʻqon Fargʻona va Margʻilonga qarshi: hajm boʻyicha sanoat yetakchisi, lekin jon boshiga Fargʻonadan ortda; savdoda paritet, qurilishda — orqada.",
+      "qoqon": "Qoʻqon",
+      "fergana": "Fargʻona",
+      "margilan": "Margʻilon"
+    },
+    "mix": {
+      "eyebrow": "06 · Sektorlar tarkibi",
+      "title": "Umumiy hajmda ulushlar",
+      "centerLabel": "sanoat",
+      "labels": {
+        "industry": "Sanoat",
+        "trade": "Chakana savdo",
+        "services": "Xizmatlar",
+        "construction": "Qurilish",
+        "agri": "Qishloq xoʻj."
+      }
+    },
+    "ai": {
+      "eyebrow": "07 · AI Strategik xulosalar",
+      "badge": "AI · Tasdiqlangan maʼlumotlar boʻyicha tahlil",
+      "insightsCol": "Insaytlar",
+      "watchCol": "Nimaga eʼtibor berish"
+    },
+    "footer": {
+      "main": "Maʼlumot manbasi: farstat.uz · Tumanlar boʻyicha jadvallar (Jan-Dec 2025 preliminary). Golden Mart shabloni · shahar/tuman darajasi · 21 atribut boʻlimi.",
+      "key": "qoqon_city · sandbox dashboard"
+    }
   },
   "gmAdmin": {
     "eyebrow": "GOLDEN MART · ADMIN PANEL",

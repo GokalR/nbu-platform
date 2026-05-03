@@ -189,7 +189,7 @@ const sectorCards = computed(() =>
 const investData = computed(() => ({
   labels: D.fiveYearLabels.map(String),
   datasets: [{
-    label: 'Инвестиции, млрд сум',
+    label: t('qoqon.invest.chartLabel'),
     data: D.fiveYear.investments,
     backgroundColor: D.fiveYear.investments.map((_, i, a) =>
       i === a.length - 1 ? '#F59E0B' : 'rgba(245,158,11,0.45)',
@@ -198,21 +198,21 @@ const investData = computed(() => ({
     borderSkipped: false,
   }],
 }))
-const investOpts = {
+const investOpts = computed(() => ({
   plugins: { legend: { display: false }, tooltip: { callbacks: {
-    label: (ctx) => ` ${fmt(ctx.parsed.y, 1)} млрд сум`,
+    label: (ctx) => ` ${fmt(ctx.parsed.y, 1)} ${t('qoqon.unit.bnSum')}`,
   } } },
   scales: {
     x: { grid: { display: false }, ticks: { font: { size: 12, weight: 600 } } },
     y: { grid: { color: '#F0F4FA' }, ticks: { font: { size: 11 }, callback: (v) => `${v >= 1000 ? (v/1000).toFixed(1)+'к' : v}` } },
   },
-}
+}))
 
 // ── Population history ──
 const popData = computed(() => ({
   labels: D.populationFiveYearLabels.map(String),
   datasets: [{
-    label: 'Население, тыс.',
+    label: t('qoqon.demo.popChartLabel'),
     data: D.populationFiveYear,
     borderColor: '#0054A6',
     backgroundColor: 'rgba(0,84,166,0.10)',
@@ -270,8 +270,9 @@ const naturalIncrease2025 = D.vital.natural[D.vital.natural.length - 1]
 
 // ── Sector mix donut ──
 const sectorMixData = computed(() => {
-  const labels = ['Промышленность', 'Торговля', 'Услуги', 'Строительство', 'Сельхоз']
-  const data = [39.5, 27.7, 26.7, 4.5, 1.6]
+  const keys   = ['industry', 'trade', 'services', 'construction', 'agri']
+  const labels = keys.map((k) => t(`qoqon.mix.labels.${k}`))
+  const data   = [39.5, 27.7, 26.7, 4.5, 1.6]
   const colors = ['#0054A6', '#06B6D4', '#0EA5E9', '#D97706', '#10B981']
   return {
     labels,
@@ -292,28 +293,24 @@ const sectorMixOpts = {
 
 // ── Per-capita comparative ──
 const compareSectors = ['industry', 'services', 'trade', 'investments', 'construction']
-const compareLabels = {
-  industry: 'Промышленность', services: 'Услуги', trade: 'Торговля',
-  investments: 'Инвестиции', construction: 'Строительство',
-}
 const compareKeyMap = { industry: 'industry', services: 'services', trade: 'trade', investments: 'invest', construction: 'construction' }
 const compareData = computed(() => ({
-  labels: compareSectors.map((k) => compareLabels[k]),
+  labels: compareSectors.map((k) => t(`qoqon.sectors.labels.${k}`)),
   datasets: [
     {
-      label: 'Коканд',
+      label: t('qoqon.compare.qoqon'),
       data: compareSectors.map((k) => D.perCapitaCompare.Qoqon[compareKeyMap[k]]),
       backgroundColor: '#F59E0B',
       borderRadius: 6,
     },
     {
-      label: 'Фергана',
+      label: t('qoqon.compare.fergana'),
       data: compareSectors.map((k) => D.perCapitaCompare.Fergana[compareKeyMap[k]]),
       backgroundColor: '#0054A6',
       borderRadius: 6,
     },
     {
-      label: 'Маргилан',
+      label: t('qoqon.compare.margilan'),
       data: compareSectors.map((k) => D.perCapitaCompare.Margilan[compareKeyMap[k]]),
       backgroundColor: '#10B981',
       borderRadius: 6,
@@ -360,11 +357,11 @@ function back() {
 }
 
 const sectorMix = [
-  { label: 'Промышленность', pct: 39.5, color: '#0054A6' },
-  { label: 'Розн. торговля', pct: 27.7, color: '#06B6D4' },
-  { label: 'Услуги',         pct: 26.7, color: '#0EA5E9' },
-  { label: 'Строительство',  pct:  4.5, color: '#D97706' },
-  { label: 'Сельхоз',        pct:  1.6, color: '#10B981' },
+  { key: 'industry',     pct: 39.5, color: '#0054A6' },
+  { key: 'trade',        pct: 27.7, color: '#06B6D4' },
+  { key: 'services',     pct: 26.7, color: '#0EA5E9' },
+  { key: 'construction', pct:  4.5, color: '#D97706' },
+  { key: 'agri',         pct:  1.6, color: '#10B981' },
 ]
 </script>
 
@@ -554,32 +551,29 @@ const sectorMix = [
     <section class="qoq-section">
       <div class="qoq-section-head">
         <div>
-          <div class="qoq-eyebrow">01 · Шесть секторов</div>
-          <h2 class="qoq-h2">Структура экономики 2025</h2>
-          <p class="qoq-lede">
-            Все шесть верифицированных секторов показали двузначный номинальный рост в 2025 г.
-            Промышленность +50,2% — рекорд области, при региональном реальном росте всего +7,3%.
-          </p>
+          <div class="qoq-eyebrow">{{ t('qoqon.sectors.eyebrow') }}</div>
+          <h2 class="qoq-h2">{{ t('qoqon.sectors.title') }}</h2>
+          <p class="qoq-lede">{{ t('qoqon.sectors.lede') }}</p>
         </div>
-        <div class="qoq-source-tag">farstat.uz · ratlib таблицы Tumanlar bo'yicha</div>
+        <div class="qoq-source-tag">{{ t('qoqon.sectors.sourceTag') }}</div>
       </div>
 
       <div class="qoq-sector-grid">
         <article v-for="s in sectorCards" :key="s.key" class="qoq-card qoq-sector" :style="{ '--accent': s.color }">
           <header class="qoq-sector-head">
             <div class="qoq-sector-icon"><AppIcon :name="s.icon" /></div>
-            <div class="qoq-sector-name">{{ s.label }}</div>
+            <div class="qoq-sector-name">{{ t(`qoqon.sectors.labels.${s.key}`) }}</div>
           </header>
           <div class="qoq-sector-val">
             {{ fmt(s.total2025, 1) }}
-            <span class="qoq-sector-u">{{ s.unit }}</span>
+            <span class="qoq-sector-u">{{ t('qoqon.unit.bnSum') }}</span>
           </div>
           <div class="qoq-sector-meta">
             <span class="qoq-chip" :class="`tone-${s.yoyTone}`">
               {{ s.yoy >= 0 ? '+' : '' }}{{ s.yoy }}% YoY
             </span>
             <span v-if="s.regionReal != null" class="qoq-chip-soft">
-              вилоята real +{{ s.regionReal }}%
+              {{ t('qoqon.sectors.regionRealPrefix') }} +{{ s.regionReal }}%
             </span>
           </div>
           <div class="qoq-spark-wrap">
@@ -587,7 +581,7 @@ const sectorMix = [
           </div>
           <footer class="qoq-sector-foot">
             <span class="qoq-mult">×{{ s.mult5y }}</span>
-            <span class="qoq-mult-label">за 5 лет {{ s.pct5y >= 0 ? '+' : '' }}{{ s.pct5y }}%</span>
+            <span class="qoq-mult-label">{{ t('qoqon.sectors.fiveYearPrefix') }} {{ s.pct5y >= 0 ? '+' : '' }}{{ s.pct5y }}%</span>
           </footer>
         </article>
       </div>
@@ -597,24 +591,21 @@ const sectorMix = [
     <section class="qoq-section">
       <div class="qoq-card qoq-breakout">
         <div class="qoq-breakout-side">
-          <div class="qoq-eyebrow gold">02 · Инвестиционный взрыв</div>
-          <h2 class="qoq-h2">Капитал ×4,1 за 5 лет</h2>
-          <p class="qoq-lede">
-            Самый сильный приток инвестиций в основной капитал среди городов Ферганской области.
-            В 2025 году объём удвоился к 2024 году (×2,1) — индикатор веры рынка в город.
-          </p>
+          <div class="qoq-eyebrow gold">{{ t('qoqon.invest.eyebrow') }}</div>
+          <h2 class="qoq-h2">{{ t('qoqon.invest.title') }}</h2>
+          <p class="qoq-lede">{{ t('qoqon.invest.lede') }}</p>
           <div class="qoq-stat-row">
             <div class="qoq-stat-tile">
-              <div class="qoq-stat-num">+312%</div>
-              <div class="qoq-stat-lbl">5-летний рост (2021→2025)</div>
+              <div class="qoq-stat-num">{{ t('qoqon.invest.stat1Num') }}</div>
+              <div class="qoq-stat-lbl">{{ t('qoqon.invest.stat1Label') }}</div>
             </div>
             <div class="qoq-stat-tile">
-              <div class="qoq-stat-num">×2,1</div>
-              <div class="qoq-stat-lbl">2024 → 2025 (за один год)</div>
+              <div class="qoq-stat-num">{{ t('qoqon.invest.stat2Num') }}</div>
+              <div class="qoq-stat-lbl">{{ t('qoqon.invest.stat2Label') }}</div>
             </div>
             <div class="qoq-stat-tile">
-              <div class="qoq-stat-num">4 111</div>
-              <div class="qoq-stat-lbl">млрд сум в 2025 г.</div>
+              <div class="qoq-stat-num">{{ t('qoqon.invest.stat3Num') }}</div>
+              <div class="qoq-stat-lbl">{{ t('qoqon.invest.stat3Label') }}</div>
             </div>
           </div>
         </div>
@@ -627,48 +618,42 @@ const sectorMix = [
     <!-- ============== POPULATION + VITAL ============== -->
     <section class="qoq-section qoq-grid-2">
       <div class="qoq-card">
-        <div class="qoq-eyebrow">03 · Демография</div>
-        <h2 class="qoq-h2">Население 2021 → 2026</h2>
-        <p class="qoq-lede">
-          Рост на 63,2 тыс. за 5 лет (+24,6%). Часть прироста между 2022 и 2023 — следствие
-          административно-территориального изменения, не естественной демографии.
-          Период совпадает с шаблоном Golden Mart.
-        </p>
+        <div class="qoq-eyebrow">{{ t('qoqon.demo.eyebrow') }}</div>
+        <h2 class="qoq-h2">{{ t('qoqon.demo.title') }}</h2>
+        <p class="qoq-lede">{{ t('qoqon.demo.lede') }}</p>
         <div class="qoq-chart-h300">
           <FcChart type="line" :data="popData" :options="popOpts" :height="280" />
         </div>
         <div class="qoq-annotation">
           <AppIcon name="info" />
-          Скачок 2022→2023 (+44 тыс., +17%) — изменение админ-границ
+          {{ t('qoqon.demo.annotation') }}
         </div>
       </div>
 
       <div class="qoq-card qoq-vital">
-        <div class="qoq-eyebrow">Естественный прирост 2025</div>
+        <div class="qoq-eyebrow">{{ t('qoqon.demo.vital.eyebrow') }}</div>
         <div class="qoq-vital-big">
           <span class="qoq-vital-num">+{{ fmt(naturalIncrease2025) }}</span>
-          <span class="qoq-vital-tag">★ Рекорд области</span>
+          <span class="qoq-vital-tag">{{ t('qoqon.demo.vital.tag') }}</span>
         </div>
         <div class="qoq-vital-grid">
           <div class="qoq-vital-cell">
             <div class="qoq-vital-cell-num">{{ fmt(D.vital.births[4]) }}</div>
-            <div class="qoq-vital-cell-lbl">Рождений</div>
+            <div class="qoq-vital-cell-lbl">{{ t('qoqon.demo.vital.births') }}</div>
             <FcSparkline :data="D.vital.births" color="#10B981" :height="36" />
           </div>
           <div class="qoq-vital-cell">
             <div class="qoq-vital-cell-num">{{ fmt(D.vital.deaths[4]) }}</div>
-            <div class="qoq-vital-cell-lbl">Смертей</div>
+            <div class="qoq-vital-cell-lbl">{{ t('qoqon.demo.vital.deaths') }}</div>
             <FcSparkline :data="D.vital.deaths" color="#94A3B8" :height="36" />
           </div>
           <div class="qoq-vital-cell qoq-vital-cell-acc">
             <div class="qoq-vital-cell-num">+{{ fmt(naturalIncrease2025) }}</div>
-            <div class="qoq-vital-cell-lbl">Прирост</div>
+            <div class="qoq-vital-cell-lbl">{{ t('qoqon.demo.vital.natural') }}</div>
             <FcSparkline :data="D.vital.natural" color="#0054A6" :height="36" />
           </div>
         </div>
-        <p class="qoq-note">
-          Самый высокий естественный прирост среди городов Ферганской области в 2025 г.
-        </p>
+        <p class="qoq-note">{{ t('qoqon.demo.vital.note') }}</p>
       </div>
     </section>
 
@@ -677,12 +662,9 @@ const sectorMix = [
       <div class="qoq-card">
         <div class="qoq-section-head">
           <div>
-            <div class="qoq-eyebrow">04 · Возрастная структура</div>
-            <h2 class="qoq-h2">Возрастные группы · 1 янв 2025 · 313 597 чел.</h2>
-            <p class="qoq-lede">
-              0–15 лет: 96 649 (30,8%) · 20–59 лет: 161 535 (51,5%) · 60+: 35 568 (11,3%).
-              Подсвечены трудоспособные группы 20–59 лет.
-            </p>
+            <div class="qoq-eyebrow">{{ t('qoqon.age.eyebrow') }}</div>
+            <h2 class="qoq-h2">{{ t('qoqon.age.title') }}</h2>
+            <p class="qoq-lede">{{ t('qoqon.age.lede') }}</p>
           </div>
         </div>
         <div class="qoq-chart-h320">
@@ -694,32 +676,29 @@ const sectorMix = [
     <!-- ============== PER-CAPITA COMPARE ============== -->
     <section class="qoq-section qoq-grid-21">
       <div class="qoq-card">
-        <div class="qoq-eyebrow">05 · Сравнение с вилоята</div>
-        <h2 class="qoq-h2">На душу населения · тыс. сум</h2>
-        <p class="qoq-lede">
-          Коканд против Ферганы и Маргилана: индустриальный лидер по объёму, но по душе населения
-          уступает Фергане; в торговле паритет с обоими, в строительстве — отставание.
-        </p>
+        <div class="qoq-eyebrow">{{ t('qoqon.compare.eyebrow') }}</div>
+        <h2 class="qoq-h2">{{ t('qoqon.compare.title') }}</h2>
+        <p class="qoq-lede">{{ t('qoqon.compare.lede') }}</p>
         <div class="qoq-chart-h360">
           <FcChart type="bar" :data="compareData" :options="compareOpts" :height="340" />
         </div>
       </div>
 
       <div class="qoq-card qoq-mix-card">
-        <div class="qoq-eyebrow">06 · Структура секторов</div>
-        <h2 class="qoq-h2">Доли в общем объёме</h2>
+        <div class="qoq-eyebrow">{{ t('qoqon.mix.eyebrow') }}</div>
+        <h2 class="qoq-h2">{{ t('qoqon.mix.title') }}</h2>
         <div class="qoq-mix-wrap">
           <div class="qoq-mix-chart">
             <FcChart type="doughnut" :data="sectorMixData" :options="sectorMixOpts" :height="240" />
             <div class="qoq-mix-center">
               <div class="qoq-mix-center-num">39,5%</div>
-              <div class="qoq-mix-center-lbl">промышленности</div>
+              <div class="qoq-mix-center-lbl">{{ t('qoqon.mix.centerLabel') }}</div>
             </div>
           </div>
           <ul class="qoq-mix-legend">
-            <li v-for="m in sectorMix" :key="m.label">
+            <li v-for="m in sectorMix" :key="m.key">
               <span class="qoq-mix-dot" :style="{ background: m.color }"></span>
-              <span class="qoq-mix-name">{{ m.label }}</span>
+              <span class="qoq-mix-name">{{ t(`qoqon.mix.labels.${m.key}`) }}</span>
               <span class="qoq-mix-pct">{{ m.pct }}%</span>
             </li>
           </ul>
@@ -732,10 +711,10 @@ const sectorMix = [
       <div class="qoq-card qoq-ai">
         <div class="qoq-ai-head">
           <div>
-            <div class="qoq-eyebrow gold">07 · AI Стратегические выводы</div>
+            <div class="qoq-eyebrow gold">{{ t('qoqon.ai.eyebrow') }}</div>
             <h2 class="qoq-h2">{{ aiOverall.title }}</h2>
           </div>
-          <span class="qoq-badge">AI · Анализ по верифицированным данным</span>
+          <span class="qoq-badge">{{ t('qoqon.ai.badge') }}</span>
         </div>
         <p class="qoq-ai-lede">{{ aiOverall.summary }}</p>
         <div class="qoq-ai-tags">
@@ -745,7 +724,7 @@ const sectorMix = [
         <div v-if="aiSummary" class="qoq-ai-cols">
           <div>
             <div class="qoq-ai-col-head">
-              <AppIcon name="check_circle" /> Инсайты
+              <AppIcon name="check_circle" /> {{ t('qoqon.ai.insightsCol') }}
             </div>
             <ul class="qoq-ai-list">
               <li v-for="(item, i) in aiSummary.insights" :key="`i-${i}`">{{ item }}</li>
@@ -753,7 +732,7 @@ const sectorMix = [
           </div>
           <div>
             <div class="qoq-ai-col-head amber">
-              <AppIcon name="lightbulb" /> На что смотреть
+              <AppIcon name="lightbulb" /> {{ t('qoqon.ai.watchCol') }}
             </div>
             <ul class="qoq-ai-list">
               <li v-for="(item, i) in aiSummary.risks" :key="`r-${i}`">{{ item }}</li>
@@ -764,10 +743,7 @@ const sectorMix = [
     </section>
 
     <footer class="qoq-foot">
-      <div>
-        Источник данных: <strong>farstat.uz</strong> · Tumanlar bo‘yicha таблицы (Jan-Dec 2025 preliminary).
-        Шаблон Golden Mart · уровень города/тумана · 21 раздел атрибутов.
-      </div>
+      <div>{{ t('qoqon.footer.main') }}</div>
       <div class="qoq-foot-key">qoqon_city · sandbox dashboard</div>
     </footer>
   </div>
