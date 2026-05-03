@@ -133,6 +133,12 @@ const routes = [
     component: () => import('@/views/admin/GmAdminView.vue'),
     meta: { titleKey: 'nav.admin', requiresAdmin: true },
   },
+  {
+    path: '/admin/golden-mart/table',
+    name: 'admin-golden-mart-table',
+    component: () => import('@/views/admin/GmAdminTableView.vue'),
+    meta: { titleKey: 'nav.admin', requiresAdmin: true },
+  },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

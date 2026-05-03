@@ -167,9 +167,16 @@ const yearCoverage = computed(() => {
 <template>
   <div class="gma">
     <header class="gma-head">
-      <div class="gma-eyebrow">{{ t('gmAdmin.eyebrow') }}</div>
-      <h1 class="gma-title">{{ t('gmAdmin.title') }}</h1>
-      <p class="gma-sub">{{ t('gmAdmin.sub') }}</p>
+      <div class="gma-head-top">
+        <div>
+          <div class="gma-eyebrow">{{ t('gmAdmin.eyebrow') }} · ПО ГОДАМ</div>
+          <h1 class="gma-title">{{ t('gmAdmin.title') }}</h1>
+          <p class="gma-sub">{{ t('gmAdmin.sub') }}</p>
+        </div>
+        <button class="gma-toggle-v" @click="$router.push('/admin/golden-mart/table')">
+          <AppIcon name="swap_horiz" /> Версия 2 (таблица)
+        </button>
+      </div>
     </header>
 
     <!-- ── Picker ── -->
@@ -313,6 +320,19 @@ const yearCoverage = computed(() => {
 }
 
 .gma-head { max-width: 1320px; margin: 0 auto 28px; }
+.gma-head-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 20px; flex-wrap: wrap;
+}
+.gma-toggle-v {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid var(--line);
+  padding: 8px 14px 8px 10px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; font-family: inherit;
+  color: var(--primary); cursor: pointer;
+  transition: background 0.2s;
+}
+.gma-toggle-v:hover { background: var(--primary-soft); }
 .gma-eyebrow {
   font-size: 12px; font-weight: 800; letter-spacing: 0.16em;
   color: var(--primary); text-transform: uppercase;
