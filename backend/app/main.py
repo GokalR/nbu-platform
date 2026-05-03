@@ -1,13 +1,15 @@
-"""Unified FastAPI backend: Education (async) + Analytics (sync)."""
+"""Unified FastAPI backend: Education (async) + Analytics (sync) + Golden Mart."""
 
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import select
 
 from .config import get_settings
-from .db_async import BaseAsync, engine_async
+from .db_async import BaseAsync, async_session, engine_async
 from .db_sync import BaseSync, engine_sync
 
 # Education routes (async)
@@ -25,14 +27,48 @@ from .routes.submissions import router as submissions_router
 from .routes.analytics_ref import router as analytics_ref_router
 from .routes.rs_ref import router as rs_ref_router
 
+# Golden Mart (async)
+from .routes.gm import router as gm_router
+
 # Register reference models so create_all() picks them up
 from . import models_analytics_ref  # noqa: F401
 from . import models_rs_ref  # noqa: F401
+from . import models_gm  # noqa: F401  — registers Golden Mart tables
+from .auth import hash_password
+from .models_education import User
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("nbu-unified")
 
 settings = get_settings()
+
+
+async def ensure_seed_admin() -> None:
+    """Auto-seed the default admin on startup so Railway has a working admin
+    login without needing to run a separate seed step. On every startup,
+    ensure a user with email = SEED_ADMIN_EMAIL exists with role='admin'
+    and password = hash(SEED_ADMIN_PASSWORD). Env vars become the single
+    source of truth for admin login.
+    """
+    email    = os.getenv("SEED_ADMIN_EMAIL",    "admin@nbu.uz")
+    password = os.getenv("SEED_ADMIN_PASSWORD", "admin12345")
+    name     = os.getenv("SEED_ADMIN_NAME",     "NBU Admin")
+    async with async_session() as session:
+        result = await session.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+        if user is None:
+            session.add(User(
+                email=email, password_hash=hash_password(password),
+                full_name=name, role="admin",
+            ))
+            await session.commit()
+            log.info("[startup] created admin %s (role=admin, password from env)", email)
+        else:
+            if user.role != "admin":
+                user.role = "admin"
+            user.password_hash = hash_password(password)
+            await session.commit()
+            log.info("[startup] admin %s synced (role+password from env)", email)
 
 
 @asynccontextmanager
@@ -45,7 +81,7 @@ async def lifespan(app: FastAPI):
             try:
                 async with engine_async.begin() as conn:
                     await conn.run_sync(BaseAsync.metadata.create_all)
-                log.info("Education DB schema ensured (async).")
+                log.info("Education + GM DB schema ensured (async).")
                 break
             except Exception as e:
                 log.warning("DB connect attempt %d/5 failed: %s", attempt, e)
@@ -59,6 +95,12 @@ async def lifespan(app: FastAPI):
             log.info("Analytics DB schema ensured (sync).")
         except Exception as e:
             log.error("Could not ensure analytics DB schema: %s", e)
+
+        # Seed default admin user (idempotent)
+        try:
+            await ensure_seed_admin()
+        except Exception as e:
+            log.warning("[startup] admin seed skipped: %s", e)
 
     asyncio.create_task(_ensure_schemas())
     yield
@@ -90,6 +132,9 @@ app.include_router(analyze_router, prefix="/api/rs")
 app.include_router(rs_ref_router, prefix="/api/rs")
 app.include_router(analytics_ref_router)
 
+# Golden Mart routes
+app.include_router(gm_router)
+
 
 @app.get("/health", tags=["meta"])
 async def health():
@@ -104,6 +149,25 @@ async def health():
 @app.get("/api/health", tags=["meta"])
 async def api_health():
     return {"status": "ok"}
+
+
+@app.get("/api/health/admin", tags=["meta"])
+async def admin_health():
+    """Diagnostic — returns whether the seed admin exists in DB without
+    exposing password/hash. Lets us verify auto-seed actually ran on
+    this deploy.
+    """
+    email = os.getenv("SEED_ADMIN_EMAIL", "admin@nbu.uz")
+    async with async_session() as session:
+        result = await session.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+    return {
+        "expected_email": email,
+        "user_found": user is not None,
+        "user_email": user.email if user else None,
+        "user_role": user.role if user else None,
+        "auto_seed_password_env_set": os.getenv("SEED_ADMIN_PASSWORD") is not None,
+    }
 
 
 @app.post("/api/seed-ref", tags=["meta"])

@@ -30,7 +30,7 @@ LEVELS = [
     ('region',  os.path.join(HERE, 'GM_region.md'),  'gm_region'),
     ('city',    os.path.join(HERE, 'GM_city.md'),    'gm_city'),
 ]
-OUT_PATH = os.path.join(HERE, '..', 'frontend', 'backend', 'gm_models.py')
+OUT_PATH = os.path.join(HERE, '..', 'backend', 'app', 'models_gm.py')
 
 TEXT_UNITS = {
     'текст', 'да/нет',
@@ -120,12 +120,18 @@ def emit_module(by_level):
     out.append('  gm_city     — city/tuman-level GM data (one row per (entity, year))')
     out.append('"""')
     out.append('')
+    out.append('from datetime import datetime, timezone')
+    out.append('')
     out.append('from sqlalchemy import (')
     out.append('    Boolean, Column, DateTime, Integer, Numeric, Text,')
     out.append(')')
     out.append('from sqlalchemy.dialects.postgresql import UUID')
     out.append('')
-    out.append('from models import Base, utcnow  # type: ignore[import-not-found]')
+    out.append('from .db_async import BaseAsync as Base')
+    out.append('')
+    out.append('')
+    out.append('def utcnow():')
+    out.append('    return datetime.now(timezone.utc)')
     out.append('')
     out.append('')
     out.append('class GmEntity(Base):')
