@@ -19,6 +19,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/AppIcon.vue'
 import { schemaForLevel } from '@/data/goldenMart/schemaPicker.js'
+import { isEnumField, enumOptions, enumI18nKey } from '@/data/goldenMart/enums.js'
 import {
   gmListEntities, gmGetEntityData, gmWriteYear, gmCoverage,
 } from '@/services/eduApi.js'
@@ -270,7 +271,19 @@ function gotoV1() {
                     class="gma-td-cell"
                     :class="{ 'is-dirty': isDirty(y, attr.key) }"
                   >
+                    <select
+                      v-if="isEnumField(attr.key)"
+                      class="gma-cell-input gma-cell-select"
+                      :value="valueOf(y, attr.key)"
+                      @change="setValue(y, attr.key, $event.target.value, attr.unit)"
+                    >
+                      <option value="">—</option>
+                      <option v-for="code in enumOptions(attr.key)" :key="code" :value="code">
+                        {{ t(enumI18nKey(attr.key, code)) }}
+                      </option>
+                    </select>
                     <input
+                      v-else
                       class="gma-cell-input"
                       :value="valueOf(y, attr.key)"
                       :type="TEXT_UNITS.includes(attr.unit) ? 'text' : 'number'"
@@ -485,6 +498,7 @@ function gotoV1() {
   text-align: right;
   transition: all 0.15s;
 }
+.gma-cell-select { font-family: inherit; text-align: left; cursor: pointer; }
 .gma-cell-input:hover {
   border-color: var(--line); background: #fff;
 }

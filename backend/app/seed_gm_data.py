@@ -53,11 +53,12 @@ QOQON_AGE_2025 = {
     's1_28':   883,
 }
 
-# Identity fields — same every year for Qoqon
+# Identity fields — same every year for Qoqon. Enum fields (s1_2, s1_3)
+# store language-agnostic codes; UI translates via gmEnum.* i18n keys.
 QOQON_IDENTITY = {
-    's1_1': 'Qoʻqon',     # Название
-    's1_2': 'Город',      # Тип
-    's1_3': 'Нет',        # Админ. центр области (фергана_city — да, qoqon — нет)
+    's1_1': 'Qoʻqon',     # Название (free-form text — admin's language)
+    's1_2': 'city',       # Тип объекта → enum: city|tuman
+    's1_3': 'no',         # Админ. центр области → enum: yes|no
     's1_4': 60,           # Площадь, km²
     's1_5': 56,           # Махаллей
 }
@@ -79,8 +80,8 @@ FERGANA_BIRTHS = [6291, 6893, 7373, 6871, 6226]
 FERGANA_DEATHS = [1751, 1901, 1740, 1750, 1786]
 FERGANA_IDENTITY = {
     's1_1': 'Fargʻona',
-    's1_2': 'Город',
-    's1_3': 'Да',
+    's1_2': 'city',
+    's1_3': 'yes',
     's1_4': 110,          # km²
     's1_5': 74,           # mahallas
 }
@@ -109,8 +110,8 @@ MARGILAN_BIRTHS = [5917, 6493, 6570, 6417, 5917]
 MARGILAN_DEATHS = [1241, 1195, 1191, 1093, 1160]
 MARGILAN_IDENTITY = {
     's1_1': 'Margʻilon',
-    's1_2': 'Город',
-    's1_3': 'Нет',
+    's1_2': 'city',
+    's1_3': 'no',
     's1_4': 52,
     's1_5': 50,
 }
@@ -162,6 +163,59 @@ def _build_city_rows(entity_key, region_key, identity, sectors, population, birt
             row.update(age_2025)
         rows.append(row)
     return rows
+
+
+async def migrate_enum_values():
+    """Convert legacy Russian/Uzbek text in enum-typed columns to language-
+    agnostic codes. Idempotent: rows already on codes are no-op.
+
+    Touches s1_2 (тип объекта), s1_3 (админ. центр), and s21_*Priority on
+    gm_city and gm_region. Country has neither column type; skip.
+    """
+    from sqlalchemy import update, or_
+
+    # (column, RU/UZ value → code)
+    REPLACEMENTS = {
+        # Тип объекта
+        gm.GmCity.s1_2: {
+            'Город': 'city', 'Shahar': 'city', 'shahar': 'city',
+            'Туман': 'tuman', 'Tuman': 'tuman', 'tuman': 'tuman',
+        },
+        # Админ. центр области (yes/no)
+        gm.GmCity.s1_3: {
+            'Да': 'yes', 'Ha': 'yes', 'ha': 'yes',
+            'Нет': 'no', 'Yoʻq': 'no', 'No': 'no',
+        },
+    }
+    # Priority columns on city: s21_2, s21_5, s21_8, s21_11, s21_14
+    PRIORITY_COLS = ['s21_2', 's21_5', 's21_8', 's21_11', 's21_14']
+    PRIORITY_MAP = {
+        'Высокий': 'high', 'Yuqori': 'high', 'выс': 'high', 'high': 'high',
+        'Средний': 'medium', 'Oʻrta': 'medium', 'oʻrta': 'medium', 'ср': 'medium',
+        'Низкий': 'low', 'Past': 'low', 'past': 'low', 'низ': 'low',
+    }
+
+    total_updated = 0
+    async with async_session() as session:
+        for col, mapping in REPLACEMENTS.items():
+            for ru_or_uz, code in mapping.items():
+                stmt = update(gm.GmCity).where(col == ru_or_uz).values({col.key: code})
+                result = await session.execute(stmt)
+                total_updated += result.rowcount
+
+        for col_name in PRIORITY_COLS:
+            col = getattr(gm.GmCity, col_name)
+            for ru_or_uz, code in PRIORITY_MAP.items():
+                stmt = update(gm.GmCity).where(col == ru_or_uz).values({col_name: code})
+                result = await session.execute(stmt)
+                total_updated += result.rowcount
+
+        await session.commit()
+
+    if total_updated > 0:
+        log.info("[startup] enum migration: %d cells converted to codes", total_updated)
+    else:
+        log.info("[startup] enum migration: nothing to convert (already on codes)")
 
 
 async def seed_gm_data():

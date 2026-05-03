@@ -11,8 +11,9 @@ import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
+import { isEnumField, enumLabel } from '@/data/goldenMart/enums.js'
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 import {
   CITY_SECTIONS, CITY_TOTAL_FIELDS, CITY_TABS, tabSections,
 } from '@/data/goldenMart/citySchema.js'
@@ -55,8 +56,12 @@ function tabCoverage(tab) {
   return { filled, total }
 }
 
-function fmt(val, unit) {
+function fmt(val, unit, fieldKey) {
   if (val == null || val === '') return null
+  // Enum fields: translate code → localized label
+  if (fieldKey && isEnumField(fieldKey)) {
+    return enumLabel(fieldKey, val, t)
+  }
   if (typeof val === 'number') {
     if (unit === '%') return `${val.toFixed(val % 1 === 0 ? 0 : 1)}%`
     if (unit === 'на 1000') return `${val.toFixed(1)}`
@@ -171,7 +176,7 @@ function backToList() {
                 <td class="gmd-cell-unit">{{ attr.unit }}</td>
                 <td class="gmd-cell-val">
                   <template v-if="data[attr.key] != null && data[attr.key] !== ''">
-                    <span class="gmd-val">{{ fmt(data[attr.key], attr.unit) }}</span>
+                    <span class="gmd-val">{{ fmt(data[attr.key], attr.unit, attr.key) }}</span>
                   </template>
                   <template v-else>
                     <span class="gmd-no-data">Нет данных</span>

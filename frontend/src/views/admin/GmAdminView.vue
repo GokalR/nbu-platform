@@ -16,6 +16,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
 import { schemaForLevel } from '@/data/goldenMart/schemaPicker.js'
+import { isEnumField, enumOptions, enumI18nKey } from '@/data/goldenMart/enums.js'
 import {
   gmListEntities, gmGetEntityData, gmWriteYear, gmCoverage,
 } from '@/services/eduApi.js'
@@ -260,7 +261,19 @@ const yearCoverage = computed(() => {
                 <span class="gma-row-label-text">{{ locale === 'uz' ? (attr.labelUz || attr.label) : attr.label }}</span>
                 <span class="gma-row-unit">{{ attr.unit }}</span>
               </label>
+              <select
+                v-if="isEnumField(attr.key)"
+                class="gma-input gma-select-enum"
+                :value="valueOf(attr.key)"
+                @change="setValue(attr.key, $event.target.value, attr.unit)"
+              >
+                <option value="">{{ t('gmEnum.placeholder') }}</option>
+                <option v-for="code in enumOptions(attr.key)" :key="code" :value="code">
+                  {{ t(enumI18nKey(attr.key, code)) }}
+                </option>
+              </select>
               <input
+                v-else
                 class="gma-input"
                 :value="valueOf(attr.key)"
                 :type="attr.unit === 'текст' || attr.unit === 'да/нет' ? 'text' : 'number'"

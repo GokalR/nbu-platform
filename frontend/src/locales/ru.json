@@ -237,6 +237,22 @@
       "key": "qoqon_city · sandbox dashboard"
     }
   },
+  "gmEnum": {
+    "objectType": {
+      "city": "Город",
+      "tuman": "Туман"
+    },
+    "yesNo": {
+      "yes": "Да",
+      "no": "Нет"
+    },
+    "priority": {
+      "high": "Высокий",
+      "medium": "Средний",
+      "low": "Низкий"
+    },
+    "placeholder": "— выберите —"
+  },
   "gmAdmin": {
     "eyebrow": "GOLDEN MART · АДМИН ПАНЕЛЬ",
     "title": "Заполнение данных по шаблону",

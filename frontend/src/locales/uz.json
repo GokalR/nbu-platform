@@ -237,6 +237,22 @@
       "key": "qoqon_city · sandbox dashboard"
     }
   },
+  "gmEnum": {
+    "objectType": {
+      "city": "Shahar",
+      "tuman": "Tuman"
+    },
+    "yesNo": {
+      "yes": "Ha",
+      "no": "Yoʻq"
+    },
+    "priority": {
+      "high": "Yuqori",
+      "medium": "Oʻrta",
+      "low": "Past"
+    },
+    "placeholder": "— tanlang —"
+  },
   "gmAdmin": {
     "eyebrow": "GOLDEN MART · ADMIN PANEL",
     "title": "Shablon boʻyicha maʼlumotlarni toʻldirish",

@@ -153,6 +153,13 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             log.warning("[startup] entities seed skipped: %s", e)
 
+        # Convert legacy RU/UZ text in enum columns to language-agnostic codes
+        try:
+            from .seed_gm_data import migrate_enum_values
+            await migrate_enum_values()
+        except Exception as e:
+            log.warning("[startup] enum migration skipped: %s", e)
+
         # Seed verified GM data (Qoqon / Fergana / Margilan + Fergana region)
         # ON CONFLICT DO NOTHING — admin edits via panel are preserved.
         try:
