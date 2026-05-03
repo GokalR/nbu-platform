@@ -25,8 +25,18 @@ from routes.videos import router as videos_router
 
 async def ensure_seed_admin() -> None:
     """Auto-seed the default admin on startup so Railway has a working admin
-    login without needing to run seed_gm.py manually. Override the defaults
-    via env vars before deployment if you want different credentials.
+    login without needing to run seed_gm.py manually.
+
+    Behaviour: on every startup, ensure a user with email=SEED_ADMIN_EMAIL
+    exists, has role='admin', AND has password=SEED_ADMIN_PASSWORD. Means
+    Railway env vars are the source of truth — change them, redeploy, and
+    the admin password is rotated to whatever you set. Useful for a
+    sandbox/demo where you want a reliable known login.
+
+    Trade-off: if an operator manually changes the admin password via UI,
+    the next redeploy will clobber it back to the env-var value. For a
+    production system you'd want to drop the password-reset on startup
+    and only sync it on first creation.
     """
     email    = os.getenv("SEED_ADMIN_EMAIL",    "admin@nbu.uz")
     password = os.getenv("SEED_ADMIN_PASSWORD", "admin12345")
@@ -40,13 +50,17 @@ async def ensure_seed_admin() -> None:
                 full_name=name, role="admin",
             ))
             await session.commit()
-            log.info("[startup] created admin %s (role=admin)", email)
-        elif user.role != "admin":
-            user.role = "admin"
-            await session.commit()
-            log.info("[startup] promoted %s to admin", email)
+            log.info("[startup] created admin %s (role=admin, password from env)", email)
         else:
-            log.info("[startup] admin %s already exists", email)
+            changes = []
+            if user.role != "admin":
+                user.role = "admin"
+                changes.append("role→admin")
+            # Always reset password to env value — env vars are source of truth
+            user.password_hash = hash_password(password)
+            changes.append("password reset from env")
+            await session.commit()
+            log.info("[startup] admin %s synced (%s)", email, ", ".join(changes))
 
 
 @asynccontextmanager
