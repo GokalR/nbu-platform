@@ -1,14 +1,33 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppIcon from './AppIcon.vue'
+import { useEduAuthStore } from '@/stores/eduAuth'
 
-const navItems = [
+// Auth store auto-fetches /me on init when a token is present, so by the
+// time the sidebar mounts the role is already known. No explicit call
+// needed here — just read user.role reactively.
+const auth = useEduAuthStore()
+const isAdmin = computed(() => auth.user?.role === 'admin')
+
+const baseNavItems = [
   { to: '/', icon: 'dashboard', labelKey: 'nav.home' },
   { to: '/districts', icon: 'analytics', labelKey: 'nav.districts' },
   { to: '/ai', icon: 'psychology', labelKey: 'nav.ai', disabled: true },
   { to: '/tools', icon: 'precision_manufacturing', labelKey: 'nav.tools' },
   { to: '/education', icon: 'school', labelKey: 'nav.education' },
 ]
+
+const adminNavItem = {
+  to: '/admin/golden-mart',
+  icon: 'admin_panel_settings',
+  labelKey: 'nav.admin',
+  adminOnly: true,
+}
+
+const navItems = computed(() =>
+  isAdmin.value ? [...baseNavItems, adminNavItem] : baseNavItems,
+)
 </script>
 
 <template>
@@ -52,6 +71,12 @@ const navItems = [
         >
           <AppIcon :name="item.icon" />
           <span class="text-sm font-semibold">{{ $t(item.labelKey) }}</span>
+          <span
+            v-if="item.adminOnly"
+            class="ml-auto text-[10px] font-black tracking-widest bg-amber-500 text-white px-1.5 py-0.5 rounded"
+          >
+            {{ $t('nav.adminBadge') }}
+          </span>
         </RouterLink>
       </template>
     </nav>

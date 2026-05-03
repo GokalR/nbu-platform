@@ -14,7 +14,9 @@
     "regionalStrategist": "Hududiy strateg",
     "support": "Yordam",
     "signOut": "Chiqish",
-    "soon": "tez kunda"
+    "soon": "tez kunda",
+    "admin": "Admin panel",
+    "adminBadge": "ADMIN"
   },
   "common": {
     "details": "Batafsil tahlil",

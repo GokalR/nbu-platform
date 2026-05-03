@@ -14,7 +14,9 @@
     "regionalStrategist": "Региональный стратег",
     "support": "Поддержка",
     "signOut": "Выйти",
-    "soon": "скоро"
+    "soon": "скоро",
+    "admin": "Админ панель",
+    "adminBadge": "ADMIN"
   },
   "common": {
     "details": "Подробный анализ",
