@@ -478,14 +478,87 @@ def _next_static(rest):
     abort(404)
 
 
+# A 1x1 transparent PNG — served instead of the CERR logo so the bundle's
+# <img> tags resolve cleanly but render nothing visible.
+import base64 as _b64
+TRANSPARENT_PNG = _b64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+)
+
+
 @app.get("/cerr_logo.png")
 def logo():
-    return send_from_directory(STATIC_DIR, "cerr_logo.png")
+    resp = make_response(TRANSPARENT_PNG)
+    resp.headers["Content-Type"] = "image/png"
+    resp.headers["Cache-Control"] = "public, max-age=86400"
+    return resp
 
 
 @app.get("/favicon.ico")
 def favicon():
     return send_from_directory(STATIC_DIR, "favicon.ico")
+
+
+# -----------------------------------------------------------------------------
+# Custom CSS — overrides CERR's palette with NBU blue, hides the CERR brand
+# (logo + "CERR · Mahalla Analytics" text) and the chat empty-state CERR
+# branding. Loaded after the bundle's own stylesheet so :root overrides win.
+# -----------------------------------------------------------------------------
+
+CUSTOM_CSS = """
+/* Hide CERR logo + "CERR · Mahalla Analytics" text (preserve layout). */
+.brand,
+.chat-empty-brand,
+.chat-empty-tagline {
+  visibility: hidden !important;
+}
+.brand img,
+.chat-empty-logo-img {
+  display: none !important;
+}
+
+/* NBU blue palette — overrides CERR's #002060 navy. */
+:root, :host, body, body.dark {
+  --gov-navy: #1e3a8a !important;
+  --gov-primary: #1d4ed8 !important;
+  --gov-mid: #60a5fa !important;
+  --gov-pale: #dbeafe !important;
+}
+body:not(.dark) {
+  --bg: #f5f7fa !important;
+  --accent: #1d4ed8 !important;
+  --accent-hover: #1e3a8a !important;
+  --accent-bg: #1d4ed817 !important;
+  --accent-bg-hi: #60a5fa24 !important;
+  --accent-solid: #1e3a8a !important;
+  --shadow-card: 0 1px 3px #1e3a8a0a, 0 8px 24px #1e3a8a0d, 0 0 0 1px #1e3a8a06 !important;
+  --shadow-hero: 0 3px 10px #1e3a8a0d, 0 18px 46px #1e3a8a14, 0 0 0 1px #1e3a8a08 !important;
+  --zebra: #1d4ed806 !important;
+}
+body.dark {
+  --bg: #0c1733 !important;
+  --bg-surface: #122149 !important;
+  --bg-elevated: #1a2c5e !important;
+  --accent: #60a5fa !important;
+  --accent-bg: #60a5fa2e !important;
+  --accent-bg-hi: #dbeafe33 !important;
+  --shadow-card: 0 1px 4px #00000038, 0 8px 28px #0000004d, 0 0 0 1px #dbeafe0d !important;
+}
+
+/* Slightly more rounded surfaces for visual differentiation. */
+.card { border-radius: 16px !important; }
+.kpi  { border-radius: 14px !important; }
+.hero { border-radius: 18px !important; }
+.chip { border-radius: 999px !important; }
+""".strip()
+
+
+@app.get("/custom.css")
+def custom_css():
+    resp = make_response(CUSTOM_CSS)
+    resp.headers["Content-Type"] = "text/css; charset=utf-8"
+    resp.headers["Cache-Control"] = "public, max-age=300"
+    return resp
 
 
 URL_FIX_SNIPPET = (
@@ -495,7 +568,21 @@ URL_FIX_SNIPPET = (
     "localStorage.setItem('v3rag.devRole','user');"
     "if(location.pathname==='/login'){history.replaceState(null,'','/');}"
     "}catch(e){}})();</script>"
+    '<link rel="stylesheet" href="/custom.css">'
 )
+
+
+# Text replacements applied to every served HTML page. Runs after URL_FIX_SNIPPET
+# injection. CSS hides these visually too — replacement is for screen readers
+# / accessibility / page-source cleanliness.
+HTML_REPLACEMENTS = [
+    ("CERR · Mahalla Analytics", ""),
+    ("Mahalla Analytics · Ўзбекистон Республикаси", ""),
+    ("Mahalla Analytics — CERR", "Аналитика"),
+    ("Mahalla-level socioeconomic analytics", "Региональная аналитика"),
+    ('alt="CERR"', 'alt=""'),
+    ('aria-label="CERR — Бош dashboard"', 'aria-label="Аналитика"'),
+]
 
 
 @app.get("/")
@@ -507,6 +594,8 @@ def spa_fallback(_=None):
         abort(500, "index.html missing")
     html = INDEX_HTML.read_text(encoding="utf-8")
     html = html.replace("<head>", "<head>" + URL_FIX_SNIPPET, 1)
+    for needle, replacement in HTML_REPLACEMENTS:
+        html = html.replace(needle, replacement)
     resp = make_response(html, 200)
     resp.headers["Content-Type"] = "text/html; charset=utf-8"
     resp.set_cookie("v3rag_session", "offline-stub", httponly=True, samesite="Lax", path="/")
