@@ -506,51 +506,164 @@ def favicon():
 # -----------------------------------------------------------------------------
 
 CUSTOM_CSS = """
-/* Hide CERR logo + "CERR · Mahalla Analytics" text (preserve layout). */
-.brand,
-.chat-empty-brand,
-.chat-empty-tagline {
-  visibility: hidden !important;
-}
-.brand img,
-.chat-empty-logo-img {
-  display: none !important;
-}
+/* ============================================================
+   NBU AI HUB style overrides on top of the CERR bundle.
+   - Removes top bar (.pg-top) and AI Chat content (.chat-shell)
+   - Flips dashboard grid so the mahalla sidebar lives on the RIGHT
+   - Adopts NBU's lighter, flatter look: slate-50 background, white
+     cards with subtle shadows, blue-700 accents, rounded corners.
+   ============================================================ */
 
-/* NBU blue palette — overrides CERR's #002060 navy. */
+/* 1. Remove top bar entirely (logo + AI Chat / Dashboard tabs +
+      profile menu). The Dashboard view is auto-activated by JS so
+      the user lands directly on it. */
+.pg-top { display: none !important; }
+
+/* 2. Hide the AI Chat view content. Dashboard becomes the only view. */
+.chat-shell, .chat-empty, .chat-empty-brand, .chat-empty-tagline { display: none !important; }
+
+/* 3. Tighten top padding now that the top bar is gone. */
+.pg-view { padding-top: 14px !important; max-width: 1320px !important; }
+
+/* 4. Flip dashboard layout: main content on the LEFT, mahalla
+      sidebar on the RIGHT. .site is the dashboard root grid. */
+.site {
+  grid-template-columns: 1fr 320px !important;
+  align-items: start !important;
+  gap: 18px !important;
+}
+.site > .main    { order: 1 !important; min-width: 0; }
+.site > .sidebar { order: 2 !important; }
+
+/* 5. NBU palette — replaces CERR's #002060 navy with NBU blue-900 etc. */
 :root, :host, body, body.dark {
   --gov-navy: #1e3a8a !important;
   --gov-primary: #1d4ed8 !important;
   --gov-mid: #60a5fa !important;
   --gov-pale: #dbeafe !important;
 }
+
+/* 6. NBU AI HUB look: slate-50 bg, flatter cards, softer shadows,
+      lighter borders, more breathing room. */
 body:not(.dark) {
-  --bg: #f5f7fa !important;
+  --bg: #f8fafc !important;
+  --bg-surface: #ffffff !important;
+  --bg-elevated: #f1f5f9 !important;
+  --bg-input: #f8fafc !important;
+  --border: #e2e8f0 !important;
+  --border-subtle: #f1f5f9 !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #334155 !important;
+  --text-muted: #64748b !important;
+  --text-faint: #94a3b8 !important;
   --accent: #1d4ed8 !important;
   --accent-hover: #1e3a8a !important;
-  --accent-bg: #1d4ed817 !important;
-  --accent-bg-hi: #60a5fa24 !important;
+  --accent-bg: #1d4ed80f !important;
+  --accent-bg-hi: #60a5fa1f !important;
   --accent-solid: #1e3a8a !important;
-  --shadow-card: 0 1px 3px #1e3a8a0a, 0 8px 24px #1e3a8a0d, 0 0 0 1px #1e3a8a06 !important;
-  --shadow-hero: 0 3px 10px #1e3a8a0d, 0 18px 46px #1e3a8a14, 0 0 0 1px #1e3a8a08 !important;
   --zebra: #1d4ed806 !important;
+  /* Flatter NBU-style shadows replacing CERR's deep navy stack */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, .04), 0 4px 12px rgba(15, 23, 42, .04) !important;
+  --shadow-hero: 0 1px 3px rgba(15, 23, 42, .05), 0 8px 24px rgba(15, 23, 42, .06) !important;
 }
 body.dark {
-  --bg: #0c1733 !important;
-  --bg-surface: #122149 !important;
-  --bg-elevated: #1a2c5e !important;
+  --bg: #0b1220 !important;
+  --bg-surface: #111a2e !important;
+  --bg-elevated: #1a253f !important;
+  --border: #1e293b !important;
+  --border-subtle: #172033 !important;
   --accent: #60a5fa !important;
   --accent-bg: #60a5fa2e !important;
   --accent-bg-hi: #dbeafe33 !important;
-  --shadow-card: 0 1px 4px #00000038, 0 8px 28px #0000004d, 0 0 0 1px #dbeafe0d !important;
 }
 
-/* Slightly more rounded surfaces for visual differentiation. */
-.card { border-radius: 16px !important; }
-.kpi  { border-radius: 14px !important; }
-.hero { border-radius: 18px !important; }
-.chip { border-radius: 999px !important; }
+/* 7. Hero panel — kill CERR's radial gradient on the right side, use
+      flat NBU-style with a thin accent strip. */
+.hero {
+  border-radius: 18px !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+.hero-right {
+  background: var(--bg-surface) !important;
+  border-left: 1px solid var(--border-subtle) !important;
+}
+
+/* 8. Cards — flat, thin border, hover lifts subtly. */
+.card, .kpi {
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 16px !important;
+  transition: border-color .15s, box-shadow .15s, transform .15s !important;
+}
+.kpi:hover {
+  border-color: var(--gov-mid) !important;
+  box-shadow: 0 6px 18px rgba(30, 58, 138, .08) !important;
+  transform: translateY(-1px) !important;
+}
+.kpi { padding: 18px 20px !important; }
+
+/* 9. Card heads — bolder, NBU-style. */
+.card-head {
+  padding: 16px 20px 10px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+.card-head h3, .card-head .title {
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+  color: #0f172a !important;
+}
+
+/* 10. Right-side mahalla list — fresh card look. */
+.sidebar {
+  border-radius: 18px !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: 14px 0 10px !important;
+}
+.tree-node {
+  margin: 1px 8px !important;
+  padding: 8px 14px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  color: #334155 !important;
+}
+.tree-node:hover {
+  background: var(--bg-elevated) !important;
+  color: var(--accent-solid) !important;
+}
+.tree-node[aria-current="true"], .tree-node.active, .tree-node[aria-selected="true"] {
+  background: var(--accent-bg) !important;
+  color: var(--accent-solid) !important;
+  font-weight: 700 !important;
+}
+
+/* 11. Chips — NBU-rounded, high-contrast. */
+.chip { border-radius: 999px !important; font-weight: 700 !important; }
+
+/* 12. Mobile: stack instead of split */
+@media (max-width: 1024px) {
+  .site { grid-template-columns: 1fr !important; }
+  .site > .sidebar { order: 0 !important; max-height: 360px !important; overflow-y: auto !important; }
+}
 """.strip()
+
+
+# Tiny boot script: auto-activate the Dashboard view since we hid the top
+# tab bar. Tries on a short interval until the bundle has hydrated and the
+# Dashboard tab button is in the DOM, then clicks it once.
+DASH_BOOT_SCRIPT = (
+    "<script>(function(){"
+    "let tries=0;"
+    "const t=setInterval(function(){"
+    "  tries++;"
+    "  const dash=document.querySelector('[data-testid=\"pg-tab-dash\"]');"
+    "  const ai=document.querySelector('[data-testid=\"pg-tab-ai\"]');"
+    "  if(dash){"
+    "    if(!dash.classList.contains('active')){dash.click();}"
+    "    clearInterval(t);"
+    "  } else if(tries>80){clearInterval(t);}"
+    "},100);"
+    "})();</script>"
+)
 
 
 @app.get("/custom.css")
@@ -569,6 +682,7 @@ URL_FIX_SNIPPET = (
     "if(location.pathname==='/login'){history.replaceState(null,'','/');}"
     "}catch(e){}})();</script>"
     '<link rel="stylesheet" href="/custom.css">'
+    + DASH_BOOT_SCRIPT
 )
 
 
