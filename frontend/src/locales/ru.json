@@ -8,6 +8,7 @@
   "nav": {
     "home": "Главная",
     "districts": "Анализ районов",
+    "regionsV2": "Махалли Узбекистана",
     "ai": "AI Советник",
     "tools": "Бизнес AI инструменты",
     "education": "NBU Education",
@@ -2745,5 +2746,28 @@
       "newSchools": "Новые школы",
       "kindergartens": "Детские сады"
     }
+  },
+  "regionsV2": {
+    "title": "Махалли Узбекистана",
+    "subtitle": "Социально-экономическая аналитика по регионам, районам и махаллям",
+    "regionsHeading": "Регионы",
+    "districtsHeading": "Районы",
+    "mahallasHeading": "Махалли",
+    "districtsCount": "Районов",
+    "mahallasCount": "Махаллей",
+    "ratingScore": "Рейтинг",
+    "aiInsights": "AI инсайты",
+    "search": "Поиск махалли...",
+    "loading": "Загрузка...",
+    "noData": "Данные недоступны",
+    "errorLoad": "Не удалось загрузить данные",
+    "backToRegions": "К регионам",
+    "backToRegion": "К региону",
+    "backToDistrict": "К району",
+    "viewMap": "Карта",
+    "viewTable": "Таблица",
+    "openMahalla": "Открыть",
+    "rank": "Место",
+    "noBackend": "Бэкенд не настроен. Установите VITE_API_URL и CERR_DATA_ROOT."
   }
 }

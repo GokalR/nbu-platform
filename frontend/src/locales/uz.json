@@ -8,6 +8,7 @@
   "nav": {
     "home": "Bosh sahifa",
     "districts": "Tumanlar tahlili",
+    "regionsV2": "Oʻzbekiston mahallalari",
     "ai": "AI Maslahatchi",
     "tools": "Biznes AI vositalari",
     "education": "NBU Education",
@@ -2745,5 +2746,28 @@
       "newSchools": "Yangi maktablar",
       "kindergartens": "Bolalar bogʻchalari"
     }
+  },
+  "regionsV2": {
+    "title": "Oʻzbekiston mahallalari",
+    "subtitle": "Viloyat, tuman va mahallalar boʻyicha ijtimoiy-iqtisodiy tahlil",
+    "regionsHeading": "Viloyatlar",
+    "districtsHeading": "Tumanlar",
+    "mahallasHeading": "Mahallalar",
+    "districtsCount": "Tumanlar",
+    "mahallasCount": "Mahallalar",
+    "ratingScore": "Reyting",
+    "aiInsights": "AI tahlillar",
+    "search": "Mahalla qidirish...",
+    "loading": "Yuklanmoqda...",
+    "noData": "Maʻlumot mavjud emas",
+    "errorLoad": "Maʻlumotlarni yuklab boʻlmadi",
+    "backToRegions": "Viloyatlarga",
+    "backToRegion": "Viloyatga",
+    "backToDistrict": "Tumanga",
+    "viewMap": "Xarita",
+    "viewTable": "Jadval",
+    "openMahalla": "Ochish",
+    "rank": "Oʻrin",
+    "noBackend": "Backend sozlanmagan. VITE_API_URL va CERR_DATA_ROOT ni oʻrnating."
   }
 }

@@ -13,6 +13,7 @@ const isAdmin = computed(() => auth.user?.role === 'admin')
 const baseNavItems = [
   { to: '/', icon: 'dashboard', labelKey: 'nav.home' },
   { to: '/districts', icon: 'analytics', labelKey: 'nav.districts' },
+  { to: '/regions-v2', icon: 'public', labelKey: 'nav.regionsV2' },
   { to: '/ai', icon: 'psychology', labelKey: 'nav.ai', disabled: true },
   { to: '/tools', icon: 'precision_manufacturing', labelKey: 'nav.tools' },
   { to: '/education', icon: 'school', labelKey: 'nav.education' },
