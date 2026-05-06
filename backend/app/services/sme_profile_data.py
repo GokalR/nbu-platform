@@ -149,7 +149,20 @@ def _ensure_ruyxat_from_r2() -> Optional[Path]:
     bucket = os.getenv("R2_BUCKET", "").strip()
     key = os.getenv("R2_RUYXAT_KEY", "ruyxat.xlsx").strip()
 
-    if not all([endpoint, access_key, secret_key, bucket]):
+    missing = [
+        n for n, v in [
+            ("R2_ENDPOINT", endpoint),
+            ("R2_ACCESS_KEY_ID", access_key),
+            ("R2_SECRET_ACCESS_KEY", secret_key),
+            ("R2_BUCKET", bucket),
+        ] if not v
+    ]
+    if missing:
+        print(
+            "[sme_profile] ruyxat.xlsx not on disk and R2 not configured "
+            f"(missing env vars: {', '.join(missing)}); "
+            "PINFL/INN lookup will return 'not found' for everyone."
+        )
         return None
 
     try:
