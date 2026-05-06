@@ -5,34 +5,75 @@ import EduVideoPlayer from '@/components/education/EduVideoPlayer.vue'
 
 const { t, locale } = useI18n()
 
+// category: ai_courses | banking | governance | entrepreneurs
+// level:    beginner | intermediate | advanced
 const VIDEOS = [
-  { id: 'XtizkYKT280', category: 'ai',   title_uz: "Sun'iy intellekt nima? To'liq obzor",                title_ru: 'Что такое искусственный интеллект? Полный обзор' },
-  { id: 'N25wGvmun6g', category: 'ai',   title_uz: "Sun'iy intellekt qanday yaratiladi?",                 title_ru: 'Как создаётся искусственный интеллект?' },
-  { id: 'vlozVjE-IvE', category: 'ai',   title_uz: "Sun'iy intellekt va dasturlashning kelajagi",          title_ru: 'Будущее ИИ и программирования' },
-  { id: 'Nt5ee-3fyAc', category: 'ai',   title_uz: "ChatGPT — sun'iy aql kelajakka eshik ochdi",           title_ru: 'ChatGPT — ИИ открывает дверь в будущее' },
-  { id: '1hNxd2ldlRY', category: 'data', title_uz: 'Machine Learning nima? Data Science kursi',           title_ru: 'Что такое Machine Learning? Курс Data Science' },
-  { id: 'CHU6uI9ajBw', category: 'data', title_uz: 'Machine Learning nima?',                               title_ru: 'Что такое Machine Learning?' },
-  { id: 'YMW2ZlSVfm0', category: 'sme',  title_uz: "Raqamli O'zbekiston-2030 — bu nima?",                   title_ru: 'Цифровой Узбекистан-2030 — что это?' },
-  { id: 'FOR1XUNy9NQ', category: 'sme',  title_uz: 'Raqamli iqtisodiyotni rivojlantirish strategiyasi',     title_ru: 'Стратегия развития цифровой экономики' },
+  // ── AI courses ──
+  { id: 'XtizkYKT280', category: 'ai_courses', level: 'beginner',     title_uz: "Sun'iy intellekt nima? To'liq obzor",                     title_ru: 'Что такое искусственный интеллект? Полный обзор' },
+  { id: 'N25wGvmun6g', category: 'ai_courses', level: 'beginner',     title_uz: "Sun'iy intellekt qanday yaratiladi?",                     title_ru: 'Как создаётся искусственный интеллект?' },
+  { id: 'vlozVjE-IvE', category: 'ai_courses', level: 'intermediate', title_uz: "Sun'iy intellekt va dasturlashning kelajagi",              title_ru: 'Будущее ИИ и программирования' },
+  { id: 'Nt5ee-3fyAc', category: 'ai_courses', level: 'beginner',     title_uz: "ChatGPT — sun'iy aql kelajakka eshik ochdi",                title_ru: 'ChatGPT — ИИ открывает дверь в будущее' },
+  { id: '1hNxd2ldlRY', category: 'ai_courses', level: 'intermediate', title_uz: 'Machine Learning nima? Data Science kursi',                title_ru: 'Что такое Machine Learning? Курс Data Science' },
+  { id: 'CHU6uI9ajBw', category: 'ai_courses', level: 'beginner',     title_uz: 'Machine Learning nima?',                                    title_ru: 'Что такое Machine Learning?' },
+  { id: 'voImIdBNP9o', category: 'ai_courses', level: 'intermediate', title_uz: "ChatGPT eng yaxshi prompt — 1-qism",                       title_ru: 'ChatGPT — лучший промпт (часть 1)' },
+  { id: 'eCkuazw-DNU', category: 'ai_courses', level: 'beginner',     title_uz: "Hamma sun'iy intellektlardan foydalanishni 1 videoda o'rgataman", title_ru: 'Все ИИ в одном видео — научу пользоваться' },
+  { id: 'orVrV9p_mlg', category: 'ai_courses', level: 'beginner',     title_uz: "Sun'iy intellektda real rasm qilishni o'rganasiz",          title_ru: 'Реалистичные изображения с ИИ за 1 клик' },
+  { id: 'gHu0r7lvMWU', category: 'ai_courses', level: 'beginner',     title_uz: "7 daqiqada ingliz tilini bilmasdan zo'r prompt yozishni o'rganasiz", title_ru: 'Промпты без знания английского — за 7 минут' },
+  { id: 'OuQOSbxYrfs', category: 'ai_courses', level: 'beginner',     title_uz: "5 daqiqada har xil stildagi rasm qilishni o'rganasiz",      title_ru: 'Изображения в разных стилях за 5 минут' },
+  { id: '44TZG0PWXVI', category: 'ai_courses', level: 'intermediate', title_uz: "Sun'iy intellekt bilan kino videolar tayyorlashni o'rganasiz", title_ru: 'Кино-видео с помощью ИИ' },
+  { id: 'Ms3Lm49jnOc', category: 'ai_courses', level: 'beginner',     title_uz: "Sun'iy intellekt bilan multfilm tayyorlashni o'rganasiz",   title_ru: 'Мультфильмы с ИИ — легко' },
+  { id: 'Sb4wNxCjSUs', category: 'ai_courses', level: 'intermediate', title_uz: "7 daqiqada qimmat ko'rinishli videolar tayyorlash",         title_ru: 'Дорогие на вид видео за 7 минут с ИИ' },
+  { id: 'qFJWOPQD5QQ', category: 'ai_courses', level: 'intermediate', title_uz: "Veo 3'da o'zbekcha video tayyorlashni o'rganasiz",          title_ru: 'Узбекоязычные видео в Veo 3 (бесплатно)' },
+  { id: '06uCOuCo9FU', category: 'ai_courses', level: 'beginner',     title_uz: "Do'stingizning sun'iy intellekt videosini tayyorlash",      title_ru: 'AI-видео твоего друга' },
+  { id: 'OA9D4OVDFWM', category: 'ai_courses', level: 'beginner',     title_uz: "Tarixiy shaxslarni hayotga qaytarishni o'rganasiz (AI bilan)", title_ru: 'Возвращаем к жизни исторических личностей с ИИ' },
+  { id: 'bcta17YeUvA', category: 'ai_courses', level: 'beginner',     title_uz: "Bu sun'iy intellekt bobomni hayotga qaytardi",              title_ru: 'ИИ вернул моего деда к жизни' },
+  { id: 'f6HpXx3k2L4', category: 'ai_courses', level: 'beginner',     title_uz: "Sun'iy intellekt bilan reklamalar qanday tayyorlanadi?",    title_ru: 'Как делают рекламы с ИИ?' },
+
+  // ── Banking ──
+  { id: 'xuIUtuZihIE', category: 'banking', level: 'beginner',     title_uz: "Bank nima? Bank qanday vazifalarni bajaradi?",                  title_ru: 'Что такое банк? Какие функции он выполняет?' },
+  { id: 'X0pJB0tYEDM', category: 'banking', level: 'beginner',     title_uz: "Markaziy bank qanday vazifalarni bajaradi?",                    title_ru: 'Какие функции выполняет Центральный банк?' },
+  { id: '9UW04JB9RxA', category: 'banking', level: 'intermediate', title_uz: "Provodka nima? To'g'ri provodka berish, ikki yoqlama yozuv",      title_ru: 'Что такое проводка? Двойная запись' },
+
+  // ── Governance ──
+  { id: 'eg03HUS_L-I', category: 'governance', level: 'beginner', title_uz: "Davlat boshqaruv shakli",                          title_ru: 'Формы государственного управления' },
+  { id: 'cm7Sl9L22jA', category: 'governance', level: 'beginner', title_uz: "Davlat va Huquq Nazariyasi",                       title_ru: 'Теория государства и права' },
+  { id: 'YMW2ZlSVfm0', category: 'governance', level: 'beginner', title_uz: "Raqamli O'zbekiston-2030 — bu nima?",               title_ru: 'Цифровой Узбекистан-2030 — что это?' },
+  { id: 'FOR1XUNy9NQ', category: 'governance', level: 'beginner', title_uz: 'Raqamli iqtisodiyotni rivojlantirish strategiyasi', title_ru: 'Стратегия развития цифровой экономики' },
+
+  // ── Entrepreneurs ──
+  { id: 'oOyVFHpmD7g', category: 'entrepreneurs', level: 'beginner', title_uz: "Tadbirkorlik faoliyatining qaysi turini tanlash kerak?", title_ru: 'Какой вид предпринимательства выбрать?' },
+  { id: 'yXtdxDAVFIQ', category: 'entrepreneurs', level: 'beginner', title_uz: "2025-yilda hayotingizni o'zgartiradigan 7 ta kasb",        title_ru: '7 профессий, которые изменят вашу жизнь в 2025' },
+  { id: 'h4QgWVwBc5w', category: 'entrepreneurs', level: 'beginner', title_uz: "UZUM Marketda biznes boshlash — bepul kurs",              title_ru: 'Старт бизнеса на UZUM Market — бесплатный курс' },
 ]
 
 const activeCategory = ref('all')
+const activeLevel = ref('all')
 const activeVideo = ref(null)
 
 const titleFor = (v) => locale.value === 'ru' ? v.title_ru : v.title_uz
 const thumbFor = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
 
 const categories = computed(() => [
-  { key: 'all',  label: t('education.videoLib.all') },
-  { key: 'ai',   label: t('education.videoLib.ai') },
-  { key: 'data', label: t('education.videoLib.data') },
-  { key: 'sme',  label: t('education.videoLib.sme') },
+  { key: 'all',           label: t('education.videoLib.catAll') },
+  { key: 'ai_courses',    label: t('education.videoLib.cat_ai_courses') },
+  { key: 'banking',       label: t('education.videoLib.cat_banking') },
+  { key: 'governance',    label: t('education.videoLib.cat_governance') },
+  { key: 'entrepreneurs', label: t('education.videoLib.cat_entrepreneurs') },
 ])
 
-const filteredVideos = computed(() => {
-  if (activeCategory.value === 'all') return VIDEOS
-  return VIDEOS.filter((v) => v.category === activeCategory.value)
-})
+const levels = computed(() => [
+  { key: 'all',          label: t('education.videoLib.lvlAll') },
+  { key: 'beginner',     label: t('education.videoLib.lvlBeginner') },
+  { key: 'intermediate', label: t('education.videoLib.lvlIntermediate') },
+  { key: 'advanced',     label: t('education.videoLib.lvlAdvanced') },
+])
+
+const filteredVideos = computed(() =>
+  VIDEOS.filter((v) =>
+    (activeCategory.value === 'all' || v.category === activeCategory.value) &&
+    (activeLevel.value === 'all' || v.level === activeLevel.value)
+  )
+)
 
 function openVideo(v) { activeVideo.value = v }
 function closeVideo() { activeVideo.value = null }
@@ -55,16 +96,31 @@ watch(activeVideo, (v) => {
       <p class="vid-lib__subtitle">{{ $t('education.videoLib.subtitle') }}</p>
     </div>
 
-    <div class="vid-lib__pills">
-      <button
-        v-for="c in categories"
-        :key="c.key"
-        class="vid-lib__pill"
-        :class="{ 'is-active': activeCategory === c.key }"
-        @click="activeCategory = c.key"
-      >
-        {{ c.label }}
-      </button>
+    <div class="vid-lib__filters">
+      <div class="vid-lib__pills">
+        <button
+          v-for="c in categories"
+          :key="c.key"
+          class="vid-lib__pill"
+          :class="{ 'is-active': activeCategory === c.key }"
+          @click="activeCategory = c.key"
+        >
+          {{ c.label }}
+        </button>
+      </div>
+      <div class="vid-lib__pills">
+        <span class="vid-lib__pill-label">{{ $t('education.videoLib.levelLabel') }}</span>
+        <button
+          v-for="l in levels"
+          :key="l.key"
+          class="vid-lib__pill vid-lib__pill--sm"
+          :class="{ 'is-active': activeLevel === l.key }"
+          @click="activeLevel = l.key"
+        >
+          {{ l.label }}
+        </button>
+      </div>
+      <div class="vid-lib__count">{{ $t('education.videoLib.countFound', { n: filteredVideos.length }) }}</div>
     </div>
 
     <div class="vid-lib__grid">
@@ -79,7 +135,7 @@ watch(activeVideo, (v) => {
           <div class="vid-card__play">
             <span class="material-symbols-outlined">play_arrow</span>
           </div>
-          <span class="vid-card__cat">{{ $t('education.videoLib.' + v.category) }}</span>
+          <span class="vid-card__cat">{{ $t('education.videoLib.cat_' + v.category) }}</span>
         </div>
         <div class="vid-card__body">
           <h3 class="vid-card__title">{{ titleFor(v) }}</h3>
@@ -124,11 +180,17 @@ watch(activeVideo, (v) => {
   margin: 0;
 }
 
+.vid-lib__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 .vid-lib__pills {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  align-items: center;
 }
 .vid-lib__pill {
   padding: 8px 16px;
@@ -141,11 +203,27 @@ watch(activeVideo, (v) => {
   cursor: pointer;
   transition: all 0.15s ease;
 }
+.vid-lib__pill--sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
 .vid-lib__pill:hover { border-color: #0054a6; color: #0054a6; }
 .vid-lib__pill.is-active {
   background: #0054a6;
   color: #fff;
   border-color: #0054a6;
+}
+.vid-lib__pill-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+}
+.vid-lib__count {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 2px;
 }
 
 .vid-lib__grid {
