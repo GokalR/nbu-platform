@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { BACKEND_URL } from '@/services/api'
+import EduVideoLibrary from '@/components/education/EduVideoLibrary.vue'
 
 const router = useRouter()
 
@@ -134,6 +135,8 @@ function totalDuration(videoCount) {
       <span class="material-symbols-outlined" style="font-size: 56px; color: var(--edu-text-muted);">school</span>
       <p>{{ $t('education.noCoursesYet') }}</p>
     </div>
+
+    <EduVideoLibrary />
   </div>
 </template>
 

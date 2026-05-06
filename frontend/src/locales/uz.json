@@ -1887,6 +1887,15 @@
     "loadError": "Kurslarni yuklab boʻlmadi",
     "backendUnavailable": "Backend mavjud emas. Python serverni ishga tushiring.",
     "noCoursesYet": "Kurslar hali qoʻshilmagan",
+    "videoLib": {
+      "title": "Video kutubxona",
+      "subtitle": "AI, ma'lumotlar va kichik biznes bo'yicha foydali videolar",
+      "all": "Barchasi",
+      "ai": "AI",
+      "data": "DATA",
+      "sme": "SME",
+      "close": "Yopish"
+    },
     "min": "min",
     "hours": "soat",
     "approx": "taxm.",
