@@ -57,7 +57,7 @@ function openRegion(code) {
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 mt-6 max-w-2xl">
+      <div v-if="!loading && !error && regions.length" class="grid grid-cols-3 gap-3 mt-6 max-w-2xl">
         <div class="rounded-xl bg-white border border-slate-200/70 p-4">
           <div class="text-xs font-medium text-slate-500">{{ t('regionsV2.regionsHeading') }}</div>
           <div class="text-2xl font-black text-slate-900 mt-1">{{ totals.regions }}</div>

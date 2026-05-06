@@ -56,8 +56,11 @@ class _Reader:
             if rel in self._cache:
                 return self._cache[rel]
         data = self._fetch(rel)
-        with self._cache_lock:
-            self._cache[rel] = data
+        # Only cache successful reads. A 404 today (e.g. mid-upload to R2)
+        # may turn into a real file tomorrow — don't poison the cache.
+        if data is not None:
+            with self._cache_lock:
+                self._cache[rel] = data
         return data
 
     def _fetch(self, rel: str) -> Any:
