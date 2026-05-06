@@ -216,6 +216,27 @@ async def lifespan(app: FastAPI):
     await engine_async.dispose()
 
 
+# SME Profile R2 diagnostic — prints which R2_* env vars the container
+# actually sees, so missing/typo'd vars are visible at boot without
+# waiting for a /lookup request.
+def _log_sme_profile_r2_status() -> None:
+    names = ["R2_ENDPOINT", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET"]
+    present, missing = [], []
+    for n in names:
+        v = os.getenv(n, "").strip()
+        if v:
+            masked = (v[:6] + "…") if len(v) > 6 else "<short>"
+            present.append(f"{n}={masked}")
+        else:
+            missing.append(n)
+    log.info(
+        "[sme_profile] R2 env at startup — present: %s | missing: %s",
+        present or "none",
+        missing or "none",
+    )
+
+_log_sme_profile_r2_status()
+
 app = FastAPI(title="NBU Unified API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
