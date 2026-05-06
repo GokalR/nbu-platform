@@ -514,10 +514,18 @@ CUSTOM_CSS = """
      cards with subtle shadows, blue-700 accents, rounded corners.
    ============================================================ */
 
-/* 1. Remove top bar entirely (logo + AI Chat / Dashboard tabs +
-      profile menu). The Dashboard view is auto-activated by JS so
-      the user lands directly on it. */
-.pg-top { display: none !important; }
+/* 1. Hide the top bar visually but KEEP it in the DOM at zero height —
+      our boot script needs to click the (invisible) Dashboard tab to
+      activate that view, so display:none is too aggressive. */
+.pg-top {
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
 
 /* 2. Hide the AI Chat view content. Dashboard becomes the only view. */
 .chat-shell, .chat-empty, .chat-empty-brand, .chat-empty-tagline { display: none !important; }
@@ -647,20 +655,30 @@ body.dark {
 """.strip()
 
 
-# Tiny boot script: auto-activate the Dashboard view since we hid the top
-# tab bar. Tries on a short interval until the bundle has hydrated and the
-# Dashboard tab button is in the DOM, then clicks it once.
+# Boot script: keep clicking the Dashboard tab on a short interval until it
+# actually becomes active. The first click can land before React has hydrated
+# its event handlers (no-op), so we retry every 100ms for up to ~12s, using
+# both .click() and a real MouseEvent for resilience. Stops as soon as
+# aria-selected="true" or .active confirms the tab is now active.
 DASH_BOOT_SCRIPT = (
     "<script>(function(){"
     "let tries=0;"
+    "function isActive(el){return el && (el.classList.contains('active')"
+    " || el.getAttribute('aria-selected')==='true');}"
+    "function clickHard(el){"
+    "  try{el.click();}catch(e){}"
+    "  try{"
+    "    const ev=new MouseEvent('click',{bubbles:true,cancelable:true,view:window});"
+    "    el.dispatchEvent(ev);"
+    "  }catch(e){}"
+    "}"
     "const t=setInterval(function(){"
     "  tries++;"
     "  const dash=document.querySelector('[data-testid=\"pg-tab-dash\"]');"
-    "  const ai=document.querySelector('[data-testid=\"pg-tab-ai\"]');"
-    "  if(dash){"
-    "    if(!dash.classList.contains('active')){dash.click();}"
-    "    clearInterval(t);"
-    "  } else if(tries>80){clearInterval(t);}"
+    "  if(!dash){if(tries>120){clearInterval(t);}return;}"
+    "  if(isActive(dash)){clearInterval(t);return;}"
+    "  clickHard(dash);"
+    "  if(tries>120){clearInterval(t);}"
     "},100);"
     "})();</script>"
 )
