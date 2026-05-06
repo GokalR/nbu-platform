@@ -64,6 +64,38 @@ export const businessPlanApi = {
 
   getPlan: (id) => request(`/business-plan/${id}`),
 
+  /**
+   * Fetch the .docx as a Blob. We do this manually (not via `request`) so
+   * we don't try to JSON.parse the binary response. Auth header still
+   * applied. Returns { ok, blob, filename } or { ok: false, error }.
+   */
+  downloadDocx: async (id) => {
+    if (!isConfigured()) return { ok: false, reason: 'no-backend' }
+    try {
+      const auth = _authHeaders()
+      const res = await fetch(`${BASE}/business-plan/${id}/docx`, { headers: { ...auth } })
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        let msg = res.statusText
+        try {
+          const j = JSON.parse(text)
+          if (j?.detail) msg = j.detail
+        } catch {
+          if (text) msg = text
+        }
+        return { ok: false, status: res.status, error: msg }
+      }
+      const blob = await res.blob()
+      // Pull filename out of Content-Disposition if present.
+      const cd = res.headers.get('content-disposition') || ''
+      const m = cd.match(/filename="([^"]+)"/)
+      const filename = m ? m[1] : `business-plan-${id.slice(0, 8)}.docx`
+      return { ok: true, blob, filename }
+    } catch (e) {
+      return { ok: false, reason: 'no-backend', error: String(e) }
+    }
+  },
+
   parseExcel: (balanceFile, pnlFile) => {
     const fd = new FormData()
     fd.append('balance', balanceFile)

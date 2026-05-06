@@ -234,6 +234,20 @@ function drawCharts() {
 }
 
 // ---------- download ----------
+const downloadingDocx = ref(false)
+const downloadError = ref('')
+
+function _triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
 function download() {
   if (!plan.value) return
   const html = renderStandalonePlanHtml({
@@ -245,17 +259,23 @@ function download() {
     generatedAt: new Date().toISOString(),
   })
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
   const safe = (inputs.value?.organization?.name || 'business-plan')
     .replace(/[^a-zA-Z0-9-_]+/g, '_')
     .slice(0, 60)
-  a.href = url
-  a.download = `${safe}_${id.slice(0, 8)}.html`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  _triggerDownload(blob, `${safe}_${id.slice(0, 8)}.html`)
+}
+
+async function downloadDocx() {
+  if (!plan.value || downloadingDocx.value) return
+  downloadingDocx.value = true
+  downloadError.value = ''
+  const res = await businessPlanApi.downloadDocx(id)
+  downloadingDocx.value = false
+  if (!res.ok) {
+    downloadError.value = res.error || t('businessPlan.errors.generic')
+    return
+  }
+  _triggerDownload(res.blob, res.filename)
 }
 
 const verdictColor = computed(() => {
@@ -282,6 +302,17 @@ onMounted(load)
           <div class="bpr-brand-sub">{{ inputs?.organization?.name || '' }}</div>
         </div>
       </div>
+      <button
+        v-if="plan"
+        class="bpr-download bpr-download-secondary"
+        :disabled="downloadingDocx"
+        @click="downloadDocx"
+        :title="t('businessPlan.result.downloadDocx')"
+      >
+        <span v-if="downloadingDocx" class="bpr-mini-spinner"></span>
+        <AppIcon v-else name="description" />
+        {{ t('businessPlan.result.downloadDocx') }}
+      </button>
       <button v-if="plan" class="bpr-download" @click="download">
         <AppIcon name="download" />
         {{ t('businessPlan.result.download') }}
@@ -535,10 +566,21 @@ onMounted(load)
           </ol>
         </section>
 
+        <p v-if="downloadError" class="bpr-download-err">{{ downloadError }}</p>
+
         <footer class="bpr-footer">
           <button class="bpr-btn-primary" @click="download">
             <AppIcon name="download" />
             {{ t('businessPlan.result.download') }}
+          </button>
+          <button
+            class="bpr-btn-primary bpr-btn-word"
+            :disabled="downloadingDocx"
+            @click="downloadDocx"
+          >
+            <span v-if="downloadingDocx" class="bpr-mini-spinner"></span>
+            <AppIcon v-else name="description" />
+            {{ t('businessPlan.result.downloadDocx') }}
           </button>
           <button class="bpr-btn-secondary" @click="router.push('/tools/business-plan')">
             {{ t('businessPlan.result.newPlan') }}
@@ -595,6 +637,24 @@ onMounted(load)
   cursor: pointer;
 }
 .bpr-download:hover { background: #00306a; }
+.bpr-download-secondary {
+  background: #fff !important; color: #003d7c !important;
+  border: 1.5px solid #003d7c !important; margin-right: 8px;
+}
+.bpr-download-secondary:hover { background: #f0f7ff !important; }
+.bpr-download:disabled, .bpr-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.bpr-btn-word { background: #2b579a; color: #fff; }
+.bpr-btn-word:hover { background: #1f4274; }
+.bpr-mini-spinner {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  animation: spin 0.7s linear infinite; display: inline-block;
+}
+.bpr-download-err {
+  background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c;
+  padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  margin: 12px 0 0; text-align: center;
+}
 
 .bpr-main {
   max-width: 1100px;

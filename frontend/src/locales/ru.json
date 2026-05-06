@@ -1121,6 +1121,7 @@
     "result": {
       "title": "Бизнес-план",
       "download": "Скачать HTML",
+      "downloadDocx": "Скачать Word",
       "newPlan": "Новый план",
       "loading": "Загрузка...",
       "retry": "Повторить",

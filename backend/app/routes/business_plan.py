@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from ..config import get_settings
 from ..db_sync import get_db
 from ..models_business_plan import BusinessPlanSubmission
-from ..services import business_plan_client, credit_scoring, excel_parser_msb, nbu_products
+from ..services import business_plan_client, credit_scoring, docx_builder, excel_parser_msb, nbu_products
 
 log = logging.getLogger(__name__)
 settings = get_settings()
@@ -240,6 +240,34 @@ def generate(
         output=rec.output,
         recommendedProductsCandidates=rec.recommended_products,
         creditScore=credit_score,
+    )
+
+
+@router.get("/{plan_id}/docx")
+def download_plan_docx(plan_id: str, db: Session = Depends(get_db)):
+    """Stream a .docx of the saved plan. Auth-free for now (the link
+    contains an opaque UUID; if you need stricter access, mirror the
+    `_require_user` dep used on /generate). The frontend uses fetch with
+    the bearer token, so toggling auth on later is a one-line change."""
+    rec = db.get(BusinessPlanSubmission, plan_id)
+    if not rec or rec.error or not rec.output:
+        raise HTTPException(status_code=404, detail="Business plan not found")
+
+    blob = docx_builder.build_docx(
+        plan=rec.output,
+        inputs=rec.inputs or {},
+        credit_score=rec.historical_financials,
+        lang=(rec.lang or "ru"),
+    )
+
+    safe_name = (rec.org_name or "business-plan")
+    safe_name = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in safe_name)[:60]
+    filename = f"{safe_name or 'business-plan'}_{rec.id[:8]}.docx"
+
+    return Response(
+        content=blob,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

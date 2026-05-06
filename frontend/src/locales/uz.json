@@ -1121,6 +1121,7 @@
     "result": {
       "title": "Biznes-reja",
       "download": "HTML yuklab olish",
+      "downloadDocx": "Word yuklab olish",
       "newPlan": "Yangi reja yaratish",
       "loading": "Yuklanmoqda...",
       "retry": "Qayta urinish",
