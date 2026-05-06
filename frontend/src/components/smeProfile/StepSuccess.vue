@@ -15,10 +15,10 @@ const { t, locale } = useI18n()
 
 <template>
   <div class="space-y-6">
-    <div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+    <div class="bg-surface-container-lowest rounded-card p-8 shadow-sm">
       <div class="text-center space-y-4">
         <div class="inline-flex items-center justify-center w-20 h-20 bg-green-50 rounded-full">
-          <AppIcon name="check_circle" class="text-success text-5xl" filled />
+          <AppIcon name="check_circle" class="text-green-600 text-5xl" filled />
         </div>
         <div class="space-y-1">
           <h2 class="text-2xl font-bold text-on-surface">{{ t('smeProfile.success.title') }}</h2>
@@ -29,7 +29,7 @@ const { t, locale } = useI18n()
       </div>
     </div>
 
-    <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+    <div class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
       <p class="text-xs font-bold text-primary uppercase tracking-wide mb-3">
         {{ t('smeProfile.summary.general') }}
       </p>
@@ -55,7 +55,7 @@ const { t, locale } = useI18n()
       </div>
     </div>
 
-    <div v-for="(sphere, si) in spheres" :key="si" class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+    <div v-for="(sphere, si) in spheres" :key="si" class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
       <div class="flex items-center gap-3 mb-3">
         <span class="text-xs font-bold text-white bg-primary px-3 py-1 rounded-full">
           {{ t('smeProfile.fields.sphere') }} {{ sphere.sphere_number }}
@@ -76,32 +76,12 @@ const { t, locale } = useI18n()
       </div>
     </div>
 
-    <button class="sp-btn sp-btn--primary w-full" @click="emit('restart')">
+    <button
+      class="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-primary text-white rounded-btn text-base font-semibold hover:bg-primary/90 active:scale-[0.99] transition-all shadow-sm"
+      @click="emit('restart')"
+    >
       <AppIcon name="refresh" />
       {{ t('smeProfile.success.startNew') }}
     </button>
   </div>
 </template>
-
-<style scoped>
-.sp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: all 0.15s;
-  border: none;
-  cursor: pointer;
-}
-.sp-btn--primary {
-  background: rgb(var(--md-sys-color-primary) / 1);
-  color: white;
-}
-.sp-btn--primary:hover {
-  filter: brightness(1.05);
-}
-</style>

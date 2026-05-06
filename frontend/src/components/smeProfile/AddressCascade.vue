@@ -71,6 +71,9 @@ watch(selT, async (t) => {
 watch([selV, selT, selM], () => {
   emit('update:modelValue', combine(selV.value, selT.value, selM.value))
 })
+
+const inputCls =
+  'w-full px-4 py-3 border border-outline-variant rounded-btn text-sm bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:bg-surface-container-low disabled:text-on-surface-variant disabled:cursor-not-allowed'
 </script>
 
 <template>
@@ -80,7 +83,7 @@ watch([selV, selT, selM], () => {
     :value="modelValue"
     @input="emit('update:modelValue', $event.target.value)"
     :placeholder="t('smeProfile.address.placeholder')"
-    class="sp-input"
+    :class="inputCls"
   />
   <div v-else class="space-y-3">
     <div class="flex items-center gap-2 text-xs text-on-surface-variant font-medium mb-1">
@@ -90,21 +93,21 @@ watch([selV, selT, selM], () => {
       </span>
     </div>
 
-    <select v-model="selV" :disabled="loadingV" class="sp-input bg-white cursor-pointer">
+    <select v-model="selV" :disabled="loadingV" :class="[inputCls, 'cursor-pointer']">
       <option value="">
         {{ loadingV ? t('smeProfile.address.loading') : t('smeProfile.address.selectViloyat') }}
       </option>
       <option v-for="v in viloyats" :key="v" :value="v">{{ v }}</option>
     </select>
 
-    <select v-model="selT" :disabled="!selV || loadingT" class="sp-input bg-white cursor-pointer">
+    <select v-model="selT" :disabled="!selV || loadingT" :class="[inputCls, 'cursor-pointer']">
       <option value="">
         {{ loadingT ? t('smeProfile.address.loading') : t('smeProfile.address.selectTuman') }}
       </option>
       <option v-for="t in tumans" :key="t" :value="t">{{ t }}</option>
     </select>
 
-    <select v-model="selM" :disabled="!selT || loadingM" class="sp-input bg-white cursor-pointer">
+    <select v-model="selM" :disabled="!selT || loadingM" :class="[inputCls, 'cursor-pointer']">
       <option value="">
         {{ loadingM ? t('smeProfile.address.loading') : t('smeProfile.address.selectMfy') }}
       </option>
@@ -112,24 +115,3 @@ watch([selV, selT, selM], () => {
     </select>
   </div>
 </template>
-
-<style scoped>
-.sp-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.sp-input:focus {
-  border-color: rgb(var(--md-sys-color-primary) / 1);
-  box-shadow: 0 0 0 3px rgb(var(--md-sys-color-primary) / 0.18);
-}
-.sp-input:disabled {
-  background-color: rgb(var(--md-sys-color-surface-container-low) / 1);
-  color: rgb(var(--md-sys-color-on-surface-variant) / 1);
-  cursor: not-allowed;
-}
-</style>

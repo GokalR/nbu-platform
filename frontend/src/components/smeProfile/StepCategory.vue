@@ -30,7 +30,7 @@ function pick(cat) {
       <button
         v-for="cat in categories"
         :key="cat.id"
-        class="group flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all duration-200 text-center"
+        class="group flex flex-col items-center gap-3 p-5 rounded-card border-2 transition-all duration-200 text-center"
         :class="
           cat.id === selectedId
             ? 'border-primary bg-primary/10 shadow-md'
@@ -57,32 +57,12 @@ function pick(cat) {
       </button>
     </div>
 
-    <button class="sp-btn sp-btn--secondary w-full" @click="emit('back')">
+    <button
+      class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 bg-surface-container text-on-surface border border-outline-variant rounded-btn text-sm font-semibold hover:bg-surface-container-high transition-all"
+      @click="emit('back')"
+    >
+      <AppIcon name="arrow_back" />
       {{ t('smeProfile.back') }}
     </button>
   </div>
 </template>
-
-<style scoped>
-.sp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: all 0.15s;
-  border: none;
-  cursor: pointer;
-}
-.sp-btn--secondary {
-  background: rgb(var(--md-sys-color-surface-container) / 1);
-  color: rgb(var(--md-sys-color-on-surface) / 1);
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-}
-.sp-btn--secondary:hover {
-  background: rgb(var(--md-sys-color-surface-container-high) / 1);
-}
-</style>

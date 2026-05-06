@@ -19,7 +19,6 @@ const searching = ref(false)
 const clientInfo = ref(props.initialClientInfo)
 const notFound = ref(false)
 const sphereCount = ref(props.initialSphereCount)
-const searched = ref(!!props.initialClientInfo)
 
 async function handleSearch() {
   if (!value.value.trim()) {
@@ -30,11 +29,9 @@ async function handleSearch() {
   error.value = ''
   notFound.value = false
   clientInfo.value = null
-  searched.value = false
 
   const res = await smeProfileApi.lookup(value.value.trim())
   searching.value = false
-  searched.value = true
 
   if (!res.ok) {
     error.value = t('smeProfile.errors.backend')
@@ -81,6 +78,11 @@ const infoRows = computed(() => {
     { icon: 'call',     label: t('smeProfile.fields.phone'),    val: ci.phone },
   ].filter((r) => r.val)
 })
+
+const inputCls =
+  'flex-1 px-4 py-3 border border-outline-variant rounded-btn text-sm bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors'
+const btnPrimary =
+  'inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white rounded-btn text-sm font-semibold hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shrink-0'
 </script>
 
 <template>
@@ -95,7 +97,7 @@ const infoRows = computed(() => {
       </div>
     </div>
 
-    <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+    <div class="bg-surface-container-lowest rounded-card p-6 shadow-sm">
       <label class="block text-sm font-semibold text-on-surface mb-3">
         {{ t('smeProfile.pinfl.label') }}
       </label>
@@ -105,13 +107,12 @@ const infoRows = computed(() => {
           v-model="value"
           type="text"
           :placeholder="t('smeProfile.pinfl.placeholder')"
-          class="flex-1 sp-input"
-          :class="{ 'sp-input--err': error }"
+          :class="[inputCls, error ? 'border-error bg-red-50' : '']"
           @input="error = ''; clientInfo = null; notFound = false"
           @keydown.enter="handleSearch"
         />
         <button
-          class="sp-btn sp-btn--primary"
+          :class="btnPrimary"
           :disabled="searching || !value.trim()"
           @click="handleSearch"
         >
@@ -128,7 +129,7 @@ const infoRows = computed(() => {
 
       <div
         v-if="notFound && !clientInfo"
-        class="mt-4 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3"
+        class="mt-4 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-btn px-4 py-3"
       >
         <AppIcon name="info" class="text-amber-600 text-base shrink-0" />
         <p class="text-xs text-amber-800">{{ t('smeProfile.pinfl.notFound') }}</p>
@@ -136,7 +137,7 @@ const infoRows = computed(() => {
 
       <div
         v-if="clientInfo && infoRows.length"
-        class="mt-4 bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2.5"
+        class="mt-4 bg-primary/5 border border-primary/20 rounded-card p-4 space-y-2.5"
       >
         <p class="text-xs font-bold text-primary uppercase tracking-wide mb-3">
           ✓ {{ t('smeProfile.pinfl.found') }}
@@ -173,7 +174,7 @@ const infoRows = computed(() => {
     </div>
 
     <!-- Sphere count -->
-    <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+    <div class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
       <p class="text-sm font-semibold text-on-surface mb-3">
         {{ t('smeProfile.pinfl.sphereCount') }}
       </p>
@@ -181,7 +182,7 @@ const infoRows = computed(() => {
         <button
           v-for="n in [1, 2, 3, 4, 5]"
           :key="n"
-          class="w-11 h-11 rounded-xl text-sm font-bold border-2 transition-all"
+          class="w-11 h-11 rounded-btn text-sm font-bold border-2 transition-all"
           :class="
             sphereCount === n
               ? 'bg-primary text-white border-primary shadow-md'
@@ -195,62 +196,12 @@ const infoRows = computed(() => {
     </div>
 
     <button
-      class="sp-btn sp-btn--primary w-full sp-btn--lg"
+      class="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-primary text-white rounded-btn text-base font-semibold hover:bg-primary/90 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
       :disabled="!value.trim()"
       @click="handleNext"
     >
       {{ t('smeProfile.next') }}
+      <AppIcon name="arrow_forward" />
     </button>
   </div>
 </template>
-
-<style scoped>
-.sp-input {
-  padding: 0.875rem 1rem;
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  background: white;
-}
-.sp-input:focus {
-  border-color: rgb(var(--md-sys-color-primary) / 1);
-  box-shadow: 0 0 0 3px rgb(var(--md-sys-color-primary) / 0.18);
-}
-.sp-input--err {
-  border-color: rgb(var(--md-sys-color-error) / 1);
-  background: rgb(254 242 242 / 1);
-}
-.sp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: all 0.15s;
-  border: none;
-  cursor: pointer;
-}
-.sp-btn--primary {
-  background: rgb(var(--md-sys-color-primary) / 1);
-  color: white;
-}
-.sp-btn--primary:hover:not(:disabled) {
-  filter: brightness(1.05);
-}
-.sp-btn--primary:active:not(:disabled) {
-  transform: scale(0.97);
-}
-.sp-btn--lg {
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
-}
-.sp-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>

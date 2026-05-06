@@ -13,7 +13,6 @@ import { smeProfileApi } from '@/services/smeProfileApi'
 const { t, locale } = useI18n()
 const router = useRouter()
 
-// Step machine: 'pinfl' | 'category' | 'questions' | 'summary' | 'success'
 const step = ref('pinfl')
 const pinflInn = ref('')
 const clientInfo = ref(null)
@@ -150,39 +149,54 @@ function exitWizard() {
 </script>
 
 <template>
-  <div class="sp-wizard">
-    <header class="sp-topbar">
-      <button class="sp-back" :title="t('smeProfile.exit')" @click="exitWizard">
+  <div class="min-h-screen bg-surface flex flex-col">
+    <!-- Top bar -->
+    <header class="flex items-center gap-4 px-5 py-4 bg-white border-b border-outline-variant">
+      <button
+        class="w-10 h-10 inline-flex items-center justify-center rounded-btn border border-outline-variant text-on-surface hover:bg-surface-container transition-colors"
+        :title="t('smeProfile.exit')"
+        @click="exitWizard"
+      >
         <AppIcon name="close" />
       </button>
-      <div class="sp-brand">
-        <img src="/nbu_logo.png" alt="NBU" />
+      <div class="flex items-center gap-3 flex-1">
+        <img src="/nbu_logo.png" alt="NBU" class="w-9 h-9 object-contain" />
         <div>
-          <div class="sp-brand-title">{{ t('smeProfile.title') }}</div>
-          <div class="sp-brand-sub">{{ t('smeProfile.subtitle') }}</div>
+          <div class="text-sm font-bold text-on-surface">{{ t('smeProfile.title') }}</div>
+          <div class="text-xs text-on-surface-variant">{{ t('smeProfile.subtitle') }}</div>
         </div>
       </div>
-      <div class="sp-lang">
-        <button :class="['sp-lang-btn', locale === 'uz' && 'is-active']" @click="locale = 'uz'">UZ</button>
-        <button :class="['sp-lang-btn', locale === 'ru' && 'is-active']" @click="locale = 'ru'">RU</button>
+      <div class="flex gap-1">
+        <button
+          class="px-3 py-1.5 rounded-btn text-xs font-bold border transition-colors"
+          :class="locale === 'uz' ? 'bg-primary text-white border-primary' : 'bg-transparent text-on-surface-variant border-outline-variant'"
+          @click="locale = 'uz'"
+        >UZ</button>
+        <button
+          class="px-3 py-1.5 rounded-btn text-xs font-bold border transition-colors"
+          :class="locale === 'ru' ? 'bg-primary text-white border-primary' : 'bg-transparent text-on-surface-variant border-outline-variant'"
+          @click="locale = 'ru'"
+        >RU</button>
       </div>
     </header>
 
-    <div class="sp-progress">
-      <div class="sp-progress-bar">
+    <!-- Progress -->
+    <div class="bg-white px-5 pt-3 pb-4 border-b border-outline-variant">
+      <div class="h-1.5 bg-surface-container rounded-full overflow-hidden">
         <div
-          class="sp-progress-fill"
+          class="h-full bg-primary transition-all duration-300"
           :style="{ width: `${(currentStepNum / totalSteps) * 100}%` }"
         />
       </div>
-      <div class="sp-progress-label">
+      <div class="flex justify-between items-center mt-2 text-xs text-on-surface-variant">
         <span>{{ stepLabel }}</span>
         <span>{{ currentStepNum }} / {{ totalSteps }}</span>
       </div>
     </div>
 
-    <main class="sp-main">
-      <div class="sp-content">
+    <!-- Main content -->
+    <main class="flex-1 px-4 py-6 lg:py-8">
+      <div class="max-w-3xl mx-auto">
         <div v-if="loading" class="flex flex-col items-center justify-center py-24 gap-4">
           <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           <p class="text-sm text-on-surface-variant">{{ t('smeProfile.loading') }}</p>
@@ -190,7 +204,7 @@ function exitWizard() {
 
         <div
           v-else-if="fetchError"
-          class="bg-red-50 border border-red-200 rounded-xl p-8 text-center"
+          class="bg-red-50 border border-red-200 rounded-card p-8 text-center"
         >
           <p class="text-base font-semibold text-error">{{ fetchError }}</p>
         </div>
@@ -245,106 +259,3 @@ function exitWizard() {
     </main>
   </div>
 </template>
-
-<style scoped>
-.sp-wizard {
-  min-height: 100vh;
-  background: rgb(var(--md-sys-color-surface) / 1);
-  display: flex;
-  flex-direction: column;
-}
-.sp-topbar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: white;
-  border-bottom: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-}
-.sp-back {
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-  background: transparent;
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-  color: rgb(var(--md-sys-color-on-surface) / 1);
-  cursor: pointer;
-}
-.sp-back:hover {
-  background: rgb(var(--md-sys-color-surface-container) / 1);
-}
-.sp-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-}
-.sp-brand img {
-  width: 36px;
-  height: 36px;
-  object-fit: contain;
-}
-.sp-brand-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: rgb(var(--md-sys-color-on-surface) / 1);
-}
-.sp-brand-sub {
-  font-size: 0.75rem;
-  color: rgb(var(--md-sys-color-on-surface-variant) / 1);
-}
-.sp-lang {
-  display: flex;
-  gap: 0.25rem;
-}
-.sp-lang-btn {
-  padding: 0.4rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: transparent;
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-  color: rgb(var(--md-sys-color-on-surface-variant) / 1);
-  cursor: pointer;
-}
-.sp-lang-btn.is-active {
-  background: rgb(var(--md-sys-color-primary) / 1);
-  color: white;
-  border-color: rgb(var(--md-sys-color-primary) / 1);
-}
-.sp-progress {
-  background: white;
-  padding: 0.75rem 1.25rem 1rem;
-  border-bottom: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-}
-.sp-progress-bar {
-  height: 6px;
-  background: rgb(var(--md-sys-color-surface-container) / 1);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.sp-progress-fill {
-  height: 100%;
-  background: rgb(var(--md-sys-color-primary) / 1);
-  transition: width 0.25s;
-}
-.sp-progress-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: rgb(var(--md-sys-color-on-surface-variant) / 1);
-}
-.sp-main {
-  flex: 1;
-  padding: 1.5rem 1rem 3rem;
-}
-.sp-content {
-  max-width: 760px;
-  margin: 0 auto;
-}
-</style>

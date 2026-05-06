@@ -58,6 +58,9 @@ function handleNext() {
 }
 
 const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
+
+const inputCls =
+  'w-full px-4 py-3 border border-outline-variant rounded-btn text-sm bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors'
 </script>
 
 <template>
@@ -78,7 +81,7 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
       </p>
     </div>
 
-    <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm space-y-7">
+    <div class="bg-surface-container-lowest rounded-card p-6 shadow-sm space-y-7">
       <div v-for="(q, idx) in category.questions" :key="q.id" class="space-y-2">
         <label class="block text-sm font-semibold text-on-surface">
           <span class="text-primary mr-1.5">{{ idx + 1 }}.</span>
@@ -90,7 +93,7 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
           type="text"
           :value="answers[q.id] || ''"
           @input="setAnswer(q.id, $event.target.value)"
-          class="sp-input"
+          :class="inputCls"
         />
 
         <input
@@ -99,7 +102,7 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
           min="0"
           :value="answers[q.id] || ''"
           @input="setAnswer(q.id, $event.target.value)"
-          class="sp-input"
+          :class="inputCls"
         />
 
         <textarea
@@ -107,14 +110,14 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
           rows="3"
           :value="answers[q.id] || ''"
           @input="setAnswer(q.id, $event.target.value)"
-          class="sp-input resize-y"
+          :class="[inputCls, 'resize-y']"
         />
 
         <select
           v-else-if="q.type === 'select'"
           :value="answers[q.id] || ''"
           @change="setAnswer(q.id, $event.target.value)"
-          class="sp-input bg-white cursor-pointer"
+          :class="[inputCls, 'cursor-pointer']"
         >
           <option value="">{{ t('smeProfile.selectPlaceholder') }}</option>
           <option v-for="o in (locale === 'ru' ? q.options.ru : q.options.uz)" :key="o" :value="o">
@@ -126,7 +129,7 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
           <label
             v-for="o in (locale === 'ru' ? q.options.ru : q.options.uz)"
             :key="o"
-            class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-primary/5"
+            class="flex items-center gap-3 cursor-pointer p-2 rounded-btn hover:bg-primary/5"
           >
             <input
               type="radio"
@@ -144,7 +147,7 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
           <label
             v-for="o in (locale === 'ru' ? q.options.ru : q.options.uz)"
             :key="o"
-            class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-primary/5"
+            class="flex items-center gap-3 cursor-pointer p-2 rounded-btn hover:bg-primary/5"
           >
             <input
               type="checkbox"
@@ -172,7 +175,7 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
               type="text"
               :value="answers[`related_company_inn_${i - 1}`] || ''"
               @input="setAnswer(`related_company_inn_${i - 1}`, $event.target.value)"
-              class="sp-input"
+              :class="inputCls"
               :placeholder="t('smeProfile.questions.relatedCompanyPlaceholder', { n: i })"
             />
           </div>
@@ -181,57 +184,20 @@ const isLast = computed(() => props.sphereIdx === props.sphereCount - 1)
     </div>
 
     <div class="flex gap-3">
-      <button class="sp-btn sp-btn--secondary flex-1" @click="emit('back')">
+      <button
+        class="inline-flex items-center justify-center gap-2 flex-1 px-5 py-3 bg-surface-container text-on-surface border border-outline-variant rounded-btn text-sm font-semibold hover:bg-surface-container-high transition-all"
+        @click="emit('back')"
+      >
+        <AppIcon name="arrow_back" />
         {{ t('smeProfile.back') }}
       </button>
-      <button class="sp-btn sp-btn--primary flex-1" @click="handleNext">
+      <button
+        class="inline-flex items-center justify-center gap-2 flex-1 px-5 py-3 bg-primary text-white rounded-btn text-sm font-semibold hover:bg-primary/90 active:scale-[0.99] transition-all shadow-sm"
+        @click="handleNext"
+      >
         {{ isLast ? t('smeProfile.summary.title') : t('smeProfile.next') }}
+        <AppIcon name="arrow_forward" />
       </button>
     </div>
   </div>
 </template>
-
-<style scoped>
-.sp-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  background: white;
-}
-.sp-input:focus {
-  border-color: rgb(var(--md-sys-color-primary) / 1);
-  box-shadow: 0 0 0 3px rgb(var(--md-sys-color-primary) / 0.18);
-}
-.sp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: all 0.15s;
-  border: none;
-  cursor: pointer;
-}
-.sp-btn--primary {
-  background: rgb(var(--md-sys-color-primary) / 1);
-  color: white;
-}
-.sp-btn--primary:hover {
-  filter: brightness(1.05);
-}
-.sp-btn--secondary {
-  background: rgb(var(--md-sys-color-surface-container) / 1);
-  color: rgb(var(--md-sys-color-on-surface) / 1);
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-}
-.sp-btn--secondary:hover {
-  background: rgb(var(--md-sys-color-surface-container-high) / 1);
-}
-</style>

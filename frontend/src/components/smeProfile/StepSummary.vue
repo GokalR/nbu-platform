@@ -29,7 +29,7 @@ function show(v) {
       <p class="text-sm text-on-surface-variant">{{ t('smeProfile.summary.subtitle') }}</p>
     </div>
 
-    <div class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+    <div class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
       <p class="text-xs font-bold text-primary uppercase tracking-wide mb-3">
         {{ t('smeProfile.summary.general') }}
       </p>
@@ -71,7 +71,7 @@ function show(v) {
       </div>
     </div>
 
-    <div v-if="clientInfo" class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+    <div v-if="clientInfo" class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
       <p class="text-xs font-bold text-primary uppercase tracking-wide mb-3">
         {{ t('smeProfile.summary.financials') }}
       </p>
@@ -99,7 +99,7 @@ function show(v) {
       </div>
     </div>
 
-    <div v-for="(sphere, si) in spheres" :key="si" class="bg-surface-container-lowest rounded-xl p-5 shadow-sm">
+    <div v-for="(sphere, si) in spheres" :key="si" class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
       <div class="flex items-center gap-3 mb-3">
         <span class="text-xs font-bold text-white bg-primary px-3 py-1 rounded-full">
           {{ t('smeProfile.fields.sphere') }} {{ sphere.sphere_number }}
@@ -122,54 +122,33 @@ function show(v) {
 
     <div
       v-if="submitError"
-      class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl p-4"
+      class="flex items-start gap-3 bg-red-50 border border-red-200 rounded-card p-4"
     >
       <AppIcon name="error" class="text-error mt-0.5 shrink-0" />
       <p class="text-sm text-error">{{ submitError }}</p>
     </div>
 
     <div class="flex gap-3">
-      <button class="sp-btn sp-btn--secondary flex-1" :disabled="submitting" @click="emit('back')">
+      <button
+        class="inline-flex items-center justify-center gap-2 flex-1 px-5 py-3 bg-surface-container text-on-surface border border-outline-variant rounded-btn text-sm font-semibold hover:bg-surface-container-high transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="submitting"
+        @click="emit('back')"
+      >
+        <AppIcon name="arrow_back" />
         {{ t('smeProfile.back') }}
       </button>
-      <button class="sp-btn sp-btn--primary flex-1" :disabled="submitting" @click="emit('submit')">
+      <button
+        class="inline-flex items-center justify-center gap-2 flex-1 px-5 py-3 bg-primary text-white rounded-btn text-sm font-semibold hover:bg-primary/90 active:scale-[0.99] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="submitting"
+        @click="emit('submit')"
+      >
+        <AppIcon v-if="!submitting" name="check_circle" />
+        <span
+          v-else
+          class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+        />
         {{ submitting ? t('smeProfile.submitting') : t('smeProfile.submit') }}
       </button>
     </div>
   </div>
 </template>
-
-<style scoped>
-.sp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: all 0.15s;
-  border: none;
-  cursor: pointer;
-}
-.sp-btn--primary {
-  background: rgb(var(--md-sys-color-primary) / 1);
-  color: white;
-}
-.sp-btn--primary:hover:not(:disabled) {
-  filter: brightness(1.05);
-}
-.sp-btn--secondary {
-  background: rgb(var(--md-sys-color-surface-container) / 1);
-  color: rgb(var(--md-sys-color-on-surface) / 1);
-  border: 1px solid rgb(var(--md-sys-color-outline-variant) / 1);
-}
-.sp-btn--secondary:hover:not(:disabled) {
-  background: rgb(var(--md-sys-color-surface-container-high) / 1);
-}
-.sp-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>
