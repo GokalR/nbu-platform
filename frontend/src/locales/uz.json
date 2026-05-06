@@ -16,7 +16,8 @@
     "signOut": "Chiqish",
     "soon": "tez kunda",
     "admin": "Admin panel",
-    "adminBadge": "ADMIN"
+    "adminBadge": "ADMIN",
+    "adminBusinessPlans": "Biznes-rejalar"
   },
   "common": {
     "details": "Batafsil tahlil",
@@ -856,6 +857,10 @@
     "title": "Biznes AI vositalari",
     "subtitle": "Tadbirkorlar uchun aqlli yordamchi vositalar toʻplami",
     "items": {
+      "businessPlan": {
+        "title": "KOB uchun Biznes-reja",
+        "desc": "Anketa toʻldirib, AI tomonidan tayyorlanadigan toʻliq biznes-reja: moliyaviy prognoz, jamoa, xatarlar va tavsiya etilgan NBU kreditlari."
+      },
       "fincontrol": {
         "title": "FinControl",
         "desc": "Bank koʻchirmalari asosida daromad, xarajat va pul oqimlarini avtomatik hisobga olish."
@@ -877,6 +882,223 @@
     "new": "Yangi",
     "inDevelopment": "Ishlab chiqilmoqda",
     "comingSoon": "Tez orada"
+  },
+  "businessPlan": {
+    "title": "KOB uchun Biznes-reja",
+    "subtitle": "Toʻldirilgan maʻlumotlar asosida AI tomonidan tayyorlanadigan biznes-reja",
+    "exit": "Chiqish",
+    "exitConfirm": "Anketadan chiqilsinmi? Kiritilgan maʻlumotlar yoʻqoladi.",
+    "steps": {
+      "orgType": "Tashkilot turi",
+      "founder": "Tashabbuskor maʻlumotlari",
+      "project": "Loyiha maʻlumotlari",
+      "assets": "Kerakli vositalar",
+      "products": "Mahsulot/Xizmat",
+      "team": "Xodimlar",
+      "utilities": "Kommunal xarajatlar",
+      "review": "Tekshirish",
+      "result": "Natija"
+    },
+    "orgTypes": {
+      "legal_entity": "Yuridik shaxs",
+      "individual": "Yakka tartibdagi tadbirkor"
+    },
+    "hints": {
+      "orgType": "Tashkilot shaklini tanlang.",
+      "products": "Loyihangiz ishlab chiqaradigan yoki taqdim etadigan asosiy mahsulot/xizmatlarni kiriting.",
+      "utilities": "Loyiha uchun oylik kommunal va boshqa doimiy xarajatlarni kiriting. Bu maʻlumotlar moliyaviy prognoz uchun muhim.",
+      "review": "Maʻlumotlaringizni tekshiring va biznes-rejani yarating."
+    },
+    "fields": {
+      "inn": "INN (9 raqam)",
+      "uniqueCode": "Unikal kod",
+      "name": "Tashkilot nomi",
+      "foundedDate": "Tashkil qilingan sana",
+      "address": "Manzil",
+      "mainActivity": "Asosiy faoliyat turi",
+      "founder": "Asoschisi",
+      "director": "Rahbar",
+      "charterCapital": "Ustav fondi (soʻm)",
+      "projectPurpose": "Loyiha maqsadi",
+      "projectLocation": "Faoliyat joyi",
+      "ownContribution": "Oʻz ulushi (soʻm)",
+      "loanAmount": "Kredit miqdori (soʻm)",
+      "totalValue": "Loyiha umumiy qiymati (soʻm)",
+      "startupMonths": "Ishga tushish muddati (oyda)",
+      "termMonths": "Kredit muddati (oy)",
+      "graceMonths": "Imtiyozli davri (oy)",
+      "interestRate": "Kredit stavkasi (%)",
+      "productName": "Mahsulot/Xizmat nomi",
+      "monthlyVolume": "Oylik ishlab chiqarish/koʻrsatish soni",
+      "unit": "Oʻlchov birligi",
+      "unitPrice": "Sotish narxi (1 dona uchun)",
+      "currency": "Valyuta",
+      "electricity": "Elektr energiyasi",
+      "gas": "Tabiiy gaz",
+      "water": "Ichimlik suvi va oqava"
+    },
+    "placeholders": {
+      "unit": "Masalan: dona, kg, soat",
+      "expenseName": "Xarajat nomi"
+    },
+    "sections": {
+      "projectDescription": "Loyiha tavsifi",
+      "financing": "Loyiha moliyasi",
+      "creditTerms": "Kredit shartlari",
+      "creditAssets": "Kredit hisobidan olinadigan asosiy vositalar",
+      "selfAssets": "Oʻz hisobidan olinadigan asosiy vositalar",
+      "utilitiesCalc": "Kommunal xizmatlar kalkulyatori",
+      "otherFixed": "Boshqa doimiy xarajatlar"
+    },
+    "cols": {
+      "name": "Nomi",
+      "qty": "Miqdori",
+      "unit": "Oʻlchov birligi",
+      "role": "Lavozim",
+      "count": "Soni",
+      "monthlySalary": "Oylik ish haqi (soʻm)",
+      "annualSalary": "Yillik ish haqi (soʻm)",
+      "total": "Jami"
+    },
+    "cards": {
+      "product": "Mahsulot / Xizmat"
+    },
+    "actions": {
+      "addAsset": "Vosita qoʻshish",
+      "addProduct": "Mahsulot qoʻshish",
+      "addEmployee": "Xodim qoʻshish",
+      "addExpense": "Xarajat qoʻshish",
+      "next": "Keyingisi",
+      "prev": "Oldingisi",
+      "generate": "Biznes-reja yaratish"
+    },
+    "units": {
+      "uzs": "soʻm",
+      "uzsPerMonth": "soʻm/oy",
+      "kwh": "kVt·soat",
+      "m3": "m³",
+      "months": "oy",
+      "monthAbbrev": "Oy"
+    },
+    "summary": {
+      "monthlyExpense": "Jami oylik xarajat:",
+      "annualExpense": "Jami yillik xarajat:"
+    },
+    "review": {
+      "org": "Tashkilot",
+      "loan": "Kredit",
+      "monthlyRevenue": "Oylik daromad",
+      "team": "Jamoa",
+      "people": "kishi",
+      "monthlyExpense": "Oylik xarajat",
+      "products": "Mahsulot/xizmat soni"
+    },
+    "loading": {
+      "title": "Biznes-reja tayyorlanmoqda...",
+      "hint": "AI sizning maʻlumotlaringizni tahlil qilmoqda. Bu 30-60 soniya davom etadi."
+    },
+    "errors": {
+      "noBackend": "Server bilan ulanish yoʻq. Iltimos, keyinroq qayta urinib koʻring.",
+      "generic": "Biznes-reja yaratishda xatolik yuz berdi. Iltimos, qayta urinib koʻring.",
+      "notFound": "Biznes-reja topilmadi."
+    },
+    "result": {
+      "title": "Biznes-reja",
+      "download": "HTML yuklab olish",
+      "newPlan": "Yangi reja yaratish",
+      "loading": "Yuklanmoqda...",
+      "retry": "Qayta urinish",
+      "feasibility": "Loyiha amalga oshirish reytingi",
+      "verdicts": { "high": "Yuqori", "medium": "Oʻrtacha", "low": "Past" },
+      "executiveSummary": "Qisqacha xulosa",
+      "marketContext": "Bozor konteksti",
+      "monthlyRevenue": "Oylik daromad",
+      "monthlyCosts": "Oylik xarajat",
+      "monthlyProfit": "Oylik foyda",
+      "breakeven": "Tenglik nuqtasi",
+      "grossMargin": "Yalpi marja",
+      "ebitda": "EBITDA marja",
+      "operations": "Ishlab chiqarish jarayoni",
+      "supplyChain": "Yetkazib berish",
+      "criticalDeps": "Asosiy bogʻliqliklar",
+      "team": "Jamoa",
+      "headcount": "Xodimlar soni",
+      "monthlyPayroll": "Oylik ish haqi",
+      "annualPayroll": "Yillik ish haqi",
+      "milestones": "Reja qadamlari",
+      "first90": "Birinchi 90 kun",
+      "first6": "6 oy ichida",
+      "first12": "12 oy ichida",
+      "risks": "Xatarlar",
+      "mitigation": "Yumshatish",
+      "kpis": "Asosiy koʻrsatkichlar (KPI)",
+      "kpiName": "Koʻrsatkich",
+      "kpiTarget": "Maqsad",
+      "kpiFreq": "Davriylik",
+      "recommendedProducts": "Tavsiya etilgan NBU kreditlari",
+      "recommendedHint": "Anketa maʻlumotlari asosida tanlangan eng mos NBU mahsulotlari",
+      "fit": "Mos kelish",
+      "rate": "Stavka",
+      "term": "Muddat",
+      "amount": "Summa",
+      "purpose": "Maqsad",
+      "nextSteps": "Keyingi qadamlar — bankka tayyor borish uchun"
+    },
+    "charts": {
+      "costStructure": "Xarajatlar tarkibi",
+      "expenseBreakdown": "Xarajatlar (oylik)",
+      "projection12m": "12 oylik prognoz: daromad, xarajat, foyda",
+      "revenue": "Daromad",
+      "costs": "Xarajat",
+      "profit": "Foyda"
+    },
+    "costs": {
+      "payroll": "Ish haqi",
+      "utilities": "Kommunal",
+      "rawMaterials": "Xom ashyo",
+      "loanPayment": "Kredit toʻlovi",
+      "rent": "Ijara",
+      "other": "Boshqa"
+    },
+    "riskTypes": {
+      "market": "Bozor",
+      "operational": "Operatsion",
+      "financial": "Moliyaviy",
+      "regulatory": "Tartibga soluvchi"
+    },
+    "severity": { "high": "Yuqori", "medium": "Oʻrtacha", "low": "Past" }
+  },
+  "businessPlanAdmin": {
+    "title": "Biznes-rejalar",
+    "subtitle": "Foydalanuvchilar tomonidan yaratilgan biznes-rejalarni koʻrish",
+    "empty": "Hozircha biznes-rejalar yoʻq.",
+    "anon": "(anonim)",
+    "view": "Koʻrish",
+    "viewAsUser": "Foydalanuvchi koʻzi bilan koʻrish",
+    "backToList": "Roʻyxatga qaytish",
+    "detailSubtitle": "Biznes-reja batafsil maʻlumotlari",
+    "summary": "Qisqacha xulosa",
+    "candidates": "Filtrlangan NBU kreditlari",
+    "candidatesHint": "Bu mahsulotlar kreditni Claude AI ga taklif sifatida yuborildi.",
+    "showInputs": "Foydalanuvchi kiritgan maʻlumotlarni koʻrsatish",
+    "hideInputs": "Maʻlumotlarni yashirish",
+    "statusOk": "Muvaffaqiyatli",
+    "statusError": "Xatolik",
+    "cols": {
+      "date": "Sana",
+      "org": "Tashkilot",
+      "type": "Tur",
+      "user": "Foydalanuvchi",
+      "lang": "Til",
+      "tokens": "Tokenlar",
+      "status": "Status",
+      "model": "Model"
+    },
+    "errors": {
+      "loadFailed": "Roʻyxatni yuklab boʻlmadi.",
+      "forbidden": "Bu sahifaga kirishga ruxsatingiz yoʻq.",
+      "notFound": "Topilmadi."
+    }
   },
   "footer": {
     "copyright": "© 2024 Oʻzbekiston Milliy Banki. Barcha huquqlar himoyalangan."

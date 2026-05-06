@@ -128,6 +128,30 @@ const routes = [
     meta: { layout: 'regionalStrategist', titleKey: 'nav.regionalStrategist' },
   },
   {
+    path: '/tools/business-plan',
+    name: 'business-plan-wizard',
+    component: () => import('@/views/businessPlan/BusinessPlanWizardView.vue'),
+    meta: { layout: 'blank', titleKey: 'businessPlan.title' },
+  },
+  {
+    path: '/tools/business-plan/result/:id',
+    name: 'business-plan-result',
+    component: () => import('@/views/businessPlan/BusinessPlanResultView.vue'),
+    meta: { layout: 'blank', titleKey: 'businessPlan.title' },
+  },
+  {
+    path: '/admin/business-plans',
+    name: 'admin-business-plans',
+    component: () => import('@/views/admin/BusinessPlanAdminListView.vue'),
+    meta: { titleKey: 'nav.admin', requiresAdmin: true },
+  },
+  {
+    path: '/admin/business-plans/:id',
+    name: 'admin-business-plan-detail',
+    component: () => import('@/views/admin/BusinessPlanAdminDetailView.vue'),
+    meta: { titleKey: 'nav.admin', requiresAdmin: true },
+  },
+  {
     path: '/admin/golden-mart',
     name: 'admin-golden-mart',
     component: () => import('@/views/admin/GmAdminTableView.vue'),

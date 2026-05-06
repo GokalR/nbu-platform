@@ -30,6 +30,7 @@ export const districts = [
 ]
 
 export const tools = [
+  { key: 'businessPlan', icon: 'description', accent: 'bg-primary', to: '/tools/business-plan', featured: true },
   { key: 'fincontrol', icon: 'account_balance_wallet', accent: 'bg-primary', comingSoon: true },
   { key: 'strategy', icon: 'rocket_launch', accent: 'bg-tertiary', to: '/tools/regional-strategist', featured: true },
   { key: 'forecast', icon: 'query_stats', accent: 'bg-primary', comingSoon: true },

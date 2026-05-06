@@ -18,15 +18,23 @@ const baseNavItems = [
   { to: '/education', icon: 'school', labelKey: 'nav.education' },
 ]
 
-const adminNavItem = {
-  to: '/admin/golden-mart',
-  icon: 'admin_panel_settings',
-  labelKey: 'nav.admin',
-  adminOnly: true,
-}
+const adminNavItems = [
+  {
+    to: '/admin/golden-mart',
+    icon: 'admin_panel_settings',
+    labelKey: 'nav.admin',
+    adminOnly: true,
+  },
+  {
+    to: '/admin/business-plans',
+    icon: 'description',
+    labelKey: 'nav.adminBusinessPlans',
+    adminOnly: true,
+  },
+]
 
 const navItems = computed(() =>
-  isAdmin.value ? [...baseNavItems, adminNavItem] : baseNavItems,
+  isAdmin.value ? [...baseNavItems, ...adminNavItems] : baseNavItems,
 )
 </script>
 

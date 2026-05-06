@@ -30,10 +30,14 @@ from .routes.rs_ref import router as rs_ref_router
 # Golden Mart (async)
 from .routes.gm import router as gm_router
 
+# Business Plan (sync)
+from .routes.business_plan import router as business_plan_router, admin_router as business_plan_admin_router
+
 # Register reference models so create_all() picks them up
 from . import models_analytics_ref  # noqa: F401
 from . import models_rs_ref  # noqa: F401
 from . import models_gm  # noqa: F401  — registers Golden Mart tables
+from . import models_business_plan  # noqa: F401  — registers business_plan_submissions
 from .auth import hash_password
 from .models_education import User
 
@@ -219,6 +223,10 @@ app.include_router(analytics_ref_router)
 
 # Golden Mart routes
 app.include_router(gm_router)
+
+# Business Plan routes (sync) — mounted directly (no /api/rs prefix; own prefix in router)
+app.include_router(business_plan_router)
+app.include_router(business_plan_admin_router)
 
 
 @app.get("/health", tags=["meta"])
