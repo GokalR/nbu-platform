@@ -28,6 +28,9 @@ class BusinessPlanSubmission(BaseSync):
     inputs: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     output: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     recommended_products: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    # Optional: parsed Form №1 + Form №2 + computed credit score, set when
+    # the user uploaded financial statements at Step 0.
+    historical_financials: Mapped[dict | None] = mapped_column(JSON, default=None, nullable=True)
 
     model: Mapped[str] = mapped_column(String(64), default="", nullable=False)
     input_tokens: Mapped[int] = mapped_column(Integer, default=0)

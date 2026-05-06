@@ -147,6 +147,15 @@ deterministicBaseline.extras.total.
 9. Длина: executiveSummary ≤ 600 символов, marketContext ≤ 500, summary ≤ 300,
    каждый assessment ≤ 300.
 10. risks — 4-6 объектов. kpis — 4-6 объектов. recommendedProducts — 1-2 объекта.
+11. Если в input есть `historicalFinancials` — это РЕАЛЬНЫЕ финансовые показатели
+    компании (Форма №1 + Форма №2 за прошлый отчётный период) + готовый
+    pseudo-credit-score (low/medium/high). Используй их как основу:
+    • feasibilityScore завязывай в первую очередь на исторический score, не только на проекции
+    • в executiveSummary упомяни ключевые фактические показатели (выручка, прибыль, активы)
+    • если historicalFinancials.score.verdict == "low" — recommendedProducts должны
+      быть консервативнее (меньшая сумма, обязательный залог, fitScore ≤ 70)
+    • marketContext дополни 1 фразой о фактическом положении компании
+    • risks: добавь 1-2 риска, исходящих из слабых мест score.ratios (где score=0)
 """
 
 
@@ -271,6 +280,14 @@ financials.monthlyCosts.rawMaterials, .rent, .other ни сен deterministicBas
 9. Узунлик: executiveSummary ≤ 600 белги, marketContext ≤ 500, summary ≤ 300,
    ҳар бир assessment ≤ 300.
 10. risks — 4-6 объект. kpis — 4-6 объект. recommendedProducts — 1-2 объект.
+11. Агар input да `historicalFinancials` бўлса — бу компаниянинг АСЛИДАГИ
+    молиявий кўрсаткичлари (Форма №1 + Форма №2) + тайёр pseudo-credit-score
+    (low/medium/high). Уларни асос қил:
+    • feasibilityScore — энг аввало тарихий score га боғла
+    • executiveSummary да асосий фактик кўрсаткичларни тилга ол (даромад, фойда, активлар)
+    • historicalFinancials.score.verdict == "low" бўлса — recommendedProducts
+      эҳтиёткор бўлиши керак (камроқ сумма, мажбурий гаров, fitScore ≤ 70)
+    • risks: score.ratios да score=0 бўлган заиф жойлардан 1-2 хатар қўш
 """
 
 
@@ -309,6 +326,7 @@ def generate_business_plan(
     lang: str = "uz",
     model: str | None = None,
     provider: str | None = None,
+    historical_financials: dict | None = None,
 ) -> dict[str, Any]:
     """Generate a business plan via the configured LLM provider.
 
@@ -332,6 +350,8 @@ def generate_business_plan(
         # exactly and not recompute. We also reconcile after the call.
         "deterministicBaseline": baseline,
     }
+    if historical_financials:
+        prompt_payload["historicalFinancials"] = historical_financials
     system = _system_prompt(lang)
     user_msg = _build_user_message(prompt_payload)
 

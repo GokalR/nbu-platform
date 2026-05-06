@@ -9,7 +9,10 @@ const { t, locale } = useI18n()
 const router = useRouter()
 
 // ---------------- form state ----------------
+// Step 0 — optional financial-statement upload. Steps 1..8 stay the same;
+// step 9 is the loading screen; STEP_KEYS[i] is the label key for step i.
 const STEP_KEYS = [
+  'financials',        // 0 (optional — Form №1 + Form №2 upload)
   'orgType',           // 1
   'founder',           // 2
   'project',           // 3
@@ -21,9 +24,54 @@ const STEP_KEYS = [
   'result',            // 9 (loading / submit)
 ]
 
-const step = ref(1)
+// Start at Step 0 — user can skip to Step 1 if they don't have statements yet.
+const step = ref(0)
 const submitting = ref(false)
 const submitError = ref('')
+
+// ---- Step 0: historical financials (Form №1 + Form №2) ----
+const balanceFile = ref(null)
+const pnlFile = ref(null)
+const financialsParsing = ref(false)
+const financialsError = ref('')
+const historicalFinancials = ref(null) // null = skipped or not parsed yet
+
+function onBalanceChosen(e) {
+  balanceFile.value = e.target.files?.[0] || null
+  financialsError.value = ''
+}
+function onPnlChosen(e) {
+  pnlFile.value = e.target.files?.[0] || null
+  financialsError.value = ''
+}
+
+async function parseFinancials() {
+  if (!balanceFile.value || !pnlFile.value) {
+    financialsError.value = t('businessPlan.financials.errors.bothRequired')
+    return
+  }
+  financialsParsing.value = true
+  financialsError.value = ''
+  const res = await businessPlanApi.parseExcel(balanceFile.value, pnlFile.value)
+  financialsParsing.value = false
+  if (!res.ok) {
+    financialsError.value = res.error || t('businessPlan.financials.errors.parseFailed')
+    return
+  }
+  historicalFinancials.value = res.data
+}
+
+function clearFinancials() {
+  historicalFinancials.value = null
+  balanceFile.value = null
+  pnlFile.value = null
+  financialsError.value = ''
+}
+
+function skipFinancials() {
+  historicalFinancials.value = null
+  step.value = 1
+}
 
 const form = reactive({
   organization: {
@@ -97,6 +145,9 @@ const monthlyRevenue = computed(() =>
 // ---------------- validation per step ----------------
 function isStepValid(s) {
   switch (s) {
+    case 0:
+      // Step 0 is always passable — upload is optional.
+      return true
     case 1:
       return ['legal_entity', 'individual'].includes(form.organization.type)
     case 2:
@@ -209,7 +260,7 @@ function fillTemplate() {
   step.value = 8 // jump straight to review
 }
 function prevStep() {
-  if (step.value > 1) step.value -= 1
+  if (step.value > 0) step.value -= 1
 }
 
 // ---------------- row helpers ----------------
@@ -270,6 +321,7 @@ async function submit() {
     products: cleanProducts,
     team: cleanTeam,
     utilities: { ...form.utilities, extras: cleanExtras },
+    historicalFinancials: historicalFinancials.value || null,
   }
 
   const res = await businessPlanApi.generate(payload)
@@ -335,8 +387,20 @@ function exitWizard() {
       <!-- left: stepper -->
       <aside class="bp-stepper">
         <ol>
+          <!-- Step 0 — optional financials -->
+          <li :class="['bp-step', `is-${stepStatus(0)}`, 'is-optional']">
+            <span class="bp-step-num">
+              <AppIcon v-if="stepStatus(0) === 'done'" name="check" />
+              <template v-else>0</template>
+            </span>
+            <span class="bp-step-label">
+              {{ t('businessPlan.steps.financials') }}
+              <small class="bp-step-optional">{{ t('businessPlan.optional') }}</small>
+            </span>
+          </li>
+          <!-- Steps 1..8 -->
           <li
-            v-for="(key, i) in STEP_KEYS.slice(0, 8)"
+            v-for="(key, i) in STEP_KEYS.slice(1, 9)"
             :key="key"
             :class="['bp-step', `is-${stepStatus(i + 1)}`]"
           >
@@ -355,6 +419,94 @@ function exitWizard() {
 
       <!-- right: panel -->
       <section class="bp-panel">
+        <!-- STEP 0: optional financial-statements upload -->
+        <div v-if="step === 0" class="bp-step-body">
+          <h2 class="bp-step-title">{{ t('businessPlan.financials.title') }}</h2>
+          <p class="bp-step-hint">{{ t('businessPlan.financials.hint') }}</p>
+
+          <!-- Empty state — no upload yet -->
+          <div v-if="!historicalFinancials" class="bp-fin-uploader">
+            <div class="bp-fin-row">
+              <label class="bp-fin-file">
+                <AppIcon name="upload_file" />
+                <span class="bp-fin-file-l">
+                  <strong>{{ t('businessPlan.financials.balanceLabel') }}</strong>
+                  <small>{{ balanceFile?.name || t('businessPlan.financials.chooseFile') }}</small>
+                </span>
+                <input type="file" accept=".xlsx" @change="onBalanceChosen" />
+              </label>
+            </div>
+            <div class="bp-fin-row">
+              <label class="bp-fin-file">
+                <AppIcon name="upload_file" />
+                <span class="bp-fin-file-l">
+                  <strong>{{ t('businessPlan.financials.pnlLabel') }}</strong>
+                  <small>{{ pnlFile?.name || t('businessPlan.financials.chooseFile') }}</small>
+                </span>
+                <input type="file" accept=".xlsx" @change="onPnlChosen" />
+              </label>
+            </div>
+
+            <p v-if="financialsError" class="bp-error">{{ financialsError }}</p>
+
+            <div class="bp-fin-actions">
+              <button
+                class="bp-btn bp-btn-primary"
+                :disabled="!balanceFile || !pnlFile || financialsParsing"
+                @click="parseFinancials"
+              >
+                <AppIcon v-if="!financialsParsing" name="bolt" />
+                <span v-else class="bp-mini-spinner"></span>
+                {{ financialsParsing ? t('businessPlan.financials.parsing') : t('businessPlan.financials.parse') }}
+              </button>
+              <button class="bp-btn bp-btn-secondary" @click="skipFinancials">
+                {{ t('businessPlan.financials.skip') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Parsed state — show the score + ratios -->
+          <div v-else class="bp-fin-result">
+            <div :class="['bp-verdict-banner', `is-${historicalFinancials.score.verdict}`]">
+              <div class="bp-verdict-tag">
+                {{ t(`businessPlan.financials.verdicts.${historicalFinancials.score.verdict}`) }}
+              </div>
+              <p class="bp-verdict-summary">{{ historicalFinancials.score.summary }}</p>
+              <div class="bp-verdict-meta">
+                {{ historicalFinancials.score.points }} / {{ historicalFinancials.score.maxPoints }}
+                ({{ historicalFinancials.score.percent }}%)
+              </div>
+            </div>
+
+            <h3 class="bp-section-h">{{ t('businessPlan.financials.ratiosHeader') }}</h3>
+            <table class="bp-fin-ratios">
+              <thead>
+                <tr>
+                  <th>{{ t('businessPlan.financials.cols.ratio') }}</th>
+                  <th class="num">{{ t('businessPlan.financials.cols.value') }}</th>
+                  <th>{{ t('businessPlan.financials.cols.benchmark') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(info, key) in historicalFinancials.score.ratios" :key="key">
+                  <td>{{ t(`businessPlan.financials.ratioNames.${key}`) }}</td>
+                  <td class="num">
+                    <span :class="['bp-fin-bullet', `s-${info.score}`]"></span>
+                    {{ info.value }}{{ info.unit }}
+                  </td>
+                  <td class="muted">{{ info.benchmark }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="bp-fin-actions">
+              <button class="bp-btn bp-btn-secondary" @click="clearFinancials">
+                {{ t('businessPlan.financials.replace') }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- STEP 1: org type -->
         <div v-if="step === 1" class="bp-step-body">
           <h2 class="bp-step-title">{{ t('businessPlan.steps.orgType') }}</h2>
@@ -758,7 +910,7 @@ function exitWizard() {
         <div v-if="step <= 8" class="bp-nav">
           <button
             class="bp-btn bp-btn-secondary"
-            :disabled="step === 1"
+            :disabled="step === 0"
             @click="prevStep"
           >
             <AppIcon name="arrow_back" />
@@ -1389,6 +1541,62 @@ function exitWizard() {
   background: #e2e8f0;
 }
 
+/* Step 0 — financials uploader */
+.bp-step.is-optional .bp-step-num { background: #fff; border: 1.5px dashed #94a3b8; color: #64748b; }
+.bp-step.is-optional.is-current .bp-step-num { border-color: #003d7c; color: #fff; background: #003d7c; }
+.bp-step.is-optional.is-done .bp-step-num { border: 0; }
+.bp-step-optional {
+  display: block; font-size: 10px; color: #94a3b8; font-weight: 500; margin-top: 1px;
+}
+
+.bp-fin-uploader { max-width: 600px; margin: 24px auto 0; display: flex; flex-direction: column; gap: 12px; }
+.bp-fin-row { width: 100%; }
+.bp-fin-file {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; border-radius: 12px;
+  border: 1.5px dashed #cbd5e1; background: #f8fafc;
+  cursor: pointer; transition: all 0.18s;
+}
+.bp-fin-file:hover { border-color: #003d7c; background: #f0f7ff; }
+.bp-fin-file input { display: none; }
+.bp-fin-file-l { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.bp-fin-file-l strong { color: #003d7c; font-size: 14px; font-weight: 700; }
+.bp-fin-file-l small { color: #64748b; font-size: 12px; }
+.bp-fin-actions { display: flex; gap: 10px; justify-content: center; margin-top: 8px; }
+.bp-mini-spinner {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+  animation: spin 0.7s linear infinite; display: inline-block;
+}
+
+.bp-fin-result { max-width: 720px; margin: 16px auto 0; }
+.bp-verdict-banner {
+  border-radius: 12px; padding: 18px 22px; color: #fff;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px 16px; align-items: center;
+}
+.bp-verdict-banner.is-high   { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+.bp-verdict-banner.is-medium { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+.bp-verdict-banner.is-low    { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); }
+.bp-verdict-banner .bp-verdict-tag {
+  background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.bp-verdict-banner .bp-verdict-summary { margin: 0; font-size: 14px; line-height: 1.5; grid-column: 1/-1; }
+.bp-verdict-banner .bp-verdict-meta { font-size: 13px; font-weight: 700; opacity: 0.9; }
+
+.bp-fin-ratios { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.bp-fin-ratios th { text-align: left; padding: 8px 12px; background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 0.5px; }
+.bp-fin-ratios th.num, .bp-fin-ratios td.num { text-align: right; }
+.bp-fin-ratios td { padding: 8px 12px; border-top: 1px solid #f1f5f9; }
+.bp-fin-ratios .muted { color: #64748b; font-size: 12px; }
+.bp-fin-bullet {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+  margin-right: 8px; vertical-align: middle;
+}
+.bp-fin-bullet.s-0 { background: #dc2626; }
+.bp-fin-bullet.s-1 { background: #d97706; }
+.bp-fin-bullet.s-2 { background: #16a34a; }
+
 @media (max-width: 900px) {
   .bp-main {
     grid-template-columns: 1fr;
@@ -1404,5 +1612,6 @@ function exitWizard() {
   .bp-review-grid {
     grid-template-columns: 1fr 1fr;
   }
+  .bp-verdict-banner { grid-template-columns: 1fr; }
 }
 </style>

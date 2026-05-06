@@ -37,6 +37,7 @@ const error = ref('')
 const plan = ref(null)
 const inputs = ref(null)
 const candidates = ref([])
+const historicalFinancials = ref(null)
 
 // Refs for chart canvases
 const expenseChartEl = ref(null)
@@ -60,6 +61,7 @@ async function load() {
       plan.value = parsed.output
       candidates.value = parsed.recommendedProductsCandidates || []
       inputs.value = parsed.inputs || null
+      historicalFinancials.value = parsed.inputs?.historicalFinancials || null
       loading.value = false
       await nextTick()
       drawCharts()
@@ -78,6 +80,7 @@ async function load() {
   plan.value = res.data.output
   candidates.value = res.data.recommendedProductsCandidates || []
   inputs.value = res.data.inputs || null
+  historicalFinancials.value = res.data.historicalFinancials || null
   loading.value = false
   await nextTick()
   drawCharts()
@@ -312,6 +315,40 @@ onMounted(load)
             </div>
           </div>
           <p class="bpr-verdict-summary">{{ plan.summary }}</p>
+        </section>
+
+        <!-- Historical financial scoring (only if user uploaded Form №1+№2 at Step 0) -->
+        <section v-if="historicalFinancials" class="bpr-section bpr-fin-section">
+          <h2><AppIcon name="account_balance_wallet" /> {{ t('businessPlan.result.historicalScoring') }}</h2>
+          <div :class="['bpr-fin-banner', `is-${historicalFinancials.score.verdict}`]">
+            <div class="bpr-fin-tag">
+              {{ t(`businessPlan.financials.verdicts.${historicalFinancials.score.verdict}`) }}
+            </div>
+            <div class="bpr-fin-points">
+              {{ historicalFinancials.score.points }} / {{ historicalFinancials.score.maxPoints }}
+              <small>({{ historicalFinancials.score.percent }}%)</small>
+            </div>
+            <p class="bpr-fin-summary">{{ historicalFinancials.score.summary }}</p>
+          </div>
+          <table class="bpr-fin-ratios">
+            <thead>
+              <tr>
+                <th>{{ t('businessPlan.financials.cols.ratio') }}</th>
+                <th class="num">{{ t('businessPlan.financials.cols.value') }}</th>
+                <th>{{ t('businessPlan.financials.cols.benchmark') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(info, key) in historicalFinancials.score.ratios" :key="key">
+                <td>{{ t(`businessPlan.financials.ratioNames.${key}`) }}</td>
+                <td class="num">
+                  <span :class="['bpr-fin-bullet', `s-${info.score}`]"></span>
+                  {{ info.value }}{{ info.unit }}
+                </td>
+                <td class="muted">{{ info.benchmark }}</td>
+              </tr>
+            </tbody>
+          </table>
         </section>
 
         <!-- Executive summary -->
@@ -875,6 +912,35 @@ onMounted(load)
 .bpr-btn-primary:hover { background: #00306a; }
 .bpr-btn-secondary { background: #f1f5f9; color: #475569; }
 .bpr-btn-secondary:hover { background: #e2e8f0; }
+
+/* Historical financial scoring */
+.bpr-fin-section .bpr-fin-banner {
+  border-radius: 12px; padding: 18px 22px; color: #fff;
+  display: grid; grid-template-columns: auto auto 1fr; gap: 12px 16px; align-items: center;
+  margin-bottom: 14px;
+}
+.bpr-fin-banner.is-high   { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+.bpr-fin-banner.is-medium { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+.bpr-fin-banner.is-low    { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); }
+.bpr-fin-tag {
+  background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.bpr-fin-points { font-size: 18px; font-weight: 800; }
+.bpr-fin-points small { font-size: 12px; opacity: 0.85; font-weight: 600; }
+.bpr-fin-summary { margin: 0; font-size: 14px; line-height: 1.5; grid-column: 1 / -1; }
+
+.bpr-fin-ratios { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bpr-fin-ratios th { text-align: left; padding: 10px 14px; background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 0.5px; }
+.bpr-fin-ratios th.num, .bpr-fin-ratios td.num { text-align: right; }
+.bpr-fin-ratios td { padding: 10px 14px; border-top: 1px solid #f1f5f9; color: #1e293b; }
+.bpr-fin-ratios .muted { color: #64748b; font-size: 12px; }
+.bpr-fin-bullet {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: middle;
+}
+.bpr-fin-bullet.s-0 { background: #dc2626; }
+.bpr-fin-bullet.s-1 { background: #d97706; }
+.bpr-fin-bullet.s-2 { background: #16a34a; }
 
 @media (max-width: 900px) {
   .bpr-metrics { grid-template-columns: 1fr 1fr; }

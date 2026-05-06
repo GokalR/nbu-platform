@@ -22,7 +22,12 @@ async function request(path, options = {}) {
   if (!isConfigured()) return { ok: false, reason: 'no-backend' }
   try {
     const auth = _authHeaders()
-    const headers = { 'Content-Type': 'application/json', ...auth, ...(options.headers || {}) }
+    // Don't override Content-Type when sending FormData — browser sets it
+    // with the boundary automatically.
+    const isFormData = options.body instanceof FormData
+    const headers = isFormData
+      ? { ...auth, ...(options.headers || {}) }
+      : { 'Content-Type': 'application/json', ...auth, ...(options.headers || {}) }
     const res = await fetch(`${BASE}${path}`, { ...options, headers })
     if (!res.ok) {
       const text = await res.text().catch(() => '')
@@ -58,6 +63,13 @@ export const businessPlanApi = {
     }),
 
   getPlan: (id) => request(`/business-plan/${id}`),
+
+  parseExcel: (balanceFile, pnlFile) => {
+    const fd = new FormData()
+    fd.append('balance', balanceFile)
+    fd.append('pnl', pnlFile)
+    return request('/business-plan/parse-excel', { method: 'POST', body: fd })
+  },
 
   // Admin
   adminList: () => request('/admin/business-plans'),

@@ -33,6 +33,12 @@ function viewAsUser() {
   // Cache the plan into sessionStorage and navigate to the result view, so the
   // admin can see exactly what the user saw (including charts).
   if (!detail.value) return
+  // Inject historicalFinancials into inputs so the result view picks it up
+  // from sessionStorage just like a fresh submission would.
+  const cachedInputs = {
+    ...(detail.value.inputs || {}),
+    historicalFinancials: detail.value.historicalFinancials || null,
+  }
   try {
     sessionStorage.setItem(
       `bp_${detail.value.id}`,
@@ -40,7 +46,7 @@ function viewAsUser() {
         id: detail.value.id,
         output: detail.value.output,
         recommendedProductsCandidates: detail.value.recommendedProductsCandidates,
-        inputs: detail.value.inputs,
+        inputs: cachedInputs,
       }),
     )
   } catch (_) {}
@@ -48,6 +54,7 @@ function viewAsUser() {
 }
 
 const candidatesList = computed(() => detail.value?.recommendedProductsCandidates || [])
+const histFin = computed(() => detail.value?.historicalFinancials || null)
 
 onMounted(load)
 </script>
@@ -102,6 +109,26 @@ onMounted(load)
           </span>
           · {{ detail.output.feasibilityScore || 0 }}/100
         </div>
+      </section>
+
+      <!-- historical financials (Step 0) -->
+      <section v-if="histFin" class="bp-admin-card">
+        <h3>{{ t('businessPlanAdmin.historicalFinancials') }}</h3>
+        <div :class="['bp-admin-fin-banner', `is-${histFin.score.verdict}`]">
+          <span>{{ t(`businessPlan.financials.verdicts.${histFin.score.verdict}`) }}</span>
+          <strong>{{ histFin.score.points }}/{{ histFin.score.maxPoints }} ({{ histFin.score.percent }}%)</strong>
+        </div>
+        <p class="muted">{{ histFin.score.summary }}</p>
+        <details>
+          <summary>{{ t('businessPlanAdmin.showRatios') }}</summary>
+          <ul class="bp-admin-list">
+            <li v-for="(info, key) in histFin.score.ratios" :key="key">
+              {{ t(`businessPlan.financials.ratioNames.${key}`) }}:
+              <strong>{{ info.value }}{{ info.unit }}</strong>
+              <span class="muted"> · {{ info.benchmark }}</span>
+            </li>
+          </ul>
+        </details>
       </section>
 
       <!-- recommended product candidates (input) -->
@@ -200,6 +227,19 @@ onMounted(load)
   display: inline-flex; align-items: center; gap: 6px;
   color: #003d7c; font-weight: 700; font-size: 14px; padding: 0;
 }
+.bp-admin-fin-banner {
+  display: inline-flex; gap: 12px; align-items: center;
+  padding: 6px 14px; border-radius: 20px; color: #fff;
+  font-size: 12px; font-weight: 700; margin: 0 0 8px 0;
+}
+.bp-admin-fin-banner.is-high { background: #16a34a; }
+.bp-admin-fin-banner.is-medium { background: #d97706; }
+.bp-admin-fin-banner.is-low { background: #dc2626; }
+.bp-admin-fin-banner span { text-transform: uppercase; letter-spacing: 0.5px; }
+.bp-admin-card details summary {
+  cursor: pointer; font-size: 13px; color: #003d7c; font-weight: 700; margin-top: 8px;
+}
+
 .bp-admin-json {
   background: #0f172a; color: #cbd5e1;
   padding: 16px; border-radius: 10px;

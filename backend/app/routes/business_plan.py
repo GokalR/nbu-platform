@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from ..config import get_settings
 from ..db_sync import get_db
 from ..models_business_plan import BusinessPlanSubmission
-from ..services import business_plan_client, nbu_products
+from ..services import business_plan_client, credit_scoring, excel_parser_msb, nbu_products
 
 log = logging.getLogger(__name__)
 settings = get_settings()
@@ -133,6 +133,9 @@ class GenerateRequest(BaseModel):
     products: list[ProductRow] = []
     team: list[TeamRow] = []
     utilities: UtilitiesIn = Field(default_factory=UtilitiesIn)
+    # Optional historical financials parsed from Form №1 + Form №2 in Step 0.
+    # Frontend posts back exactly what /parse-excel returned.
+    historicalFinancials: dict[str, Any] | None = None
 
 
 class GenerateResponse(BaseModel):
@@ -185,6 +188,7 @@ def generate(
         org_type=body.organization.type,
         inputs=inputs_dict,
         recommended_products=candidates,
+        historical_financials=body.historicalFinancials,
         model="",
     )
 
@@ -193,6 +197,7 @@ def generate(
             inputs=inputs_dict,
             candidate_products=candidates,
             lang=body.lang or "uz",
+            historical_financials=body.historicalFinancials,
         )
         rec.output = result["output"]
         # Stash provider in the model string so admin can see which LLM ran:
@@ -239,6 +244,50 @@ def get_plan(plan_id: str, db: Session = Depends(get_db)):
         "inputs": rec.inputs,
         "output": rec.output,
         "recommendedProductsCandidates": rec.recommended_products,
+        "historicalFinancials": rec.historical_financials,
+    }
+
+
+@router.post("/parse-excel")
+async def parse_excel(
+    balance: UploadFile = File(..., description="Form №1 — Бухгалтерский баланс (.xlsx)"),
+    pnl: UploadFile = File(..., description="Form №2 — Отчёт о финансовых результатах (.xlsx)"),
+    auth_payload: dict = Depends(_require_user),
+):
+    """Parse the standard Uzbek SME tax forms (Form №1 + Form №2) and
+    return extracted figures + computed credit-scoring ratios + verdict.
+
+    Stateless — does NOT save to DB. The frontend keeps the result and
+    posts it back as `historicalFinancials` in the /generate request when
+    the user submits the full plan.
+    """
+    if not balance.filename.endswith(".xlsx") or not pnl.filename.endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="Both files must be .xlsx")
+
+    balance_bytes = await balance.read()
+    pnl_bytes = await pnl.read()
+
+    if not balance_bytes or not pnl_bytes:
+        raise HTTPException(status_code=400, detail="Empty file uploaded")
+
+    try:
+        balance_data = excel_parser_msb.parse_balance(balance_bytes)
+    except Exception as e:
+        log.exception("Failed to parse balance sheet")
+        raise HTTPException(status_code=400, detail=f"Не удалось разобрать баланс (Форма №1): {e}")
+
+    try:
+        pnl_data = excel_parser_msb.parse_pnl(pnl_bytes)
+    except Exception as e:
+        log.exception("Failed to parse P&L")
+        raise HTTPException(status_code=400, detail=f"Не удалось разобрать отчёт о фин. результатах (Форма №2): {e}")
+
+    score = credit_scoring.compute_score(balance_data, pnl_data)
+
+    return {
+        "balance": {k: v for k, v in balance_data.items() if not k.startswith("_")},
+        "pnl": {k: v for k, v in pnl_data.items() if not k.startswith("_")},
+        "score": score,
     }
 
 
@@ -294,6 +343,7 @@ def admin_detail(
         "inputs": rec.inputs,
         "output": rec.output,
         "recommendedProductsCandidates": rec.recommended_products,
+        "historicalFinancials": rec.historical_financials,
         "model": rec.model,
         "inputTokens": rec.input_tokens,
         "outputTokens": rec.output_tokens,
