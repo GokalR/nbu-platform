@@ -37,7 +37,7 @@ const error = ref('')
 const plan = ref(null)
 const inputs = ref(null)
 const candidates = ref([])
-const historicalFinancials = ref(null)
+const creditScore = ref(null)
 
 // Refs for chart canvases
 const expenseChartEl = ref(null)
@@ -61,7 +61,7 @@ async function load() {
       plan.value = parsed.output
       candidates.value = parsed.recommendedProductsCandidates || []
       inputs.value = parsed.inputs || null
-      historicalFinancials.value = parsed.inputs?.historicalFinancials || null
+      creditScore.value = parsed.creditScore || null
       loading.value = false
       await nextTick()
       drawCharts()
@@ -80,7 +80,7 @@ async function load() {
   plan.value = res.data.output
   candidates.value = res.data.recommendedProductsCandidates || []
   inputs.value = res.data.inputs || null
-  historicalFinancials.value = res.data.historicalFinancials || null
+  creditScore.value = res.data.creditScore || null
   loading.value = false
   await nextTick()
   drawCharts()
@@ -317,30 +317,30 @@ onMounted(load)
           <p class="bpr-verdict-summary">{{ plan.summary }}</p>
         </section>
 
-        <!-- Historical financial scoring (only if user uploaded Form №1+№2 at Step 0) -->
-        <section v-if="historicalFinancials" class="bpr-section bpr-fin-section">
-          <h2><AppIcon name="account_balance_wallet" /> {{ t('businessPlan.result.historicalScoring') }}</h2>
-          <div :class="['bpr-fin-banner', `is-${historicalFinancials.score.verdict}`]">
+        <!-- Credit scoring — computed from anketa inputs at submit time -->
+        <section v-if="creditScore" class="bpr-section bpr-fin-section">
+          <h2><AppIcon name="account_balance_wallet" /> {{ t('businessPlan.result.creditScoring') }}</h2>
+          <div :class="['bpr-fin-banner', `is-${creditScore.verdict}`]">
             <div class="bpr-fin-tag">
-              {{ t(`businessPlan.financials.verdicts.${historicalFinancials.score.verdict}`) }}
+              {{ t(`businessPlan.scoring.verdicts.${creditScore.verdict}`) }}
             </div>
             <div class="bpr-fin-points">
-              {{ historicalFinancials.score.points }} / {{ historicalFinancials.score.maxPoints }}
-              <small>({{ historicalFinancials.score.percent }}%)</small>
+              {{ creditScore.points }} / {{ creditScore.maxPoints }}
+              <small>({{ creditScore.percent }}%)</small>
             </div>
-            <p class="bpr-fin-summary">{{ historicalFinancials.score.summary }}</p>
+            <p class="bpr-fin-summary">{{ creditScore.summary }}</p>
           </div>
           <table class="bpr-fin-ratios">
             <thead>
               <tr>
-                <th>{{ t('businessPlan.financials.cols.ratio') }}</th>
-                <th class="num">{{ t('businessPlan.financials.cols.value') }}</th>
-                <th>{{ t('businessPlan.financials.cols.benchmark') }}</th>
+                <th>{{ t('businessPlan.scoring.cols.ratio') }}</th>
+                <th class="num">{{ t('businessPlan.scoring.cols.value') }}</th>
+                <th>{{ t('businessPlan.scoring.cols.benchmark') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(info, key) in historicalFinancials.score.ratios" :key="key">
-                <td>{{ t(`businessPlan.financials.ratioNames.${key}`) }}</td>
+              <tr v-for="(info, key) in creditScore.ratios" :key="key">
+                <td>{{ t(`businessPlan.scoring.ratioNames.${key}`) }}</td>
                 <td class="num">
                   <span :class="['bpr-fin-bullet', `s-${info.score}`]"></span>
                   {{ info.value }}{{ info.unit }}

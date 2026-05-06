@@ -33,12 +33,8 @@ function viewAsUser() {
   // Cache the plan into sessionStorage and navigate to the result view, so the
   // admin can see exactly what the user saw (including charts).
   if (!detail.value) return
-  // Inject historicalFinancials into inputs so the result view picks it up
-  // from sessionStorage just like a fresh submission would.
-  const cachedInputs = {
-    ...(detail.value.inputs || {}),
-    historicalFinancials: detail.value.historicalFinancials || null,
-  }
+  // Cache the same blob shape the result view expects, so admin sees
+  // exactly what the user saw (output + creditScore + inputs).
   try {
     sessionStorage.setItem(
       `bp_${detail.value.id}`,
@@ -46,7 +42,8 @@ function viewAsUser() {
         id: detail.value.id,
         output: detail.value.output,
         recommendedProductsCandidates: detail.value.recommendedProductsCandidates,
-        inputs: cachedInputs,
+        creditScore: detail.value.creditScore || null,
+        inputs: detail.value.inputs || {},
       }),
     )
   } catch (_) {}
@@ -54,7 +51,7 @@ function viewAsUser() {
 }
 
 const candidatesList = computed(() => detail.value?.recommendedProductsCandidates || [])
-const histFin = computed(() => detail.value?.historicalFinancials || null)
+const creditScore = computed(() => detail.value?.creditScore || null)
 
 onMounted(load)
 </script>
@@ -111,19 +108,19 @@ onMounted(load)
         </div>
       </section>
 
-      <!-- historical financials (Step 0) -->
-      <section v-if="histFin" class="bp-admin-card">
-        <h3>{{ t('businessPlanAdmin.historicalFinancials') }}</h3>
-        <div :class="['bp-admin-fin-banner', `is-${histFin.score.verdict}`]">
-          <span>{{ t(`businessPlan.financials.verdicts.${histFin.score.verdict}`) }}</span>
-          <strong>{{ histFin.score.points }}/{{ histFin.score.maxPoints }} ({{ histFin.score.percent }}%)</strong>
+      <!-- credit scoring -->
+      <section v-if="creditScore" class="bp-admin-card">
+        <h3>{{ t('businessPlanAdmin.creditScoring') }}</h3>
+        <div :class="['bp-admin-fin-banner', `is-${creditScore.verdict}`]">
+          <span>{{ t(`businessPlan.scoring.verdicts.${creditScore.verdict}`) }}</span>
+          <strong>{{ creditScore.points }}/{{ creditScore.maxPoints }} ({{ creditScore.percent }}%)</strong>
         </div>
-        <p class="muted">{{ histFin.score.summary }}</p>
+        <p class="muted">{{ creditScore.summary }}</p>
         <details>
           <summary>{{ t('businessPlanAdmin.showRatios') }}</summary>
           <ul class="bp-admin-list">
-            <li v-for="(info, key) in histFin.score.ratios" :key="key">
-              {{ t(`businessPlan.financials.ratioNames.${key}`) }}:
+            <li v-for="(info, key) in creditScore.ratios" :key="key">
+              {{ t(`businessPlan.scoring.ratioNames.${key}`) }}:
               <strong>{{ info.value }}{{ info.unit }}</strong>
               <span class="muted"> · {{ info.benchmark }}</span>
             </li>

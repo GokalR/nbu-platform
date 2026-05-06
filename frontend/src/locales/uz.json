@@ -888,36 +888,11 @@
     "subtitle": "Toʻldirilgan maʻlumotlar asosida AI tomonidan tayyorlanadigan biznes-reja",
     "exit": "Chiqish",
     "exitConfirm": "Anketadan chiqilsinmi? Kiritilgan maʻlumotlar yoʻqoladi.",
-    "optional": "ixtiyoriy",
-    "financials": {
-      "title": "Moliyaviy hisobotlar",
-      "hint": "Agar sizda jorij yil oxiriga 1-shakl (Buxgalteriya balansi) va 2-shakl (Moliyaviy natijalar haqida hisobot) bor boʻlsa — yuklang. Platforma sizning kredit reytingingizni avtomatik baholaydi va biznes-rejani sizning haqiqiy moliyaviy holatingiz asosida tayyorlaydi.",
-      "balanceLabel": "1-shakl — Buxgalteriya balansi",
-      "pnlLabel": "2-shakl — Moliyaviy natijalar haqida hisobot",
-      "chooseFile": "Fayl tanlang (.xlsx)",
-      "parse": "Tahlil qilish",
-      "parsing": "Tahlil qilinmoqda…",
-      "skip": "Oʻtkazib yuborish",
-      "replace": "Boshqa fayl yuklash",
-      "ratiosHeader": "Asosiy moliyaviy koʻrsatkichlar",
-      "extractedHeader": "Olingan maʻlumotlar",
-      "parsed": "Fayllar muvaffaqiyatli tahlil qilindi",
-      "scoreLater": "Kredit skoring oxirgi qadamda hisoblanadi — bu maʻlumotlar va loyiha parametrlari (kredit miqdori, muddat, oʻz hissangiz) asosida.",
-      "figures": {
-        "revenue": "Daromad (oxirgi davr)",
-        "netProfit": "Sof foyda",
-        "totalAssets": "Aktivlar",
-        "equity": "Oʻz kapitali",
-        "totalLiabilities": "Majburiyatlar"
-      },
-      "groups": {
-        "historical": "Tarixiy hisobot",
-        "project": "Loyiha vs tarix"
-      },
+    "scoring": {
       "verdicts": {
-        "high": "Yuqori kredit reytingi",
-        "medium": "Oʻrta kredit reytingi",
-        "low": "Past kredit reytingi"
+        "high": "Yuqori kreditga layoqatlilik",
+        "medium": "Oʻrtacha kreditga layoqatlilik",
+        "low": "Past kreditga layoqatlilik"
       },
       "cols": {
         "ratio": "Koʻrsatkich",
@@ -925,25 +900,17 @@
         "benchmark": "Mezon"
       },
       "ratioNames": {
-        "grossMargin": "Yalpi marja",
         "operatingMargin": "Operatsion marja",
         "netMargin": "Sof marja",
-        "roa": "ROA (aktivlar rentabelligi)",
-        "currentRatio": "Joriy likvidlik",
-        "quickRatio": "Tez likvidlik",
-        "debtToEquity": "Qarz / kapital",
-        "assetTurnover": "Aktivlar aylanmasi",
-        "loanToRevenue": "Kredit / daromad",
+        "costToRevenue": "Xarajat / daromad",
+        "projectEquity": "Loyihada oʻz ulush",
+        "loanToRevenue": "Kredit / yillik daromad",
         "dscr": "Toʻlovlar qoplanishi (DSCR)",
-        "projectEquity": "Loyihada oʻz ulush"
-      },
-      "errors": {
-        "bothRequired": "Ikkala faylni ham yuklang.",
-        "parseFailed": "Faylni tahlil qilishda xatolik."
+        "paybackYears": "Qaytarilish muddati",
+        "businessAge": "Biznes yoshi"
       }
     },
     "steps": {
-      "financials": "Moliyaviy hisobotlar",
       "orgType": "Tashkilot turi",
       "founder": "Tashabbuskor maʻlumotlari",
       "project": "Loyiha maʻlumotlari",
@@ -1103,7 +1070,7 @@
       "amount": "Summa",
       "purpose": "Maqsad",
       "nextSteps": "Keyingi qadamlar — bankka tayyor borish uchun",
-      "historicalScoring": "Moliyaviy skoring (1-shakl + 2-shakl asosida)"
+      "creditScoring": "Kredit skoring (anketa maʻlumotlari asosida)"
     },
     "charts": {
       "costStructure": "Xarajatlar tarkibi",
@@ -1141,7 +1108,7 @@
     "summary": "Qisqacha xulosa",
     "candidates": "Filtrlangan NBU kreditlari",
     "candidatesHint": "Bu mahsulotlar kreditni Claude AI ga taklif sifatida yuborildi.",
-    "historicalFinancials": "Moliyaviy hisobotlar (0-qadam)",
+    "creditScoring": "Kredit skoring",
     "showRatios": "Koeffitsientlarni koʻrsatish",
     "showInputs": "Foydalanuvchi kiritgan maʻlumotlarni koʻrsatish",
     "hideInputs": "Maʻlumotlarni yashirish",

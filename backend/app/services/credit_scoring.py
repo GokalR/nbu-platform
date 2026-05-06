@@ -222,7 +222,159 @@ _PRETTY = {
     "loanToRevenue": "кредит/выручка",
     "dscr": "покрытие платежей (DSCR)",
     "projectEquity": "доля собственных в проекте",
+    "costToRevenue": "расходы/выручка",
+    "paybackYears": "срок окупаемости",
+    "businessAge": "возраст бизнеса",
 }
+
+
+# ============================================================================
+# Wizard-only scoring (no Excel) — used in current product flow.
+# ============================================================================
+
+def compute_wizard_score(inputs: dict, baseline: dict) -> dict[str, Any]:
+    """Pseudo credit verdict computed purely from the wizard inputs +
+    deterministic baseline. No historical statements required.
+
+    8 ratios across 4 groups, max 16 points. Bins:
+      ≥75% = high, ≥45% = medium, otherwise low.
+    """
+    project = inputs.get("project") or {}
+    organization = inputs.get("organization") or {}
+
+    monthly_revenue = (baseline.get("revenue") or {}).get("monthlyRevenueUzs", 0)
+    annual_revenue = monthly_revenue * 12
+
+    # Operating costs = payroll + utilities + free-form extras (rent / materials / …)
+    payroll = (baseline.get("team") or {}).get("monthlyPayroll", 0)
+    util = (baseline.get("utilities") or {}).get("total", 0)
+    extras_total = (baseline.get("extras") or {}).get("total", 0)
+    monthly_op_costs = payroll + util + extras_total
+
+    avg_loan_pmt = (baseline.get("loan") or {}).get("avgMonthlyPaymentFirst12m", 0)
+    annual_loan_payment = avg_loan_pmt * 12
+
+    monthly_total_costs = monthly_op_costs + avg_loan_pmt
+    monthly_op_profit = monthly_revenue - monthly_op_costs
+    monthly_net_profit = monthly_revenue - monthly_total_costs
+
+    loan_amount = float(project.get("loanAmount") or 0)
+    own_contribution = float(project.get("ownContribution") or 0)
+    total_value = float(project.get("totalValue") or 0) or (loan_amount + own_contribution)
+
+    # ---------- Ratios ----------
+    # 1. Operating margin (before loan service)
+    op_margin = _safe_div(monthly_op_profit, monthly_revenue) * 100
+
+    # 2. Net margin (after loan service)
+    net_margin = _safe_div(monthly_net_profit, monthly_revenue) * 100
+
+    # 3. Cost-to-revenue (lower better)
+    cost_ratio = _safe_div(monthly_total_costs, monthly_revenue) * 100
+
+    # 4. Project equity ratio
+    equity_pct = _safe_div(own_contribution, total_value) * 100
+
+    # 5. Loan-to-annual-revenue (lower better)
+    loan_to_rev = _safe_div(loan_amount, annual_revenue) if annual_revenue else 99.0
+
+    # 6. DSCR (debt service coverage)
+    dscr = _safe_div(monthly_op_profit * 12, annual_loan_payment) if annual_loan_payment else 0.0
+
+    # 7. Payback period (years) — lower better
+    annual_net_profit = monthly_net_profit * 12
+    payback_years = _safe_div(loan_amount, annual_net_profit) if annual_net_profit > 0 else 99.0
+
+    # 8. Business age in years (from foundedDate)
+    business_age_years = _years_since(organization.get("foundedDate"))
+
+    ratios: dict[str, dict[str, Any]] = {
+        "operatingMargin": {
+            "value": round(op_margin, 1), "unit": "%", "group": "profitability",
+            "benchmark": "≥15% хорошо, 5–15% средне, <5% слабо",
+            "score": _bin(op_margin, 5, 15),
+        },
+        "netMargin": {
+            "value": round(net_margin, 1), "unit": "%", "group": "profitability",
+            "benchmark": "≥7% хорошо, 1–7% средне, <1% слабо",
+            "score": _bin(net_margin, 1, 7),
+        },
+        "costToRevenue": {
+            "value": round(cost_ratio, 1), "unit": "%", "group": "efficiency",
+            "benchmark": "≤70% хорошо, 70–90% средне, >90% слабо",
+            "score": _bin_lower_better(cost_ratio, 70, 90),
+        },
+        "projectEquity": {
+            "value": round(equity_pct, 1), "unit": "%", "group": "structure",
+            "benchmark": "≥30% хорошо, 15–30% средне, <15% слабо",
+            "score": _bin(equity_pct, 15, 30),
+        },
+        "loanToRevenue": {
+            "value": round(loan_to_rev, 2), "unit": "x", "group": "structure",
+            "benchmark": "≤0.5 хорошо, 0.5–1.5 средне, >1.5 слабо",
+            "score": _bin_lower_better(loan_to_rev, 0.5, 1.5),
+        },
+        "dscr": {
+            "value": round(dscr, 2), "unit": "x", "group": "debtCapacity",
+            "benchmark": "≥1.3 хорошо, 1.0–1.3 средне, <1.0 слабо",
+            "score": _bin(dscr, 1.0, 1.3),
+        },
+        "paybackYears": {
+            "value": round(payback_years, 1), "unit": "лет", "group": "debtCapacity",
+            "benchmark": "≤3 года хорошо, 3–7 лет средне, >7 слабо",
+            "score": _bin_lower_better(payback_years, 3, 7),
+        },
+        "businessAge": {
+            "value": round(business_age_years, 1), "unit": "лет", "group": "trackRecord",
+            "benchmark": "≥3 года хорошо, 1–3 года средне, <1 года слабо",
+            "score": _bin(business_age_years, 1, 3),
+        },
+    }
+
+    points = sum(r["score"] for r in ratios.values())
+    max_points = len(ratios) * 2
+
+    pct = points / max_points if max_points else 0
+    if pct >= 0.75:
+        verdict = "high"
+    elif pct >= 0.45:
+        verdict = "medium"
+    else:
+        verdict = "low"
+
+    # Edge case: revenue = 0 → all profitability ratios are 0, verdict
+    # would be "low" but for the wrong reason. Flag explicitly.
+    if monthly_revenue == 0:
+        verdict = "low"
+        summary = (
+            "Скоринг невозможен: проектная выручка равна нулю. "
+            "Заполните раздел «Продукт/Услуга» в анкете."
+        )
+    else:
+        summary = _build_summary(verdict, ratios, points, max_points)
+
+    return {
+        "ratios": ratios,
+        "points": points,
+        "maxPoints": max_points,
+        "percent": round(pct * 100, 1),
+        "verdict": verdict,
+        "summary": summary,
+    }
+
+
+def _years_since(date_str: str | None) -> float:
+    """Years between foundedDate (ISO string YYYY-MM-DD) and now."""
+    if not date_str:
+        return 0.0
+    from datetime import date
+    try:
+        y, m, d = (int(x) for x in date_str.split("-")[:3])
+        founded = date(y, m, d)
+    except (ValueError, AttributeError):
+        return 0.0
+    today = date.today()
+    return (today - founded).days / 365.25
 
 
 def _pretty(k: str) -> str:

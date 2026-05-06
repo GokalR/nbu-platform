@@ -133,15 +133,13 @@ class GenerateRequest(BaseModel):
     products: list[ProductRow] = []
     team: list[TeamRow] = []
     utilities: UtilitiesIn = Field(default_factory=UtilitiesIn)
-    # Optional historical financials parsed from Form №1 + Form №2 in Step 0.
-    # Frontend posts back exactly what /parse-excel returned.
-    historicalFinancials: dict[str, Any] | None = None
 
 
 class GenerateResponse(BaseModel):
     id: str
     output: dict[str, Any]
     recommendedProductsCandidates: list[dict[str, Any]]
+    creditScore: dict[str, Any] | None = None
 
 
 class AdminListItem(BaseModel):
@@ -181,24 +179,15 @@ def generate(
         top_n=3,
     )
 
-    # Pre-compute deterministic baseline so we can use it both for credit
-    # scoring (below) and pass it to the LLM (avoid double-computation).
+    # Pre-compute deterministic baseline (ФОТ, utilities, loan annuity, etc.)
+    # — used both for credit scoring and for the LLM prompt.
     from ..services import business_plan_compute as bpc
     baseline = bpc.compute_baseline(inputs_dict)
 
-    # If user uploaded financials at Step 0, run combined scoring NOW
-    # (Excel ratios + project-vs-history ratios — DSCR, loan/revenue,
-    # equity-in-project) and attach to the historicalFinancials object.
-    historical_financials = body.historicalFinancials
-    if historical_financials and historical_financials.get("balance"):
-        score = credit_scoring.compute_score(
-            historical_financials.get("balance") or {},
-            historical_financials.get("pnl") or {},
-            baseline=baseline,
-            inputs=inputs_dict,
-        )
-        # Mutate-in-place so the saved row + LLM prompt both have the score.
-        historical_financials = {**historical_financials, "score": score}
+    # Always run wizard-only credit scoring. No Excel uploads — purely
+    # derived from anketa inputs (revenue projection, costs, loan terms,
+    # equity contribution, business age).
+    credit_score = credit_scoring.compute_wizard_score(inputs_dict, baseline)
 
     rec = BusinessPlanSubmission(
         user_email=user_email,
@@ -207,7 +196,9 @@ def generate(
         org_type=body.organization.type,
         inputs=inputs_dict,
         recommended_products=candidates,
-        historical_financials=historical_financials,
+        # Reuse the existing historical_financials JSONB column to store
+        # the credit score blob — no DB migration needed.
+        historical_financials=credit_score,
         model="",
     )
 
@@ -216,7 +207,7 @@ def generate(
             inputs=inputs_dict,
             candidate_products=candidates,
             lang=body.lang or "uz",
-            historical_financials=historical_financials,
+            historical_financials={"score": credit_score},
             baseline=baseline,
         )
         rec.output = result["output"]
@@ -248,6 +239,7 @@ def generate(
         id=rec.id,
         output=rec.output,
         recommendedProductsCandidates=rec.recommended_products,
+        creditScore=credit_score,
     )
 
 
@@ -264,7 +256,7 @@ def get_plan(plan_id: str, db: Session = Depends(get_db)):
         "inputs": rec.inputs,
         "output": rec.output,
         "recommendedProductsCandidates": rec.recommended_products,
-        "historicalFinancials": rec.historical_financials,
+        "creditScore": rec.historical_financials,  # column re-purposed; see generate()
     }
 
 
@@ -373,7 +365,7 @@ def admin_detail(
         "inputs": rec.inputs,
         "output": rec.output,
         "recommendedProductsCandidates": rec.recommended_products,
-        "historicalFinancials": rec.historical_financials,
+        "creditScore": rec.historical_financials,
         "model": rec.model,
         "inputTokens": rec.input_tokens,
         "outputTokens": rec.output_tokens,
