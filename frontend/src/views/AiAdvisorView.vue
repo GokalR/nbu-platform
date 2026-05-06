@@ -6,8 +6,6 @@ import { BACKEND_URL } from '@/services/api'
 
 const { t } = useI18n()
 
-const region = ref("Farg'ona")
-const district = ref("Marg'ilon")
 const input = ref('')
 const messagesContainer = ref(null)
 
@@ -140,37 +138,9 @@ function ask(key) {
 
 <template>
   <section class="flex flex-col h-[calc(100vh-7rem)] p-6 lg:p-8 gap-6">
-    <header
-      class="bg-surface-container-low p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
-    >
-      <div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-primary">{{ t('ai.title') }}</h1>
-        <p class="text-on-surface-variant text-sm mt-1">{{ t('ai.subtitle') }}</p>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex flex-col gap-1">
-          <label class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">
-            {{ t('ai.region') }}
-          </label>
-          <div
-            class="bg-surface-container-highest px-4 py-2 rounded-lg flex items-center gap-2 min-w-[160px]"
-          >
-            <AppIcon name="location_on" class="text-sm text-primary" />
-            <span class="text-sm font-semibold">{{ region }}</span>
-          </div>
-        </div>
-        <div class="flex flex-col gap-1">
-          <label class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">
-            {{ t('ai.districtLabel') }}
-          </label>
-          <div
-            class="bg-surface-container-highest px-4 py-2 rounded-lg flex items-center gap-2 min-w-[160px]"
-          >
-            <AppIcon name="apartment" class="text-sm text-primary" />
-            <span class="text-sm font-semibold">{{ district }}</span>
-          </div>
-        </div>
-      </div>
+    <header class="bg-surface-container-low p-6 rounded-xl">
+      <h1 class="text-3xl font-extrabold tracking-tight text-primary">{{ t('ai.title') }}</h1>
+      <p class="text-on-surface-variant text-sm mt-1">{{ t('ai.subtitle') }}</p>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 overflow-hidden">
