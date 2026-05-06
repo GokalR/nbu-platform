@@ -151,6 +151,63 @@ function nextStep() {
   if (step.value < 8) step.value += 1
   else if (step.value === 8) submit()
 }
+
+// Quick-test template: a realistic bakery in Tashkent. One click fills the
+// whole form so you can skip to the review step and submit immediately.
+function fillTemplate() {
+  Object.assign(form.organization, {
+    type: 'legal_entity',
+    inn: '126156934',
+    uniqueCode: '2395',
+    name: 'Issiq Non Ishlab Chiqarish',
+    address: 'Toshkent shahri, Yunusobod tumani, A. Temur ko‘chasi 115',
+    foundedDate: '2024-04-07',
+    mainActivity: 'Non mahsulotlarini ishlab chiqarish',
+    founder: "Muhsinov Alisher Azizbek o'g'li",
+    director: 'Muhsinov Alisher',
+    charterCapital: 50_000_000,
+  })
+  Object.assign(form.project, {
+    purpose: 'Oylik 85 000 dona quvvatga ega non zavodini ochish',
+    location: 'Toshkent shahri, Yunusobod tumani',
+    ownContribution: 50_000_000,
+    loanAmount: 250_000_000,
+    totalValue: 300_000_000,
+    startupMonths: 3,
+    termMonths: 36,
+    graceMonths: 6,
+    interestRate: 24,
+  })
+  form.assets.creditFinanced = [
+    { name: 'Non pishirish pechi (o‘rta hajmli)', qty: 2, unit: 'dona' },
+    { name: 'Xamir qoruvchi mashina (50 kg)', qty: 2, unit: 'dona' },
+    { name: 'Xamir achitish shkafi', qty: 1, unit: 'dona' },
+    { name: 'Non qoliplari', qty: 2000, unit: 'dona' },
+  ]
+  form.assets.selfFinanced = [
+    { name: 'Yetkazib berish furgon', qty: 1, unit: 'dona' },
+  ]
+  form.products = [
+    { name: '1-navli non', monthlyVolume: 35_000, unit: 'dona', price: 3950, currency: 'UZS' },
+    { name: '2-navli non', monthlyVolume: 50_000, unit: 'dona', price: 3500, currency: 'UZS' },
+  ]
+  form.team = [
+    { role: 'Nonvoy', count: 8, salary: 5_500_000 },
+    { role: 'Yuk tashuvchi-haydovchi', count: 3, salary: 4_000_000 },
+    { role: 'Buxgalter', count: 1, salary: 6_000_000 },
+    { role: 'Sotuv menejeri', count: 1, salary: 7_000_000 },
+  ]
+  Object.assign(form.utilities, {
+    electricityKwh: 2300,
+    gasM3: 4000,
+    waterM3: 2000,
+  })
+  form.utilities.extras = [
+    { name: 'Ijara haqi', amount: 8_000_000 },
+    { name: 'Un va tarkibiy mahsulotlar', amount: 120_000_000 },
+  ]
+  step.value = 8 // jump straight to review
+}
 function prevStep() {
   if (step.value > 1) step.value -= 1
 }
@@ -316,6 +373,20 @@ function exitWizard() {
             >
               <AppIcon name="person" />
               {{ t('businessPlan.orgTypes.individual') }}
+            </button>
+          </div>
+
+          <!-- Quick-test template -->
+          <div class="bp-template">
+            <div class="bp-template-divider">
+              <span>{{ t('businessPlan.template.or') }}</span>
+            </div>
+            <button class="bp-template-btn" @click="fillTemplate">
+              <AppIcon name="auto_fix_high" />
+              <span>
+                <strong>{{ t('businessPlan.template.title') }}</strong>
+                <small>{{ t('businessPlan.template.subtitle') }}</small>
+              </span>
             </button>
           </div>
         </div>
@@ -919,6 +990,56 @@ function exitWizard() {
   color: #fff;
   border-color: #003d7c;
 }
+
+/* Quick-test template button */
+.bp-template {
+  max-width: 480px;
+  margin: 32px auto 0;
+}
+.bp-template-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+.bp-template-divider::before,
+.bp-template-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+.bp-template-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1.5px dashed #003d7c;
+  background: #f0f7ff;
+  color: #003d7c;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.18s;
+}
+.bp-template-btn:hover {
+  background: #003d7c;
+  color: #fff;
+}
+.bp-template-btn span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bp-template-btn strong { font-size: 14px; font-weight: 700; }
+.bp-template-btn small { font-size: 12px; opacity: 0.85; }
 
 /* Fields */
 .bp-grid-2 {

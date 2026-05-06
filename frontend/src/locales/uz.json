@@ -909,6 +909,11 @@
       "utilities": "Loyiha uchun oylik kommunal va boshqa doimiy xarajatlarni kiriting. Bu maʻlumotlar moliyaviy prognoz uchun muhim.",
       "review": "Maʻlumotlaringizni tekshiring va biznes-rejani yarating."
     },
+    "template": {
+      "or": "yoki",
+      "title": "Sinov uchun namuna bilan toʻldirish",
+      "subtitle": "Toshkentdagi non zavodi misoli — barcha bosqichlar avtomatik toʻldiriladi va siz toʻgʻridan-toʻgʻri yakunlovchi qadamga oʻtasiz."
+    },
     "fields": {
       "inn": "INN (9 raqam)",
       "uniqueCode": "Unikal kod",
