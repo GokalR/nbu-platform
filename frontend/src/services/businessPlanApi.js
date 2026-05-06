@@ -26,7 +26,16 @@ async function request(path, options = {}) {
     const res = await fetch(`${BASE}${path}`, { ...options, headers })
     if (!res.ok) {
       const text = await res.text().catch(() => '')
-      return { ok: false, status: res.status, error: text || res.statusText }
+      // FastAPI returns {"detail": "..."}; surface that nicely.
+      let msg = res.statusText
+      try {
+        const j = JSON.parse(text)
+        if (j && typeof j.detail === 'string') msg = j.detail
+        else if (text) msg = text
+      } catch {
+        if (text) msg = text
+      }
+      return { ok: false, status: res.status, error: msg }
     }
     const data = await res.json()
     return { ok: true, data }

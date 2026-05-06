@@ -235,6 +235,26 @@ def _build_user_message(payload: dict[str, Any]) -> str:
     return "ВХОД:\n" + json.dumps(payload, ensure_ascii=False, indent=2)
 
 
+def _extract_json(raw: str) -> dict | None:
+    """Best-effort JSON extraction: try strict parse first, then locate the
+    outermost {...} block in case Claude wrapped output in prose despite
+    instructions. Returns None on total failure.
+    """
+    s = raw.strip()
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        pass
+    start = s.find("{")
+    end = s.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        return None
+    try:
+        return json.loads(s[start : end + 1])
+    except json.JSONDecodeError:
+        return None
+
+
 def generate_business_plan(
     *,
     inputs: dict[str, Any],
@@ -257,7 +277,9 @@ def generate_business_plan(
 
     resp = client.messages.create(
         model=used_model,
-        max_tokens=4000,
+        # 8000 — full plan with 12-month projection + risks + KPIs is ~5-6k
+        # tokens, so 4k truncated mid-JSON and broke parsing.
+        max_tokens=8000,
         system=_system_prompt(lang),
         messages=[{"role": "user", "content": _build_user_message(prompt_payload)}],
     )
@@ -271,11 +293,15 @@ def generate_business_plan(
         if raw.lower().startswith("json"):
             raw = raw[4:].lstrip()
 
-    try:
-        parsed = json.loads(raw)
-    except json.JSONDecodeError as e:
-        log.error("Claude returned non-JSON business plan: %s. Raw[:500]: %s", e, raw[:500])
-        raise RuntimeError(f"Claude returned non-JSON: {e}")
+    parsed = _extract_json(raw)
+    if parsed is None:
+        log.error(
+            "Claude returned unparseable business plan (stop_reason=%s, len=%d). Raw[:1000]: %s",
+            getattr(resp, "stop_reason", None), len(raw), raw[:1000],
+        )
+        stop = getattr(resp, "stop_reason", "")
+        hint = " (output truncated — increase max_tokens)" if stop == "max_tokens" else ""
+        raise RuntimeError(f"Claude returned non-JSON{hint}. First 200 chars: {raw[:200]!r}")
 
     usage = getattr(resp, "usage", None)
     return {

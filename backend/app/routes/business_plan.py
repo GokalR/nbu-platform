@@ -203,10 +203,14 @@ def generate(
         db.add(rec)
         db.commit()
         db.refresh(rec)
-        log.error("Business plan generation failed: %s", e)
+        log.exception("Business plan generation failed")
+        # Surface a short version of the actual error so the frontend can show
+        # something useful and admin can debug without grepping Railway logs.
+        # Keep it ≤200 chars to avoid leaking large stack traces / prompt content.
+        msg = str(e)[:200] or "Unknown error"
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Business plan service temporarily unavailable",
+            detail=f"Business plan generation failed: {msg}",
         )
 
     db.add(rec)
