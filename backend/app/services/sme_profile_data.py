@@ -10,6 +10,14 @@
   missing. Legacy filenames are still recognised so admins can drop the
   files in unrenamed.
 
+  On Railway, ruyxat.xlsx isn't bundled in the image. Set these env vars
+  to make the loader fetch it from R2 on first lookup:
+    R2_ENDPOINT             https://<account>.r2.cloudflarestorage.com
+    R2_ACCESS_KEY_ID        (from R2 API token)
+    R2_SECRET_ACCESS_KEY    (from R2 API token)
+    R2_BUCKET               nbu-platform-data
+    R2_RUYXAT_KEY           ruyxat.xlsx           (optional, default)
+
 Implementation uses openpyxl (already a dependency) — pandas is not
 required, which avoids the silent ImportError trap that left lookups
 returning «not found» on machines where pandas wasn't installed.
@@ -122,6 +130,51 @@ def load_address_data() -> Dict[str, Dict[str, List[str]]]:
         return {}
 
 
+# ── R2 fetch (production) ─────────────────────────────────────────────────
+def _ensure_ruyxat_from_r2() -> Optional[Path]:
+    """If ruyxat.xlsx isn't on disk and R2 creds are set, download it.
+
+    Idempotent: skips if the file already exists locally. Returns the
+    path to the downloaded file, or None if R2 isn't configured / the
+    download failed. The caller falls back to the regular `_find()`
+    search after this.
+    """
+    target = _DATA_DIR / "ruyxat.xlsx"
+    if target.exists():
+        return target
+
+    endpoint = os.getenv("R2_ENDPOINT", "").strip()
+    access_key = os.getenv("R2_ACCESS_KEY_ID", "").strip()
+    secret_key = os.getenv("R2_SECRET_ACCESS_KEY", "").strip()
+    bucket = os.getenv("R2_BUCKET", "").strip()
+    key = os.getenv("R2_RUYXAT_KEY", "ruyxat.xlsx").strip()
+
+    if not all([endpoint, access_key, secret_key, bucket]):
+        return None
+
+    try:
+        import boto3
+        target.parent.mkdir(parents=True, exist_ok=True)
+        client = boto3.client(
+            "s3",
+            endpoint_url=endpoint,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
+            region_name="auto",
+        )
+        # Download to a temp path then rename, so a partial download
+        # never leaves a half-written file the loader could open.
+        tmp = target.with_suffix(".xlsx.partial")
+        client.download_file(bucket, key, str(tmp))
+        tmp.replace(target)
+        size_mb = target.stat().st_size / 1024 / 1024
+        print(f"[sme_profile] downloaded ruyxat.xlsx from R2 ({size_mb:.1f} MB)")
+        return target
+    except Exception as exc:
+        print(f"[sme_profile] R2 download failed: {exc}")
+        return None
+
+
 # ── Client lookup (Руйхат-2 → ruyxat.xlsx) ────────────────────────────────
 @functools.lru_cache(maxsize=1)
 def load_client_db() -> Dict[str, Dict[str, str]]:
@@ -131,7 +184,11 @@ def load_client_db() -> Dict[str, Dict[str, str]]:
     Two columns are duplicated in the header (BRANCH_ID, OKED) — for
     'activity_type' we use the second OKED column to match the original
     pandas-based behaviour (`OKED.1`).
+
+    Production: if the file isn't on disk and R2_* env vars are set,
+    fetch it from R2 first.
     """
+    _ensure_ruyxat_from_r2()
     path = _find(_RUYXAT_FILES)
     if not path:
         return {}
