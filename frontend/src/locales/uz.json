@@ -900,6 +900,20 @@
       "skip": "Oʻtkazib yuborish",
       "replace": "Boshqa fayl yuklash",
       "ratiosHeader": "Asosiy moliyaviy koʻrsatkichlar",
+      "extractedHeader": "Olingan maʻlumotlar",
+      "parsed": "Fayllar muvaffaqiyatli tahlil qilindi",
+      "scoreLater": "Kredit skoring oxirgi qadamda hisoblanadi — bu maʻlumotlar va loyiha parametrlari (kredit miqdori, muddat, oʻz hissangiz) asosida.",
+      "figures": {
+        "revenue": "Daromad (oxirgi davr)",
+        "netProfit": "Sof foyda",
+        "totalAssets": "Aktivlar",
+        "equity": "Oʻz kapitali",
+        "totalLiabilities": "Majburiyatlar"
+      },
+      "groups": {
+        "historical": "Tarixiy hisobot",
+        "project": "Loyiha vs tarix"
+      },
       "verdicts": {
         "high": "Yuqori kredit reytingi",
         "medium": "Oʻrta kredit reytingi",
@@ -918,7 +932,10 @@
         "currentRatio": "Joriy likvidlik",
         "quickRatio": "Tez likvidlik",
         "debtToEquity": "Qarz / kapital",
-        "assetTurnover": "Aktivlar aylanmasi"
+        "assetTurnover": "Aktivlar aylanmasi",
+        "loanToRevenue": "Kredit / daromad",
+        "dscr": "Toʻlovlar qoplanishi (DSCR)",
+        "projectEquity": "Loyihada oʻz ulush"
       },
       "errors": {
         "bothRequired": "Ikkala faylni ham yuklang.",

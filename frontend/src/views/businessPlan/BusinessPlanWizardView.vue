@@ -465,39 +465,43 @@ function exitWizard() {
             </div>
           </div>
 
-          <!-- Parsed state — show the score + ratios -->
+          <!-- Parsed state — confirm extracted figures (no verdict yet;
+               full credit scoring runs at submit time when project data
+               is also available). -->
           <div v-else class="bp-fin-result">
-            <div :class="['bp-verdict-banner', `is-${historicalFinancials.score.verdict}`]">
-              <div class="bp-verdict-tag">
-                {{ t(`businessPlan.financials.verdicts.${historicalFinancials.score.verdict}`) }}
+            <div class="bp-fin-success">
+              <AppIcon name="check_circle" />
+              <strong>{{ t('businessPlan.financials.parsed') }}</strong>
+            </div>
+
+            <h3 class="bp-section-h">{{ t('businessPlan.financials.extractedHeader') }}</h3>
+            <div class="bp-fin-figures">
+              <div>
+                <span>{{ t('businessPlan.financials.figures.revenue') }}</span>
+                <strong>{{ Number(historicalFinancials.summary?.revenue || 0).toLocaleString('ru-RU') }} <small>UZS</small></strong>
               </div>
-              <p class="bp-verdict-summary">{{ historicalFinancials.score.summary }}</p>
-              <div class="bp-verdict-meta">
-                {{ historicalFinancials.score.points }} / {{ historicalFinancials.score.maxPoints }}
-                ({{ historicalFinancials.score.percent }}%)
+              <div>
+                <span>{{ t('businessPlan.financials.figures.netProfit') }}</span>
+                <strong>{{ Number(historicalFinancials.summary?.netProfit || 0).toLocaleString('ru-RU') }} <small>UZS</small></strong>
+              </div>
+              <div>
+                <span>{{ t('businessPlan.financials.figures.totalAssets') }}</span>
+                <strong>{{ Number(historicalFinancials.summary?.totalAssets || 0).toLocaleString('ru-RU') }} <small>UZS</small></strong>
+              </div>
+              <div>
+                <span>{{ t('businessPlan.financials.figures.equity') }}</span>
+                <strong>{{ Number(historicalFinancials.summary?.equity || 0).toLocaleString('ru-RU') }} <small>UZS</small></strong>
+              </div>
+              <div>
+                <span>{{ t('businessPlan.financials.figures.totalLiabilities') }}</span>
+                <strong>{{ Number(historicalFinancials.summary?.totalLiabilities || 0).toLocaleString('ru-RU') }} <small>UZS</small></strong>
               </div>
             </div>
 
-            <h3 class="bp-section-h">{{ t('businessPlan.financials.ratiosHeader') }}</h3>
-            <table class="bp-fin-ratios">
-              <thead>
-                <tr>
-                  <th>{{ t('businessPlan.financials.cols.ratio') }}</th>
-                  <th class="num">{{ t('businessPlan.financials.cols.value') }}</th>
-                  <th>{{ t('businessPlan.financials.cols.benchmark') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(info, key) in historicalFinancials.score.ratios" :key="key">
-                  <td>{{ t(`businessPlan.financials.ratioNames.${key}`) }}</td>
-                  <td class="num">
-                    <span :class="['bp-fin-bullet', `s-${info.score}`]"></span>
-                    {{ info.value }}{{ info.unit }}
-                  </td>
-                  <td class="muted">{{ info.benchmark }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <p class="bp-fin-note">
+              <AppIcon name="info" />
+              {{ t('businessPlan.financials.scoreLater') }}
+            </p>
 
             <div class="bp-fin-actions">
               <button class="bp-btn bp-btn-secondary" @click="clearFinancials">
@@ -1569,33 +1573,38 @@ function exitWizard() {
   animation: spin 0.7s linear infinite; display: inline-block;
 }
 
-.bp-fin-result { max-width: 720px; margin: 16px auto 0; }
-.bp-verdict-banner {
-  border-radius: 12px; padding: 18px 22px; color: #fff;
-  display: grid; grid-template-columns: auto 1fr auto; gap: 12px 16px; align-items: center;
+.bp-fin-result { max-width: 600px; margin: 16px auto 0; }
+.bp-fin-success {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 10px;
+  background: #d1fae5; color: #065f46;
+  font-size: 14px;
 }
-.bp-verdict-banner.is-high   { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
-.bp-verdict-banner.is-medium { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
-.bp-verdict-banner.is-low    { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); }
-.bp-verdict-banner .bp-verdict-tag {
-  background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px;
-  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+.bp-fin-figures {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-.bp-verdict-banner .bp-verdict-summary { margin: 0; font-size: 14px; line-height: 1.5; grid-column: 1/-1; }
-.bp-verdict-banner .bp-verdict-meta { font-size: 13px; font-weight: 700; opacity: 0.9; }
-
-.bp-fin-ratios { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
-.bp-fin-ratios th { text-align: left; padding: 8px 12px; background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 0.5px; }
-.bp-fin-ratios th.num, .bp-fin-ratios td.num { text-align: right; }
-.bp-fin-ratios td { padding: 8px 12px; border-top: 1px solid #f1f5f9; }
-.bp-fin-ratios .muted { color: #64748b; font-size: 12px; }
-.bp-fin-bullet {
-  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-  margin-right: 8px; vertical-align: middle;
+.bp-fin-figures > div {
+  background: #f8fafc; border-radius: 10px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
 }
-.bp-fin-bullet.s-0 { background: #dc2626; }
-.bp-fin-bullet.s-1 { background: #d97706; }
-.bp-fin-bullet.s-2 { background: #16a34a; }
+.bp-fin-figures span {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  color: #64748b; letter-spacing: 0.5px;
+}
+.bp-fin-figures strong {
+  font-size: 16px; color: #003d7c; font-weight: 800;
+}
+.bp-fin-figures strong small {
+  font-size: 11px; color: #94a3b8; font-weight: 600;
+}
+.bp-fin-note {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 10px 14px; border-radius: 8px;
+  background: #f0f7ff; color: #003d7c;
+  font-size: 13px; line-height: 1.5; margin: 12px 0 0 0;
+  border-left: 3px solid #003d7c;
+}
 
 @media (max-width: 900px) {
   .bp-main {

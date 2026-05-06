@@ -37,13 +37,23 @@ def _bin_lower_better(value: float, good_below: float, poor_above: float) -> int
     return 1
 
 
-def compute_score(balance: dict, pnl: dict) -> dict[str, Any]:
-    """Returns a structured score breakdown:
-      ratios: {<name>: {value, score, label, benchmark}}
-      points: int
-      maxPoints: int
-      verdict: 'low' | 'medium' | 'high'
-      summary: str (1-line natural-language)
+def compute_score(
+    balance: dict,
+    pnl: dict,
+    baseline: dict | None = None,
+    inputs: dict | None = None,
+) -> dict[str, Any]:
+    """Composite credit verdict combining:
+      • 8 ratios from historical financials (Form №1 + Form №2)
+      • 3 project-vs-history ratios when baseline+inputs are provided:
+          - loanToRevenue: new loan size / current annual revenue
+          - dscr: historical operating profit / new annual debt service
+          - projectEquity: own contribution / total project value
+
+    Returns:
+      ratios: {<name>: {value, unit, benchmark, score, group}}
+      points / maxPoints / percent / verdict ('low'|'medium'|'high')
+      summary: 1-line natural language
     """
     revenue = pnl.get("revenue", 0)
     cogs = pnl.get("cogs", 0)
@@ -58,73 +68,98 @@ def compute_score(balance: dict, pnl: dict) -> dict[str, Any]:
     total_liabilities = balance.get("totalLiabilities", 0)
     equity = balance.get("equity", 0)
 
-    # ---------- Ratios ----------
-    gross_margin = _safe_div(gross_profit, revenue) * 100  # %
+    # ---------- Historical ratios (group: 'historical') ----------
+    gross_margin = _safe_div(gross_profit, revenue) * 100
     operating_margin = _safe_div(operating_profit, revenue) * 100
     net_margin = _safe_div(net_profit, revenue) * 100
     roa = _safe_div(net_profit, total_assets) * 100
     current_ratio = _safe_div(current_assets, current_liabilities)
     quick_ratio = _safe_div(current_assets - inventory, current_liabilities)
     debt_to_equity = _safe_div(total_liabilities, equity)
-    debt_ratio = _safe_div(total_liabilities, total_assets)
     asset_turnover = _safe_div(revenue, total_assets)
 
-    # ---------- Score each ratio ----------
-    ratios = {
+    ratios: dict[str, dict[str, Any]] = {
         "grossMargin": {
-            "value": round(gross_margin, 1),
-            "unit": "%",
+            "value": round(gross_margin, 1), "unit": "%", "group": "historical",
             "benchmark": "≥30% хорошо, 15–30% средне, <15% слабо",
             "score": _bin(gross_margin, 15, 30),
         },
         "operatingMargin": {
-            "value": round(operating_margin, 1),
-            "unit": "%",
+            "value": round(operating_margin, 1), "unit": "%", "group": "historical",
             "benchmark": "≥10% хорошо, 3–10% средне, <3% слабо",
             "score": _bin(operating_margin, 3, 10),
         },
         "netMargin": {
-            "value": round(net_margin, 1),
-            "unit": "%",
+            "value": round(net_margin, 1), "unit": "%", "group": "historical",
             "benchmark": "≥7% хорошо, 1–7% средне, <1% слабо",
             "score": _bin(net_margin, 1, 7),
         },
         "roa": {
-            "value": round(roa, 1),
-            "unit": "%",
+            "value": round(roa, 1), "unit": "%", "group": "historical",
             "benchmark": "≥8% хорошо, 2–8% средне, <2% слабо",
             "score": _bin(roa, 2, 8),
         },
         "currentRatio": {
-            "value": round(current_ratio, 2),
-            "unit": "x",
+            "value": round(current_ratio, 2), "unit": "x", "group": "historical",
             "benchmark": "≥1.5 хорошо, 1.0–1.5 средне, <1.0 слабо",
             "score": _bin(current_ratio, 1.0, 1.5),
         },
         "quickRatio": {
-            "value": round(quick_ratio, 2),
-            "unit": "x",
+            "value": round(quick_ratio, 2), "unit": "x", "group": "historical",
             "benchmark": "≥1.0 хорошо, 0.6–1.0 средне, <0.6 слабо",
             "score": _bin(quick_ratio, 0.6, 1.0),
         },
         "debtToEquity": {
-            "value": round(debt_to_equity, 2),
-            "unit": "x",
+            "value": round(debt_to_equity, 2), "unit": "x", "group": "historical",
             "benchmark": "≤1.0 хорошо, 1.0–2.0 средне, >2.0 слабо",
             "score": _bin_lower_better(debt_to_equity, 1.0, 2.0),
         },
         "assetTurnover": {
-            "value": round(asset_turnover, 2),
-            "unit": "x",
+            "value": round(asset_turnover, 2), "unit": "x", "group": "historical",
             "benchmark": "≥1.0 хорошо, 0.5–1.0 средне, <0.5 слабо",
             "score": _bin(asset_turnover, 0.5, 1.0),
         },
     }
 
-    points = sum(r["score"] for r in ratios.values())
-    max_points = len(ratios) * 2  # 16
+    # ---------- Combined project-vs-history ratios (group: 'project') ----------
+    if baseline and inputs:
+        project = inputs.get("project") or {}
+        loan_amount = float(project.get("loanAmount") or 0)
+        own_contribution = float(project.get("ownContribution") or 0)
+        total_value = float(project.get("totalValue") or 0) or (loan_amount + own_contribution)
 
-    # Verdict bins: high ≥75% of max, medium ≥45%, low otherwise.
+        annual_loan_payment = (baseline.get("loan", {}).get("avgMonthlyPaymentFirst12m", 0) or 0) * 12
+
+        # Loan-to-revenue: how big is the new loan compared to last year's sales?
+        # Use a sentinel large number when historical revenue is 0 so the ratio
+        # doesn't silently become 0 (which would falsely look "good").
+        loan_to_rev = _safe_div(loan_amount, revenue) if revenue else 99.0
+        ratios["loanToRevenue"] = {
+            "value": round(loan_to_rev, 2), "unit": "x", "group": "project",
+            "benchmark": "≤0.3 хорошо, 0.3–0.7 средне, >0.7 слабо",
+            "score": _bin_lower_better(loan_to_rev, 0.3, 0.7),
+        }
+
+        # DSCR (Debt Service Coverage Ratio): can historical earnings cover
+        # the new loan payment?
+        dscr = _safe_div(operating_profit, annual_loan_payment) if annual_loan_payment else 0.0
+        ratios["dscr"] = {
+            "value": round(dscr, 2), "unit": "x", "group": "project",
+            "benchmark": "≥1.3 хорошо, 1.0–1.3 средне, <1.0 слабо",
+            "score": _bin(dscr, 1.0, 1.3),
+        }
+
+        # Skin in the game: how much of the project is financed from own funds?
+        equity_pct = (_safe_div(own_contribution, total_value) * 100) if total_value else 0.0
+        ratios["projectEquity"] = {
+            "value": round(equity_pct, 1), "unit": "%", "group": "project",
+            "benchmark": "≥30% хорошо, 15–30% средне, <15% слабо",
+            "score": _bin(equity_pct, 15, 30),
+        }
+
+    points = sum(r["score"] for r in ratios.values())
+    max_points = len(ratios) * 2
+
     pct = points / max_points if max_points else 0
     if pct >= 0.75:
         verdict = "high"
@@ -133,9 +168,7 @@ def compute_score(balance: dict, pnl: dict) -> dict[str, Any]:
     else:
         verdict = "low"
 
-    # Edge case: if revenue is zero, the company is non-operational —
-    # all profitability ratios will be 0 (poor) which is misleading.
-    # Mark verdict as 'low' explicitly with a clearer reason.
+    # Edge case: empty reporting.
     if revenue == 0 and total_assets == 0:
         verdict = "low"
         summary = "Отчётность пустая: выручка и активы = 0. Скоринг невозможен — для оценки нужны фактические данные за отчётный период."
@@ -186,6 +219,9 @@ _PRETTY = {
     "quickRatio": "быстрая ликвидность",
     "debtToEquity": "долг/капитал",
     "assetTurnover": "оборачиваемость активов",
+    "loanToRevenue": "кредит/выручка",
+    "dscr": "покрытие платежей (DSCR)",
+    "projectEquity": "доля собственных в проекте",
 }
 
 

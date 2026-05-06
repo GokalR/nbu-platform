@@ -327,12 +327,14 @@ def generate_business_plan(
     model: str | None = None,
     provider: str | None = None,
     historical_financials: dict | None = None,
+    baseline: dict | None = None,
 ) -> dict[str, Any]:
     """Generate a business plan via the configured LLM provider.
 
     Returns {output, input_tokens, output_tokens, model, provider, baseline}.
-    The `baseline` is the deterministic financial computation injected into
-    the prompt and reconciled against the LLM's output afterwards.
+    `baseline` is the deterministic financial computation; if not passed,
+    we compute it here. The route normally pre-computes it so it can also
+    feed it into credit scoring.
     Raises RuntimeError on config or parse failure.
     """
     from . import business_plan_compute as bpc  # local import to avoid cycles
@@ -340,7 +342,8 @@ def generate_business_plan(
     settings = get_settings()
     used_provider = (provider or settings.llm_provider_clean).lower()
 
-    baseline = bpc.compute_baseline(inputs)
+    if baseline is None:
+        baseline = bpc.compute_baseline(inputs)
 
     prompt_payload = {
         **inputs,

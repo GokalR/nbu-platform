@@ -181,6 +181,25 @@ def generate(
         top_n=3,
     )
 
+    # Pre-compute deterministic baseline so we can use it both for credit
+    # scoring (below) and pass it to the LLM (avoid double-computation).
+    from ..services import business_plan_compute as bpc
+    baseline = bpc.compute_baseline(inputs_dict)
+
+    # If user uploaded financials at Step 0, run combined scoring NOW
+    # (Excel ratios + project-vs-history ratios — DSCR, loan/revenue,
+    # equity-in-project) and attach to the historicalFinancials object.
+    historical_financials = body.historicalFinancials
+    if historical_financials and historical_financials.get("balance"):
+        score = credit_scoring.compute_score(
+            historical_financials.get("balance") or {},
+            historical_financials.get("pnl") or {},
+            baseline=baseline,
+            inputs=inputs_dict,
+        )
+        # Mutate-in-place so the saved row + LLM prompt both have the score.
+        historical_financials = {**historical_financials, "score": score}
+
     rec = BusinessPlanSubmission(
         user_email=user_email,
         lang=body.lang or "uz",
@@ -188,7 +207,7 @@ def generate(
         org_type=body.organization.type,
         inputs=inputs_dict,
         recommended_products=candidates,
-        historical_financials=body.historicalFinancials,
+        historical_financials=historical_financials,
         model="",
     )
 
@@ -197,7 +216,8 @@ def generate(
             inputs=inputs_dict,
             candidate_products=candidates,
             lang=body.lang or "uz",
-            historical_financials=body.historicalFinancials,
+            historical_financials=historical_financials,
+            baseline=baseline,
         )
         rec.output = result["output"]
         # Stash provider in the model string so admin can see which LLM ran:
@@ -282,12 +302,22 @@ async def parse_excel(
         log.exception("Failed to parse P&L")
         raise HTTPException(status_code=400, detail=f"Не удалось разобрать отчёт о фин. результатах (Форма №2): {e}")
 
-    score = credit_scoring.compute_score(balance_data, pnl_data)
+    # NO scoring at this stage — scoring runs at /generate time when we
+    # have the project parameters too. Step 0 only confirms parse success
+    # and shows the user a small preview of extracted figures.
+    balance = {k: v for k, v in balance_data.items() if not k.startswith("_")}
+    pnl = {k: v for k, v in pnl_data.items() if not k.startswith("_")}
 
     return {
-        "balance": {k: v for k, v in balance_data.items() if not k.startswith("_")},
-        "pnl": {k: v for k, v in pnl_data.items() if not k.startswith("_")},
-        "score": score,
+        "balance": balance,
+        "pnl": pnl,
+        "summary": {
+            "revenue": pnl.get("revenue", 0),
+            "netProfit": pnl.get("netProfit", 0),
+            "totalAssets": balance.get("totalAssets", 0),
+            "equity": balance.get("equity", 0),
+            "totalLiabilities": balance.get("totalLiabilities", 0),
+        },
     }
 
 
