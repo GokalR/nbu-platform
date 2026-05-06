@@ -194,10 +194,11 @@ const infoRows = computed(() => {
       </div>
     </div>
 
-    <p v-if="!searched" class="text-xs text-center text-on-surface-variant">
-      {{ t('smeProfile.pinfl.searchFirst') }}
-    </p>
-    <button class="sp-btn sp-btn--primary w-full sp-btn--lg" :disabled="!searched" @click="handleNext">
+    <button
+      class="sp-btn sp-btn--primary w-full sp-btn--lg"
+      :disabled="!value.trim()"
+      @click="handleNext"
+    >
       {{ t('smeProfile.next') }}
     </button>
   </div>
