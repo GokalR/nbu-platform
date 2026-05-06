@@ -239,6 +239,13 @@ async def health():
         "env": settings.app_env,
         "model": settings.anthropic_model_clean,
         "anthropicConfigured": bool(settings.anthropic_api_key_clean),
+        # Business Plan tool: which LLM provider is active and whether its key is set.
+        "businessPlan": {
+            "provider": settings.llm_provider_clean,
+            "claudeModel": settings.anthropic_model_clean,
+            "openaiModel": settings.openai_model_clean,
+            "openaiConfigured": bool(settings.openai_api_key_clean),
+        },
     }
 
 

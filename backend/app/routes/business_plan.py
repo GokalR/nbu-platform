@@ -195,7 +195,9 @@ def generate(
             lang=body.lang or "uz",
         )
         rec.output = result["output"]
-        rec.model = result["model"]
+        # Stash provider in the model string so admin can see which LLM ran:
+        # e.g. "openai/gpt-4o" or "claude/claude-sonnet-4-6-20250627".
+        rec.model = f"{result.get('provider', 'unknown')}/{result['model']}"
         rec.input_tokens = result["input_tokens"]
         rec.output_tokens = result["output_tokens"]
     except Exception as e:

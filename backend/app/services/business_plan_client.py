@@ -1,7 +1,8 @@
-"""Claude wrapper for SME Business Plan generation.
+"""LLM wrapper for SME Business Plan generation.
 
-Takes the full wizard payload + 3 candidate NBU credit products, returns a
-strict JSON business plan ready to render on the frontend.
+Provider-agnostic: picks Claude (Anthropic) or GPT (OpenAI) based on
+LLM_PROVIDER env var. Both call the same RU/UZ system prompt and return
+the same JSON schema, so the route doesn't care which one ran.
 """
 from __future__ import annotations
 
@@ -261,27 +262,39 @@ def generate_business_plan(
     candidate_products: list[dict],
     lang: str = "uz",
     model: str | None = None,
+    provider: str | None = None,
 ) -> dict[str, Any]:
-    """Call Claude and return parsed JSON output + usage metadata.
+    """Generate a business plan via the configured LLM provider.
 
+    Returns {output, input_tokens, output_tokens, model, provider}.
     Raises RuntimeError on config or parse failure (caller logs/persists).
     """
     settings = get_settings()
+    used_provider = (provider or settings.llm_provider_clean).lower()
+
+    prompt_payload = {**inputs, "candidateProducts": candidate_products, "lang": lang}
+    system = _system_prompt(lang)
+    user_msg = _build_user_message(prompt_payload)
+
+    if used_provider == "openai":
+        return _call_openai(system=system, user_msg=user_msg, lang=lang, model=model, settings=settings)
+    return _call_claude(system=system, user_msg=user_msg, lang=lang, model=model, settings=settings)
+
+
+def _call_claude(*, system: str, user_msg: str, lang: str, model: str | None, settings) -> dict[str, Any]:
     if not settings.anthropic_api_key_clean:
         raise RuntimeError("ANTHROPIC_API_KEY is not configured")
 
     client = Anthropic(api_key=settings.anthropic_api_key_clean)
     used_model = model or settings.anthropic_model_clean
 
-    prompt_payload = {**inputs, "candidateProducts": candidate_products, "lang": lang}
-
     resp = client.messages.create(
         model=used_model,
         # 8000 — full plan with 12-month projection + risks + KPIs is ~5-6k
         # tokens, so 4k truncated mid-JSON and broke parsing.
         max_tokens=8000,
-        system=_system_prompt(lang),
-        messages=[{"role": "user", "content": _build_user_message(prompt_payload)}],
+        system=system,
+        messages=[{"role": "user", "content": user_msg}],
     )
 
     text_parts = [b.text for b in resp.content if getattr(b, "type", None) == "text"]
@@ -309,4 +322,53 @@ def generate_business_plan(
         "input_tokens": getattr(usage, "input_tokens", 0) if usage else 0,
         "output_tokens": getattr(usage, "output_tokens", 0) if usage else 0,
         "model": used_model,
+        "provider": "claude",
+    }
+
+
+def _call_openai(*, system: str, user_msg: str, lang: str, model: str | None, settings) -> dict[str, Any]:
+    """Same prompt, same JSON schema — but via OpenAI Chat Completions.
+
+    Uses response_format={'type': 'json_object'} so the model is forced to
+    return valid JSON. Requires the prompt to mention JSON (it does).
+    """
+    if not settings.openai_api_key_clean:
+        raise RuntimeError("OPENAI_API_KEY is not configured")
+
+    # Imported lazily so deploys without OpenAI installed don't break Claude path.
+    from openai import OpenAI
+
+    client = OpenAI(api_key=settings.openai_api_key_clean)
+    used_model = model or settings.openai_model_clean
+
+    resp = client.chat.completions.create(
+        model=used_model,
+        max_tokens=8000,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user_msg},
+        ],
+    )
+
+    choice = resp.choices[0]
+    raw = (choice.message.content or "").strip()
+    finish_reason = choice.finish_reason  # 'stop', 'length', etc.
+
+    parsed = _extract_json(raw)
+    if parsed is None:
+        log.error(
+            "OpenAI returned unparseable business plan (finish_reason=%s, len=%d). Raw[:1000]: %s",
+            finish_reason, len(raw), raw[:1000],
+        )
+        hint = " (output truncated — increase max_tokens)" if finish_reason == "length" else ""
+        raise RuntimeError(f"OpenAI returned non-JSON{hint}. First 200 chars: {raw[:200]!r}")
+
+    usage = getattr(resp, "usage", None)
+    return {
+        "output": parsed,
+        "input_tokens": getattr(usage, "prompt_tokens", 0) if usage else 0,
+        "output_tokens": getattr(usage, "completion_tokens", 0) if usage else 0,
+        "model": used_model,
+        "provider": "openai",
     }

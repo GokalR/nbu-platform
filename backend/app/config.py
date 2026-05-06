@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     anthropic_max_tokens: int = 2000
     max_upload_bytes: int = 5 * 1024 * 1024
 
+    # OpenAI (alternative provider for Business Plan tool)
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o"
+
+    # LLM provider toggle for Business Plan: "claude" | "openai".
+    # Other tools (Regional Strategist) stay on Claude regardless.
+    llm_provider: str = "claude"
+
     @property
     def anthropic_model_clean(self) -> str:
         return self.anthropic_model.strip()
@@ -37,6 +45,19 @@ class Settings(BaseSettings):
     @property
     def anthropic_api_key_clean(self) -> str:
         return self.anthropic_api_key.strip()
+
+    @property
+    def openai_model_clean(self) -> str:
+        return self.openai_model.strip()
+
+    @property
+    def openai_api_key_clean(self) -> str:
+        return self.openai_api_key.strip()
+
+    @property
+    def llm_provider_clean(self) -> str:
+        v = self.llm_provider.strip().lower()
+        return v if v in ("claude", "openai") else "claude"
 
     @property
     def cors_origin_list(self) -> list[str]:
