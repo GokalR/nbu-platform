@@ -14,5 +14,6 @@ venv/
 .wrangler/
 
 # SME Profile: real client data (sensitive, do not commit).
-# Туман+МФЙ.xlsx is public reference data and stays committed.
+# tuman_mfy.xlsx is public reference data and stays committed.
+backend/data/sme_profile/ruyxat.xlsx
 backend/data/sme_profile/Руйхат-2*.xlsx

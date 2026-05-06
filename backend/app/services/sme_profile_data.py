@@ -3,10 +3,16 @@
 - Questions: hardcoded sphere catalogue (was originally Excel-backed in the
   standalone platform; inlined here so we don't bundle questions.xlsx).
 - Reference Excel files (read-only):
-    * Руйхат-2 (1).xlsx  → INN/PINFL → client info lookup
-    * Туман + МФЙ.xlsx   → viloyat → tuman → MFY cascade
-  Both live in backend/data/sme_profile/. Руйхат-2 is gitignored (sensitive
-  bank client data); the loader returns gracefully empty dicts when missing.
+    * ruyxat.xlsx     → INN/PINFL → client info lookup (was «Руйхат-2 (1).xlsx»)
+    * tuman_mfy.xlsx  → viloyat → tuman → MFY cascade (was «Туман + МФЙ.xlsx»)
+  Both live in backend/data/sme_profile/. ruyxat.xlsx is gitignored
+  (sensitive bank client data); the loader returns gracefully empty when
+  missing. Legacy filenames are still recognised so admins can drop the
+  files in unrenamed.
+
+Implementation uses openpyxl (already a dependency) — pandas is not
+required, which avoids the silent ImportError trap that left lookups
+returning «not found» on machines where pandas wasn't installed.
 """
 
 from __future__ import annotations
@@ -18,22 +24,29 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-# backend/app/services/sme_profile_data.py → up 3 = backend/
-_BACKEND_DIR = Path(__file__).parent.parent.parent
+_BACKEND_DIR = Path(__file__).parent.parent.parent  # backend/
 _DATA_DIR = _BACKEND_DIR / "data" / "sme_profile"
 
-_RUYXAT_FILES = ("Руйхат-2 (1).xlsx", "Руйхат-2.xlsx")
-_TUMAN_MFY_FILE = "Туман + МФЙ.xlsx"
+# Clean ASCII names first; legacy Cyrillic names as fallback so admins can
+# drop the originals straight from the data team without renaming.
+_RUYXAT_FILES = ("ruyxat.xlsx", "Руйхат-2 (1).xlsx", "Руйхат-2.xlsx")
+_TUMAN_MFY_FILES = ("tuman_mfy.xlsx", "Туман + МФЙ.xlsx")
 
 
-def _find(filename: str) -> Optional[Path]:
+def _find(filenames: tuple[str, ...] | str) -> Optional[Path]:
     """Locate a reference Excel file. Honours SME_PROFILE_DATA_DIR env var
     so Railway/R2-mounted volumes can override the default."""
+    if isinstance(filenames, str):
+        filenames = (filenames,)
     candidates: List[Path] = []
     override = os.getenv("SME_PROFILE_DATA_DIR", "").strip()
+    bases = []
     if override:
-        candidates.append(Path(override) / filename)
-    candidates.append(_DATA_DIR / filename)
+        bases.append(Path(override))
+    bases.append(_DATA_DIR)
+    for base in bases:
+        for fname in filenames:
+            candidates.append(base / fname)
     for p in candidates:
         if p.exists():
             return p
@@ -52,71 +65,102 @@ def _clean(val: Any) -> str:
     return s
 
 
-# ── Address cascade (виlоят → туман → МФЙ) ────────────────────────────────
+def _format_num(val: Any) -> str:
+    """Format a numeric Excel cell as «123 456 789». Returns '' for empties."""
+    s = _clean(val)
+    if not s:
+        return ""
+    try:
+        return "{:,.0f}".format(float(s)).replace(",", " ")
+    except (ValueError, TypeError):
+        return s
+
+
+# ── Address cascade (вилоят → туман → МФЙ) ────────────────────────────────
 @functools.lru_cache(maxsize=1)
 def load_address_data() -> Dict[str, Dict[str, List[str]]]:
-    """Returns {viloyat: {tuman: [mfy_list]}} from Туман + МФЙ.xlsx."""
-    path = _find(_TUMAN_MFY_FILE)
+    """Returns {viloyat: {tuman: [mfy_list]}} from tuman_mfy.xlsx.
+
+    Sheet layout: rows 1–2 are blank/title, row 3 is the header, data
+    starts row 4 with merged cells in columns C (viloyat) and D (tuman).
+    We forward-fill the merged values manually because openpyxl's
+    read_only mode reports merged-cell continuations as None.
+    """
+    path = _find(_TUMAN_MFY_FILES)
     if not path:
         return {}
     try:
-        import pandas as pd  # local import — pandas is heavy
-        df = pd.read_excel(path, sheet_name="МФЙ", header=2, usecols=[2, 3, 4])
-        df.columns = ["viloyat", "tuman", "mfy"]
-        df["viloyat"] = df["viloyat"].ffill()
-        df["tuman"] = df["tuman"].ffill()
-        df = df.dropna(subset=["mfy"])
-        df = df[df["mfy"].astype(str).str.strip().str.len() > 0]
-        df = df[df["mfy"].astype(str).str.strip().str.lower() != "nan"]
+        from openpyxl import load_workbook
+        wb = load_workbook(path, read_only=True, data_only=True)
+        # Sheet name is «МФЙ» but using index 0 avoids any name-encoding flakiness.
+        ws = wb.worksheets[0]
 
         result: Dict[str, Dict[str, List[str]]] = {}
-        for row in df.itertuples(index=False):
-            v = _clean(row.viloyat)
-            t = _clean(row.tuman)
-            m = _clean(row.mfy)
-            if v and t and m:
-                result.setdefault(v, {}).setdefault(t, []).append(m)
+        last_v = ""
+        last_t = ""
+        for row in ws.iter_rows(min_row=4, values_only=True):
+            v_raw = row[2] if len(row) > 2 else None
+            t_raw = row[3] if len(row) > 3 else None
+            m_raw = row[4] if len(row) > 4 else None
+            v = _clean(v_raw)
+            t = _clean(t_raw)
+            m = _clean(m_raw)
+            if v:
+                last_v = v
+                # New viloyat starts → reset tuman so a stale carry-over
+                # from the previous viloyat block doesn't leak in.
+                if not t:
+                    last_t = ""
+            if t:
+                last_t = t
+            if m and last_v and last_t:
+                result.setdefault(last_v, {}).setdefault(last_t, []).append(m)
+        wb.close()
         return result
     except Exception as exc:
         print(f"[sme_profile.address] load failed: {exc}")
         return {}
 
 
-# ── Client lookup (Руйхат-2) ──────────────────────────────────────────────
+# ── Client lookup (Руйхат-2 → ruyxat.xlsx) ────────────────────────────────
 @functools.lru_cache(maxsize=1)
 def load_client_db() -> Dict[str, Dict[str, str]]:
-    """Returns {INN: ClientInfo fields} from Руйхат-2."""
-    path: Optional[Path] = None
-    for fname in _RUYXAT_FILES:
-        path = _find(fname)
-        if path:
-            break
+    """Returns {INN: ClientInfo fields} from ruyxat.xlsx.
+
+    File layout: row 1 is the header, row 2 is empty, data starts row 3.
+    Two columns are duplicated in the header (BRANCH_ID, OKED) — for
+    'activity_type' we use the second OKED column to match the original
+    pandas-based behaviour (`OKED.1`).
+    """
+    path = _find(_RUYXAT_FILES)
     if not path:
         return {}
-
     try:
-        import pandas as pd
-        needed = {
-            "INN", "CLIENT_NAME", "DIRECTOR_NAME", "ADDRESS",
-            "PHONE", "MOBILE_PHONE",
-            "TURNOVER_DEBIT", "TURNOVER_CREDIT", "TURNOVER_ALL",
-            "CNT_FL", "ACCOUNTER_CHIEF_NAME", "SAL_SUM", "OKED.1",
-        }
-        df = pd.read_excel(path, usecols=lambda c: c in needed)
-        df = df.dropna(subset=["INN"])
+        from openpyxl import load_workbook
+        wb = load_workbook(path, read_only=True, data_only=True)
+        ws = wb.worksheets[0]
 
-        def _num(row, attr: str) -> str:
-            v = _clean(getattr(row, attr, None))
-            if not v:
-                return ""
-            try:
-                return "{:,.0f}".format(float(v)).replace(",", " ")
-            except Exception:
-                return v
+        header = next(ws.iter_rows(min_row=1, max_row=1, values_only=True))
+        # First-occurrence map for unique columns; explicit second occurrence
+        # for OKED (activity_type uses OKED.1 in the original pandas code).
+        col_idx: Dict[str, int] = {}
+        for i, name in enumerate(header):
+            if isinstance(name, str) and name and name not in col_idx:
+                col_idx[name] = i
+        oked_positions = [i for i, n in enumerate(header) if n == "OKED"]
+        oked_col = oked_positions[1] if len(oked_positions) >= 2 else (
+            oked_positions[0] if oked_positions else None
+        )
+
+        def cell(row: tuple, name: str) -> Any:
+            i = col_idx.get(name)
+            if i is None or i >= len(row):
+                return None
+            return row[i]
 
         result: Dict[str, Dict[str, str]] = {}
-        for row in df.itertuples(index=False):
-            inn = _clean(getattr(row, "INN", None))
+        for row in ws.iter_rows(min_row=3, values_only=True):
+            inn = _clean(cell(row, "INN"))
             if not inn:
                 continue
             if inn.endswith(".0"):
@@ -124,27 +168,30 @@ def load_client_db() -> Dict[str, Dict[str, str]]:
             if not inn:
                 continue
 
-            phone = _clean(getattr(row, "PHONE", None))
-            if not phone:
-                phone = _clean(getattr(row, "MOBILE_PHONE", None))
+            phone = _clean(cell(row, "PHONE")) or _clean(cell(row, "MOBILE_PHONE"))
 
-            shareholders = _clean(getattr(row, "CNT_FL", None))
+            shareholders = _clean(cell(row, "CNT_FL"))
             if shareholders.endswith(".0"):
                 shareholders = shareholders[:-2]
 
+            activity = ""
+            if oked_col is not None and oked_col < len(row):
+                activity = _clean(row[oked_col])
+
             result[inn] = {
-                "company_name":       _clean(getattr(row, "CLIENT_NAME", None)),
-                "director":           _clean(getattr(row, "DIRECTOR_NAME", None)),
-                "reg_address":        _clean(getattr(row, "ADDRESS", None)),
+                "company_name":       _clean(cell(row, "CLIENT_NAME")),
+                "director":           _clean(cell(row, "DIRECTOR_NAME")),
+                "reg_address":        _clean(cell(row, "ADDRESS")),
                 "phone":              phone,
-                "turnover_debit":     _num(row, "TURNOVER_DEBIT"),
-                "turnover_credit":    _num(row, "TURNOVER_CREDIT"),
-                "turnover_all":       _num(row, "TURNOVER_ALL"),
+                "turnover_debit":     _format_num(cell(row, "TURNOVER_DEBIT")),
+                "turnover_credit":    _format_num(cell(row, "TURNOVER_CREDIT")),
+                "turnover_all":       _format_num(cell(row, "TURNOVER_ALL")),
                 "shareholders_count": shareholders,
-                "accountant":         _clean(getattr(row, "ACCOUNTER_CHIEF_NAME", None)),
-                "activity_type":      _clean(getattr(row, "OKED.1", None)),
-                "sal_sum":            _num(row, "SAL_SUM"),
+                "accountant":         _clean(cell(row, "ACCOUNTER_CHIEF_NAME")),
+                "activity_type":      activity,
+                "sal_sum":            _format_num(cell(row, "SAL_SUM")),
             }
+        wb.close()
         return result
     except Exception as exc:
         print(f"[sme_profile.client_db] load failed: {exc}")
