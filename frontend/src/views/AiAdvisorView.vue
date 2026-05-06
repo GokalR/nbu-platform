@@ -1,7 +1,8 @@
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
+import { BACKEND_URL } from '@/services/api'
 
 const { t } = useI18n()
 
@@ -18,6 +19,8 @@ const messages = ref([
 ])
 
 const isThinking = ref(false)
+const routerInfo = ref(null)
+let activeStream = null
 
 const SUGGESTION_TO_ANSWER = {
   'ai.suggestions.q1': 'ai.answers.q1',
@@ -32,26 +35,92 @@ function answerFor(text) {
   return null
 }
 
+function scrollToBottom() {
+  nextTick(() => messagesContainer.value?.scrollTo({ top: 1e9, behavior: 'smooth' }))
+}
+
+function closeStream() {
+  if (activeStream) {
+    activeStream.close()
+    activeStream = null
+  }
+}
+
+onBeforeUnmount(closeStream)
+
+function startStream(question) {
+  closeStream()
+  isThinking.value = true
+  routerInfo.value = null
+
+  // Push an empty assistant message we'll fill in as tokens arrive.
+  const assistantMsg = { role: 'assistant', text: '' }
+  messages.value.push(assistantMsg)
+  scrollToBottom()
+
+  const url = `${BACKEND_URL}/api/ai-advisor/chat/stream?question=${encodeURIComponent(question)}`
+  const es = new EventSource(url)
+  activeStream = es
+
+  let firstTokenSeen = false
+
+  es.onmessage = (ev) => {
+    let data
+    try { data = JSON.parse(ev.data) } catch { return }
+
+    if (data.type === 'status' && data.stage === 'routed') {
+      routerInfo.value = { selected: data.selected, n: data.n, matched: data.matched }
+      return
+    }
+    if (data.type === 'token' && typeof data.text === 'string') {
+      if (!firstTokenSeen) {
+        firstTokenSeen = true
+        isThinking.value = false
+      }
+      assistantMsg.text += data.text
+      scrollToBottom()
+      return
+    }
+    if (data.type === 'done') {
+      isThinking.value = false
+      closeStream()
+    }
+  }
+
+  es.onerror = () => {
+    isThinking.value = false
+    if (!assistantMsg.text) {
+      assistantMsg.text = "Tizim bilan bog'lanishda xatolik. Iltimos, qaytadan urinib ko'ring."
+    }
+    closeStream()
+  }
+}
+
 async function send() {
   const text = input.value.trim()
   if (!text) return
+  if (isThinking.value) return
+
   messages.value.push({ role: 'user', text })
   input.value = ''
-  await nextTick()
-  messagesContainer.value?.scrollTo({ top: 1e9, behavior: 'smooth' })
-  const predefined = answerFor(text)
-  isThinking.value = true
-  await nextTick()
-  messagesContainer.value?.scrollTo({ top: 1e9, behavior: 'smooth' })
-  const delay = 1200 + Math.floor(Math.random() * 1800)
-  setTimeout(() => {
-    isThinking.value = false
-    messages.value.push({
-      role: 'assistant',
-      text: predefined || 'Tahlil tayyorlanmoqda... (demo javob)',
-    })
-    nextTick(() => messagesContainer.value?.scrollTo({ top: 1e9, behavior: 'smooth' }))
-  }, delay)
+  scrollToBottom()
+
+  // If no backend is configured, fall back to the canned suggestion answers.
+  if (!BACKEND_URL) {
+    const predefined = answerFor(text)
+    isThinking.value = true
+    setTimeout(() => {
+      isThinking.value = false
+      messages.value.push({
+        role: 'assistant',
+        text: predefined || 'Backend ulanmagan. (demo rejim)',
+      })
+      scrollToBottom()
+    }, 800)
+    return
+  }
+
+  startStream(text)
 }
 
 const suggestions = ['ai.suggestions.q1', 'ai.suggestions.q2', 'ai.suggestions.q3']
@@ -135,11 +204,13 @@ function ask(key) {
             type="text"
             class="flex-1 bg-surface-container rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             :placeholder="t('ai.placeholder')"
+            :disabled="isThinking"
           />
           <button
             type="submit"
-            class="bg-primary text-on-primary p-3 rounded-full hover:scale-105 active:scale-95 transition-transform"
+            class="bg-primary text-on-primary p-3 rounded-full hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
             :aria-label="t('ai.send')"
+            :disabled="isThinking"
           >
             <AppIcon name="send" filled />
           </button>
@@ -162,6 +233,11 @@ function ask(key) {
             </button>
           </li>
         </ul>
+
+        <div v-if="routerInfo" class="text-xs text-on-surface-variant border-t border-outline-variant/20 pt-3">
+          <div class="font-bold mb-1">Tahlil qilingan hududlar ({{ routerInfo.n }}/14)</div>
+          <div class="text-on-surface-variant">{{ routerInfo.selected.join(', ') }}</div>
+        </div>
       </aside>
     </div>
   </section>

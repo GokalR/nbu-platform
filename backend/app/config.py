@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     # Other tools (Regional Strategist) stay on Claude regardless.
     llm_provider: str = "claude"
 
+    # AI Advisor (regional analytics chatbot — RAG over 14 viloyats).
+    # Independent of openai_model so the Advisor can run on a different model
+    # than the Business Plan tool.
+    rag_model: str = "gpt-5.1"
+    vector_store_id: str = ""
+    rag_timeout_sec: int = 180
+
     # CERR Mahalla Analytics v2 — root of the scraped JSON tree.
     # Local dev: defaults to the in-repo reference data (1.4 GB, gitignored).
     # Production: set CERR_DATA_ROOT to a mounted Railway Volume path.
@@ -63,6 +70,14 @@ class Settings(BaseSettings):
     def llm_provider_clean(self) -> str:
         v = self.llm_provider.strip().lower()
         return v if v in ("claude", "openai") else "claude"
+
+    @property
+    def rag_model_clean(self) -> str:
+        return self.rag_model.strip() or "gpt-5.1"
+
+    @property
+    def vector_store_id_clean(self) -> str:
+        return self.vector_store_id.strip()
 
     @property
     def cors_origin_list(self) -> list[str]:

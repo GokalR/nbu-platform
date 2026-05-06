@@ -37,6 +37,9 @@ from .routes.business_plan import router as business_plan_router, admin_router a
 # SME Profile / Business Questionnaire (sync)
 from .routes.sme_profile import router as sme_profile_router, admin_router as sme_profile_admin_router
 
+# AI Advisor — regional analytics chatbot (RAG via OpenAI File Search)
+from .routes.regional_chat import router as ai_advisor_router
+
 # Register reference models so create_all() picks them up
 from . import models_analytics_ref  # noqa: F401
 from . import models_rs_ref  # noqa: F401
@@ -279,6 +282,9 @@ app.include_router(business_plan_admin_router, prefix="/api/rs")
 # hits /api/sme-profile/... directly (not via the rs prefix).
 app.include_router(sme_profile_router, prefix="/api")
 app.include_router(sme_profile_admin_router, prefix="/api")
+
+# AI Advisor — final paths: /api/ai-advisor/{health,chat,chat/stream}
+app.include_router(ai_advisor_router, prefix="/api")
 
 
 @app.get("/health", tags=["meta"])
