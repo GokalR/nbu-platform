@@ -5,9 +5,12 @@
  */
 import { BACKEND_URL } from '@/services/api'
 
-const BASE = (import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '').startsWith('/')
-  ? BACKEND_URL + (import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '')
-  : import.meta.env.VITE_API_URL?.replace(/\/$/, '') || ''
+// VITE_API_URL is the rs-tool convention and includes the "/api/rs" suffix.
+// The cerr router is mounted at "/api/cerr" directly on the host (NOT under
+// /api/rs), so we strip that suffix here and build /api/cerr ourselves.
+const _raw = (import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '')
+const _full = _raw.startsWith('/') ? BACKEND_URL + _raw : _raw
+const BASE = _full.replace(/\/api\/rs\/?$/i, '')
 
 let runtimeDisabled = false
 const isConfigured = () => Boolean(BASE) && !runtimeDisabled
