@@ -53,9 +53,12 @@ function startStream(question) {
   isThinking.value = true
   routerInfo.value = null
 
-  // Push an empty assistant message we'll fill in as tokens arrive.
-  const assistantMsg = { role: 'assistant', text: '' }
-  messages.value.push(assistantMsg)
+  // Push an empty assistant bubble we fill as tokens arrive. Capture the
+  // reactive proxy via array index — mutating the original object
+  // reference bypasses Vue's Proxy set trap and freezes the bubble at the
+  // first token (only re-renders when some other ref changes).
+  messages.value.push({ role: 'assistant', text: '' })
+  const idx = messages.value.length - 1
   scrollToBottom()
 
   const url = `${BACKEND_URL}/api/ai-advisor/chat/stream?question=${encodeURIComponent(question)}`
@@ -63,6 +66,7 @@ function startStream(question) {
   activeStream = es
 
   let firstTokenSeen = false
+  let streamDone = false
 
   es.onmessage = (ev) => {
     let data
@@ -77,20 +81,24 @@ function startStream(question) {
         firstTokenSeen = true
         isThinking.value = false
       }
-      assistantMsg.text += data.text
+      messages.value[idx].text += data.text
       scrollToBottom()
       return
     }
     if (data.type === 'done') {
+      streamDone = true
       isThinking.value = false
       closeStream()
     }
   }
 
   es.onerror = () => {
+    // EventSource fires onerror both on real failures AND on normal
+    // server-side close (after we've sent 'done'). Only show an error if
+    // the stream never reached the done event.
     isThinking.value = false
-    if (!assistantMsg.text) {
-      assistantMsg.text = "Tizim bilan bog'lanishda xatolik. Iltimos, qaytadan urinib ko'ring."
+    if (!streamDone && !messages.value[idx].text) {
+      messages.value[idx].text = "Tizim bilan bog'lanishda xatolik. Iltimos, qaytadan urinib ko'ring."
     }
     closeStream()
   }
