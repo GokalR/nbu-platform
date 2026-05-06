@@ -19,9 +19,9 @@ backend/data/sme_profile/ruyxat.xlsx
 backend/data/sme_profile/Руйхат-2*.xlsx
 
 # CERR Mahalla Analytics v2 — 1.4 GB scraped JSON tree.
-# Source data lives outside git (Railway Volume in prod, local fs in dev).
-# Path is configurable via CERR_DATA_ROOT env var; default points here.
+# Source data lives outside git (R2 bucket nbu-cerr-data, served at
+# https://cerr-data.devgokal.com). Path is configurable via CERR_DATA_ROOT.
 reference_analytics_platform/cerr_runs/
-# Keep the legacy mirrored Next.js bundle out of git too — it's only used
-# as a reference; v2 is rebuilt natively in Vue.
-reference_analytics_platform/platform/
+# But DO commit the Next.js bundle + Flask server — it's the actual UI
+# served as a separate Railway service and iframe'd from the main app.
+reference_analytics_platform/platform/__pycache__/

@@ -26,24 +26,6 @@ const routes = [
     meta: { titleKey: 'nav.regionsV2' },
   },
   {
-    path: '/regions-v2/regions/:regionCode',
-    name: 'regions-v2-region',
-    component: () => import('@/views/regionsV2/RegionDetailView.vue'),
-    meta: { titleKey: 'nav.regionsV2' },
-  },
-  {
-    path: '/regions-v2/districts/:districtCode',
-    name: 'regions-v2-district',
-    component: () => import('@/views/regionsV2/DistrictDetailView.vue'),
-    meta: { titleKey: 'nav.regionsV2' },
-  },
-  {
-    path: '/regions-v2/mahallas/:stir',
-    name: 'regions-v2-mahalla',
-    component: () => import('@/views/regionsV2/MahallaDetailView.vue'),
-    meta: { titleKey: 'nav.regionsV2' },
-  },
-  {
     path: '/ai',
     name: 'ai',
     component: () => import('@/views/AiAdvisorView.vue'),

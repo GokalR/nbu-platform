@@ -1,0 +1,97 @@
+[
+  {
+    "url": "http://ai.cerr.uz/_next/static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2",
+    "local": "static\\_next\\static\\media\\797e433ab948586e-s.p.0.q-h669a_dqa.woff2",
+    "bytes": 31288
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+    "local": "static\\_next\\static\\media\\83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+    "bytes": 48432
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/media/9c72aa0f40e4eef8-s.p.0m6w47a4e5dy9.woff2",
+    "local": "static\\_next\\static\\media\\9c72aa0f40e4eef8-s.p.0m6w47a4e5dy9.woff2",
+    "bytes": 18744
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/14mpuuw-h-qpx.css",
+    "local": "static\\_next\\static\\chunks\\14mpuuw-h-qpx.css",
+    "bytes": 81979
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/047-cys6mtmnu.js",
+    "local": "static\\_next\\static\\chunks\\047-cys6mtmnu.js",
+    "bytes": 5587
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0w-rwutu--~gf.js",
+    "local": "static\\_next\\static\\chunks\\0w-rwutu--~gf.js",
+    "bytes": 31396
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0jiv3gmkvae02.js",
+    "local": "static\\_next\\static\\chunks\\0jiv3gmkvae02.js",
+    "bytes": 227314
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/00nlt7x_9mi4z.js",
+    "local": "static\\_next\\static\\chunks\\00nlt7x_9mi4z.js",
+    "bytes": 136649
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0pqt~8bl3ukh4.js",
+    "local": "static\\_next\\static\\chunks\\0pqt~8bl3ukh4.js",
+    "bytes": 44414
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/turbopack-0n4rz4ulkfzjf.js",
+    "local": "static\\_next\\static\\chunks\\turbopack-0n4rz4ulkfzjf.js",
+    "bytes": 10613
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0o9mh8lk9cyiy.js",
+    "local": "static\\_next\\static\\chunks\\0o9mh8lk9cyiy.js",
+    "bytes": 17370
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/148ko75-ihlmp.js",
+    "local": "static\\_next\\static\\chunks\\148ko75-ihlmp.js",
+    "bytes": 54646
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0u6jtj5rp0ojc.js",
+    "local": "static\\_next\\static\\chunks\\0u6jtj5rp0ojc.js",
+    "bytes": 2874
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/media/2c55a0e60120577a-s.0bjc5tiuqdqro.woff2",
+    "local": "static\\_next\\static\\media\\2c55a0e60120577a-s.0bjc5tiuqdqro.woff2",
+    "bytes": 25844
+  },
+  {
+    "url": "http://ai.cerr.uz/favicon.ico?favicon.0x3dzn~oxb6tn.ico",
+    "local": "static\\favicon.ico",
+    "bytes": 25931
+  },
+  {
+    "url": "http://ai.cerr.uz/cerr_logo.png",
+    "local": "static\\cerr_logo.png",
+    "bytes": 85263
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0w_vtfmqi73ci.js",
+    "local": "static\\_next\\static\\chunks\\0w_vtfmqi73ci.js",
+    "bytes": 918
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/static/chunks/0s8wz7k0qnig9.js",
+    "local": "static\\_next\\static\\chunks\\0s8wz7k0qnig9.js",
+    "bytes": 229926
+  },
+  {
+    "url": "http://ai.cerr.uz/_next/image?url=%2Fcerr_logo.png&w=48&q=75",
+    "local": "static\\_next\\image\\cerr_logo_w48_q75.png",
+    "bytes": 427
+  }
+]
