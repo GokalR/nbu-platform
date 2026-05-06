@@ -26,6 +26,7 @@ from .routes.excel import router as excel_router
 from .routes.submissions import router as submissions_router
 from .routes.analytics_ref import router as analytics_ref_router
 from .routes.rs_ref import router as rs_ref_router
+from .routes.cerr import router as cerr_router
 
 # Golden Mart (async)
 from .routes.gm import router as gm_router
@@ -171,6 +172,21 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             log.warning("[startup] sync_gm_columns skipped: %s", e)
 
+        # Same fix for business_plan_submissions: the historical_financials
+        # column was added to the model after the table was first created in
+        # production, so writes 500 with a column-not-found error. Idempotent
+        # (uses ADD COLUMN IF NOT EXISTS).
+        try:
+            from sqlalchemy import text
+            async with engine_async.begin() as conn:
+                await conn.execute(text(
+                    "ALTER TABLE IF EXISTS business_plan_submissions "
+                    "ADD COLUMN IF NOT EXISTS historical_financials JSONB"
+                ))
+            log.info("[startup] business_plan_submissions.historical_financials ensured")
+        except Exception as e:
+            log.warning("[startup] business_plan column sync skipped: %s", e)
+
         # Convert legacy RU/UZ text in enum columns to language-agnostic codes
         try:
             from .seed_gm_data import migrate_enum_values
@@ -224,6 +240,9 @@ app.include_router(excel_router, prefix="/api/rs")
 app.include_router(analyze_router, prefix="/api/rs")
 app.include_router(rs_ref_router, prefix="/api/rs")
 app.include_router(analytics_ref_router)
+
+# CERR Mahalla Analytics v2 — file-backed, prefix already on the router
+app.include_router(cerr_router)
 
 # Golden Mart routes
 app.include_router(gm_router)
