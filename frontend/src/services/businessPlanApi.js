@@ -36,18 +36,21 @@ async function request(path, options = {}) {
   }
 }
 
+// Paths are appended to VITE_API_URL (which already contains /api/rs in
+// production), so the final URL is /api/rs/business-plan/... matching the
+// backend's mount.
 export const businessPlanApi = {
   isConfigured,
 
   generate: (payload) =>
-    request('/api/business-plan/generate', {
+    request('/business-plan/generate', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
 
-  getPlan: (id) => request(`/api/business-plan/${id}`),
+  getPlan: (id) => request(`/business-plan/${id}`),
 
   // Admin
-  adminList: () => request('/api/admin/business-plans'),
-  adminDetail: (id) => request(`/api/admin/business-plans/${id}`),
+  adminList: () => request('/admin/business-plans'),
+  adminDetail: (id) => request(`/admin/business-plans/${id}`),
 }

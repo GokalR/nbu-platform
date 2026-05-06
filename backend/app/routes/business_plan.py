@@ -155,7 +155,7 @@ class AdminListItem(BaseModel):
 
 # ---------- routes ----------
 
-router = APIRouter(prefix="/api/business-plan", tags=["business-plan"])
+router = APIRouter(prefix="/business-plan", tags=["business-plan"])
 
 
 @router.post("/generate", response_model=GenerateResponse, status_code=status.HTTP_201_CREATED)
@@ -238,7 +238,7 @@ def get_plan(plan_id: str, db: Session = Depends(get_db)):
 
 # ---------- admin ----------
 
-admin_router = APIRouter(prefix="/api/admin/business-plans", tags=["business-plan-admin"])
+admin_router = APIRouter(prefix="/admin/business-plans", tags=["business-plan-admin"])
 
 
 @admin_router.get("", response_model=list[AdminListItem])

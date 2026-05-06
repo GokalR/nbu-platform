@@ -224,9 +224,12 @@ app.include_router(analytics_ref_router)
 # Golden Mart routes
 app.include_router(gm_router)
 
-# Business Plan routes (sync) — mounted directly (no /api/rs prefix; own prefix in router)
-app.include_router(business_plan_router)
-app.include_router(business_plan_admin_router)
+# Business Plan routes (sync) — mounted under /api/rs to match the
+# frontend's VITE_API_URL convention. Final paths:
+#   /api/rs/business-plan/generate
+#   /api/rs/admin/business-plans
+app.include_router(business_plan_router, prefix="/api/rs")
+app.include_router(business_plan_admin_router, prefix="/api/rs")
 
 
 @app.get("/health", tags=["meta"])
