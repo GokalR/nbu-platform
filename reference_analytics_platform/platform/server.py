@@ -652,6 +652,107 @@ body.dark {
   .site { grid-template-columns: 1fr !important; }
   .site > .sidebar { order: 0 !important; max-height: 360px !important; overflow-y: auto !important; }
 }
+
+/* ============================================================
+   Polish pass — hides remaining CERR branding, normalises KPI
+   heights so labels of different lengths don't break alignment,
+   tightens number rendering with Geist Mono.
+   ============================================================ */
+
+/* 13. Right-sidebar header still showed an "MA · Mahalla Analytics"
+       block — remove it. Also tighten search-row padding. */
+.logo-row { display: none !important; }
+.sidebar { padding: 10px 0 8px !important; }
+.mahalla-search-row, .sidebar-search {
+  margin: 4px 8px 8px !important;
+  border-radius: 10px !important;
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+/* 14. KPI card heights — give every card the same minimum height so
+       2-word and 5-word labels line up. Reserve a 2-line slot for
+       the label and clamp anything longer. Values stay anchored to
+       the bottom of the card. */
+.kpi {
+  min-height: 124px !important;
+  padding: 16px 18px !important;
+  align-items: stretch !important;
+  grid-template-columns: 56px 1fr !important;
+  gap: 14px !important;
+}
+.kpi-icon {
+  align-self: center !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 14px !important;
+}
+.kpi-body {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-width: 0 !important;
+}
+.kpi-label {
+  font-size: 10.5px !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.35 !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 28px !important;
+}
+
+/* 15. Numbers — Geist Mono for that tabular dashboard feel. */
+.kpi-value,
+.stat-value,
+.delta,
+.num,
+.rank,
+.peer-rank {
+  font-family: var(--font-geist-mono, 'Geist Mono'), 'Geist Mono', ui-monospace, monospace !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.02em !important;
+}
+.kpi-value {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.1 !important;
+  margin-top: 4px !important;
+}
+
+/* 16. Delta pill alignment — sit on its own row right under the
+       value, not jammed next to it. */
+.kpi-foot { margin-top: 6px !important; }
+.delta {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+}
+
+/* 17. Rank display ("1 / 15") — make the slash and total readable. */
+.kpi-value .rank-num,
+.kpi-value > strong {
+  font-size: 26px !important;
+}
+.kpi-value .rank-tot,
+.kpi-value > span {
+  font-size: 14px !important;
+  color: var(--text-muted) !important;
+  font-weight: 600 !important;
+  margin-left: 2px !important;
+}
+
+/* 18. Section card headers — softer divider, NBU spacing. */
+.card-head {
+  padding: 14px 20px 10px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
 """.strip()
 
 
