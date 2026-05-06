@@ -876,12 +876,100 @@
       "credit": {
         "title": "Kredit baholash",
         "desc": "Korxonaning kredit qobiliyatini avtomatik baholash."
+      },
+      "smeProfile": {
+        "title": "KOB biznes anketasi",
+        "desc": "Soha boʻyicha tadbirkorlar uchun anketa: PINFL/INN orqali mijoz maʼlumotlari avtomatik toʻldiriladi, keyin esa yoʻnalishlaringiz boʻyicha biznes-savollar."
       }
     },
     "open": "Ochish",
     "new": "Yangi",
     "inDevelopment": "Ishlab chiqilmoqda",
     "comingSoon": "Tez orada"
+  },
+  "smeProfile": {
+    "title": "KOB biznes anketasi",
+    "subtitle": "Soha-soha — biznesingiz profilini yigʻamiz",
+    "exit": "Chiqish",
+    "exitConfirm": "Anketadan chiqilsinmi? Kiritilgan maʼlumotlar yoʻqoladi.",
+    "next": "Davom etish",
+    "back": "Orqaga",
+    "submit": "Anketani yuborish",
+    "submitting": "Yuborilmoqda…",
+    "selectPlaceholder": "— Tanlang —",
+    "loading": "Maʼlumotlar yuklanmoqda…",
+    "steps": {
+      "pinfl": "Identifikatsiya",
+      "category": "Kategoriya",
+      "questions": "Savollar",
+      "summary": "Yakuniy",
+      "success": "Tayyor"
+    },
+    "pinfl": {
+      "title": "Identifikatorni kiriting",
+      "label": "PINFL yoki INN",
+      "placeholder": "Masalan: 123456789012",
+      "hint": "Jismoniy shaxslar PINFL (14 raqam), yuridik shaxslar INN (9 raqam) kiritadi",
+      "searchBtn": "Qidirish",
+      "found": "Maʼlumot topildi",
+      "notFound": "Maʼlumotlar bazasida topilmadi. Davom etishingiz mumkin.",
+      "sphereCount": "Faoliyat sohalari soni",
+      "searchFirst": "PINFL / INN kiriting va davom etishdan oldin «Qidirish» tugmasini bosing"
+    },
+    "category": {
+      "title": "Biznes kategoriyasini tanlang",
+      "sphere": "{total} dan {n} soha"
+    },
+    "questions": {
+      "title": "Savollarga javob bering",
+      "subtitle": "{total} dan {n} soha: {category}",
+      "relatedCompany": "Kompaniya {n} — INN",
+      "relatedCompanyPlaceholder": "Kompaniya {n} INN"
+    },
+    "summary": {
+      "title": "Yakuniy xulosa",
+      "subtitle": "Yuborishdan oldin javoblaringizni tekshiring",
+      "general": "Umumiy maʼlumot",
+      "financials": "Moliyaviy koʻrsatkichlar"
+    },
+    "success": {
+      "title": "Anketa muvaffaqiyatli yuborildi!",
+      "msg": "Ishtirok etganingiz uchun rahmat. Javoblaringiz saqlandi va tizimga topshirildi.",
+      "startNew": "Yangi anketani toʻldirish"
+    },
+    "fields": {
+      "company": "Tashkilot",
+      "companyFull": "Tashkilot nomi",
+      "director": "Direktor",
+      "accountant": "Bosh buxgalter",
+      "address": "Manzil",
+      "regAddress": "Yuridik manzil",
+      "phone": "Telefon",
+      "activityType": "Faoliyat turi",
+      "pinflInn": "PINFL / INN",
+      "sphereCount": "Sohalar soni",
+      "sphere": "Soha",
+      "turnoverAll": "Jami aylanma (soʻm)",
+      "debit": "Debet (soʻm)",
+      "credit": "Kredit (soʻm)",
+      "salSum": "Ish haqi jamgʻarmasi",
+      "shareholders": "Aksiyadorlar soni"
+    },
+    "address": {
+      "viloyat": "Viloyat",
+      "tuman": "Tuman",
+      "mfy": "MFY",
+      "selectViloyat": "— Viloyatni tanlang —",
+      "selectTuman": "— Tumanni tanlang —",
+      "selectMfy": "— MFYni tanlang —",
+      "loading": "Yuklanmoqda…",
+      "placeholder": "Viloyat, tuman, MFY"
+    },
+    "errors": {
+      "empty": "Maydon toʻldirish shart",
+      "backend": "Server bilan ulanishda xatolik. Internet aloqasini tekshiring.",
+      "noBackend": "Backend sozlanmagan. Muhitda VITE_API_URL ni oʻrnating."
+    }
   },
   "businessPlan": {
     "title": "KOB uchun Biznes-reja",

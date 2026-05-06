@@ -134,6 +134,12 @@ const routes = [
     meta: { layout: 'blank', titleKey: 'businessPlan.title' },
   },
   {
+    path: '/tools/sme-profile',
+    name: 'sme-profile-wizard',
+    component: () => import('@/views/smeProfile/SmeProfileWizardView.vue'),
+    meta: { layout: 'blank', titleKey: 'smeProfile.title' },
+  },
+  {
     path: '/tools/business-plan/result/:id',
     name: 'business-plan-result',
     component: () => import('@/views/businessPlan/BusinessPlanResultView.vue'),

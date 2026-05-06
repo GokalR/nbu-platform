@@ -12,3 +12,7 @@ venv/
 *.mp4
 *.mov
 .wrangler/
+
+# SME Profile: real client data (sensitive, do not commit).
+# Туман+МФЙ.xlsx is public reference data and stays committed.
+backend/data/sme_profile/Руйхат-2*.xlsx

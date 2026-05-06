@@ -32,6 +32,7 @@ export const districts = [
 export const tools = [
   { key: 'businessPlan', icon: 'description', accent: 'bg-primary', to: '/tools/business-plan', featured: true },
   { key: 'strategy', icon: 'rocket_launch', accent: 'bg-tertiary', to: '/tools/regional-strategist', featured: true },
+  { key: 'smeProfile', icon: 'fact_check', accent: 'bg-secondary', to: '/tools/sme-profile', featured: true },
 ]
 
 export const districtByKey = Object.fromEntries(districts.map((d) => [d.key, d]))

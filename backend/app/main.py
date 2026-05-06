@@ -33,11 +33,15 @@ from .routes.gm import router as gm_router
 # Business Plan (sync)
 from .routes.business_plan import router as business_plan_router, admin_router as business_plan_admin_router
 
+# SME Profile / Business Questionnaire (sync)
+from .routes.sme_profile import router as sme_profile_router, admin_router as sme_profile_admin_router
+
 # Register reference models so create_all() picks them up
 from . import models_analytics_ref  # noqa: F401
 from . import models_rs_ref  # noqa: F401
 from . import models_gm  # noqa: F401  — registers Golden Mart tables
 from . import models_business_plan  # noqa: F401  — registers business_plan_submissions
+from . import models_sme_profile  # noqa: F401  — registers sme_profile_submissions
 from .auth import hash_password
 from .models_education import User
 
@@ -230,6 +234,11 @@ app.include_router(gm_router)
 #   /api/rs/admin/business-plans
 app.include_router(business_plan_router, prefix="/api/rs")
 app.include_router(business_plan_admin_router, prefix="/api/rs")
+
+# SME Profile (Business Questionnaire) — mounted under /api so the frontend
+# hits /api/sme-profile/... directly (not via the rs prefix).
+app.include_router(sme_profile_router, prefix="/api")
+app.include_router(sme_profile_admin_router, prefix="/api")
 
 
 @app.get("/health", tags=["meta"])
