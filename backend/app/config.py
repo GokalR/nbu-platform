@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     # Other tools (Regional Strategist) stay on Claude regardless.
     llm_provider: str = "claude"
 
+    # CERR Mahalla Analytics v2 — root of the scraped JSON tree.
+    # Local dev: defaults to the in-repo reference data (1.4 GB, gitignored).
+    # Production: set CERR_DATA_ROOT to a mounted Railway Volume path.
+    cerr_data_root: str = ""
+
     @property
     def anthropic_model_clean(self) -> str:
         return self.anthropic_model.strip()
@@ -86,6 +91,17 @@ class Settings(BaseSettings):
     @property
     def video_base_url_stripped(self) -> str:
         return self.video_base_url.rstrip("/")
+
+    @property
+    def cerr_data_root_resolved(self) -> str:
+        """Resolve CERR data root: env override, else fall back to the in-repo
+        reference_analytics_platform/cerr_runs/ next to the backend folder."""
+        v = (self.cerr_data_root or "").strip()
+        if v:
+            return v
+        # backend/app/config.py -> repo root is parents[2]
+        from pathlib import Path
+        return str(Path(__file__).resolve().parents[2] / "reference_analytics_platform" / "cerr_runs")
 
 
 @lru_cache
