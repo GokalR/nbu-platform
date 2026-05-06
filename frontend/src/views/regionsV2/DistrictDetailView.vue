@@ -2,11 +2,13 @@
 import { ref, computed, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
+import AppIcon from '@/components/AppIcon.vue'
 import BreadcrumbNav from '@/components/regionsV2/BreadcrumbNav.vue'
 import KpiCard from '@/components/regionsV2/KpiCard.vue'
 import CerrMap from '@/components/regionsV2/CerrMap.vue'
 import MahallaTable from '@/components/regionsV2/MahallaTable.vue'
 import { cerrApi } from '@/services/cerrApi'
+import '@/assets/regionsV2.css'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -57,57 +59,79 @@ const breadcrumb = computed(() => {
     { label: district.value.name },
   ]
 })
+
+function fmt(n) { return (n || 0).toLocaleString('ru-RU') }
 </script>
 
 <template>
-  <div class="px-6 lg:px-10 py-8 max-w-7xl mx-auto">
-    <BreadcrumbNav :items="breadcrumb" />
+  <div class="regions-v2">
+    <div class="v2-shell">
+      <div v-if="loading" class="empty">{{ t('regionsV2.loading') }}</div>
 
-    <div v-if="loading" class="text-slate-500 py-20 text-center">{{ t('regionsV2.loading') }}</div>
+      <div v-else-if="error" class="alert">{{ error }}</div>
 
-    <div
-      v-else-if="error"
-      class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-amber-900 text-sm"
-    >
-      {{ error }}
-    </div>
+      <template v-else-if="district">
+        <!-- Hero -->
+        <section class="hero">
+          <div class="hero-left">
+            <BreadcrumbNav :items="breadcrumb" />
+            <h1 class="h-title">{{ district.name }}</h1>
+            <p class="h-sub">
+              {{ district.region_name }} ·
+              <b class="num">{{ fmt(district.mahalla_count) }}</b> {{ t('regionsV2.mahallasCount').toLowerCase() }}
+            </p>
+          </div>
+          <div class="hero-right">
+            <div class="kpi-icon" style="width:64px;height:64px;border-radius:16px;font-size:28px">
+              <AppIcon name="location_city" />
+            </div>
+            <div>
+              <div class="kpi-label">{{ district.region_name }}</div>
+              <div class="kpi-value num">{{ district.name }}</div>
+            </div>
+          </div>
+        </section>
 
-    <template v-else-if="district">
-      <header class="mb-6">
-        <h1 class="text-3xl font-black text-slate-900 leading-tight">{{ district.name }}</h1>
-        <p class="text-sm text-slate-500 mt-1">
-          {{ district.region_name }}
-          &middot;
-          {{ (district.mahalla_count || 0).toLocaleString('ru-RU') }} {{ t('regionsV2.mahallasCount').toLowerCase() }}
-        </p>
-      </header>
+        <!-- KPI strip -->
+        <section v-if="kpis.length" class="kpi-grid">
+          <KpiCard v-for="(k, i) in kpis" :key="i" :kpi="k" />
+        </section>
 
-      <section v-if="kpis.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
-        <KpiCard v-for="(k, i) in kpis" :key="i" :kpi="k" />
-      </section>
-
-      <div class="grid lg:grid-cols-5 gap-6">
-        <div class="lg:col-span-3 h-[560px]">
-          <CerrMap
-            :geo="geo"
-            :mahallas="mahallas"
-            :highlighted-stir="hoveredStir"
-            class="h-full"
-            @hover="(s) => (hoveredStir = s)"
-            @select="(s) => $router.push(`/regions-v2/mahallas/${s}`)"
-          />
-        </div>
-        <div class="lg:col-span-2">
-          <h2 class="text-lg font-bold text-slate-900 mb-3">{{ t('regionsV2.mahallasHeading') }}</h2>
-          <div class="max-h-[520px] overflow-y-auto">
-            <MahallaTable
+        <!-- Map + table side by side -->
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:14px" class="map-table-row">
+          <section class="card map-wrap" style="padding:0;min-height:540px">
+            <CerrMap
+              :geo="geo"
               :mahallas="mahallas"
               :highlighted-stir="hoveredStir"
+              style="height:100%"
               @hover="(s) => (hoveredStir = s)"
+              @select="(s) => $router.push(`/regions-v2/mahallas/${s}`)"
             />
-          </div>
+          </section>
+          <section class="card" style="display:flex;flex-direction:column;min-height:540px">
+            <header class="card-head">
+              <h3>{{ t('regionsV2.mahallasHeading') }}</h3>
+              <span class="chip">{{ mahallas.length }}</span>
+            </header>
+            <div style="flex:1;overflow-y:auto;padding:0 0 12px">
+              <MahallaTable
+                :mahallas="mahallas"
+                :highlighted-stir="hoveredStir"
+                @hover="(s) => (hoveredStir = s)"
+              />
+            </div>
+          </section>
         </div>
-      </div>
-    </template>
+      </template>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media (max-width: 1024px) {
+  .map-table-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>

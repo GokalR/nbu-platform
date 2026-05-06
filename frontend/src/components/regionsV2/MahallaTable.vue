@@ -31,52 +31,48 @@ function open(stir) {
 </script>
 
 <template>
-  <div class="rounded-xl bg-white border border-slate-200/70 overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-        <tr>
-          <th class="px-4 py-3 text-left w-12">#</th>
-          <th class="px-4 py-3 text-left">{{ $t('common.mahalla') }}</th>
-          <th
-            class="px-4 py-3 text-right cursor-pointer hover:text-slate-900"
-            @click="sortDesc = !sortDesc"
-          >
-            <span class="inline-flex items-center gap-1">
-              {{ $t('regionsV2.ratingScore') }}
-              <AppIcon :name="sortDesc ? 'arrow_downward' : 'arrow_upward'" class="!text-base" />
-            </span>
-          </th>
-          <th class="px-4 py-3 w-12"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(m, i) in sorted"
-          :key="m.stir"
-          class="border-t border-slate-100 cursor-pointer transition-colors"
-          :class="m.stir === highlightedStir ? 'bg-blue-50' : 'hover:bg-slate-50'"
-          @click="open(m.stir)"
-          @mouseenter="emit('hover', m.stir)"
-          @mouseleave="emit('hover', null)"
+  <table class="m-table">
+    <thead>
+      <tr>
+        <th style="width:48px">#</th>
+        <th>{{ $t('common.mahalla') }}</th>
+        <th
+          class="num-col"
+          style="cursor:pointer"
+          @click="sortDesc = !sortDesc"
         >
-          <td class="px-4 py-2.5 text-slate-400 font-mono text-xs">{{ i + 1 }}</td>
-          <td class="px-4 py-2.5 font-medium text-slate-900">{{ m.name || '—' }}</td>
-          <td class="px-4 py-2.5 text-right tabular-nums">
-            <span v-if="m.rating_score != null" class="font-semibold text-slate-700">
-              {{ m.rating_score.toLocaleString('ru-RU') }}
-            </span>
-            <span v-else class="text-slate-400">—</span>
-          </td>
-          <td class="px-4 py-2.5 text-right">
-            <AppIcon name="chevron_right" class="text-slate-400" />
-          </td>
-        </tr>
-        <tr v-if="!sorted.length">
-          <td colspan="4" class="px-4 py-8 text-center text-slate-500 text-sm">
-            {{ $t('regionsV2.noData') }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+          <span style="display:inline-flex;align-items:center;gap:4px">
+            {{ $t('regionsV2.ratingScore') }}
+            <AppIcon :name="sortDesc ? 'arrow_downward' : 'arrow_upward'" class="!text-base" />
+          </span>
+        </th>
+        <th style="width:32px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="(m, i) in sorted"
+        :key="m.stir"
+        :class="{ 'is-active': m.stir === highlightedStir }"
+        @click="open(m.stir)"
+        @mouseenter="emit('hover', m.stir)"
+        @mouseleave="emit('hover', null)"
+      >
+        <td><span class="rank">{{ i + 1 }}</span></td>
+        <td class="name">{{ m.name || '—' }}</td>
+        <td class="num-col">
+          <span v-if="m.rating_score != null">
+            {{ m.rating_score.toLocaleString('ru-RU') }}
+          </span>
+          <span v-else class="faint">—</span>
+        </td>
+        <td><AppIcon name="chevron_right" class="muted" /></td>
+      </tr>
+      <tr v-if="!sorted.length">
+        <td colspan="4" style="text-align:center;padding:32px 14px;color:var(--text-muted)">
+          {{ $t('regionsV2.noData') }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>

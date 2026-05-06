@@ -1,0 +1,502 @@
+/* CERR Mahalla Analytics — design system, NBU-flavoured.
+ * Ported from reference_analytics_platform/platform/static/_next/static/chunks/14mpuuw-h-qpx.css.
+ * Same component vocabulary (.hero, .kpi-row, .kpi, .card, .chip, .delta, .ai-card, .peer-row...)
+ * with NBU's blue-900 palette swapped in for CERR's #002060 navy.
+ *
+ * Scoped to .regions-v2 — does NOT leak into other parts of NBU AI HUB.
+ */
+
+.regions-v2 {
+  /* NBU brand blues replacing CERR's gov-navy */
+  --gov-navy: #1e3a8a;       /* Tailwind blue-900 — primary brand */
+  --gov-primary: #1d4ed8;    /* blue-700 — actions */
+  --gov-mid: #60a5fa;        /* blue-400 */
+  --gov-pale: #dbeafe;       /* blue-100 */
+  --gov-surface: #ffffff;
+
+  /* Status palette (kept identical to CERR — universal) */
+  --c-amber: #e8a33d;   --c-amber-bg: #fdf4e3;
+  --c-green: #2da086;   --c-green-bg: #e4f4ef;
+  --c-rose:  #e5524f;   --c-rose-bg:  #fce9e8;
+  --c-purple:#7b4fae;   --c-purple-bg:#efe7f8;
+  --c-saffron:#f4b545;  --c-saffron-bg:#fef5de;
+
+  /* Layered surfaces */
+  --bg:           #f4f7fc;
+  --bg-surface:   #ffffff;
+  --bg-elevated:  #edf1f8;
+  --bg-input:     #f7f9fc;
+  --border:       #e0e6ef;
+  --border-subtle:#edf1f7;
+
+  /* Text */
+  --text-primary:   var(--gov-navy);
+  --text-secondary: #2b3e61;
+  --text-muted:     #76839a;
+  --text-faint:     #a3aec4;
+
+  /* Accents */
+  --accent:        var(--gov-primary);
+  --accent-hover:  var(--gov-navy);
+  --accent-bg:     #1d4ed817;
+  --accent-bg-hi:  #60a5fa24;
+  --accent-solid:  var(--gov-navy);
+  --zebra:         #1d4ed806;
+
+  /* NBU-flavoured navy shadow */
+  --shadow-card: 0 1px 3px #1e3a8a0a, 0 8px 24px #1e3a8a0d, 0 0 0 1px #1e3a8a06;
+  --shadow-hero: 0 3px 10px #1e3a8a0d, 0 18px 46px #1e3a8a14, 0 0 0 1px #1e3a8a08;
+
+  background: var(--bg);
+  color: var(--text-primary);
+  font-feature-settings: "cv11", "ss03";
+}
+
+/* Typography helpers */
+.regions-v2 .num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.regions-v2 .muted { color: var(--text-muted); }
+.regions-v2 .faint { color: var(--text-faint); }
+
+/* ---------- Hero strip ---------- */
+.regions-v2 .hero {
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-hero);
+  border-radius: 18px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  padding: 0;
+  overflow: hidden;
+}
+.regions-v2 .hero-left {
+  position: relative;
+  z-index: 1;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.regions-v2 .hero-right {
+  background:
+    radial-gradient(circle at 70% 30%, var(--accent-bg-hi) 0%, transparent 60%),
+    var(--bg-elevated);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 22px;
+  padding: 22px 26px;
+}
+@media (max-width: 900px) {
+  .regions-v2 .hero { grid-template-columns: 1fr; }
+}
+
+.regions-v2 .crumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.regions-v2 .crumb a { color: var(--text-secondary); text-decoration: none; }
+.regions-v2 .crumb a:hover { color: var(--accent); }
+.regions-v2 .crumb .sep { color: var(--text-faint); }
+.regions-v2 .crumb .here { color: var(--text-primary); font-weight: 600; }
+
+.regions-v2 .h-title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+.regions-v2 .h-sub {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+.regions-v2 .h-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* ---------- KPI grid ---------- */
+.regions-v2 .kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.regions-v2 .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.regions-v2 .kpi {
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  transition: transform .2s, box-shadow .2s;
+}
+.regions-v2 .kpi:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hero);
+}
+.regions-v2 .kpi-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-bg);
+  color: var(--accent-solid);
+  font-size: 24px;
+}
+.regions-v2 .kpi-icon.tone-up    { background: var(--c-green-bg);  color: var(--c-green); }
+.regions-v2 .kpi-icon.tone-down  { background: var(--c-rose-bg);   color: var(--c-rose); }
+.regions-v2 .kpi-icon.tone-neu   { background: var(--accent-bg);   color: var(--accent-solid); }
+.regions-v2 .kpi-icon.tone-amber { background: var(--c-amber-bg);  color: var(--c-amber); }
+.regions-v2 .kpi-icon.tone-purple{ background: var(--c-purple-bg); color: var(--c-purple); }
+
+.regions-v2 .kpi-body { min-width: 0; }
+.regions-v2 .kpi-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.regions-v2 .kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-top: 2px;
+  line-height: 1.1;
+}
+.regions-v2 .kpi-foot {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 4px;
+}
+
+/* delta pill */
+.regions-v2 .delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.regions-v2 .delta.up   { background: var(--c-green-bg); color: var(--c-green); }
+.regions-v2 .delta.down { background: var(--c-rose-bg);  color: var(--c-rose); }
+.regions-v2 .delta.neu  { background: var(--accent-bg);  color: var(--accent-solid); }
+
+/* ---------- Card / panel ---------- */
+.regions-v2 .card {
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.regions-v2 .card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 10px;
+}
+.regions-v2 .card-head h3 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.regions-v2 .card-body {
+  padding: 8px 20px 18px;
+}
+
+/* ---------- Chips / pills ---------- */
+.regions-v2 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--accent-bg);
+  color: var(--accent-solid);
+}
+.regions-v2 .chip.navy   { background: var(--gov-navy);   color: var(--gov-pale); }
+.regions-v2 .chip.pale   { background: var(--gov-pale);   color: var(--gov-navy); }
+.regions-v2 .chip.amber  { background: var(--c-amber-bg); color: var(--c-amber); }
+.regions-v2 .chip.green  { background: var(--c-green-bg); color: var(--c-green); }
+.regions-v2 .chip.rose   { background: var(--c-rose-bg);  color: var(--c-rose); }
+.regions-v2 .chip.purple { background: var(--c-purple-bg);color: var(--c-purple); }
+
+/* ---------- Region/district cards on list pages ---------- */
+.regions-v2 .tile {
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  text-align: left;
+  width: 100%;
+}
+.regions-v2 .tile:hover {
+  transform: translateY(-1px);
+  border-color: var(--gov-pale);
+  box-shadow: var(--shadow-hero);
+}
+.regions-v2 .tile-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.regions-v2 .tile-mark {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--accent-bg);
+  color: var(--accent-solid);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.regions-v2 .tile-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.regions-v2 .tile-stats {
+  display: flex;
+  gap: 14px;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.regions-v2 .tile-stats b {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* ---------- Search ---------- */
+.regions-v2 .search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.regions-v2 .search-row:focus-within {
+  border-color: var(--gov-mid);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.regions-v2 .search-row svg { color: var(--text-muted); flex-shrink: 0; }
+.regions-v2 .search-row input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.regions-v2 .search-row input::placeholder { color: var(--text-faint); }
+
+/* ---------- Mahalla table ---------- */
+.regions-v2 .m-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.regions-v2 .m-table thead th {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.regions-v2 .m-table tbody tr {
+  cursor: pointer;
+  transition: background .12s;
+}
+.regions-v2 .m-table tbody tr:hover { background: var(--zebra); }
+.regions-v2 .m-table tbody tr.is-active { background: var(--accent-bg); }
+.regions-v2 .m-table tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.regions-v2 .m-table .num-col { text-align: right; font-variant-numeric: tabular-nums; }
+.regions-v2 .m-table .rank {
+  display: inline-block;
+  min-width: 28px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+.regions-v2 .m-table .name { font-weight: 600; color: var(--text-primary); }
+
+/* ---------- Empty / loading / error ---------- */
+.regions-v2 .empty {
+  background: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.regions-v2 .alert {
+  background: var(--c-amber-bg);
+  border: 1px solid #f3c785;
+  color: #6b4a16;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* ---------- AI insights card (dark navy gradient like CERR) ---------- */
+.regions-v2 .ai-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 18px;
+  overflow: hidden;
+  color: var(--gov-pale);
+  background:
+    radial-gradient(70% 55% at 85% 0, #60a5fa29 0%, transparent 60%),
+    linear-gradient(160deg, #1e3a8a 0%, #172a6b 55%, #0f1f54 100%);
+  border: 1px solid #60a5fa1f;
+  box-shadow: 0 18px 56px #1e3a8a3d;
+}
+.regions-v2 .ai-card-head {
+  padding: 16px 22px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.regions-v2 .ai-card-head .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ffffff14;
+  color: #ffffff;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.regions-v2 .ai-card-head h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.regions-v2 .ai-card-body { padding: 6px 22px 18px; }
+.regions-v2 .ai-card-body p {
+  color: #e6edfb;
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+.regions-v2 .ai-card-body .group {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #ffffff0d;
+  border: 1px solid #ffffff14;
+}
+.regions-v2 .ai-card-body .group .group-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b4c4e4;
+  margin-bottom: 6px;
+}
+.regions-v2 .ai-card-body .group ul {
+  display: flex; flex-direction: column; gap: 6px;
+  margin: 0; padding: 0; list-style: none;
+}
+.regions-v2 .ai-card-body .group li {
+  font-size: 13px;
+  color: #dce6fa;
+  padding-left: 14px;
+  position: relative;
+}
+.regions-v2 .ai-card-body .group li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 8px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gov-mid);
+}
+.regions-v2 .ai-card-footer {
+  border-top: 1px dashed #ffffff1f;
+  padding: 10px 22px 12px;
+  font-size: 11px;
+  color: #b4c4e4cc;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ---------- Map wrapper ---------- */
+.regions-v2 .map-wrap {
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-card);
+  border-radius: 18px;
+  overflow: hidden;
+  height: 100%;
+  min-height: 480px;
+  position: relative;
+}
+
+/* ---------- Layout container ---------- */
+.regions-v2 .v2-shell {
+  padding: 24px 28px 60px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+@media (max-width: 768px) {
+  .regions-v2 .v2-shell { padding: 16px; }
+  .regions-v2 .kpi-row { grid-template-columns: 1fr 1fr; }
+  .regions-v2 .h-title { font-size: 20px; }
+}

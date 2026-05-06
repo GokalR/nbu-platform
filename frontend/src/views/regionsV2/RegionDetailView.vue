@@ -6,6 +6,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import BreadcrumbNav from '@/components/regionsV2/BreadcrumbNav.vue'
 import KpiCard from '@/components/regionsV2/KpiCard.vue'
 import { cerrApi } from '@/services/cerrApi'
+import '@/assets/regionsV2.css'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -33,7 +34,6 @@ watchEffect(async () => {
     cerrApi.listRegionDistricts(code),
   ])
   loading.value = false
-
   if (!r.ok) {
     error.value = r.reason === 'no-backend' ? t('regionsV2.noBackend') : t('regionsV2.errorLoad')
     return
@@ -53,59 +53,81 @@ const breadcrumb = computed(() => [
 function openDistrict(code) {
   router.push(`/regions-v2/districts/${code}`)
 }
+
+function fmt(n) { return (n || 0).toLocaleString('ru-RU') }
 </script>
 
 <template>
-  <div class="px-6 lg:px-10 py-8 max-w-7xl mx-auto">
-    <BreadcrumbNav :items="breadcrumb" />
+  <div class="regions-v2">
+    <div class="v2-shell">
+      <div v-if="loading" class="empty">{{ t('regionsV2.loading') }}</div>
 
-    <div v-if="loading" class="text-slate-500 py-20 text-center">{{ t('regionsV2.loading') }}</div>
+      <div v-else-if="error" class="alert">{{ error }}</div>
 
-    <div
-      v-else-if="error"
-      class="rounded-xl bg-amber-50 border border-amber-200 p-4 text-amber-900 text-sm"
-    >
-      {{ error }}
-    </div>
-
-    <template v-else-if="region">
-      <header class="mb-6">
-        <h1 class="text-3xl font-black text-slate-900 leading-tight">{{ region.name }}</h1>
-        <p class="text-sm text-slate-500 mt-1">
-          {{ region.districts_count }} {{ t('regionsV2.districtsCount').toLowerCase() }}
-          &middot;
-          {{ (region.mahalla_count || 0).toLocaleString('ru-RU') }} {{ t('regionsV2.mahallasCount').toLowerCase() }}
-        </p>
-      </header>
-
-      <section v-if="kpis.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
-        <KpiCard v-for="(k, i) in kpis" :key="i" :kpi="k" />
-      </section>
-
-      <section>
-        <h2 class="text-lg font-bold text-slate-900 mb-3">{{ t('regionsV2.districtsHeading') }}</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <button
-            v-for="d in districts"
-            :key="d.code"
-            class="group text-left rounded-xl bg-white border border-slate-200/70 p-4 hover:shadow-md hover:border-blue-300 transition-all"
-            @click="openDistrict(d.code)"
-          >
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <div class="text-base font-bold text-slate-900 leading-tight">{{ d.name }}</div>
-                <div class="text-xs text-slate-500 mt-1">
-                  {{ (d.mahalla_count || 0).toLocaleString('ru-RU') }} {{ t('regionsV2.mahallasCount').toLowerCase() }}
-                </div>
-              </div>
-              <AppIcon
-                name="arrow_forward"
-                class="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"
-              />
+      <template v-else-if="region">
+        <!-- Hero -->
+        <section class="hero">
+          <div class="hero-left">
+            <BreadcrumbNav :items="breadcrumb" />
+            <h1 class="h-title">{{ region.name }}</h1>
+            <p class="h-sub">
+              {{ region.districts_count }} {{ t('regionsV2.districtsCount').toLowerCase() }}
+              ·
+              {{ fmt(region.mahalla_count) }} {{ t('regionsV2.mahallasCount').toLowerCase() }}
+            </p>
+          </div>
+          <div class="hero-right">
+            <div class="kpi-icon" style="width:64px;height:64px;border-radius:16px;font-size:28px">
+              <AppIcon name="map" />
             </div>
-          </button>
-        </div>
-      </section>
-    </template>
+            <div>
+              <div class="kpi-label">{{ t('regionsV2.regionsHeading') }}</div>
+              <div class="kpi-value num">{{ region.name }}</div>
+              <div style="display:flex;gap:6px;margin-top:6px">
+                <span class="chip pale">{{ region.districts_count }} {{ t('regionsV2.districtsCount').toLowerCase() }}</span>
+                <span class="chip">{{ fmt(region.mahalla_count) }} {{ t('regionsV2.mahallasCount').toLowerCase() }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- KPI strip -->
+        <section v-if="kpis.length" class="kpi-grid">
+          <KpiCard v-for="(k, i) in kpis" :key="i" :kpi="k" />
+        </section>
+
+        <!-- Districts panel -->
+        <section class="card">
+          <header class="card-head">
+            <h3>{{ t('regionsV2.districtsHeading') }}</h3>
+            <span class="chip">{{ districts.length }}</span>
+          </header>
+          <div class="card-body">
+            <div class="kpi-grid">
+              <button
+                v-for="d in districts"
+                :key="d.code"
+                class="tile"
+                @click="openDistrict(d.code)"
+              >
+                <div class="tile-head">
+                  <div class="tile-mark"><AppIcon name="location_city" /></div>
+                  <div style="flex:1;min-width:0">
+                    <div class="tile-name">{{ d.name }}</div>
+                  </div>
+                  <AppIcon name="chevron_right" class="muted" />
+                </div>
+                <div class="tile-stats">
+                  <span><b>{{ fmt(d.mahalla_count) }}</b> {{ t('regionsV2.mahallasCount').toLowerCase() }}</span>
+                  <span v-if="d.has_geo" class="chip green" style="font-size:10px;padding:2px 6px">
+                    <AppIcon name="map" class="!text-xs" /> Карта
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
+      </template>
+    </div>
   </div>
 </template>
