@@ -213,6 +213,27 @@ function prevStep() {
   if (step.value > 1) step.value -= 1
 }
 
+// Click-to-jump from the stepper sidebar. Going backwards is always free;
+// going forward only as far as the previous step's validation lets us
+// (so a user can't skip required fields). Step 9 is loading — never
+// jumpable.
+function goToStep(target) {
+  if (submitting.value) return
+  if (target < 1 || target > 8) return
+  if (target <= step.value) {
+    step.value = target
+    return
+  }
+  // Forward jump — every step from current up to target-1 must be valid.
+  for (let s = step.value; s < target; s++) {
+    if (!isStepValid(s)) {
+      step.value = s
+      return
+    }
+  }
+  step.value = target
+}
+
 // ---------------- row helpers ----------------
 function addAssetCredit() {
   form.assets.creditFinanced.push({ name: '', qty: 0, unit: '' })
@@ -340,7 +361,11 @@ function exitWizard() {
           <li
             v-for="(key, i) in STEP_KEYS.slice(0, 8)"
             :key="key"
-            :class="['bp-step', `is-${stepStatus(i + 1)}`]"
+            :class="['bp-step', `is-${stepStatus(i + 1)}`, 'is-clickable']"
+            role="button"
+            tabindex="0"
+            @click="goToStep(i + 1)"
+            @keyup.enter="goToStep(i + 1)"
           >
             <span class="bp-step-num">
               <AppIcon v-if="stepStatus(i + 1) === 'done'" name="check" />
@@ -892,6 +917,12 @@ function exitWizard() {
   border-radius: 10px;
   font-size: 13px;
   color: #64748b;
+  user-select: none;
+}
+.bp-step.is-clickable { cursor: pointer; transition: background 0.15s; }
+.bp-step.is-clickable:hover { background: rgba(0, 61, 124, 0.06); }
+.bp-step.is-clickable:focus-visible {
+  outline: 2px solid #003d7c; outline-offset: 2px;
 }
 .bp-step.is-current {
   background: rgba(0, 61, 124, 0.08);
