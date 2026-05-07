@@ -530,15 +530,18 @@ CUSTOM_CSS = """
 /* 2. Hide the AI Chat view content. Dashboard becomes the only view. */
 .chat-shell, .chat-empty, .chat-empty-brand, .chat-empty-tagline { display: none !important; }
 
-/* 3. Tighten top padding now that the top bar is gone. */
-.pg-view { padding-top: 14px !important; max-width: 1320px !important; }
+/* 3. Tighten top padding now that the top bar is gone. Keep CERR's
+      max-width (1400px) so KPI cards retain their original width — a
+      narrower max-width pushes value text into the card's right edge. */
+.pg-view { padding-top: 14px !important; }
 
 /* 4. Flip dashboard layout: main content on the LEFT, mahalla
-      sidebar on the RIGHT. .site is the dashboard root grid. */
+      sidebar on the RIGHT. Sidebar stays at CERR's default 280px and
+      gap stays at 16px so each KPI card keeps its original 368px width. */
 .site {
-  grid-template-columns: 1fr 320px !important;
+  grid-template-columns: 1fr 280px !important;
   align-items: start !important;
-  gap: 18px !important;
+  gap: 16px !important;
 }
 .site > .main    { order: 1 !important; min-width: 0; }
 .site > .sidebar { order: 2 !important; }
