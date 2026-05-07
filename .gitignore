@@ -14,14 +14,25 @@ venv/
 .wrangler/
 
 # SME Profile: real client data (sensitive, do not commit).
-# tuman_mfy.xlsx is public reference data and stays committed.
-backend/data/sme_profile/ruyxat.xlsx
-backend/data/sme_profile/Руйхат-2*.xlsx
+# tuman_mfy.xlsx (in bff_frontend/) is public reference data and stays committed.
+bff_frontend/backend/data/sme_profile/ruyxat.xlsx
+bff_frontend/backend/data/sme_profile/Руйхат-2*.xlsx
+sme_oprosnyk/Руйхат-2*.xlsx
+sme_oprosnyk/backend/data/responses.xlsx
 
 # CERR Mahalla Analytics v2 — 1.4 GB scraped JSON tree.
 # Source data lives outside git (R2 bucket nbu-cerr-data, served at
 # https://cerr-data.devgokal.com). Path is configurable via CERR_DATA_ROOT.
-reference_analytics_platform/cerr_runs/
+region_analytics_platform_template/cerr_runs/
 # But DO commit the Next.js bundle + Flask server — it's the actual UI
 # served as a separate Railway service and iframe'd from the main app.
-reference_analytics_platform/platform/__pycache__/
+region_analytics_platform_template/platform/__pycache__/
+
+# detailed_map_city: large scraped JSON checkpoints (regenerable)
+detailed_map_city/checkpoint.json
+
+# nbu_education: 1.3 MB asset duplicated in bff_frontend/frontend/public/thumbnails/
+nbu_education/
+
+# Local Claude harness state (the lock file flips on every interactive session)
+.claude/scheduled_tasks.lock
