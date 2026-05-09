@@ -14,7 +14,14 @@ from sqlalchemy.orm import Session
 from ..config import get_settings
 from ..db_sync import get_db
 from ..models_business_plan import BusinessPlanSubmission
-from ..services import business_plan_client, credit_scoring, docx_builder, excel_parser_msb, nbu_products
+from ..services import (
+    business_plan_client,
+    business_plan_validation,
+    credit_scoring,
+    docx_builder,
+    excel_parser_msb,
+    nbu_products,
+)
 
 log = logging.getLogger(__name__)
 settings = get_settings()
@@ -189,6 +196,17 @@ def generate(
     # equity contribution, business age).
     credit_score = credit_scoring.compute_wizard_score(inputs_dict, baseline)
 
+    # Input gate — refuse to call the LLM if the wizard payload can't
+    # produce a meaningful plan. Saves 60-90s on garbage in.
+    errors, warnings = business_plan_validation.validate_inputs(
+        inputs_dict, baseline, candidates,
+    )
+    if errors:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"code": "invalid_inputs", "errors": errors, "warnings": warnings},
+        )
+
     rec = BusinessPlanSubmission(
         user_email=user_email,
         lang=body.lang or "uz",
@@ -210,7 +228,18 @@ def generate(
             historical_financials={"score": credit_score},
             baseline=baseline,
         )
-        rec.output = result["output"]
+        # Output validator — strips hallucinated products, forces verdict to
+        # match deterministic credit score, replaces broken projection with
+        # a synthesized ramp, enforces enums on risks/kpis, blanks
+        # marketContext if it contains unverifiable quantitative claims.
+        rec.output = business_plan_validation.validate_and_clean(
+            result["output"],
+            candidates=candidates,
+            baseline=baseline,
+            credit_score=credit_score,
+            inputs=inputs_dict,
+            warnings=warnings,
+        )
         # Stash provider in the model string so admin can see which LLM ran:
         # e.g. "openai/gpt-4o" or "claude/claude-sonnet-4-6-20250627".
         rec.model = f"{result.get('provider', 'unknown')}/{result['model']}"

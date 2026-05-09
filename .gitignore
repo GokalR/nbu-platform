@@ -36,3 +36,6 @@ nbu_education/
 
 # Local Claude harness state (the lock file flips on every interactive session)
 .claude/scheduled_tasks.lock
+
+# Local pre-edit backups (ad-hoc safety copies before risky refactors)
+.backups/

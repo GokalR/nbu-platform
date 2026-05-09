@@ -1,8 +1,17 @@
 """LLM wrapper for SME Business Plan generation.
 
 Provider-agnostic: picks Claude (Anthropic) or GPT (OpenAI) based on
-LLM_PROVIDER env var. Both call the same RU/UZ system prompt and return
-the same JSON schema, so the route doesn't care which one ran.
+LLM_PROVIDER env var.
+
+**Slim-schema design.** The LLM only writes qualitative content
+(narrative, risks, KPIs, milestones, recommended-product rationale).
+Every number — payroll, revenue, costs, profit, margins, projection,
+recommended-product rate/term/amount — is computed deterministically
+server-side and merged into the final plan by `_assemble_full_plan`.
+
+This cuts LLM output ~50% (60-90s → 30-45s on Sonnet 4.6) and removes a
+whole class of hallucination risks: the LLM can no longer invent a
+credit-product rate or disagree with our payroll math.
 """
 from __future__ import annotations
 
@@ -17,87 +26,43 @@ from ..config import get_settings
 log = logging.getLogger(__name__)
 
 
+# ============================================================================
+# Slim system prompts — qualitative content only
+# ============================================================================
+
 SYSTEM_PROMPT_RU = """Ты — старший кредитный аналитик НБУ Узбекистана, специализирующийся на МСБ.
 
-КРИТИЧЕСКИ ВАЖНО — DETERMINISTIC BASELINE:
-Во входе есть поле `deterministicBaseline` — это ТОЧНЫЕ числа, рассчитанные
-сервером из данных пользователя (ФОТ, выручка, коммунальные, платёж по кредиту,
-итого расходов, прибыль, маржи). НЕ ПЕРЕСЧИТЫВАЙ ИХ. Используй ровно эти значения
-в полях:
-  • team.totalHeadcount, team.monthlyPayroll, team.annualPayroll
-  • financials.monthlyRevenue              ← deterministicBaseline.revenue.monthlyRevenueUzs
-  • financials.monthlyCosts.payroll        ← deterministicBaseline.team.monthlyPayroll
-  • financials.monthlyCosts.utilities      ← deterministicBaseline.utilities.total
-  • financials.monthlyCosts.loanPayment    ← deterministicBaseline.loan.avgMonthlyPaymentFirst12m
-  • financials.monthlyCosts.total          ← сумма всех подкатегорий после твоего распределения rent/rawMaterials/other
-  • financials.monthlyProfit               ← monthlyRevenue - monthlyCosts.total
-  • financials.annualProfit                ← monthlyProfit × 12
-  • financials.grossMarginPct, ebitdaMarginPct ← можешь оценить, сервер перепроверит
+На вход получаешь JSON с данными анкеты предпринимателя плюс:
+  • candidateProducts — 3 кредитных продукта НБУ; ты выбираешь 1-2 по их `id`
+    и пишешь обоснование. РЕЙТЫ, СУММЫ, СРОКИ, ЦЕЛИ — берёт сервер из каталога,
+    тебе их писать НЕ НАДО.
+  • computedFinancials — фактические числа (выручка, расходы по категориям,
+    прибыль, маржа, платёж по кредиту, ФОТ). Используй для контекста и для
+    написания assessment-полей. В ответе не повторяй — сервер сам вставит.
+  • computedCreditScore — детерминистический скоринг (verdict + ratios). Опирайся
+    на него при формулировании рисков и actionableNextSteps.
 
-Поля financials.monthlyCosts.rawMaterials, .rent, .other — твоя задача распределить
-deterministicBaseline.extras.breakdown по категориям (мука/сырьё → rawMaterials,
-аренда → rent, остальное → other). Сумма распределения должна равняться
-deterministicBaseline.extras.total.
+Верни СТРОГО валидный JSON на русском, без markdown-обрамления и без комментариев.
+Все числа — числа, не строки. Все суммы — в сумах (UZS) без форматирования.
 
-Если ты выдашь свои числа вместо baseline — сервер их перезапишет, но это попадёт
-в логи как ошибка. Доверяй baseline.
-
-На вход получаешь ОДИН JSON с данными анкеты предпринимателя:
-  • organization — тип, ИНН, наименование, адрес, дата регистрации, основатель,
-    основной вид деятельности, уставный фонд
-  • project — цель, локация, собственные средства, сумма кредита, общая стоимость,
-    срок (мес.), льготный период (мес.), ставка (%), время до запуска (мес.)
-  • assets — основные средства за счёт кредита и за счёт собственных средств
-  • products — линейка продуктов/услуг (название, объём в месяц, ед. изм., цена, валюта)
-  • team — должности, кол-во, оклад
-  • utilities — электричество (кВт·ч), газ (м³), вода (м³), прочие постоянные расходы
-  • candidateProducts — 3 наиболее релевантных кредитных продукта НБУ. Выбери из них
-    1-2 лучше всего подходящих, НЕ предлагай продукты вне этого списка.
-
-Верни СТРОГО валидный JSON на русском без markdown-обрамления и без комментариев.
-Все числовые поля — числа, не строки. Все суммы — в сумах (UZS) без форматирования
-(1500000, не "1 500 000 сум").
-
-Схема ответа:
+СХЕМА ОТВЕТА (только качественные поля):
 
 {
-  "feasibilityVerdict": "high" | "medium" | "low",
-  "feasibilityScore": 0-100,
   "summary": "2-3 предложения: суть проекта + главный вывод о реалистичности",
-  "executiveSummary": "1 абзац (4-6 предложений) — краткое описание для руководителя банка",
-  "marketContext": "1 абзац — контекст рынка для этой ниши в Узбекистане/регионе с учётом локации проекта; без выдуманных цифр",
+  "executiveSummary": "1 абзац (4-6 предложений) — для руководителя банка. Опирайся на computedFinancials и computedCreditScore.",
+  "marketContext": "1 абзац — контекст ниши в Узбекистане/регионе. БЕЗ конкретных денежных объёмов рынка, выручки конкурентов, долей рынка в %. Только качественные характеристики.",
   "operations": {
     "processFlow": ["3-5 пунктов: как идёт производство/услуга day-to-day"],
     "supplyChain": "1-2 предложения о ключевых поставщиках/сырье",
     "criticalDependencies": ["2-3 пункта — без чего бизнес встанет"]
   },
-  "team": {
-    "totalHeadcount": <int>,
-    "monthlyPayroll": <int>,
-    "annualPayroll": <int>,
-    "assessment": "1-2 предложения — адекватен ли штат заявленным объёмам"
+  "teamAssessment": "1-2 предложения — адекватен ли штат заявленным объёмам (опирайся на computedFinancials.team)",
+  "financialsAssessment": "2-3 предложения — где маржа, где риск, что вызывает вопросы (используй computedFinancials и computedCreditScore.ratios)",
+  "extrasCategorization": {
+    "rent": <int>,
+    "rawMaterials": <int>,
+    "other": <int>
   },
-  "financials": {
-    "monthlyRevenue": <int>,
-    "monthlyCosts": {
-      "payroll": <int>,
-      "utilities": <int>,
-      "rawMaterials": <int>,
-      "loanPayment": <int>,
-      "rent": <int>,
-      "other": <int>,
-      "total": <int>
-    },
-    "monthlyProfit": <int>,
-    "annualProfit": <int>,
-    "breakevenMonths": <int>,
-    "grossMarginPct": <float, 0-100>,
-    "ebitdaMarginPct": <float, 0-100>,
-    "assessment": "2-3 предложения — где маржа, где риск, что вызывает вопросы"
-  },
-  "projection12m": [
-    {"month": 1, "revenue": <int>, "costs": <int>, "profit": <int>}
-  ],
   "milestones": {
     "first90Days":  ["3-5 конкретных задач — регистрация, монтаж оборудования, найм, первый запуск"],
     "first6Months": ["3-5 задач — выход на проектную мощность, маркетинг, первые продажи"],
@@ -110,15 +75,13 @@ deterministicBaseline.extras.total.
      "severity": "high" | "medium" | "low"}
   ],
   "kpis": [
-    {"name": "Название показателя", "target": "Целевое значение с числом", "frequency": "ежедневно" | "еженедельно" | "ежемесячно"}
+    {"name": "Название показателя",
+     "target": "Целевое значение с числом",
+     "frequency": "ежедневно" | "еженедельно" | "ежемесячно" | "ежеквартально" | "ежегодно"}
   ],
   "recommendedProducts": [
     {
-      "name": "<точно из candidateProducts.name>",
-      "rate": "<точно из candidateProducts.rate>",
-      "term": "<точно из candidateProducts.term>",
-      "amount": "<точно из candidateProducts.amount>",
-      "purpose": "<точно из candidateProducts.purpose>",
+      "productId": "<id из candidateProducts>",
       "rationale": "2-3 предложения — почему именно этот продукт под эту заявку (со ссылкой на сумму/цель/срок)",
       "fitScore": 0-100
     }
@@ -128,166 +91,79 @@ deterministicBaseline.extras.total.
   ]
 }
 
-КРИТИЧЕСКИ ВАЖНЫЕ ПРАВИЛА:
-1. Никогда не выдумывай числа, не указанные во входных данных. Если данных нет — пиши
-   "недостаточно данных" в текстовых полях, 0 в числовых, и упоминай это в risks.
-2. Все финансовые расчёты должны сходиться: monthlyCosts.total = сумма всех подкатегорий;
-   monthlyProfit = monthlyRevenue - monthlyCosts.total.
-3. loanPayment рассчитывается аннуитетом из project.loanAmount, project.interestRate,
-   project.termMonths, с учётом project.graceMonths (в льготный период — только проценты).
-4. utilities в сумах рассчитывай по тарифам Узбекистана 2025 г.: электричество ≈ 900 сум/кВт·ч,
-   газ ≈ 1800 сум/м³, вода+канализация ≈ 5500 сум/м³.
-5. Не предлагай кредитные продукты вне candidateProducts. Если ни один не подходит —
-   recommendedProducts: [] и объясни в risks почему.
-6. projection12m обязан содержать ровно 12 объектов; первые startupMonths — выручка ≤ 30%
-   от проектной, далее линейный или плавный выход на проектную мощность.
-7. Каждое утверждение в assessment / rationale / risks должно ссылаться на конкретное
-   поле или число из ввода. Никаких общих фраз ("важно следить за расходами").
-8. Тон — деловой, концентрированный, без воды. Каждое поле имеет вес.
-9. Длина: executiveSummary ≤ 600 символов, marketContext ≤ 500, summary ≤ 300,
-   каждый assessment ≤ 300.
-10. risks — 4-6 объектов. kpis — 4-6 объектов. recommendedProducts — 1-2 объекта.
-11. Если в input есть `historicalFinancials` — это РЕАЛЬНЫЕ финансовые показатели
-    компании (Форма №1 + Форма №2 за прошлый отчётный период) + готовый
-    pseudo-credit-score (low/medium/high). Используй их как основу:
-    • feasibilityScore завязывай в первую очередь на исторический score, не только на проекции
-    • в executiveSummary упомяни ключевые фактические показатели (выручка, прибыль, активы)
-    • если historicalFinancials.score.verdict == "low" — recommendedProducts должны
-      быть консервативнее (меньшая сумма, обязательный залог, fitScore ≤ 70)
-    • marketContext дополни 1 фразой о фактическом положении компании
-    • risks: добавь 1-2 риска, исходящих из слабых мест score.ratios (где score=0)
+КРИТИЧЕСКИЕ ПРАВИЛА:
+1. Не выдумывай числа, которых нет во входных данных. В marketContext — никаких объёмов рынка
+   в денежном выражении, никаких долей рынка в %, никаких темпов роста с цифрой. Качественно.
+2. extrasCategorization: rent + rawMaterials + other должно равняться computedFinancials.extrasTotal.
+   Распредели computedFinancials.extrasBreakdown по категориям (мука/сырьё → rawMaterials,
+   аренда → rent, остальное → other).
+3. recommendedProducts: только productId из candidateProducts. 1-2 продукта максимум.
+   Если ни один не подходит по логике — пустой массив [] и опиши причину в risks.
+4. risks — 4-6 объектов. Каждый обязан ссылаться на конкретное поле/число из computedFinancials
+   или computedCreditScore.ratios. Никаких общих фраз ("важно следить за расходами").
+5. kpis — 4-6 объектов. Целевые значения с числами.
+6. Длина: executiveSummary ≤ 600 символов, marketContext ≤ 500, summary ≤ 300.
+7. Тон — деловой, концентрированный, без воды.
 """
 
 
 SYSTEM_PROMPT_UZ = """Сен — Ўзбекистон НБУнинг МСБ кредит таҳлили бўйича катта мутахассисисан.
 
-ЖУДА МУҲИМ — DETERMINISTIC BASELINE:
-Кириш JSON да `deterministicBaseline` майдони бор — бу серверда ҳисобланган
-АНИҚ рақамлар (ФОТ, даромад, коммунал, кредит тўлови, жами харажат, фойда,
-маржа). УЛАРНИ ҚАЙТА ҲИСОБЛАМА. Қуйидаги майдонларда айнан шу қийматларни
-ишлат:
-  • team.totalHeadcount, team.monthlyPayroll, team.annualPayroll
-  • financials.monthlyRevenue              ← deterministicBaseline.revenue.monthlyRevenueUzs
-  • financials.monthlyCosts.payroll        ← deterministicBaseline.team.monthlyPayroll
-  • financials.monthlyCosts.utilities      ← deterministicBaseline.utilities.total
-  • financials.monthlyCosts.loanPayment    ← deterministicBaseline.loan.avgMonthlyPaymentFirst12m
-  • financials.monthlyCosts.total          ← барча подкатегорияларнинг йиғиндиси
-  • financials.monthlyProfit               ← monthlyRevenue - monthlyCosts.total
-  • financials.annualProfit                ← monthlyProfit × 12
+Кириш JSON да тадбиркор анкетаси ҳамда:
+  • candidateProducts — 3 та НБУ кредит маҳсулоти; сен 1-2 тасини `id` бўйича танлайсан
+    ва асос ёзасан. СТАВКА, СУММА, МУДДАТ, МАҚСАД — серверда каталогдан олинади, сенга
+    уларни ёзиш керак ЭМАС.
+  • computedFinancials — серверда ҳисобланган рақамлар (даромад, харажат, фойда,
+    маржа, ФОТ, кредит тўлови). Контекст учун ишлат, жавобда такрорлама.
+  • computedCreditScore — детерминистик скоринг (verdict + ratios). Хатарларни ва
+    actionableNextSteps ни шу асосда ёз.
 
-financials.monthlyCosts.rawMaterials, .rent, .other ни сен deterministicBaseline.extras.breakdown
-ни категориялаб тақсимла (ун/хом ашё → rawMaterials, ижара → rent, қолгани → other).
-Тақсимот йиғиндиси deterministicBaseline.extras.total га тенг бўлсин.
+ФАҚАТ валид JSON қайтар (ўзбек тилида, markdown эмас, изоҳсиз). Барча сонлар — сон,
+сатр эмас. Барча суммалар — сўмда (UZS) форматсиз.
 
-Агар сен baseline ўрнига ўз рақамларингни берсанг — сервер уларни алмаштиради
-ва бу хато сифатида логга ёзилади. Baseline га ишон.
-
-Кириш — ОДНОҚ JSON, тадбиркор анкетаси:
-  • organization — тури, ИНН, номи, манзили, рўйхатдан ўтган сана, асосчи,
-    асосий фаолият тури, устав фонди
-  • project — мақсад, локация, ўз маблағи, кредит миқдори, умумий қиймати,
-    муддат (ой), имтиёзли давр (ой), ставка (%), ишга тушиш муддати (ой)
-  • assets — кредит ҳисобидан ва ўз ҳисобидан асосий воситалар
-  • products — маҳсулот/хизмат рўйхати (номи, ойлик ҳажми, ўлчов бирлиги, нархи, валюта)
-  • team — лавозим, сони, ойлик иш ҳақи
-  • utilities — электр (кВт·соат), газ (м³), сув (м³), қўшимча доимий харажатлар
-  • candidateProducts — 3 та энг мос НБУ кредит маҳсулоти. Шулардан 1-2 тасини танла,
-    рўйхатдан ташқари маҳсулот таклиф қилма.
-
-ФАҚАТ валид JSON қайтар (ўзбек тилида, markdown эмас, изоҳсиз). Барча сонли майдонлар —
-сон, сатр эмас. Барча суммалар — сўмда (UZS) форматсиз (1500000, "1 500 000 сўм" эмас).
-
-Жавоб схемаси:
+ЖАВОБ СХЕМАСИ (фақат сифат майдонлари):
 
 {
-  "feasibilityVerdict": "high" | "medium" | "low",
-  "feasibilityScore": 0-100,
-  "summary": "2-3 жумла: лойиҳа моҳияти + реалистиклик хулосаси",
-  "executiveSummary": "1 абзац (4-6 жумла) — банк раҳбари учун қисқа баён",
-  "marketContext": "1 абзац — Ўзбекистон/минтақадаги бу соҳа учун бозор контексти; ўйлаб топилган рақамлар йўқ",
+  "summary": "2-3 жумла: лойиҳа моҳияти + реалистиклик",
+  "executiveSummary": "1 абзац (4-6 жумла) — банк раҳбари учун. computedFinancials ва computedCreditScore га таян.",
+  "marketContext": "1 абзац — соҳа контексти. Бозор ҳажми сўмда, рақобатчи даромадлари, бозор улуши % да — ЁЗМА. Фақат сифат хусусиятлари.",
   "operations": {
-    "processFlow": ["3-5 пункт: ишлаб чиқариш/хизмат қандай олиб борилади"],
-    "supplyChain": "1-2 жумла — асосий етказиб берувчилар/хом ашё ҳақида",
-    "criticalDependencies": ["2-3 пункт — нимасиз бизнес тўхтайди"]
+    "processFlow": ["3-5 пункт"],
+    "supplyChain": "1-2 жумла",
+    "criticalDependencies": ["2-3 пункт"]
   },
-  "team": {
-    "totalHeadcount": <int>,
-    "monthlyPayroll": <int>,
-    "annualPayroll": <int>,
-    "assessment": "1-2 жумла — штат ҳажмга мосми"
-  },
-  "financials": {
-    "monthlyRevenue": <int>,
-    "monthlyCosts": {
-      "payroll": <int>, "utilities": <int>, "rawMaterials": <int>,
-      "loanPayment": <int>, "rent": <int>, "other": <int>, "total": <int>
-    },
-    "monthlyProfit": <int>,
-    "annualProfit": <int>,
-    "breakevenMonths": <int>,
-    "grossMarginPct": <float>,
-    "ebitdaMarginPct": <float>,
-    "assessment": "2-3 жумла — маржа, хатар, шубҳали жойлар"
-  },
-  "projection12m": [{"month":1,"revenue":<int>,"costs":<int>,"profit":<int>}],
+  "teamAssessment": "1-2 жумла",
+  "financialsAssessment": "2-3 жумла",
+  "extrasCategorization": {"rent": <int>, "rawMaterials": <int>, "other": <int>},
   "milestones": {
-    "first90Days":  ["3-5 аниқ вазифа — рўйхатдан ўтиш, ускуна ўрнатиш, ишга олиш, биринчи ишга тушириш"],
-    "first6Months": ["3-5 вазифа — лойиҳавий қувватга чиқиш, маркетинг, илк сотувлар"],
-    "first12Months":["3-5 вазифа — кенгайиш, янги каналлар, тенгдошлик нуқтасига чиқиш"]
+    "first90Days": ["3-5 вазифа"],
+    "first6Months": ["3-5 вазифа"],
+    "first12Months": ["3-5 вазифа"]
   },
   "risks": [
     {"type":"market"|"operational"|"financial"|"regulatory",
-     "description":"анкета маълумотига боғланган аниқ хатар, ≤140 белги",
-     "mitigation":"1 ҳаракат, ≤140 белги",
+     "description":"≤140 белги","mitigation":"≤140 белги",
      "severity":"high"|"medium"|"low"}
   ],
   "kpis": [
-    {"name":"Кўрсаткич номи","target":"Рақамли мақсадли қиймат","frequency":"кунлик"|"ҳафталик"|"ойлик"}
+    {"name":"...","target":"рақамли мақсад",
+     "frequency":"кунлик"|"ҳафталик"|"ойлик"|"чораклик"|"йиллик"}
   ],
   "recommendedProducts": [
-    {
-      "name":"<candidateProducts.name дан айнан>",
-      "rate":"<candidateProducts.rate дан айнан>",
-      "term":"<candidateProducts.term дан айнан>",
-      "amount":"<candidateProducts.amount дан айнан>",
-      "purpose":"<candidateProducts.purpose дан айнан>",
-      "rationale":"2-3 жумла — нега айнан шу маҳсулот мос (сумма/мақсад/муддатга боғлаб)",
-      "fitScore":0-100
-    }
+    {"productId":"<id>","rationale":"2-3 жумла","fitScore":0-100}
   ],
-  "actionableNextSteps":[
-    "5-7 қадам — тадбиркор банкка тайёр келиш учун ҲОЗИРОҚ нима қилиши керак"
-  ]
+  "actionableNextSteps": ["5-7 қадам"]
 }
 
 ҚАТЪИЙ ҚОИДАЛАР:
-1. Кириш маълумотларида бўлмаган рақамларни ўйлаб топма. Маълумот етишмаса —
-   матнли майдонларда "маълумот етарли эмас", сонли майдонларда 0, ва risks га ёз.
-2. Молиявий ҳисоблар тўғри келсин: monthlyCosts.total = барча кичик категориялар
-   йиғиндиси; monthlyProfit = monthlyRevenue - monthlyCosts.total.
-3. loanPayment — project.loanAmount, project.interestRate, project.termMonths
-   асосида аннуитет билан, project.graceMonths инобатга олиниб (имтиёзли даврда
-   фақат фоизлар).
-4. utilities — Ўзбекистон 2025 тарифлари: электр ≈ 900 сўм/кВт·соат, газ ≈ 1800
-   сўм/м³, сув+канализация ≈ 5500 сўм/м³.
-5. candidateProducts дан ташқари маҳсулот таклиф қилма. Ҳеч бири мос келмаса —
-   recommendedProducts: [] ва risks да сабабини ёз.
-6. projection12m айнан 12 объект; биринчи startupMonths — даромад ≤ лойиҳавий
-   қувватнинг 30%, кейин аста-секин чиқиш.
-7. assessment / rationale / risks даги ҳар бир жумла кириш маълумотидаги аниқ
-   майдон ёки рақамга боғлансин. "Маркетинг муҳим" каби умумий иборалар йўқ.
-8. Услуб — иш услуби, ёрқин, сувсиз. Ҳар бир майдон зарур.
-9. Узунлик: executiveSummary ≤ 600 белги, marketContext ≤ 500, summary ≤ 300,
-   ҳар бир assessment ≤ 300.
-10. risks — 4-6 объект. kpis — 4-6 объект. recommendedProducts — 1-2 объект.
-11. Агар input да `historicalFinancials` бўлса — бу компаниянинг АСЛИДАГИ
-    молиявий кўрсаткичлари (Форма №1 + Форма №2) + тайёр pseudo-credit-score
-    (low/medium/high). Уларни асос қил:
-    • feasibilityScore — энг аввало тарихий score га боғла
-    • executiveSummary да асосий фактик кўрсаткичларни тилга ол (даромад, фойда, активлар)
-    • historicalFinancials.score.verdict == "low" бўлса — recommendedProducts
-      эҳтиёткор бўлиши керак (камроқ сумма, мажбурий гаров, fitScore ≤ 70)
-    • risks: score.ratios да score=0 бўлган заиф жойлардан 1-2 хатар қўш
+1. Кириш маълумотларида бўлмаган рақамларни ўйлаб топма. marketContext да — пул билан
+   бозор ҳажми, рақобатчи даромадлари, фоиз бўйича бозор улуши ЁК.
+2. extrasCategorization: rent + rawMaterials + other = computedFinancials.extrasTotal.
+3. recommendedProducts: фақат candidateProducts даги productId. 1-2 та максимум.
+4. risks — 4-6 объект. Ҳар бири computedFinancials/computedCreditScore.ratios даги аниқ
+   рақамга ишора қилсин.
+5. kpis — 4-6 объект. Рақамли мақсад.
+6. Узунлик: executiveSummary ≤ 600 белги, marketContext ≤ 500, summary ≤ 300.
 """
 
 
@@ -300,10 +176,6 @@ def _build_user_message(payload: dict[str, Any]) -> str:
 
 
 def _extract_json(raw: str) -> dict | None:
-    """Best-effort JSON extraction: try strict parse first, then locate the
-    outermost {...} block in case Claude wrapped output in prose despite
-    instructions. Returns None on total failure.
-    """
     s = raw.strip()
     try:
         return json.loads(s)
@@ -319,6 +191,10 @@ def _extract_json(raw: str) -> dict | None:
         return None
 
 
+# ============================================================================
+# Public entry point
+# ============================================================================
+
 def generate_business_plan(
     *,
     inputs: dict[str, Any],
@@ -329,15 +205,16 @@ def generate_business_plan(
     historical_financials: dict | None = None,
     baseline: dict | None = None,
 ) -> dict[str, Any]:
-    """Generate a business plan via the configured LLM provider.
+    """Generate a business plan.
+
+    The LLM produces a slim qualitative-only JSON; this function then
+    assembles the full plan structure (with deterministic numbers, hydrated
+    products, synthesized projection) and returns it.
 
     Returns {output, input_tokens, output_tokens, model, provider, baseline}.
-    `baseline` is the deterministic financial computation; if not passed,
-    we compute it here. The route normally pre-computes it so it can also
-    feed it into credit scoring.
-    Raises RuntimeError on config or parse failure.
     """
-    from . import business_plan_compute as bpc  # local import to avoid cycles
+    from . import business_plan_compute as bpc
+    from . import business_plan_validation as bpv
 
     settings = get_settings()
     used_provider = (provider or settings.llm_provider_clean).lower()
@@ -345,43 +222,231 @@ def generate_business_plan(
     if baseline is None:
         baseline = bpc.compute_baseline(inputs)
 
+    # Build a compact context payload — only what's needed for the LLM to
+    # write good qualitative output. We DO NOT ask the LLM to repeat back
+    # the numbers; the prompt explicitly forbids it.
     prompt_payload = {
-        **inputs,
-        "candidateProducts": candidate_products,
+        "organization": inputs.get("organization"),
+        "project": inputs.get("project"),
+        "products": inputs.get("products"),
+        "team": inputs.get("team"),
+        "utilities": inputs.get("utilities"),
         "lang": lang,
-        # AUTHORITATIVE numbers — the LLM is instructed below to use these
-        # exactly and not recompute. We also reconcile after the call.
-        "deterministicBaseline": baseline,
+        # Slim catalog view — id is what the LLM picks; rest is for context.
+        "candidateProducts": [
+            {"id": c["id"], "name": c["name"], "category": c.get("category", ""),
+             "purpose": c.get("purpose", ""), "rate": c.get("rate", ""),
+             "term": c.get("term", ""), "amount": c.get("amount", "")}
+            for c in candidate_products
+        ],
+        "computedFinancials": {
+            "monthlyRevenueUzs": baseline["revenue"]["monthlyRevenueUzs"],
+            "annualRevenueUzs": baseline["revenue"]["annualRevenueUzs"],
+            "monthlyPayroll": baseline["team"]["monthlyPayroll"],
+            "totalHeadcount": baseline["team"]["totalHeadcount"],
+            "utilitiesTotal": baseline["utilities"]["total"],
+            "extrasTotal": baseline["extras"]["total"],
+            "extrasBreakdown": baseline["extras"]["breakdown"],
+            "loanAvgMonthlyPayment12m": baseline["loan"]["avgMonthlyPaymentFirst12m"],
+            "monthlyCostsAvg12m": baseline["monthlyCosts"]["avg12m"],
+            "monthlyProfitAvg12m": baseline["monthlyProfit"]["avg12m"],
+            "marginsAvg12m": baseline["marginsAvg12m"],
+        },
     }
     if historical_financials:
         prompt_payload["historicalFinancials"] = historical_financials
+        # Make the credit score visible to the LLM for risk/next-steps grounding.
+        score = historical_financials.get("score") or {}
+        prompt_payload["computedCreditScore"] = {
+            "verdict": score.get("verdict"),
+            "percent": score.get("percent"),
+            "ratios": {k: {"value": v.get("value"), "unit": v.get("unit"),
+                           "score": v.get("score")}
+                       for k, v in (score.get("ratios") or {}).items()},
+        }
+
     system = _system_prompt(lang)
     user_msg = _build_user_message(prompt_payload)
 
     if used_provider == "openai":
-        result = _call_openai(system=system, user_msg=user_msg, lang=lang, model=model, settings=settings)
+        result = _call_openai(system=system, user_msg=user_msg, model=model, settings=settings)
     else:
-        result = _call_claude(system=system, user_msg=user_msg, lang=lang, model=model, settings=settings)
+        result = _call_claude(system=system, user_msg=user_msg, model=model, settings=settings)
 
-    # Override LLM-computed figures with deterministic ones. Qualitative
-    # output (text, risks, milestones, recommendedProducts) stays as-is.
-    result["output"] = bpc.reconcile_with_llm(result["output"], baseline)
+    # Assemble the full plan structure from slim LLM output + deterministic
+    # baseline + catalog. The downstream output validator runs on this.
+    credit_score = (historical_financials or {}).get("score") or {}
+    result["output"] = _assemble_full_plan(
+        slim=result["output"],
+        baseline=baseline,
+        credit_score=credit_score,
+        candidates=candidate_products,
+        project=inputs.get("project") or {},
+    )
     result["baseline"] = baseline
     return result
 
 
-def _call_claude(*, system: str, user_msg: str, lang: str, model: str | None, settings) -> dict[str, Any]:
+# ============================================================================
+# Plan assembly — slim LLM output + deterministic data → full plan
+# ============================================================================
+
+def _assemble_full_plan(
+    *,
+    slim: dict[str, Any],
+    baseline: dict[str, Any],
+    credit_score: dict[str, Any],
+    candidates: list[dict[str, Any]],
+    project: dict[str, Any],
+) -> dict[str, Any]:
+    """Merge the slim LLM output with deterministic figures into the full
+    plan shape that the frontend / validator / DOCX builder expect.
+
+    Numbers come from baseline. Recommended products are hydrated from the
+    catalog (LLM only chose IDs). Projection is synthesized from baseline.
+    Credit score drives feasibilityVerdict / feasibilityScore.
+
+    The output validator will further enforce enums and length caps.
+    """
+    from . import business_plan_validation as bpv
+
+    if not isinstance(slim, dict):
+        slim = {}
+
+    # Catalog lookup for hydrating recommended products
+    catalog_by_id = {c["id"]: c for c in candidates if "id" in c}
+
+    rec_products: list[dict[str, Any]] = []
+    for r in slim.get("recommendedProducts") or []:
+        if not isinstance(r, dict):
+            continue
+        src = catalog_by_id.get(r.get("productId"))
+        if not src:
+            continue
+        rec_products.append({
+            "name": src.get("name", ""),
+            "rate": src.get("rate", ""),
+            "term": src.get("term", ""),
+            "amount": src.get("amount", ""),
+            "purpose": src.get("purpose", ""),
+            "rationale": str(r.get("rationale", ""))[:500],
+            "fitScore": _clamp_int(r.get("fitScore"), 0, 100, default=50),
+        })
+
+    # Extras categorization — clamp sum to baseline.extras.total
+    extras_total = int(baseline["extras"]["total"])
+    cat = slim.get("extrasCategorization") or {}
+    rent = max(0, _to_int(cat.get("rent"), 0))
+    raw_materials = max(0, _to_int(cat.get("rawMaterials"), 0))
+    other = max(0, _to_int(cat.get("other"), 0))
+    cat_sum = rent + raw_materials + other
+    if extras_total > 0 and cat_sum != extras_total:
+        # Soft-correct: scale to baseline total. Validator will further
+        # downgrade to a single bucket if the proportions are absurd.
+        if cat_sum > 0:
+            scale = extras_total / cat_sum
+            rent = round(rent * scale)
+            raw_materials = round(raw_materials * scale)
+            other = extras_total - rent - raw_materials  # absorbs rounding
+        else:
+            other = extras_total
+
+    margins = baseline["marginsAvg12m"]
+    proj = bpv.synthesize_projection_12m(baseline, project)
+    breakeven = bpv._compute_breakeven_months(proj)
+
+    return {
+        # Verdict — always from deterministic credit scoring
+        "feasibilityVerdict": credit_score.get("verdict", "low"),
+        "feasibilityScore": int(credit_score.get("percent", 0)),
+
+        # Narrative — from LLM
+        "summary": str(slim.get("summary") or "")[:300],
+        "executiveSummary": str(slim.get("executiveSummary") or "")[:600],
+        "marketContext": str(slim.get("marketContext") or "")[:500],
+        "operations": {
+            "processFlow": [str(s) for s in (slim.get("operations") or {}).get("processFlow") or []],
+            "supplyChain": str((slim.get("operations") or {}).get("supplyChain") or ""),
+            "criticalDependencies": [
+                str(s) for s in (slim.get("operations") or {}).get("criticalDependencies") or []
+            ],
+        },
+
+        # Team — numbers from baseline, assessment from LLM
+        "team": {
+            "totalHeadcount": baseline["team"]["totalHeadcount"],
+            "monthlyPayroll": baseline["team"]["monthlyPayroll"],
+            "annualPayroll": baseline["team"]["annualPayroll"],
+            "assessment": str(slim.get("teamAssessment") or "")[:300],
+        },
+
+        # Financials — numbers from baseline, assessment from LLM, extras split from LLM
+        "financials": {
+            "monthlyRevenue": baseline["revenue"]["monthlyRevenueUzs"],
+            "monthlyCosts": {
+                "payroll": baseline["monthlyCosts"]["breakdown"]["payroll"],
+                "utilities": baseline["monthlyCosts"]["breakdown"]["utilities"],
+                "loanPayment": baseline["monthlyCosts"]["breakdown"]["loanPaymentAvg"],
+                "rent": rent,
+                "rawMaterials": raw_materials,
+                "other": other,
+                "total": baseline["monthlyCosts"]["avg12m"],
+            },
+            "monthlyProfit": baseline["monthlyProfit"]["avg12m"],
+            "annualProfit": baseline["monthlyProfit"]["avg12m"] * 12,
+            "breakevenMonths": breakeven,
+            "grossMarginPct": float(margins["grossMarginPct"]),
+            "ebitdaMarginPct": float(margins["operatingMarginPct"]),
+            "assessment": str(slim.get("financialsAssessment") or "")[:300],
+        },
+
+        # Synthesized
+        "projection12m": proj,
+
+        # From LLM (validator will enforce enums / length caps next)
+        "milestones": {
+            "first90Days": [str(s) for s in (slim.get("milestones") or {}).get("first90Days") or []],
+            "first6Months": [str(s) for s in (slim.get("milestones") or {}).get("first6Months") or []],
+            "first12Months": [str(s) for s in (slim.get("milestones") or {}).get("first12Months") or []],
+        },
+        "risks": slim.get("risks") or [],
+        "kpis": slim.get("kpis") or [],
+        "actionableNextSteps": [str(s) for s in slim.get("actionableNextSteps") or []],
+
+        # Hydrated from catalog
+        "recommendedProducts": rec_products,
+    }
+
+
+def _to_int(v: Any, default: int = 0) -> int:
+    if v is None:
+        return default
+    try:
+        return int(float(v))
+    except (TypeError, ValueError):
+        return default
+
+
+def _clamp_int(v: Any, lo: int, hi: int, default: int = 0) -> int:
+    n = _to_int(v, default)
+    return max(lo, min(hi, n))
+
+
+# ============================================================================
+# Provider-specific calls
+# ============================================================================
+
+def _call_claude(*, system: str, user_msg: str, model: str | None, settings) -> dict[str, Any]:
     if not settings.anthropic_api_key_clean:
         raise RuntimeError("ANTHROPIC_API_KEY is not configured")
 
     client = Anthropic(api_key=settings.anthropic_api_key_clean)
     used_model = model or settings.anthropic_model_clean
 
+    # Slim schema fits comfortably in 4500 tokens; keep 6000 as headroom.
     resp = client.messages.create(
         model=used_model,
-        # 8000 — full plan with 12-month projection + risks + KPIs is ~5-6k
-        # tokens, so 4k truncated mid-JSON and broke parsing.
-        max_tokens=8000,
+        max_tokens=6000,
         system=system,
         messages=[{"role": "user", "content": user_msg}],
     )
@@ -389,7 +454,6 @@ def _call_claude(*, system: str, user_msg: str, lang: str, model: str | None, se
     text_parts = [b.text for b in resp.content if getattr(b, "type", None) == "text"]
     raw = "\n".join(text_parts).strip()
 
-    # Strip accidental markdown fences
     if raw.startswith("```"):
         raw = raw.strip("`")
         if raw.lower().startswith("json"):
@@ -415,16 +479,10 @@ def _call_claude(*, system: str, user_msg: str, lang: str, model: str | None, se
     }
 
 
-def _call_openai(*, system: str, user_msg: str, lang: str, model: str | None, settings) -> dict[str, Any]:
-    """Same prompt, same JSON schema — but via OpenAI Chat Completions.
-
-    Uses response_format={'type': 'json_object'} so the model is forced to
-    return valid JSON. Requires the prompt to mention JSON (it does).
-    """
+def _call_openai(*, system: str, user_msg: str, model: str | None, settings) -> dict[str, Any]:
     if not settings.openai_api_key_clean:
         raise RuntimeError("OPENAI_API_KEY is not configured")
 
-    # Imported lazily so deploys without OpenAI installed don't break Claude path.
     from openai import OpenAI
 
     client = OpenAI(api_key=settings.openai_api_key_clean)
@@ -432,7 +490,7 @@ def _call_openai(*, system: str, user_msg: str, lang: str, model: str | None, se
 
     resp = client.chat.completions.create(
         model=used_model,
-        max_tokens=8000,
+        max_tokens=6000,
         response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": system},
@@ -442,7 +500,7 @@ def _call_openai(*, system: str, user_msg: str, lang: str, model: str | None, se
 
     choice = resp.choices[0]
     raw = (choice.message.content or "").strip()
-    finish_reason = choice.finish_reason  # 'stop', 'length', etc.
+    finish_reason = choice.finish_reason
 
     parsed = _extract_json(raw)
     if parsed is None:
