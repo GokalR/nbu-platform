@@ -77,10 +77,6 @@ function show(v) {
       </p>
       <div class="divide-y divide-outline-variant">
         <div class="py-2.5 grid grid-cols-2 gap-4">
-          <p class="text-xs text-on-surface-variant font-medium">{{ t('smeProfile.fields.turnoverAll') }}</p>
-          <p class="text-sm font-semibold text-on-surface">{{ clientInfo.turnover_all || '—' }}</p>
-        </div>
-        <div class="py-2.5 grid grid-cols-2 gap-4">
           <p class="text-xs text-on-surface-variant font-medium">{{ t('smeProfile.fields.debit') }}</p>
           <p class="text-sm font-semibold text-on-surface">{{ clientInfo.turnover_debit || '—' }}</p>
         </div>
@@ -104,7 +100,7 @@ function show(v) {
         <span class="text-xs font-bold text-white bg-primary px-3 py-1 rounded-full">
           {{ t('smeProfile.fields.sphere') }} {{ sphere.sphere_number }}
         </span>
-        <span class="text-sm font-semibold text-on-surface">
+        <span class="text-sm font-semibold text-primary">
           {{ locale === 'ru' ? sphere.category_name_ru : sphere.category_name_uz }}
         </span>
       </div>

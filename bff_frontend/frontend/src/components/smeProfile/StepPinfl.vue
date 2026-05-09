@@ -18,7 +18,9 @@ const error = ref('')
 const searching = ref(false)
 const clientInfo = ref(props.initialClientInfo)
 const notFound = ref(false)
-const sphereCount = ref(props.initialSphereCount)
+const sphereInput = ref(String(props.initialSphereCount))
+const sphereError = ref('')
+const searched = ref(!!props.initialClientInfo)
 
 async function handleSearch() {
   if (!value.value.trim()) {
@@ -29,6 +31,7 @@ async function handleSearch() {
   error.value = ''
   notFound.value = false
   clientInfo.value = null
+  searched.value = false
 
   const res = await smeProfileApi.lookup(value.value.trim())
   searching.value = false
@@ -54,6 +57,7 @@ async function handleSearch() {
   } else {
     notFound.value = true
   }
+  searched.value = true
 }
 
 function handleNext() {
@@ -61,10 +65,15 @@ function handleNext() {
     error.value = t('smeProfile.errors.empty')
     return
   }
+  const count = parseInt(sphereInput.value, 10)
+  if (!sphereInput.value || isNaN(count) || count < 1 || count > 100) {
+    sphereError.value = t('smeProfile.errors.sphereRange')
+    return
+  }
   emit('next', {
     pinflInn: value.value.trim(),
     clientInfo: clientInfo.value,
-    sphereCount: sphereCount.value,
+    sphereCount: count,
   })
 }
 
@@ -72,10 +81,10 @@ const infoRows = computed(() => {
   const ci = clientInfo.value
   if (!ci) return []
   return [
-    { icon: 'business', label: t('smeProfile.fields.company'), val: ci.company_name },
-    { icon: 'person',   label: t('smeProfile.fields.director'), val: ci.director },
-    { icon: 'place',    label: t('smeProfile.fields.address'),  val: ci.reg_address },
-    { icon: 'call',     label: t('smeProfile.fields.phone'),    val: ci.phone },
+    { icon: 'business', label: t('smeProfile.fields.company'),    val: ci.company_name },
+    { icon: 'person',   label: t('smeProfile.fields.director'),   val: ci.director },
+    { icon: 'place',    label: t('smeProfile.fields.regAddress'), val: ci.reg_address },
+    { icon: 'call',     label: t('smeProfile.fields.phone'),      val: ci.phone },
   ].filter((r) => r.val)
 })
 
@@ -106,9 +115,10 @@ const btnPrimary =
         <input
           v-model="value"
           type="text"
+          maxlength="14"
           :placeholder="t('smeProfile.pinfl.placeholder')"
           :class="[inputCls, error ? 'border-error bg-red-50' : '']"
-          @input="error = ''; clientInfo = null; notFound = false"
+          @input="error = ''; clientInfo = null; notFound = false; searched = false"
           @keydown.enter="handleSearch"
         />
         <button
@@ -150,16 +160,12 @@ const btnPrimary =
           </div>
         </div>
         <div
-          v-if="clientInfo.turnover_all || clientInfo.turnover_debit || clientInfo.accountant"
+          v-if="clientInfo.turnover_debit || clientInfo.turnover_credit || clientInfo.accountant"
           class="mt-2 pt-2 border-t border-primary/20 space-y-1.5"
         >
           <div v-if="clientInfo.accountant" class="flex justify-between gap-2">
             <span class="text-xs text-on-surface-variant">{{ t('smeProfile.fields.accountant') }}:</span>
             <span class="text-xs font-semibold text-on-surface text-right">{{ clientInfo.accountant }}</span>
-          </div>
-          <div v-if="clientInfo.turnover_all" class="flex justify-between gap-2">
-            <span class="text-xs text-on-surface-variant">{{ t('smeProfile.fields.turnoverAll') }}:</span>
-            <span class="text-xs font-semibold text-on-surface">{{ clientInfo.turnover_all }}</span>
           </div>
           <div v-if="clientInfo.turnover_debit" class="flex justify-between gap-2">
             <span class="text-xs text-on-surface-variant">{{ t('smeProfile.fields.debit') }}:</span>
@@ -175,29 +181,33 @@ const btnPrimary =
 
     <!-- Sphere count -->
     <div class="bg-surface-container-lowest rounded-card p-5 shadow-sm">
-      <p class="text-sm font-semibold text-on-surface mb-3">
+      <p class="text-sm font-semibold text-on-surface mb-1">
         {{ t('smeProfile.pinfl.sphereCount') }}
       </p>
-      <div class="flex flex-wrap gap-2">
-        <button
-          v-for="n in [1, 2, 3, 4, 5]"
-          :key="n"
-          class="w-11 h-11 rounded-btn text-sm font-bold border-2 transition-all"
-          :class="
-            sphereCount === n
-              ? 'bg-primary text-white border-primary shadow-md'
-              : 'bg-white text-on-surface-variant border-outline-variant hover:border-primary hover:text-primary'
-          "
-          @click="sphereCount = n"
-        >
-          {{ n }}
-        </button>
-      </div>
+      <p class="text-xs text-on-surface-variant italic mb-3">
+        {{ t('smeProfile.pinfl.sphereCountHint') }}
+      </p>
+      <input
+        :value="sphereInput"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        :class="[
+          'w-28 px-4 py-3 border rounded-btn text-sm font-bold text-center bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors',
+          sphereError ? 'border-error bg-red-50' : 'border-outline-variant',
+        ]"
+        @input="sphereInput = $event.target.value.replace(/\D/g, ''); sphereError = ''"
+      />
+      <p v-if="sphereError" class="text-xs text-error font-medium mt-1">{{ sphereError }}</p>
     </div>
+
+    <p v-if="!searched" class="text-xs text-center text-on-surface-variant">
+      {{ t('smeProfile.pinfl.searchFirst') }}
+    </p>
 
     <button
       class="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-primary text-white rounded-btn text-base font-semibold hover:bg-primary/90 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-      :disabled="!value.trim()"
+      :disabled="!value.trim() || !searched"
       @click="handleNext"
     >
       {{ t('smeProfile.next') }}

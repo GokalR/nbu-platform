@@ -915,6 +915,7 @@
       "found": "Данные найдены",
       "notFound": "Запись не найдена в базе данных. Вы всё равно можете продолжить.",
       "sphereCount": "Количество сфер деятельности",
+      "sphereCountHint": "(Впишите во скольких сферах производите деятельность)",
       "searchFirst": "Введите ПИНФЛ / ИНН и нажмите «Поиск» перед продолжением"
     },
     "category": {
@@ -924,8 +925,12 @@
     "questions": {
       "title": "Ответьте на вопросы",
       "subtitle": "Сфера {n} из {total}: {category}",
-      "relatedCompany": "Компания {n} — ИНН",
-      "relatedCompanyPlaceholder": "ИНН компании {n}"
+      "otherPlaceholder": "Введите ваш вариант...",
+      "counterparty": "Контрагент {n}",
+      "counterpartyInn": "ИНН",
+      "counterpartyName": "Название",
+      "counterpartySphere": "Сфера деятельности",
+      "counterpartySphereShort": "Сфера"
     },
     "summary": {
       "title": "Итоговая сводка",
@@ -968,6 +973,7 @@
     },
     "errors": {
       "empty": "Поле обязательно для заполнения",
+      "sphereRange": "Введите количество сфер от 1 до 100",
       "backend": "Не удалось подключиться к серверу. Проверьте соединение.",
       "noBackend": "Бэкенд не настроен. Установите VITE_API_URL в окружении."
     }

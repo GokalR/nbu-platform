@@ -33,26 +33,56 @@ function toggleCheckbox(qid, opt) {
   setAnswer(qid, next.join(','))
 }
 
+function isOther(val) {
+  return val === 'Другое' || val === 'Boshqa'
+}
+
 const relatedCount = computed(() =>
-  Math.max(0, Math.min(20, parseInt(answers.value['related_companies_count'] || '0', 10) || 0)),
+  Math.max(0, Math.min(50, parseInt(answers.value['related_companies_count'] || '0', 10) || 0)),
 )
 
+function numberMax(qid) {
+  if (qid === 'related_companies_count') return 50
+  if (qid === 'fleet_size') return 9999
+  if (qid === 'employees_count') return undefined
+  return 9999999
+}
+
 function handleNext() {
-  const baseAnswers = props.category.questions.map((q) => ({
-    question_id: q.id,
-    question_text_ru: q.text.ru,
-    question_text_uz: q.text.uz,
-    answer: answers.value[q.id] || '',
-  }))
+  const baseAnswers = props.category.questions.map((q) => {
+    let answer = answers.value[q.id] || ''
+    if (isOther(answer) && answers.value[`${q.id}_other`]) {
+      answer = answers.value[`${q.id}_other`]
+    }
+    return {
+      question_id: q.id,
+      question_text_ru: q.text.ru,
+      question_text_uz: q.text.uz,
+      answer,
+    }
+  })
   const dyn = []
   for (let i = 0; i < relatedCount.value; i++) {
-    const key = `related_company_inn_${i}`
-    dyn.push({
-      question_id: key,
-      question_text_ru: `Связанная компания ${i + 1} — ИНН`,
-      question_text_uz: `Bog'liq kompaniya ${i + 1} — INN`,
-      answer: answers.value[key] || '',
-    })
+    dyn.push(
+      {
+        question_id: `related_company_inn_${i}`,
+        question_text_ru: `Контрагент ${i + 1} — ИНН`,
+        question_text_uz: `Kontragent ${i + 1} — INN`,
+        answer: answers.value[`related_company_inn_${i}`] || '',
+      },
+      {
+        question_id: `related_company_name_${i}`,
+        question_text_ru: `Контрагент ${i + 1} — Название`,
+        question_text_uz: `Kontragent ${i + 1} — Nomi`,
+        answer: answers.value[`related_company_name_${i}`] || '',
+      },
+      {
+        question_id: `related_company_sphere_${i}`,
+        question_text_ru: `Контрагент ${i + 1} — Сфера деятельности`,
+        question_text_uz: `Kontragent ${i + 1} — Faoliyat sohasi`,
+        answer: answers.value[`related_company_sphere_${i}`] || '',
+      },
+    )
   }
   emit('next', { answers: [...baseAnswers, ...dyn] })
 }
@@ -91,6 +121,7 @@ const inputCls =
         <input
           v-if="q.type === 'text'"
           type="text"
+          maxlength="500"
           :value="answers[q.id] || ''"
           @input="setAnswer(q.id, $event.target.value)"
           :class="inputCls"
@@ -100,6 +131,7 @@ const inputCls =
           v-else-if="q.type === 'number'"
           type="number"
           min="0"
+          :max="numberMax(q.id)"
           :value="answers[q.id] || ''"
           @input="setAnswer(q.id, $event.target.value)"
           :class="inputCls"
@@ -108,22 +140,33 @@ const inputCls =
         <textarea
           v-else-if="q.type === 'textarea'"
           rows="3"
+          maxlength="3000"
           :value="answers[q.id] || ''"
           @input="setAnswer(q.id, $event.target.value)"
           :class="[inputCls, 'resize-y']"
         />
 
-        <select
-          v-else-if="q.type === 'select'"
-          :value="answers[q.id] || ''"
-          @change="setAnswer(q.id, $event.target.value)"
-          :class="[inputCls, 'cursor-pointer']"
-        >
-          <option value="">{{ t('smeProfile.selectPlaceholder') }}</option>
-          <option v-for="o in (locale === 'ru' ? q.options.ru : q.options.uz)" :key="o" :value="o">
-            {{ o }}
-          </option>
-        </select>
+        <div v-else-if="q.type === 'select'" class="space-y-2">
+          <select
+            :value="answers[q.id] || ''"
+            @change="setAnswer(q.id, $event.target.value)"
+            :class="[inputCls, 'cursor-pointer']"
+          >
+            <option value="">{{ t('smeProfile.selectPlaceholder') }}</option>
+            <option v-for="o in (locale === 'ru' ? q.options.ru : q.options.uz)" :key="o" :value="o">
+              {{ o }}
+            </option>
+          </select>
+          <input
+            v-if="isOther(answers[q.id] || '')"
+            type="text"
+            maxlength="500"
+            :value="answers[`${q.id}_other`] || ''"
+            @input="setAnswer(`${q.id}_other`, $event.target.value)"
+            :placeholder="t('smeProfile.questions.otherPlaceholder')"
+            :class="inputCls"
+          />
+        </div>
 
         <div v-else-if="q.type === 'radio'" class="space-y-1 pt-1">
           <label
@@ -141,6 +184,15 @@ const inputCls =
             />
             <span class="text-sm text-on-surface">{{ o }}</span>
           </label>
+          <input
+            v-if="isOther(answers[q.id] || '')"
+            type="text"
+            maxlength="500"
+            :value="answers[`${q.id}_other`] || ''"
+            @input="setAnswer(`${q.id}_other`, $event.target.value)"
+            :placeholder="t('smeProfile.questions.otherPlaceholder')"
+            :class="[inputCls, 'mt-2']"
+          />
         </div>
 
         <div v-else-if="q.type === 'checkbox'" class="space-y-1 pt-1">
@@ -165,19 +217,57 @@ const inputCls =
           @update:model-value="setAnswer(q.id, $event)"
         />
 
-        <!-- Dynamic INN inputs after related_companies_count -->
-        <div v-if="q.id === 'related_companies_count' && relatedCount > 0" class="mt-3 space-y-2 pl-1">
-          <div v-for="i in relatedCount" :key="i">
-            <label class="block text-xs font-semibold text-on-surface-variant mb-1">
-              {{ t('smeProfile.questions.relatedCompany', { n: i }) }}
-            </label>
-            <input
-              type="text"
-              :value="answers[`related_company_inn_${i - 1}`] || ''"
-              @input="setAnswer(`related_company_inn_${i - 1}`, $event.target.value)"
-              :class="inputCls"
-              :placeholder="t('smeProfile.questions.relatedCompanyPlaceholder', { n: i })"
-            />
+        <!-- Dynamic counterparty rows: INN + Name + Sphere -->
+        <div v-if="q.id === 'related_companies_count' && relatedCount > 0" class="mt-4 space-y-3">
+          <div
+            v-for="i in relatedCount"
+            :key="i"
+            class="border border-outline-variant rounded-card p-3 space-y-2 bg-primary/5"
+          >
+            <p class="text-xs font-bold text-primary">
+              {{ t('smeProfile.questions.counterparty', { n: i }) }}
+            </p>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-xs text-on-surface-variant font-medium mb-1">
+                  {{ t('smeProfile.questions.counterpartyInn') }}
+                </label>
+                <input
+                  type="text"
+                  maxlength="14"
+                  :value="answers[`related_company_inn_${i - 1}`] || ''"
+                  @input="setAnswer(`related_company_inn_${i - 1}`, $event.target.value)"
+                  :placeholder="t('smeProfile.questions.counterpartyInn')"
+                  :class="inputCls"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-on-surface-variant font-medium mb-1">
+                  {{ t('smeProfile.questions.counterpartyName') }}
+                </label>
+                <input
+                  type="text"
+                  maxlength="255"
+                  :value="answers[`related_company_name_${i - 1}`] || ''"
+                  @input="setAnswer(`related_company_name_${i - 1}`, $event.target.value)"
+                  :placeholder="t('smeProfile.questions.counterpartyName')"
+                  :class="inputCls"
+                />
+              </div>
+              <div>
+                <label class="block text-xs text-on-surface-variant font-medium mb-1">
+                  {{ t('smeProfile.questions.counterpartySphere') }}
+                </label>
+                <input
+                  type="text"
+                  maxlength="255"
+                  :value="answers[`related_company_sphere_${i - 1}`] || ''"
+                  @input="setAnswer(`related_company_sphere_${i - 1}`, $event.target.value)"
+                  :placeholder="t('smeProfile.questions.counterpartySphereShort')"
+                  :class="inputCls"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

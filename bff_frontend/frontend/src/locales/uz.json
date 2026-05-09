@@ -915,6 +915,7 @@
       "found": "Maʼlumot topildi",
       "notFound": "Maʼlumotlar bazasida topilmadi. Davom etishingiz mumkin.",
       "sphereCount": "Faoliyat sohalari soni",
+      "sphereCountHint": "(Nechta sohada faoliyat yuritishingizni yozing)",
       "searchFirst": "PINFL / INN kiriting va davom etishdan oldin «Qidirish» tugmasini bosing"
     },
     "category": {
@@ -924,8 +925,12 @@
     "questions": {
       "title": "Savollarga javob bering",
       "subtitle": "{total} dan {n} soha: {category}",
-      "relatedCompany": "Kompaniya {n} — INN",
-      "relatedCompanyPlaceholder": "Kompaniya {n} INN"
+      "otherPlaceholder": "Oʻz variantingizni kiriting...",
+      "counterparty": "Kontragent {n}",
+      "counterpartyInn": "INN",
+      "counterpartyName": "Nomi",
+      "counterpartySphere": "Faoliyat sohasi",
+      "counterpartySphereShort": "Soha"
     },
     "summary": {
       "title": "Yakuniy xulosa",
@@ -968,6 +973,7 @@
     },
     "errors": {
       "empty": "Maydon toʻldirish shart",
+      "sphereRange": "1 dan 100 gacha soha sonini kiriting",
       "backend": "Server bilan ulanishda xatolik. Internet aloqasini tekshiring.",
       "noBackend": "Backend sozlanmagan. Muhitda VITE_API_URL ni oʻrnating."
     }
