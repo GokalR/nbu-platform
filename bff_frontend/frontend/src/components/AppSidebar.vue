@@ -17,6 +17,7 @@ const baseNavItems = [
   { to: '/ai', icon: 'psychology', labelKey: 'nav.ai' },
   { to: '/tools', icon: 'precision_manufacturing', labelKey: 'nav.tools' },
   { to: '/education', icon: 'school', labelKey: 'nav.education' },
+  { to: '/partners', icon: 'handshake', labelKey: 'nav.partners' },
 ]
 
 const adminNavItems = [

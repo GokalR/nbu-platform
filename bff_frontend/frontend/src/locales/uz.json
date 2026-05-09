@@ -12,6 +12,7 @@
     "ai": "AI Maslahatchi",
     "tools": "Biznes AI vositalari",
     "education": "NBU Education",
+    "partners": "Hamkorlar",
     "regionalStrategist": "Hududiy strateg",
     "support": "Yordam",
     "signOut": "Chiqish",
@@ -2776,5 +2777,42 @@
     "openMahalla": "Ochish",
     "rank": "Oʻrin",
     "noBackend": "Backend sozlanmagan. VITE_API_URL va CERR_DATA_ROOT ni oʻrnating."
+  },
+  "partners": {
+    "title": "Hamkorlar",
+    "subtitle": "Bizning potentsial hamkorlarimiz — biz hamkorlikni rivojlantirayotgan kompaniyalar. Ularning xizmatlari haqida koʻproq bilish uchun hamkor saytiga oʻting.",
+    "fields": {
+      "inn": "STIR",
+      "foundedAt": "Tashkil etilgan:",
+      "address": "Manzil",
+      "founders": "Muassislar",
+      "charterCapital": "Ustav jamgʻarmasi",
+      "director": "Direktor",
+      "employees": "Xodimlar soni",
+      "activity": "Asosiy faoliyat",
+      "audience": "Maqsadli auditoriya",
+      "cooperationFormat": "Hamkorlik formati",
+      "reward": "Mukofot",
+      "website": "Sayt",
+      "instagram": "Instagram"
+    },
+    "values": {
+      "notSpecified": "Koʻrsatilmagan"
+    },
+    "audiences": {
+      "sme": "KOB (kichik va oʻrta biznes)"
+    },
+    "formats": {
+      "agreement": "Hamkorlik shartnomasini tuzish"
+    },
+    "rewards": {
+      "cashback": "Har bir taqdim etilgan xizmatdan keshbek koʻrinishidagi komissiya"
+    },
+    "activities": {
+      "lawtax": "Buxgalteriya va yuridik xizmatlar koʻrsatish",
+      "prowork": "Rekruting, kadrlar tanlash boʻyicha agentlik",
+      "arcan": "Kompyuter dasturlash sohasidagi faoliyat",
+      "verdict": "Advokatlik tashkilotlari faoliyati"
+    }
   }
 }

@@ -44,6 +44,12 @@ const routes = [
     meta: { layout: 'education', titleKey: 'nav.education' },
   },
   {
+    path: '/partners',
+    name: 'partners',
+    component: () => import('@/views/PartnersView.vue'),
+    meta: { titleKey: 'nav.partners' },
+  },
+  {
     path: '/education/courses/:id',
     name: 'edu-course-detail',
     component: () => import('@/views/education/EduCourseDetailView.vue'),
