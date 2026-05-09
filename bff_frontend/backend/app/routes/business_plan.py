@@ -2,17 +2,19 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
+from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
-from ..db_sync import get_db
+from ..db_sync import SessionLocal, get_db
 from ..models_business_plan import BusinessPlanSubmission
 from ..services import (
     business_plan_client,
@@ -269,6 +271,186 @@ def generate(
         output=rec.output,
         recommendedProductsCandidates=rec.recommended_products,
         creditScore=credit_score,
+    )
+
+
+# ---------- streaming variant (SSE) ----------
+
+# Sections that appear in the slim LLM output, in approximately the order the
+# model writes them. We emit a progress event as each section's key appears in
+# the streamed text — the user sees "Анализ рынка..." → "Идентификация рисков..."
+# → "Подбор кредита..." instead of a frozen spinner.
+_LLM_SECTION_ORDER: list[tuple[str, int]] = [
+    ("summary", 22),
+    ("executiveSummary", 30),
+    ("marketContext", 40),
+    ("operations", 48),
+    ("teamAssessment", 55),
+    ("financialsAssessment", 60),
+    ("extrasCategorization", 65),
+    ("milestones", 72),
+    ("risks", 80),
+    ("kpis", 86),
+    ("recommendedProducts", 90),
+    ("actionableNextSteps", 94),
+]
+
+
+def _sse(payload: dict) -> bytes:
+    """Format a dict as a Server-Sent Events `data:` frame."""
+    return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n".encode("utf-8")
+
+
+@router.post("/generate-stream")
+def generate_stream(
+    body: GenerateRequest,
+    auth_payload: dict = Depends(_require_user),
+):
+    """Same as /generate, but streams progress to the client via SSE.
+
+    Wall time is unchanged from /generate — this is a UX improvement: the
+    user sees a live progress bar moving from validation → scoring → "Анализ
+    рисков" → "Подбор кредита" → done, instead of a frozen 60-second
+    spinner. The frontend wizard uses this; admin tooling and other callers
+    keep using /generate.
+
+    Note: we deliberately do not use `Depends(get_db)` because the route
+    keeps an open DB session for the entire stream lifetime. Instead we
+    open a session manually inside the generator and close it on exit.
+    """
+    user_id = auth_payload.get("sub")
+    inputs_dict = body.model_dump()
+
+    def event_stream():
+        try:
+            yield _sse({"phase": "validate", "pct": 5})
+
+            # Pre-compute (deterministic, < 50ms total)
+            candidates = nbu_products.select_candidates(
+                loan_amount_uzs=body.project.loanAmount or 0,
+                term_months=body.project.termMonths or 0,
+                client_type=body.organization.type,
+                assets_credit=[a.model_dump() for a in body.assets.get("creditFinanced", [])],
+                project_purpose=body.project.purpose,
+                top_n=3,
+            )
+            yield _sse({"phase": "candidates", "pct": 10})
+
+            from ..services import business_plan_compute as bpc
+            baseline = bpc.compute_baseline(inputs_dict)
+            credit_score = credit_scoring.compute_wizard_score(inputs_dict, baseline)
+            yield _sse({"phase": "scoring", "pct": 15})
+
+            # Input gate
+            errors, warnings = business_plan_validation.validate_inputs(
+                inputs_dict, baseline, candidates,
+            )
+            if errors:
+                yield _sse({"phase": "error", "code": "invalid_inputs",
+                            "errors": errors, "warnings": warnings})
+                return
+
+            yield _sse({"phase": "llm.start", "pct": 18})
+
+            # Stream the LLM. We accumulate text and detect when each known
+            # JSON section's key first appears, emitting a progress event.
+            output_text = ""
+            seen_sections: set[str] = set()
+            input_tokens = output_tokens = 0
+            model_used = provider_used = ""
+
+            for chunk in business_plan_client.stream_business_plan(
+                inputs=inputs_dict,
+                candidate_products=candidates,
+                lang=body.lang or "uz",
+                historical_financials={"score": credit_score},
+                baseline=baseline,
+            ):
+                if chunk.get("type") == "delta":
+                    output_text += chunk["text"]
+                    # Emit one section event per known key the moment we
+                    # see its `"<key>":` appear in the JSON the LLM is
+                    # writing. Order in _LLM_SECTION_ORDER controls pct.
+                    for section, pct in _LLM_SECTION_ORDER:
+                        if section in seen_sections:
+                            continue
+                        if f'"{section}"' in output_text:
+                            seen_sections.add(section)
+                            yield _sse({"phase": "llm.section",
+                                        "section": section, "pct": pct})
+                            break
+                elif chunk.get("type") == "complete":
+                    output_text = chunk["fullText"]
+                    input_tokens = chunk["input_tokens"]
+                    output_tokens = chunk["output_tokens"]
+                    model_used = chunk["model"]
+                    provider_used = chunk["provider"]
+
+            yield _sse({"phase": "finalize", "pct": 96})
+
+            # Parse + assemble + validate
+            assembled = business_plan_client.assemble_plan_from_raw(
+                raw_text=output_text,
+                baseline=baseline,
+                credit_score=credit_score,
+                candidates=candidates,
+                project=inputs_dict.get("project") or {},
+            )
+            if assembled is None:
+                log.error("Stream: LLM returned non-JSON. First 500 chars: %s",
+                          output_text[:500])
+                yield _sse({"phase": "error", "code": "llm_unparseable",
+                            "message": "LLM returned non-JSON"})
+                return
+
+            cleaned = business_plan_validation.validate_and_clean(
+                assembled,
+                candidates=candidates,
+                baseline=baseline,
+                credit_score=credit_score,
+                inputs=inputs_dict,
+                warnings=warnings,
+            )
+
+            # Persist with a fresh session (Depends() doesn't work inside
+            # generators — we'd race the dep cleanup).
+            with SessionLocal() as db:
+                user_email = _resolve_user_email(user_id, db)
+                rec = BusinessPlanSubmission(
+                    user_email=user_email,
+                    lang=body.lang or "uz",
+                    org_name=body.organization.name,
+                    org_type=body.organization.type,
+                    inputs=inputs_dict,
+                    output=cleaned,
+                    recommended_products=candidates,
+                    historical_financials=credit_score,
+                    model=f"{provider_used}/{model_used}",
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+                db.add(rec)
+                db.commit()
+                db.refresh(rec)
+                plan_id = rec.id
+
+            yield _sse({"phase": "done", "pct": 100, "id": plan_id})
+
+        except Exception as e:
+            log.exception("Streamed business plan generation failed")
+            msg = str(e)[:200] or "Unknown error"
+            yield _sse({"phase": "error", "code": "internal", "message": msg})
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            # Disable proxy buffering so events flush immediately.
+            # Cloudflare and nginx both honor this header.
+            "X-Accel-Buffering": "no",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        },
     )
 
 

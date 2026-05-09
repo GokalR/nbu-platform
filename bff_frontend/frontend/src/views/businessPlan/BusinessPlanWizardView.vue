@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
@@ -25,6 +25,71 @@ const STEP_KEYS = [
 const step = ref(1)
 const submitting = ref(false)
 const submitError = ref('')
+
+// Streaming progress state. Updated by businessPlanApi.generateStream() as
+// SSE events arrive from the backend. `phase` is one of:
+//   'validate' | 'candidates' | 'scoring' | 'llm.start' | 'llm.section' |
+//   'finalize' | 'done' | 'error'
+// When phase === 'llm.section', `section` carries the LLM section name.
+const progress = ref({ phase: '', pct: 0, section: '' })
+
+// Smoothed progress bar — interpolates toward `progress.value.pct` so the
+// bar moves continuously instead of jumping between events.
+const smoothedPct = ref(0)
+let _smoothTimer = null
+function _startSmoothing() {
+  _stopSmoothing()
+  _smoothTimer = setInterval(() => {
+    const target = progress.value.pct || 0
+    const cur = smoothedPct.value
+    if (cur >= target) return
+    // Tick up by 0.5% every 100ms — fast enough to feel alive, slow
+    // enough that we never overshoot real events.
+    smoothedPct.value = Math.min(target, cur + 0.5)
+  }, 100)
+}
+function _stopSmoothing() {
+  if (_smoothTimer) {
+    clearInterval(_smoothTimer)
+    _smoothTimer = null
+  }
+}
+
+// Bilingual labels for each phase. We don't put these in locale files —
+// they're tightly coupled to the streaming protocol and only used here.
+const PHASE_LABELS = {
+  validate:    { ru: 'Проверка анкеты',           uz: 'Anketa tekshiruvi' },
+  candidates:  { ru: 'Подбор продуктов НБУ',      uz: 'NBU mahsulotlarini tanlash' },
+  scoring:     { ru: 'Кредитный скоринг',         uz: 'Kredit skoring' },
+  'llm.start': { ru: 'Подготовка анализа…',       uz: 'Tahlilga tayyorlanish…' },
+  finalize:    { ru: 'Финализация',               uz: 'Yakunlash' },
+  done:        { ru: 'Готово',                    uz: 'Tayyor' },
+}
+
+const SECTION_LABELS = {
+  summary:              { ru: 'Резюме',                       uz: 'Xulosa' },
+  executiveSummary:     { ru: 'Резюме для банка',             uz: 'Bank uchun xulosa' },
+  marketContext:        { ru: 'Контекст рынка',               uz: 'Bozor konteksti' },
+  operations:           { ru: 'Операционная модель',          uz: 'Operatsion model' },
+  teamAssessment:       { ru: 'Оценка команды',               uz: 'Jamoa baholanishi' },
+  financialsAssessment: { ru: 'Финансовый анализ',            uz: 'Moliyaviy tahlil' },
+  extrasCategorization: { ru: 'Структура расходов',           uz: 'Xarajatlar tarkibi' },
+  milestones:           { ru: 'Дорожная карта',               uz: 'Yoʻl xaritasi' },
+  risks:                { ru: 'Идентификация рисков',         uz: 'Xatarlar' },
+  kpis:                 { ru: 'Ключевые показатели (KPI)',    uz: 'Asosiy koʻrsatkichlar' },
+  recommendedProducts:  { ru: 'Подбор кредита',               uz: 'Kredit tanlash' },
+  actionableNextSteps:  { ru: 'Следующие шаги',               uz: 'Keyingi qadamlar' },
+}
+
+const progressLabel = computed(() => {
+  const lng = locale.value === 'uz' ? 'uz' : 'ru'
+  const p = progress.value
+  if (!p.phase) return ''
+  if (p.phase === 'llm.section') {
+    return SECTION_LABELS[p.section]?.[lng] || PHASE_LABELS['llm.start'][lng]
+  }
+  return PHASE_LABELS[p.phase]?.[lng] || ''
+})
 
 const form = reactive({
   organization: {
@@ -271,6 +336,9 @@ async function submit() {
   submitting.value = true
   submitError.value = ''
   step.value = 9 // show loading screen
+  progress.value = { phase: 'validate', pct: 0, section: '' }
+  smoothedPct.value = 0
+  _startSmoothing()
 
   // Update totalValue from current ownContribution + loanAmount
   form.project.totalValue = totalProjectValue.value
@@ -294,38 +362,44 @@ async function submit() {
     utilities: { ...form.utilities, extras: cleanExtras },
   }
 
-  const res = await businessPlanApi.generate(payload)
+  // Streaming endpoint with live progress. Falls back to non-streaming
+  // automatically if the SSE channel is unavailable (returns same shape).
+  const res = await businessPlanApi.generateStream(payload, (p) => {
+    progress.value = p
+  })
   submitting.value = false
+  _stopSmoothing()
 
   if (!res.ok) {
-    submitError.value =
-      res.reason === 'no-backend'
-        ? t('businessPlan.errors.noBackend')
-        : res.error || t('businessPlan.errors.generic')
+    // Validation errors from the input gate come back as res.errors
+    if (res.errors && Array.isArray(res.errors) && res.errors.length) {
+      submitError.value = res.errors.map((e) => e.message).join(' • ')
+    } else {
+      submitError.value =
+        res.reason === 'no-backend'
+          ? t('businessPlan.errors.noBackend')
+          : res.error || t('businessPlan.errors.generic')
+    }
     step.value = 8 // back to review
     return
   }
 
-  // Cache full result so result page can render without re-fetch
-  try {
-    sessionStorage.setItem(
-      `bp_${res.data.id}`,
-      JSON.stringify({
-        id: res.data.id,
-        output: res.data.output,
-        recommendedProductsCandidates: res.data.recommendedProductsCandidates,
-        creditScore: res.data.creditScore || null,
-        inputs: payload,
-      }),
-    )
-  } catch (_) {}
+  // Snap progress to 100 before navigating so the bar isn't mid-animation
+  smoothedPct.value = 100
+  progress.value = { phase: 'done', pct: 100, section: '' }
 
+  // The streaming endpoint returns only the id; the result page will load
+  // the full plan via getPlan() (no sessionStorage cache for streamed
+  // results — keeps the protocol simple).
   router.push({ name: 'business-plan-result', params: { id: res.data.id } })
 }
 
 function exitWizard() {
   if (confirm(t('businessPlan.exitConfirm'))) router.push('/tools')
 }
+
+// Stop the smoothing interval if the user navigates away mid-generation.
+onUnmounted(() => _stopSmoothing())
 </script>
 
 <template>
@@ -778,7 +852,13 @@ function exitWizard() {
         <div v-else-if="step === 9" class="bp-step-body bp-loading">
           <div class="bp-spinner"></div>
           <h2 class="bp-step-title">{{ t('businessPlan.loading.title') }}</h2>
-          <p class="bp-step-hint">{{ t('businessPlan.loading.hint') }}</p>
+          <p class="bp-progress-stage">
+            {{ progressLabel || t('businessPlan.loading.hint') }}
+          </p>
+          <div class="bp-progress-bar">
+            <div class="bp-progress-fill" :style="{ width: smoothedPct + '%' }"></div>
+          </div>
+          <p class="bp-progress-pct">{{ Math.floor(smoothedPct) }}%</p>
         </div>
 
         <!-- nav -->
@@ -1382,6 +1462,37 @@ function exitWizard() {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Progress bar (streaming generation) */
+.bp-progress-stage {
+  color: #475569;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  text-align: center;
+  min-height: 20px; /* prevent layout jump when label changes */
+}
+.bp-progress-bar {
+  width: 320px;
+  max-width: 80%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0 12px 0;
+}
+.bp-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #003d7c 0%, #1e6bb8 100%);
+  border-radius: 999px;
+  transition: width 0.25s ease-out;
+}
+.bp-progress-pct {
+  color: #003d7c;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
 }
 
 /* Nav */

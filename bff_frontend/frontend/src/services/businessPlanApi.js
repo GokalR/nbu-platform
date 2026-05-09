@@ -62,6 +62,99 @@ export const businessPlanApi = {
       body: JSON.stringify(payload),
     }),
 
+  /**
+   * Stream a business plan generation. The backend streams Server-Sent
+   * Events; we forward each parsed event to onProgress(). Resolves with
+   * { ok: true, id } on success, { ok: false, error } on failure.
+   *
+   * Wall time is the same as `generate()` — this is a UX upgrade, not a
+   * speed-up. The user sees a moving progress bar instead of a frozen
+   * spinner.
+   *
+   * Falls back to non-streaming `generate()` automatically if streaming
+   * fails for an infrastructure reason (e.g. proxy buffered the response).
+   */
+  generateStream: async (payload, onProgress) => {
+    if (!isConfigured()) return { ok: false, reason: 'no-backend' }
+
+    let res
+    try {
+      res = await fetch(`${BASE}/business-plan/generate-stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream',
+          ..._authHeaders(),
+        },
+        body: JSON.stringify(payload),
+      })
+    } catch (e) {
+      return { ok: false, reason: 'no-backend', error: String(e) }
+    }
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      let msg = res.statusText
+      try {
+        const j = JSON.parse(text)
+        if (j?.detail) msg = typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail)
+      } catch {
+        if (text) msg = text
+      }
+      return { ok: false, status: res.status, error: msg }
+    }
+
+    // Some proxies / corporate networks strip text/event-stream framing.
+    // If we don't get a streamable body, fall back to /generate.
+    if (!res.body || !res.body.getReader) {
+      return businessPlanApi.generate(payload)
+    }
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+
+        // Split by SSE event delimiter; the last fragment may be incomplete
+        const events = buffer.split('\n\n')
+        buffer = events.pop() || ''
+
+        for (const ev of events) {
+          if (!ev.startsWith('data: ')) continue
+          let msg
+          try {
+            msg = JSON.parse(ev.slice(6))
+          } catch {
+            continue
+          }
+          if (msg.phase === 'done') {
+            return { ok: true, data: { id: msg.id } }
+          }
+          if (msg.phase === 'error') {
+            return {
+              ok: false,
+              code: msg.code,
+              error: msg.message || (msg.errors && msg.errors[0]?.message) || 'Generation failed',
+              errors: msg.errors,
+              warnings: msg.warnings,
+            }
+          }
+          if (typeof onProgress === 'function') onProgress(msg)
+        }
+      }
+    } catch (e) {
+      return { ok: false, error: String(e) }
+    }
+
+    // Stream ended without a `done` or `error` event — treat as failure.
+    return { ok: false, error: 'Stream ended unexpectedly' }
+  },
+
   getPlan: (id) => request(`/business-plan/${id}`),
 
   /**
