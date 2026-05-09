@@ -26,7 +26,7 @@ function isOpen(key) {
   <section class="p-6 lg:p-8 space-y-8">
     <PageHeader :title="t('partners.title')" :subtitle="t('partners.subtitle')" />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
       <article
         v-for="partner in partners"
         :key="partner.key"
