@@ -2781,6 +2781,8 @@
   "partners": {
     "title": "Hamkorlar",
     "subtitle": "Bizning potentsial hamkorlarimiz — biz hamkorlikni rivojlantirayotgan kompaniyalar. Ularning xizmatlari haqida koʻproq bilish uchun hamkor saytiga oʻting.",
+    "showDetails": "Batafsil",
+    "hideDetails": "Yopish",
     "fields": {
       "inn": "STIR",
       "foundedAt": "Tashkil etilgan:",
