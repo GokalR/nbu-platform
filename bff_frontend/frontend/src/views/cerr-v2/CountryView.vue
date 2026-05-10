@@ -110,7 +110,7 @@ const heroMacro = computed(() => {
 const popChart = computed(() => {
   const hist = UZ_MACRO_HISTORY.pop
   const interp = new Set(hist.interpolatedYears || [])
-  const w = 100, h = 60, pad = 4
+  const w = 100, h = 46, pad = 4
   const last = hist.abs[hist.abs.length - 1]
   const first = hist.abs.find((v) => v != null)
   const valid = hist.abs.filter((v) => v != null)
@@ -545,12 +545,14 @@ function colorize(f) {
     linear-gradient(135deg, #001b3d 0%, #003D7C 65%, #0054A6 100%);
   color: #fff;
   border-radius: 20px;
-  padding: 24px 32px 22px;
+  /* tighter outer padding + smaller section gap → ~30 px shorter overall
+   * without shrinking any individual content (title, stats, charts stay). */
+  padding: 18px 28px 16px;
   box-shadow: 0 20px 50px -20px rgba(0,27,61,.5);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 .cerr-v2-scope .hero-v2 > * { position: relative; }
 
@@ -584,11 +586,11 @@ function colorize(f) {
   display: grid; grid-template-columns: repeat(4, minmax(0, 220px)); gap: 0;
   border-top: 1px solid rgba(255,255,255,.12);
   border-bottom: 1px solid rgba(255,255,255,.12);
-  padding: 14px 0;
+  padding: 10px 0;
 }
 .cerr-v2-scope .hv2-stat {
   padding: 0 22px; border-left: 1px solid rgba(255,255,255,.10);
-  display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  display: flex; flex-direction: column; gap: 6px; min-width: 0;
 }
 .cerr-v2-scope .hv2-stat:first-child { border-left: none; padding-left: 0; }
 .cerr-v2-scope .hv2-stat-head { display: flex; align-items: center; gap: 8px; }
@@ -608,8 +610,8 @@ function colorize(f) {
 }
 .cerr-v2-scope .hv2-stat-unit { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.5); white-space: nowrap; }
 
-.cerr-v2-scope .hv2-stat-chart { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
-.cerr-v2-scope .hv2-stat-line  { width: 100%; height: 60px; display: block; overflow: visible; }
+.cerr-v2-scope .hv2-stat-chart { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.cerr-v2-scope .hv2-stat-line  { width: 100%; height: 46px; display: block; overflow: visible; }
 .cerr-v2-scope .hv2-pop-line {
   fill: none;
   stroke: #34d399;
