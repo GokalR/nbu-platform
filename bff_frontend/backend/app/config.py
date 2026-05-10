@@ -38,12 +38,11 @@ class Settings(BaseSettings):
     # Other tools (Regional Strategist) stay on Claude regardless.
     llm_provider: str = "claude"
 
-    # AI Advisor (regional analytics chatbot — RAG over 14 viloyats).
-    # Independent of openai_model so the Advisor can run on a different model
-    # than the Business Plan tool.
-    rag_model: str = "gpt-5.1"
-    vector_store_id: str = ""
-    rag_timeout_sec: int = 180
+    # Regional analytics chatbot (cerr-chatbot service on Railway).
+    # The BFF proxies /api/chatbot/* to this URL. Use the Railway internal
+    # hostname (RAILWAY_PRIVATE_DOMAIN) so traffic stays on the private network.
+    chatbot_api_url: str = ""
+    chatbot_timeout_sec: int = 60
 
     # CERR Mahalla Analytics v2 — root of the scraped JSON tree.
     # Local dev: defaults to the in-repo reference data (1.4 GB, gitignored).
@@ -72,12 +71,8 @@ class Settings(BaseSettings):
         return v if v in ("claude", "openai") else "claude"
 
     @property
-    def rag_model_clean(self) -> str:
-        return self.rag_model.strip() or "gpt-5.1"
-
-    @property
-    def vector_store_id_clean(self) -> str:
-        return self.vector_store_id.strip()
+    def chatbot_api_url_clean(self) -> str:
+        return self.chatbot_api_url.strip().rstrip("/")
 
     @property
     def cors_origin_list(self) -> list[str]:

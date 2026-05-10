@@ -1,0 +1,62 @@
+x-app-base: &app-base
+  image: regional-analytics-chatbot:local
+  build:
+    context: .
+  environment:
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-cerr}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-cerr}
+    SOURCE_DIR: /data/cerr_runs
+    LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
+    LLM_MODEL: ${LLM_MODEL:-claude-opus-4-7}
+    LLM_PLANNER_MODE: ${LLM_PLANNER_MODE:-single_stage}
+    ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    QUERY_PIPELINE_MODE: ${QUERY_PIPELINE_MODE:-evidence}
+    QUERY_MEMORY_MODE: ${QUERY_MEMORY_MODE:-ephemeral}
+    ANSWER_NARRATOR_MODE: ${ANSWER_NARRATOR_MODE:-llm}
+    APP_ENV: ${APP_ENV:-prod}
+    LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  depends_on:
+    postgres:
+      condition: service_healthy
+  volumes:
+    - ./cerr_runs:/data/cerr_runs:ro
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cerr}
+      POSTGRES_USER: ${POSTGRES_USER:-cerr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cerr} -d ${POSTGRES_DB:-cerr}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  config:
+    <<: *app-base
+    profiles: ["tools"]
+    command: ["python", "-m", "cerr_chatbot.cli", "config"]
+
+  migrate:
+    <<: *app-base
+    profiles: ["tools"]
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+
+  import:
+    <<: *app-base
+    profiles: ["tools"]
+    command: ["python", "-m", "cerr_chatbot.cli", "import-json"]
+
+  eval:
+    <<: *app-base
+    profiles: ["tools"]
+    command: ["python", "-m", "cerr_chatbot.cli", "eval-questions"]
+
+volumes:
+  postgres_data:

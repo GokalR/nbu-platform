@@ -134,7 +134,7 @@ Routes are lazy-loaded; layouts wrap each section.
 
 | Module | Views | Layout |
 |---|---|---|
-| Home / Districts / AI Advisor / Business Tools | `HomeView`, `DistrictAnalyticsView`, `AiAdvisorView`, `BusinessToolsView` | `DefaultLayout` |
+| Home / Districts / Chatbot / Business Tools | `HomeView`, `DistrictAnalyticsView`, `ChatbotView`, `BusinessToolsView` | `DefaultLayout` |
 | Mahallalar (Districts v2) | `views/regionsV2/*` (iframes CERR platform) | `DefaultLayout` |
 | Education | `views/education/*` (Courses, Detail, Learning, Dashboard, Login) | `EducationLayout` |
 | FinControl | `views/fincontrol/*` (10 views: Dashboard, Accounts, Cashflow, PnL, Planning, AI, …) | `FinControlLayout` |
@@ -203,6 +203,6 @@ See [../DEPLOYMENT.md](../DEPLOYMENT.md). TL;DR:
 
 - **Regional Strategist**: `auth_sync.get_current_user_id()` is **optional auth** — it adds `submissions.user_id` for logged-in users without forcing login. The `submissions.user_id` column was added later via ALTER (see `MIGRATIONS.md`).
 - **Business Plan**: `LLM_PROVIDER` env toggle picks Claude vs OpenAI. RS always uses Claude regardless.
-- **AI Advisor**: needs a populated OpenAI Vector Store (`VECTOR_STORE_ID` env). Single-region MD files live in `services/regional_chat/rag_single/`.
+- **Chatbot**: BFF proxies `/api/chatbot/*` to the standalone `cerr-chatbot` Railway service. Set `CHATBOT_API_URL` to its private Railway domain. The chatbot itself lives in `chatbot/main/` (own Postgres, own deploy).
 - **CERR data**: not in this repo. The platform service reads from R2 (`CERR_DATA_ROOT=https://cerr-data.devgokal.com`) or a local `cerr_runs/` if you've downloaded it.
 - **Yandex Maps key**: injected at Vite build time via the `rs-yandex-key` plugin in `vite.config.js`. Rotating the key requires a Pages rebuild.

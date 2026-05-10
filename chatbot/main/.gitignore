@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Editor
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Project
+# Source data is ~730 MB (one file is 119 MB > GitHub's 100 MB limit), so it
+# stays out of git. Run `import-json` once from a workstation with the JSONs
+# on disk, pointing DATABASE_URL at the Railway chatbot-postgres.
+cerr_runs/
+data/
+# Generated reports produced by audit, profile, numeric-profile, eval CLI.
+audit_reports/
+profile_reports/
+eval_reports/
+# Local SQLite scratch databases used for dev/testing. PostgreSQL is the
+# production target; *.db files are not part of the source of truth.
+*.db
+# Ad-hoc artifacts
+files.txt
+*.log

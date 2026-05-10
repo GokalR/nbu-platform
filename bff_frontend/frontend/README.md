@@ -47,7 +47,7 @@ src/
   views/
     HomeView.vue                 KPI grid + map + districts + stat cards
     DistrictAnalyticsView.vue    Tab-based district deep-dive
-    AiAdvisorView.vue            Chat-style AI assistant UI
+    ChatbotView.vue              Chat UI — calls /api/chatbot/chat (cerr-chatbot proxy)
     BusinessToolsView.vue        Tool catalogue grid
   App.vue                   <RouterView/> with fade transition
   main.js                   App bootstrap
@@ -66,7 +66,7 @@ Add an entry to `src/router/index.js` and a file under `src/views/`. Add the nav
 ## Notes
 
 - Demo data lives in `src/data/districts.js` and `src/data/regions.js` — replace with API calls when the backend is ready.
-- The chat in `AiAdvisorView.vue` uses a stub response — wire it to your AI endpoint.
+- `ChatbotView.vue` posts to `/api/chatbot/chat` (BFF proxies to the cerr-chatbot service); set `VITE_BACKEND_URL` for prod.
 
 ## Interactive Uzbekistan map
 

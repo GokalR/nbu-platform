@@ -50,10 +50,10 @@ const routes = [
     ],
   },
   {
-    path: '/ai',
-    name: 'ai',
-    component: () => import('@/views/AiAdvisorView.vue'),
-    meta: { titleKey: 'nav.ai' },
+    path: '/chatbot',
+    name: 'chatbot',
+    component: () => import('@/views/ChatbotView.vue'),
+    meta: { titleKey: 'nav.chatbot' },
   },
   {
     path: '/tools',

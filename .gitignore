@@ -28,6 +28,10 @@ sme_oprosnyk/backend/data/responses.xlsx
 # native Vue port replaced it.
 region_analytics_platform_template/cerr_runs/
 
+# chatbot service ships docker image tarballs from the colleague (~225 MB total).
+# Railway builds from source via the Dockerfile, so the tars are local-only.
+chatbot/*.tar
+
 # detailed_map_city: large scraped JSON checkpoints (regenerable)
 detailed_map_city/checkpoint.json
 
