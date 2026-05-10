@@ -20,6 +20,7 @@ from typing import Any, NamedTuple
 class IndustryBenchmark(NamedTuple):
     category: str
     label_ru: str
+    label_uz: str
     # Median EBITDA margin (%) for this industry — used by criterion 3
     # (Прибыльность: EBITDA margin vs. industry median).
     ebitda_margin_median: float
@@ -30,6 +31,13 @@ class IndustryBenchmark(NamedTuple):
     # plausibility check #4 (salary outliers). One value covers all
     # roles; we don't try to distinguish CEO from cashier here.
     salary_range: tuple[int, int]
+
+    def label(self, lang: str | None = None) -> str:
+        """Return the language-appropriate label.
+        Defaults to Russian; falls back to Russian if Uzbek missing."""
+        if (lang or "ru").lower() == "uz" and self.label_uz:
+            return self.label_uz
+        return self.label_ru
 
 
 # ---------- Classification patterns ----------
@@ -84,6 +92,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "bakery": IndustryBenchmark(
         category="bakery",
         label_ru="Хлебопечение / кондитерское",
+        label_uz="Non / qandolat",
         ebitda_margin_median=10.0,
         rev_per_employee=(8_000_000, 15_000_000),
         salary_range=(2_500_000, 8_000_000),
@@ -91,6 +100,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "retail_food": IndustryBenchmark(
         category="retail_food",
         label_ru="Розничная торговля продуктами",
+        label_uz="Oziq-ovqat chakana savdo",
         ebitda_margin_median=6.0,
         rev_per_employee=(10_000_000, 25_000_000),
         salary_range=(2_500_000, 7_000_000),
@@ -98,6 +108,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "manufacturing": IndustryBenchmark(
         category="manufacturing",
         label_ru="Производство",
+        label_uz="Ishlab chiqarish",
         ebitda_margin_median=12.0,
         rev_per_employee=(12_000_000, 30_000_000),
         salary_range=(3_000_000, 9_000_000),
@@ -105,6 +116,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "services": IndustryBenchmark(
         category="services",
         label_ru="Услуги",
+        label_uz="Xizmatlar",
         ebitda_margin_median=18.0,
         rev_per_employee=(5_000_000, 20_000_000),
         salary_range=(2_500_000, 10_000_000),
@@ -112,6 +124,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "construction": IndustryBenchmark(
         category="construction",
         label_ru="Строительство",
+        label_uz="Qurilish",
         ebitda_margin_median=8.0,
         rev_per_employee=(15_000_000, 40_000_000),
         salary_range=(3_500_000, 12_000_000),
@@ -119,6 +132,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "agriculture": IndustryBenchmark(
         category="agriculture",
         label_ru="Сельское хозяйство",
+        label_uz="Qishloq xoʻjaligi",
         ebitda_margin_median=10.0,
         rev_per_employee=(6_000_000, 18_000_000),
         salary_range=(2_000_000, 6_000_000),
@@ -126,6 +140,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "transport": IndustryBenchmark(
         category="transport",
         label_ru="Транспорт и логистика",
+        label_uz="Transport va logistika",
         ebitda_margin_median=9.0,
         rev_per_employee=(10_000_000, 30_000_000),
         salary_range=(3_000_000, 9_000_000),
@@ -133,6 +148,7 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
     "default": IndustryBenchmark(
         category="default",
         label_ru="Прочее (общая категория)",
+        label_uz="Boshqa (umumiy kategoriya)",
         ebitda_margin_median=12.0,
         rev_per_employee=(5_000_000, 20_000_000),
         salary_range=(2_500_000, 10_000_000),

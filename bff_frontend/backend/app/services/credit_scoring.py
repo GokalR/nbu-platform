@@ -409,7 +409,9 @@ def _interp(value: float, zero_at: float, full_at: float, points: float = 20.0) 
 
 
 def compute_wizard_score_v2(
-    inputs: dict, baseline: dict, plausibility_flags: list[dict] | None = None,
+    inputs: dict, baseline: dict,
+    plausibility_flags: list[dict] | None = None,
+    lang: str = "ru",
 ) -> dict[str, Any]:
     """Five-criterion 0-100 credit-fitness score for SME wizard plans.
 
@@ -475,7 +477,7 @@ def compute_wizard_score_v2(
     # ---------- Criterion 4: Plausibility ----------
     if plausibility_flags is None:
         plausibility_flags = plausibility_checks.run_all_checks(
-            inputs=inputs, baseline=baseline,
+            inputs=inputs, baseline=baseline, lang=lang,
         )
     flag_count = len(plausibility_flags)
     if flag_count == 0:
@@ -511,6 +513,7 @@ def compute_wizard_score_v2(
     else:
         verdict = "needs_rework"
 
+    t = _V2_T[lang if lang in _V2_T else "ru"]
     return {
         "version": 2,
         "total": total_rounded,
@@ -519,58 +522,54 @@ def compute_wizard_score_v2(
         "verdict": verdict,
         "industry": {
             "category": benchmark.category,
-            "label": benchmark.label_ru,
+            "label": benchmark.label(lang),
             "ebitdaMarginMedian": benchmark.ebitda_margin_median,
         },
         "criteria": {
             "dscrSteadyState": {
-                "label": "Покрытие платежей",
+                "label": t["labels"]["dscrSteadyState"],
                 "value": round(dscr_ss, 2),
                 "unit": "x",
                 "points": round(c1_pts, 1),
                 "maxPoints": 20,
-                "scaleHint": "20 баллов при ≥2.0x, 0 при ≤1.0x",
+                "scaleHint": t["scaleHints"]["dscrSteadyState"],
             },
             "equityShare": {
-                "label": "Структура капитала",
+                "label": t["labels"]["equityShare"],
                 "value": round(equity_pct, 1),
                 "unit": "%",
                 "points": round(c2_pts, 1),
                 "maxPoints": 20,
-                "scaleHint": "20 баллов при ≥30%, 0 при ≤10%",
+                "scaleHint": t["scaleHints"]["equityShare"],
             },
             "profitability": {
-                "label": "Прибыльность",
+                "label": t["labels"]["profitability"],
                 "value": round(ebitda_margin_pct, 1),
                 "unit": "%",
                 "points": round(c3_pts, 1),
                 "maxPoints": 20,
-                "scaleHint": (
-                    f"20 баллов при ≥{target_high:.0f}% (1.5× медианы отрасли "
-                    f"{industry_median:.0f}%), 0 при ≤0%"
+                "scaleHint": t["scaleHints"]["profitability"].format(
+                    target_high=f"{target_high:.0f}",
+                    industry_median=f"{industry_median:.0f}",
                 ),
             },
             "realism": {
-                "label": "Реалистичность",
+                "label": t["labels"]["realism"],
                 "value": flag_count,
-                "unit": " предупр.",
+                "unit": t["units"]["warnings"],
                 "points": round(c4_pts, 1),
                 "maxPoints": 20,
-                "scaleHint": "20 баллов при 0 предупреждений, 0 при 4+",
+                "scaleHint": t["scaleHints"]["realism"],
                 "flags": plausibility_flags,
             },
             "resilience": {
-                "label": "Устойчивость",
+                "label": t["labels"]["resilience"],
                 # Display the binding (worse) DSCR — that's what scored.
                 "value": round(resilience_dscr, 2),
                 "unit": "x",
                 "points": round(c5_pts, 1),
                 "maxPoints": 20,
-                "scaleHint": (
-                    "Худший из: стресс (выручка −20%, расходы +10%) и "
-                    "год 1 со средним ростом выручки. "
-                    "20 баллов при ≥1.5x, 0 при ≤0.8x"
-                ),
+                "scaleHint": t["scaleHints"]["resilience"],
             },
         },
         "stress": {
@@ -587,25 +586,94 @@ def compute_wizard_score_v2(
             "dscr": year1_dscr,
             "warning": 0 < year1_dscr < 1.0,
         },
-        "summary": _build_v2_summary(verdict, total_rounded, flag_count, stress_dscr),
+        "summary": _build_v2_summary(verdict, total_rounded, flag_count, stress_dscr, lang),
     }
 
 
 def _build_v2_summary(
-    verdict: str, total: int, flag_count: int, stress_dscr: float
+    verdict: str, total: int, flag_count: int, stress_dscr: float,
+    lang: str = "ru",
 ) -> str:
     """One-line natural-language summary for the v2 score banner."""
-    base = {
-        "high": f"Высокая кредитоспособность ({total}/100). Заявка имеет высокие шансы на одобрение.",
-        "medium": f"Средняя кредитоспособность ({total}/100). Возможны дополнительные требования банка.",
-        "low": f"Низкая кредитоспособность ({total}/100). Перед обращением рекомендуется усилить слабые показатели.",
-        "needs_rework": f"Бизнес-план требует доработки ({total}/100). Ключевые показатели не соответствуют требованиям.",
-    }.get(verdict, f"{total}/100")
+    t = _V2_T[lang if lang in _V2_T else "ru"]
+    base = t["summary"]["verdicts"].get(verdict, f"{total}/100").format(total=total)
     extra = []
     if flag_count > 0:
-        extra.append(f"{flag_count} предупреждений по реалистичности")
-    if stress_dscr < 1.0 and stress_dscr > 0:
-        extra.append("стресс-сценарий не покрывает платёж")
+        extra.append(t["summary"]["flagsHint"].format(count=flag_count))
+    if 0 < stress_dscr < 1.0:
+        extra.append(t["summary"]["stressHint"])
     if extra:
-        return f"{base} Обратите внимание: {'; '.join(extra)}."
+        return t["summary"]["noteWrapper"].format(
+            base=base, extras="; ".join(extra),
+        )
     return base
+
+
+# ---------- V2 translation table ----------
+# Localized strings for compute_wizard_score_v2 output. Frontend reads
+# `criteria.*.label` and `scaleHint` directly, so they must arrive in
+# the user's language.
+_V2_T = {
+    "ru": {
+        "labels": {
+            "dscrSteadyState": "Покрытие платежей",
+            "equityShare": "Структура капитала",
+            "profitability": "Прибыльность",
+            "realism": "Реалистичность",
+            "resilience": "Устойчивость",
+        },
+        "units": {"warnings": " предупр."},
+        "scaleHints": {
+            "dscrSteadyState": "20 баллов при ≥2.0x, 0 при ≤1.0x",
+            "equityShare": "20 баллов при ≥30%, 0 при ≤10%",
+            "profitability": ("20 баллов при ≥{target_high}% (1.5× медианы "
+                              "отрасли {industry_median}%), 0 при ≤0%"),
+            "realism": "20 баллов при 0 предупреждений, 0 при 4+",
+            "resilience": ("Худший из: стресс (выручка −20%, расходы +10%) и "
+                           "год 1 со средним ростом выручки. "
+                           "20 баллов при ≥1.5x, 0 при ≤0.8x"),
+        },
+        "summary": {
+            "verdicts": {
+                "high": "Высокая кредитоспособность ({total}/100). Заявка имеет высокие шансы на одобрение.",
+                "medium": "Средняя кредитоспособность ({total}/100). Возможны дополнительные требования банка.",
+                "low": "Низкая кредитоспособность ({total}/100). Перед обращением рекомендуется усилить слабые показатели.",
+                "needs_rework": "Бизнес-план требует доработки ({total}/100). Ключевые показатели не соответствуют требованиям.",
+            },
+            "flagsHint": "{count} предупреждений по реалистичности",
+            "stressHint": "стресс-сценарий не покрывает платёж",
+            "noteWrapper": "{base} Обратите внимание: {extras}.",
+        },
+    },
+    "uz": {
+        "labels": {
+            "dscrSteadyState": "Toʻlovlar qoplanishi",
+            "equityShare": "Kapital tarkibi",
+            "profitability": "Foydalilik",
+            "realism": "Reallik",
+            "resilience": "Barqarorlik",
+        },
+        "units": {"warnings": " ogohl."},
+        "scaleHints": {
+            "dscrSteadyState": "≥2.0x da 20 ball, ≤1.0x da 0 ball",
+            "equityShare": "≥30% da 20 ball, ≤10% da 0 ball",
+            "profitability": ("≥{target_high}% da 20 ball (sohaning "
+                              "{industry_median}% medianasidan 1.5×), ≤0% da 0 ball"),
+            "realism": "0 ogohlantirishda 20 ball, 4+ da 0 ball",
+            "resilience": ("Eng yomoni: stress (daromad −20%, xarajat +10%) yoki "
+                           "1-yil oʻrtacha daromad oʻsishi bilan. "
+                           "≥1.5x da 20 ball, ≤0.8x da 0 ball"),
+        },
+        "summary": {
+            "verdicts": {
+                "high": "Yuqori kreditga layoqatlilik ({total}/100). Arizaning maʼqullanish ehtimoli yuqori.",
+                "medium": "Oʻrtacha kreditga layoqatlilik ({total}/100). Bank qoʻshimcha talablar qoʻyishi mumkin.",
+                "low": "Past kreditga layoqatlilik ({total}/100). Murojaat qilishdan oldin zaif koʻrsatkichlarni kuchaytirish tavsiya etiladi.",
+                "needs_rework": "Biznes-reja qayta ishlashni talab qiladi ({total}/100). Asosiy koʻrsatkichlar talablarga javob bermaydi.",
+            },
+            "flagsHint": "reallikka oid {count} ta ogohlantirish",
+            "stressHint": "stress-stsenariy toʻlovni qoplay olmaydi",
+            "noteWrapper": "{base} Eʼtibor bering: {extras}.",
+        },
+    },
+}

@@ -993,7 +993,9 @@
       "cols": {
         "ratio": "Показатель",
         "value": "Значение",
-        "benchmark": "Норма"
+        "benchmark": "Норма",
+        "points": "Баллы",
+        "scale": "Шкала"
       },
       "ratioNames": {
         "operatingMargin": "Операционная маржа",
