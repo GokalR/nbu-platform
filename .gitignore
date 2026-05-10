@@ -20,13 +20,13 @@ bff_frontend/backend/data/sme_profile/Руйхат-2*.xlsx
 sme_oprosnyk/Руйхат-2*.xlsx
 sme_oprosnyk/backend/data/responses.xlsx
 
-# CERR Mahalla Analytics v2 — 1.4 GB scraped JSON tree.
+# CERR Mahalla Analytics — 1.4 GB scraped JSON tree.
 # Source data lives outside git (R2 bucket nbu-cerr-data, served at
 # https://cerr-data.devgokal.com). Path is configurable via CERR_DATA_ROOT.
+# The legacy Flask + Next.js iframe wrapper that used to live at
+# region_analytics_platform_template/platform/ is gone — the cerr-v2
+# native Vue port replaced it.
 region_analytics_platform_template/cerr_runs/
-# But DO commit the Next.js bundle + Flask server — it's the actual UI
-# served as a separate Railway service and iframe'd from the main app.
-region_analytics_platform_template/platform/__pycache__/
 
 # detailed_map_city: large scraped JSON checkpoints (regenerable)
 detailed_map_city/checkpoint.json
