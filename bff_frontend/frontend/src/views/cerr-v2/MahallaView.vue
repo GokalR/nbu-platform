@@ -3,6 +3,7 @@
  * Lives at /regions-v2/mahalla/:stir. */
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCerrV2Store } from '@/stores/cerrV2.js'
 import { fmt, iconForKpi } from '@/data/cerrV2Format.js'
 import CerrIcon from '@/components/cerr-v2/CerrIcon.vue'
@@ -16,6 +17,7 @@ import TabCompare from '@/components/cerr-v2/TabCompare.vue'
 const route = useRoute()
 const router = useRouter()
 const store = useCerrV2Store()
+const { t } = useI18n()
 
 const stir = computed(() => String(route.params.stir || ''))
 const activeTab = ref('overview')
@@ -136,12 +138,12 @@ function goSibling(mm) {
   router.push({ name: 'cerr-v2-mahalla', params: { stir: mm.stir } })
 }
 
-const TABS = [
-  { id: 'overview', label: 'Обзор',     ico: 'pulse' },
-  { id: 'farm',     label: 'Хозяйство', ico: 'tractor' },
-  { id: 'progr',    label: 'Программы', ico: 'docs' },
-  { id: 'compare',  label: 'Сравнение', ico: 'target' },
-]
+const TABS = computed(() => [
+  { id: 'overview', label: t('cerrV2.tabs.overview'), ico: 'pulse' },
+  { id: 'farm',     label: t('cerrV2.tabs.farm'),     ico: 'tractor' },
+  { id: 'progr',    label: t('cerrV2.tabs.programs'), ico: 'docs' },
+  { id: 'compare',  label: t('cerrV2.tabs.compare'),  ico: 'target' },
+])
 
 function tabBadge(id) {
   if (!m.value) return null
@@ -190,14 +192,14 @@ const heroStats = computed(() => {
       <section class="hero hero-v2 mahalla-hero">
         <div class="hero-v2-head">
           <div class="hero-v2-l">
-            <div class="hv2-eyebrow">МАҲАЛЛА · {{ summary?.district_name || '' }}</div>
+            <div class="hv2-eyebrow">{{ $t('cerrV2.eyebrow.mahalla') }} · {{ summary?.district_name || '' }}</div>
             <h2 class="hero-title">{{ m?.header?.title || summary?.name || '—' }}</h2>
             <p class="hv2-breadcrumb">
               <template v-if="breadcrumb.length">{{ breadcrumb.slice(0, -1).join(' · ') }}</template>
               <template v-else-if="summary">{{ summary.region_name }} · {{ summary.district_name }}</template>
               <span class="hv2-breadcrumb-sep">·</span>
               <span class="hv2-breadcrumb-period">
-                <CerrIcon name="info" :size="11" /> Данные за 2025 год
+                <CerrIcon name="info" :size="11" /> {{ $t('cerrV2.common.data2025') }}
               </span>
             </p>
           </div>
@@ -205,7 +207,7 @@ const heroStats = computed(() => {
           <!-- Rating callout (right side of hero) -->
           <div v-if="ratingScore != null" :class="['mh-rating-card', `tier-${ratingScoreTier || 'mid'}`]">
             <div class="mh-rating-num tabular">{{ Number(ratingScore).toFixed(1).replace('.', ',') }}</div>
-            <div class="mh-rating-lbl">Балл социально-экономического рейтинга</div>
+            <div class="mh-rating-lbl">{{ $t('cerrV2.mahalla.ratingScore') }}</div>
             <div class="mh-rating-ranks">
               <div
                 v-if="ratingContext?.district_pos"
@@ -213,7 +215,7 @@ const heroStats = computed(() => {
               >
                 <CerrIcon name="award" :size="11" />
                 <span><b>{{ ratingContext.district_pos }}</b> / {{ ratingContext.district_total }}</span>
-                <span class="lbl">в районе</span>
+                <span class="lbl">{{ $t('cerrV2.mahalla.inDistrict') }}</span>
               </div>
               <div
                 v-if="ratingContext?.region_pos"
@@ -221,7 +223,7 @@ const heroStats = computed(() => {
               >
                 <CerrIcon name="map" :size="11" />
                 <span><b>{{ ratingContext.region_pos }}</b> / {{ ratingContext.region_total }}</span>
-                <span class="lbl">в регионе</span>
+                <span class="lbl">{{ $t('cerrV2.mahalla.inRegion') }}</span>
               </div>
             </div>
           </div>
@@ -263,16 +265,16 @@ const heroStats = computed(() => {
         <TabCompare v-else-if="activeTab === 'compare'" :m="m" />
       </div>
       <div v-else class="empty-hint">
-        <CerrIcon name="info" :size="16" /> Загрузка данных маҳалли…
+        <CerrIcon name="info" :size="16" /> {{ $t('cerrV2.common.loading') }}
       </div>
     </div>
 
     <SidebarRail
-      title="Махаллалар района"
+      :title="$t('cerrV2.mahalla.siblingsTitle')"
       :count="siblings.length"
       :items="siblings"
       :row-for="rowFor"
-      search-placeholder="Поиск махалли…"
+      :search-placeholder="$t('cerrV2.mahalla.searchMahalla')"
       :active-key="stir"
       @select="goSibling"
     >

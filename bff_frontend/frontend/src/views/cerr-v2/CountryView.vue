@@ -2,6 +2,7 @@
 /* Country screen: 14 regions, country-level KPIs aggregated, RAQAMLARDA national. */
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCerrV2Store } from '@/stores/cerrV2.js'
 import { fmt } from '@/data/cerrV2Format.js'
 import { UZ_MACRO_HISTORY, UZ_MACRO_YEARS, fmtTrln, buildBars } from '@/data/uzMacroHistory.js'
@@ -13,6 +14,7 @@ import NavStepper from '@/components/cerr-v2/NavStepper.vue'
 
 const router = useRouter()
 const store = useCerrV2Store()
+const { t: tFn } = useI18n()
 const sortMode = ref('pop')
 
 onMounted(async () => {
@@ -58,10 +60,10 @@ const aggregates = computed(() => {
 const heroStats = computed(() => {
   const totalRegions = (store.regions || []).length || 14
   return [
-    { key: 'pop', label: 'Аҳоли сони',           value: popChart.value.valueStr,             unit: 'млн',                ico: 'users', hasChart: true },
-    { key: 'mah', label: 'Маҳаллалар сони',      value: fmt.num(aggregates.value.mahallas),  unit: '',                   ico: 'grid'  },
-    { key: 'dst', label: 'Туманлар ва шаҳарлар', value: fmt.num(aggregates.value.districts), unit: '',                   ico: 'map'   },
-    { key: 'cov', label: 'Қамраб олинган',       value: String(totalRegions),                unit: `из ${totalRegions}`, ico: 'check' },
+    { key: 'pop', label: tFn('cerrV2.country.stat.pop'),     value: popChart.value.valueStr,             unit: tFn('cerrV2.country.macroLabel.gdp') === 'ВВП' ? 'млн' : 'млн', ico: 'users', hasChart: true },
+    { key: 'mah', label: tFn('cerrV2.country.stat.mahalla'), value: fmt.num(aggregates.value.mahallas),  unit: '',                                                  ico: 'grid'  },
+    { key: 'dst', label: tFn('cerrV2.country.stat.district'),value: fmt.num(aggregates.value.districts), unit: '',                                                  ico: 'map'   },
+    { key: 'cov', label: tFn('cerrV2.country.stat.covered'), value: String(totalRegions),                unit: tFn('cerrV2.country.stat.ofTotal', { total: totalRegions }), ico: 'check' },
   ]
 })
 
@@ -71,13 +73,13 @@ const heroStats = computed(() => {
  *  the current period — Industry, Retail and Services do not have a separate
  *  real-growth publication, so the value is nominal share-of-100 in those
  *  cases). The 5-point sparkline visualises the 2021→2025 trajectory. */
-const HERO_MACRO_LABELS = {
-  gdp:    'ВВП',
-  ind:    'Промышленность',
-  inv:    'Инвестиции',
-  retail: 'Розн. товарооборот',
-  serv:   'Услуги',
-}
+const HERO_MACRO_LABELS = computed(() => ({
+  gdp:    tFn('cerrV2.country.macroLabel.gdp'),
+  ind:    tFn('cerrV2.country.macroLabel.ind'),
+  inv:    tFn('cerrV2.country.macroLabel.inv'),
+  retail: tFn('cerrV2.country.macroLabel.retail'),
+  serv:   tFn('cerrV2.country.macroLabel.serv'),
+}))
 const HERO_MACRO_ORDER = ['gdp', 'ind', 'inv', 'retail', 'serv']
 const heroMacro = computed(() => {
   return HERO_MACRO_ORDER.map((key) => {
@@ -90,7 +92,7 @@ const heroMacro = computed(() => {
     const delta = ind?.val != null ? ind.val - 100 : null
     return {
       key,
-      label: HERO_MACRO_LABELS[key] || hist.label,
+      label: HERO_MACRO_LABELS.value[key] || hist.label,
       absStr: fmtTrln(last),
       deltaStr: delta == null ? null : (delta >= 0 ? '+' : '') + delta.toFixed(1).replace('.', ','),
       isPos: delta == null ? true : delta >= 0,
@@ -198,7 +200,7 @@ function rowFor(r) {
   return {
     key: r.code,
     name: r.name,
-    sub: `${r.districts_count} р.`,
+    sub: tFn('cerrV2.region.districtsCount', { n: r.districts_count }),
     badge: ranked ? `#${ranked.rank}` : (r.pop ? fmt.shortPop(r.pop) : '—'),
     badgeTone: ranked ? tierLabelClass(ranked.rank) : (r.hasCerr ? '' : 'low'),
     disabled: !r.hasCerr,
@@ -239,16 +241,16 @@ function colorize(f) {
       <section class="hero hero-v2">
         <div class="hero-v2-head">
           <div class="hero-v2-l">
-            <h2 class="hero-title">Республика Узбекистан</h2>
+            <h2 class="hero-title">{{ $t('cerrV2.country.title') }}</h2>
           </div>
         </div>
 
         <div class="hero-v2-meta">
-          <span class="hv2-meta-item"><CerrIcon name="pin" :size="12" /> 448 978 км²</span>
+          <span class="hv2-meta-item"><CerrIcon name="pin" :size="12" /> {{ $t('cerrV2.country.area') }}</span>
           <span class="hv2-meta-sep" />
-          <span class="hv2-meta-item"><CerrIcon name="info" :size="12" /> Данные за 2025 год</span>
+          <span class="hv2-meta-item"><CerrIcon name="info" :size="12" /> {{ $t('cerrV2.common.data2025') }}</span>
           <span class="hv2-meta-sep" />
-          <span class="hv2-meta-item"><CerrIcon name="layers" :size="12" /> Источник: stat.uz · NBU API</span>
+          <span class="hv2-meta-item"><CerrIcon name="layers" :size="12" /> {{ $t('cerrV2.country.source') }}</span>
         </div>
 
         <div class="hero-v2-stats">
@@ -288,7 +290,7 @@ function colorize(f) {
         </div>
 
         <div v-if="heroMacro.length" class="hero-v2-macro-head">
-          <span>Макропоказатели · 2021 → 2025</span>
+          <span>{{ $t('cerrV2.country.macroHead') }}</span>
         </div>
 
         <div v-if="heroMacro.length" class="hero-v2-macro">
@@ -327,13 +329,13 @@ function colorize(f) {
                 <span class="arr">{{ m.isPos ? '↑' : '↓' }}</span>
                 {{ m.deltaStr }}%
               </span>
-              <span class="hv2m-since">с 2024 по 2025</span>
+              <span class="hv2m-since">{{ $t('cerrV2.common.since2024') }}</span>
             </div>
           </div>
         </div>
       </section>
 
-      <div class="section-h"><span>Карта · кликните по региону</span></div>
+      <div class="section-h"><span>{{ $t('cerrV2.country.mapHint') }}</span></div>
 
       <section class="card map-card">
         <div class="map-grid">
@@ -351,40 +353,38 @@ function colorize(f) {
             @select="(k) => go(Number(k))"
           />
           <div class="map-side">
-            <div class="map-side-h">Социально-экономический рейтинг</div>
+            <div class="map-side-h">{{ $t('cerrV2.country.rating.title') }}</div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#bfe5d4' }" />
               <span class="lbl">
-                <b>Лидеры</b>
-                <span class="sub">меньше проблемных махаллей</span>
+                <b>{{ $t('cerrV2.country.rating.lead') }}</b>
+                <span class="sub">{{ $t('cerrV2.country.rating.leadDesc') }}</span>
               </span>
               <span class="n tabular">{{ tierCounts.lead }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#f5e3b8' }" />
               <span class="lbl">
-                <b>Средние</b>
-                <span class="sub">средний уровень</span>
+                <b>{{ $t('cerrV2.country.rating.mid') }}</b>
+                <span class="sub">{{ $t('cerrV2.country.rating.midDesc') }}</span>
               </span>
               <span class="n tabular">{{ tierCounts.mid }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#eecccc' }" />
               <span class="lbl">
-                <b>Отстающие</b>
-                <span class="sub">больше всего проблемных махаллей</span>
+                <b>{{ $t('cerrV2.country.rating.low') }}</b>
+                <span class="sub">{{ $t('cerrV2.country.rating.lowDesc') }}</span>
               </span>
               <span class="n tabular">{{ tierCounts.low }}</span>
             </div>
             <div class="map-focus">
-              <div class="eye">Что входит в рейтинг</div>
+              <div class="eye">{{ $t('cerrV2.country.rating.calcHeading') }}</div>
               <div class="hint">
-                Балл махалли учитывает бедность, безработицу,
-                проблемные кредиты и инфраструктуру.
-                Чем больше проблем — тем ниже балл района и региона.
+                {{ $t('cerrV2.country.rating.calcExplain') }}
                 <br /><br />
-                <b>Расчёт:</b> махалля → среднее по району → среднее по региону.
-                Красные регионы — где больше всего проблем требуют внимания.
+                <b>{{ $t('cerrV2.country.rating.calcLabel') }}:</b>
+                {{ $t('cerrV2.country.rating.calcChain') }}
               </div>
             </div>
           </div>
@@ -394,8 +394,8 @@ function colorize(f) {
       <section v-if="rankingChart.length" class="card featured">
         <h3 class="card-title">
           <span class="ico-tile"><CerrIcon name="award" :size="14" /></span>
-          Регионы Узбекистана · интегральный рейтинг
-          <span class="card-title-end">больше = лучше</span>
+          {{ $t('cerrV2.country.rankingHead') }}
+          <span class="card-title-end">{{ $t('cerrV2.common.moreBetter') }}</span>
         </h3>
         <div class="bar-chart">
           <button
@@ -414,7 +414,7 @@ function colorize(f) {
         </div>
       </section>
 
-      <div class="section-h"><span>Регионы · {{ aggregates.covered }} покрыто данными</span></div>
+      <div class="section-h"><span>{{ $t('cerrV2.country.regionsHead', { n: aggregates.covered }) }}</span></div>
 
       <div class="region-grid">
         <button
@@ -427,13 +427,13 @@ function colorize(f) {
           <span v-if="!r.hasCerr" class="badge">нет данных</span>
           <div class="name">{{ r.name }}</div>
           <div class="meta">
-            <span>{{ r.districts_count }} р-нов</span>
+            <span>{{ $t('cerrV2.country.districtsShort', { n: r.districts_count }) }}</span>
             <span :style="{ color: 'var(--text-faint)' }">·</span>
-            <span>{{ fmt.num(r.mahalla_count) }} махаллей</span>
+            <span>{{ $t('cerrV2.country.mahallasShort', { n: fmt.num(r.mahalla_count) }) }}</span>
           </div>
           <div class="pop">
             <span class="v tabular">{{ r.pop ? (r.pop / 1e6).toFixed(2).replace('.', ',') : '—' }}</span>
-            <span class="u">млн чел.</span>
+            <span class="u">{{ $t('cerrV2.country.mlnPeople') }}</span>
           </div>
           <div class="bar">
             <i :style="{ width: `${Math.min(100, ((r.pop || 0) / 4.5e6) * 100)}%` }" />
@@ -445,12 +445,12 @@ function colorize(f) {
     </div>
 
     <SidebarRail
-      title="Регионы"
+      :title="$t('nav.regionsAnalytics')"
       :count="regionsEnriched.length"
       :items="railRows"
       :row-for="rowFor"
-      search-placeholder="Поиск региона…"
-      :meta-right="`${regionsEnriched.filter(r => r.hasCerr).length} с данными`"
+      :search-placeholder="$t('cerrV2.region.searchDistrict')"
+      :meta-right="$t('cerrV2.common.withData', { n: regionsEnriched.filter(r => r.hasCerr).length })"
       @select="(r) => r.hasCerr && go(r.code)"
     >
       <template #header-top><NavStepper /></template>

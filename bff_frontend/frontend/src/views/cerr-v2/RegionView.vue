@@ -2,6 +2,7 @@
 /* Region screen: hero + KPI strip + district map + featured rating bar + RAQAMLARDA macro. */
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCerrV2Store } from '@/stores/cerrV2.js'
 import { fmt, iconForKpi } from '@/data/cerrV2Format.js'
 import EntityMap from '@/components/cerr-v2/EntityMap.vue'
@@ -13,6 +14,7 @@ import NavStepper from '@/components/cerr-v2/NavStepper.vue'
 const route = useRoute()
 const router = useRouter()
 const store = useCerrV2Store()
+const { t: tFn } = useI18n()
 
 const regionCode = computed(() => Number(route.params.regionCode))
 
@@ -130,7 +132,7 @@ function rowFor(d) {
   return {
     key: d.code,
     name: d.name,
-    sub: `${d.mahallas} м.`,
+    sub: tFn('cerrV2.district.mahallasShort', { n: d.mahallas }),
     badge: d.pos ? `#${d.pos}` : '—',
     badgeTone: tierLabelClass(d.pos),
   }
@@ -159,17 +161,17 @@ const periodLabel = computed(() => '2026 1-кв.')
       <section class="hero hero-v2 mahalla-hero entity-hero">
         <div class="hero-v2-head">
           <div class="hero-v2-l">
-            <div class="hv2-eyebrow">РЕГИОН · ВИЛОЯТ</div>
+            <div class="hv2-eyebrow">{{ $t('cerrV2.eyebrow.region') }}</div>
             <h2 class="hero-title">{{ overview?.header?.title || region?.name || '—' }}</h2>
             <p class="hv2-breadcrumb">
-              <span>Республика Узбекистан</span>
+              <span>{{ $t('cerrV2.country.title') }}</span>
               <span class="hv2-breadcrumb-sep">·</span>
-              <span>{{ region?.districts_count }} районов и городов</span>
+              <span>{{ $t('cerrV2.region.districtsAndCities', { n: region?.districts_count }) }}</span>
               <span class="hv2-breadcrumb-sep">·</span>
-              <span>{{ fmt.num(region?.mahalla_count) }} махаллей</span>
+              <span>{{ $t('cerrV2.region.mahallasCount', { n: fmt.num(region?.mahalla_count) }) }}</span>
               <span class="hv2-breadcrumb-sep">·</span>
               <span class="hv2-breadcrumb-period">
-                <CerrIcon name="info" :size="11" /> Данные за 2025 год
+                <CerrIcon name="info" :size="11" /> {{ $t('cerrV2.common.data2025') }}
               </span>
             </p>
           </div>
@@ -205,30 +207,30 @@ const periodLabel = computed(() => '2026 1-кв.')
             :label-min="32"
           />
           <div class="map-side">
-            <div class="map-side-h">Рейтинговые группы</div>
+            <div class="map-side-h">{{ $t('cerrV2.region.tierGroups') }}</div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#bfe5d4' }" />
-              <span class="lbl">Лидеры (топ 25%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.lead') }}</span>
               <span class="n tabular">{{ tierCounts.lead }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#f5e3b8' }" />
-              <span class="lbl">Средние (25–60%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.mid') }}</span>
               <span class="n tabular">{{ tierCounts.mid }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#f7c9b8' }" />
-              <span class="lbl">Отстающие (60–85%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.low') }}</span>
               <span class="n tabular">{{ tierCounts.low }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#eecccc' }" />
-              <span class="lbl">Группа риска (нижние 15%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.risk') }}</span>
               <span class="n tabular">{{ tierCounts.risk }}</span>
             </div>
             <div class="map-focus">
-              <div class="eye">Подсказка</div>
-              <div class="hint">Клик по полигону → анализ района</div>
+              <div class="eye">{{ $t('cerrV2.common.hint') }}</div>
+              <div class="hint">{{ $t('cerrV2.region.clickHintDistrict') }}</div>
             </div>
           </div>
         </div>
@@ -238,7 +240,7 @@ const periodLabel = computed(() => '2026 1-кв.')
         <h3 class="card-title">
           <span class="ico-tile"><CerrIcon name="chart" :size="14" /></span>
           {{ chartTitle }}
-          <span class="card-title-end">меньше = лучше</span>
+          <span class="card-title-end">{{ $t('cerrV2.common.lessBetter') }}</span>
         </h3>
         <div class="bar-chart">
           <div v-for="(d, i) in chartData" :key="i" class="bar-row">
@@ -253,12 +255,12 @@ const periodLabel = computed(() => '2026 1-кв.')
     </div>
 
     <SidebarRail
-      :title="`Районы ${region?.name || ''}`"
+      :title="`${$t('cerrV2.region.districtsTitle')} ${region?.name || ''}`"
       :count="districtRanking.length"
       :items="districtRanking"
       :row-for="rowFor"
-      search-placeholder="Поиск района…"
-      meta-right="сорт. по алфавиту"
+      :search-placeholder="$t('cerrV2.region.searchDistrict')"
+      :meta-right="$t('cerrV2.common.sortAlpha')"
       @select="(d) => goDistrict(d.code)"
     >
       <template #header-top><NavStepper /></template>

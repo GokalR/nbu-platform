@@ -2,6 +2,7 @@
 /* District screen: hero KPIs + rating histogram + mahalla map + macro themes + mahalla rail. */
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCerrV2Store } from '@/stores/cerrV2.js'
 import { fmt, iconForKpi } from '@/data/cerrV2Format.js'
 import { groupMacroByTheme } from '@/data/macroThemes.js'
@@ -15,6 +16,7 @@ import NavStepper from '@/components/cerr-v2/NavStepper.vue'
 const route = useRoute()
 const router = useRouter()
 const store = useCerrV2Store()
+const { t: tFn } = useI18n()
 
 const districtCode = computed(() => Number(route.params.districtCode))
 
@@ -194,17 +196,17 @@ function openTier(stir) {
       <section class="hero hero-v2 mahalla-hero entity-hero">
         <div class="hero-v2-head">
           <div class="hero-v2-l">
-            <div class="hv2-eyebrow">ТУМАН · ШАҲАР</div>
+            <div class="hv2-eyebrow">{{ $t('cerrV2.eyebrow.district') }}</div>
             <h2 class="hero-title">{{ overview?.header?.title || district?.name || '—' }}</h2>
             <p class="hv2-breadcrumb">
-              <span>Республика Узбекистан</span>
+              <span>{{ $t('cerrV2.country.title') }}</span>
               <span class="hv2-breadcrumb-sep">·</span>
               <span>{{ district?.region_name }}</span>
               <span class="hv2-breadcrumb-sep">·</span>
-              <span>{{ district?.mahalla_count }} махаллей</span>
+              <span>{{ $t('cerrV2.region.mahallasCount', { n: district?.mahalla_count }) }}</span>
               <span class="hv2-breadcrumb-sep">·</span>
               <span class="hv2-breadcrumb-period">
-                <CerrIcon name="info" :size="11" /> Данные за 2025 год
+                <CerrIcon name="info" :size="11" /> {{ $t('cerrV2.common.data2025') }}
               </span>
             </p>
           </div>
@@ -242,30 +244,30 @@ function openTier(stir) {
             @select="(k) => openTier(String(k))"
           />
           <div class="map-side">
-            <div class="map-side-h">Рейтинг махалли</div>
+            <div class="map-side-h">{{ $t('cerrV2.district.ratingMahalla') }}</div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#bfe5d4' }" />
-              <span class="lbl">Лидеры (топ 25%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.lead') }}</span>
               <span class="n tabular">{{ tierCounts.lead }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#f5e3b8' }" />
-              <span class="lbl">Средние (25–60%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.mid') }}</span>
               <span class="n tabular">{{ tierCounts.mid }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#f7c9b8' }" />
-              <span class="lbl">Отстающие (60–85%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.low') }}</span>
               <span class="n tabular">{{ tierCounts.low }}</span>
             </div>
             <div class="map-tier">
               <span class="sw" :style="{ background: '#eecccc' }" />
-              <span class="lbl">Группа риска (нижние 15%)</span>
+              <span class="lbl">{{ $t('cerrV2.region.tier.risk') }}</span>
               <span class="n tabular">{{ tierCounts.risk }}</span>
             </div>
             <div class="map-focus">
-              <div class="eye">Подсказка</div>
-              <div class="hint">Клик по полигону → анализ махалли</div>
+              <div class="eye">{{ $t('cerrV2.common.hint') }}</div>
+              <div class="hint">{{ $t('cerrV2.district.clickHintMahalla') }}</div>
             </div>
           </div>
         </div>
@@ -280,12 +282,12 @@ function openTier(stir) {
     </div>
 
     <SidebarRail
-      :title="`Махаллалар`"
+      :title="$t('cerrV2.district.siblingsTitle')"
       :count="mahallas.length"
       :items="mahallaList"
       :row-for="rowFor"
-      search-placeholder="Поиск махалли…"
-      meta-right="сорт. по алфавиту"
+      :search-placeholder="$t('cerrV2.district.searchMahalla')"
+      :meta-right="$t('cerrV2.common.sortAlpha')"
       @select="(m) => openTier(m.stir)"
     >
       <template #header-top><NavStepper /></template>

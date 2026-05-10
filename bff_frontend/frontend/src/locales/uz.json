@@ -2914,5 +2914,100 @@
       "arcan": "Kompyuter dasturlash sohasidagi faoliyat",
       "verdict": "Advokatlik tashkilotlari faoliyati"
     }
+  },
+  "cerrV2": {
+    "tabs": {
+      "overview": "Шарҳ",
+      "farm": "Хўжалик",
+      "programs": "Дастурлар",
+      "compare": "Қиёслаш"
+    },
+    "eyebrow": {
+      "region": "ВИЛОЯТ",
+      "district": "ТУМАН · ШАҲАР",
+      "mahalla": "МАҲАЛЛА"
+    },
+    "common": {
+      "search": "Қидириш…",
+      "data2025": "2025 йил маълумотлари",
+      "since2024": "2024 йилдан 2025 йилгача",
+      "hint": "Маслаҳат",
+      "lessBetter": "камроқ = яхшироқ",
+      "moreBetter": "кўпроқ = яхшироқ",
+      "sortAlpha": "алифбо бўйича",
+      "withData": "{n} та маълумот билан",
+      "loading": "Маҳалла маълумотлари юкланмоқда…"
+    },
+    "country": {
+      "title": "Ўзбекистон Республикаси",
+      "area": "448 978 км²",
+      "source": "Манба: stat.uz · NBU API",
+      "macroHead": "Макрокўрсаткичлар · 2021 → 2025",
+      "macroLabel": {
+        "gdp": "ЯИМ",
+        "ind": "Саноат",
+        "inv": "Сармоя",
+        "retail": "Чакана савдо",
+        "serv": "Хизматлар"
+      },
+      "stat": {
+        "pop": "Аҳоли сони",
+        "mahalla": "Маҳаллалар сони",
+        "district": "Туманлар ва шаҳарлар",
+        "covered": "Қамраб олинган",
+        "ofTotal": "{total} тадан"
+      },
+      "mapHint": "Харита · регионни босинг",
+      "rankingHead": "Ўзбекистон вилоятлари · интеграл рейтинг",
+      "regionsHead": "Региони · {n} та маълумот билан",
+      "rating": {
+        "title": "Ижтимоий-иқтисодий рейтинг",
+        "lead": "Лидерлар",
+        "leadDesc": "муаммоли маҳаллалар камроқ",
+        "mid": "Ўртачалар",
+        "midDesc": "ўрта даража",
+        "low": "Орқада қолаётганлар",
+        "lowDesc": "энг кўп муаммоли маҳаллалар",
+        "calcHeading": "Рейтингга нима киради",
+        "calcExplain": "Маҳалла балли қашшоқлик, ишсизлик, муаммоли кредитлар ва инфратузилмани ҳисобга олади. Муаммо қанча кўп бўлса, туман ва вилоят балли шунча паст.",
+        "calcLabel": "Ҳисоб",
+        "calcChain": "маҳалла → туман ўртачаси → вилоят ўртачаси. Қизил вилоятлар – энг кўп эътибор талаб қилувчилар."
+      },
+      "regionMeta": "{districts} р.",
+      "districtsShort": "{n} р-н",
+      "mahallasShort": "{n} маҳалла",
+      "mlnPeople": "млн киши"
+    },
+    "region": {
+      "districtsAndCities": "{n} туман ва шаҳар",
+      "mahallasCount": "{n} маҳалла",
+      "tierGroups": "Рейтинг гуруҳлари",
+      "tier": {
+        "lead": "Лидерлар (юқори 25%)",
+        "mid": "Ўртачалар (25–60%)",
+        "low": "Орқада қолаётганлар (60–85%)",
+        "risk": "Хавф гуруҳи (қуйи 15%)"
+      },
+      "clickHintDistrict": "Полигонга босинг → туман таҳлили",
+      "districtsTitle": "Туманлар",
+      "searchDistrict": "Туман қидириш…",
+      "districtsCount": "{n} т."
+    },
+    "district": {
+      "districtMahallas": "{n} маҳалла · {region}",
+      "ratingMahalla": "Маҳалла рейтинги",
+      "clickHintMahalla": "Полигонга босинг → маҳалла таҳлили",
+      "macroSummary": "{n} макрокўрсаткич · {m} тематик блок",
+      "siblingsTitle": "Маҳаллалар",
+      "searchMahalla": "Маҳалла қидириш…",
+      "mahallasShort": "{n} м."
+    },
+    "mahalla": {
+      "ratingScore": "Ижтимоий-иқтисодий рейтинг балли",
+      "inDistrict": "туман ичида",
+      "inRegion": "вилоят ичида",
+      "siblingsTitle": "Туман маҳаллалари",
+      "searchMahalla": "Маҳалла қидириш…"
+    }
   }
 }

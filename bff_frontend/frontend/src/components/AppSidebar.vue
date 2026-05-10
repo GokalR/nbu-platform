@@ -11,8 +11,10 @@ const auth = useEduAuthStore()
 const isAdmin = computed(() => auth.user?.role === 'admin')
 
 const baseNavItems = [
-  { to: '/', icon: 'dashboard', labelKey: 'nav.home' },
-  { to: '/districts', icon: 'analytics', labelKey: 'nav.districts' },
+  // Temporarily hidden until the dashboards/ districts pages are aligned
+  // with the new cerr-v2 service. Re-enable when ready.
+  // { to: '/', icon: 'dashboard', labelKey: 'nav.home' },
+  // { to: '/districts', icon: 'analytics', labelKey: 'nav.districts' },
   { to: '/regions-v2', icon: 'public', labelKey: 'nav.regionsAnalytics' },
   { to: '/ai', icon: 'psychology', labelKey: 'nav.ai' },
   { to: '/tools', icon: 'precision_manufacturing', labelKey: 'nav.tools' },
