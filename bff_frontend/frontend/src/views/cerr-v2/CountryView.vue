@@ -63,7 +63,7 @@ const heroStats = computed(() => {
     { key: 'pop', label: tFn('cerrV2.country.stat.pop'),     value: popChart.value.valueStr,             unit: tFn('cerrV2.country.macroLabel.gdp') === 'ВВП' ? 'млн' : 'млн', ico: 'users', hasChart: true },
     { key: 'mah', label: tFn('cerrV2.country.stat.mahalla'), value: fmt.num(aggregates.value.mahallas),  unit: '',                                                  ico: 'grid'  },
     { key: 'dst', label: tFn('cerrV2.country.stat.district'),value: fmt.num(aggregates.value.districts), unit: '',                                                  ico: 'map'   },
-    { key: 'cov', label: tFn('cerrV2.country.stat.covered'), value: String(totalRegions),                unit: tFn('cerrV2.country.stat.ofTotal', { total: totalRegions }), ico: 'check' },
+    { key: 'cov', label: tFn('cerrV2.country.stat.covered'), value: String(totalRegions),                unit: '',                                                          ico: 'check' },
   ]
 })
 
