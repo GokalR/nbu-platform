@@ -50,6 +50,22 @@ def _tier_for_ratio(ratio: float) -> str:
     return "low"
 
 
+def build_stir_index(idx: CerrDataIndex) -> dict[str, int]:
+    """Walk every district's mahallas.json once and produce {stir: district_code}.
+    Lets the backend answer mahalla-by-STIR lookups in 1 R2 fetch instead of
+    walking up to 212 districts to find the owning file."""
+    out: dict[str, int] = {}
+    for d_code, d_meta in idx.districts.items():
+        data = idx._reader.read_json(f"{d_meta['rel_dir']}/mahallas.json")
+        if not data:
+            continue
+        for m in data.get("mahallas", []) or []:
+            stir = str(m.get("stir") or "")
+            if stir:
+                out[stir] = d_code
+    return out
+
+
 def build_aggregate(idx: CerrDataIndex) -> dict:
     rankings = idx.get_country_rankings()
     rank_by_code = {r["code"]: r for r in rankings}
@@ -109,14 +125,20 @@ def main() -> int:
     idx = CerrDataIndex(root)
     print("Building country aggregate (walks all districts and their mahallas.json)...")
     aggregate = build_aggregate(idx)
+    # Reuses the reader's cache populated by get_country_rankings, so no extra IO.
+    print("Building STIR -> district_code index...")
+    stir_index = build_stir_index(idx)
 
     out_dir = ROOT / "data" / "cerr_static"
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "country_aggregate.json"
-    out_path.write_text(json.dumps(aggregate, ensure_ascii=False, indent=2), encoding="utf-8")
-    size_kb = out_path.stat().st_size / 1024
+    out_agg = out_dir / "country_aggregate.json"
+    out_agg.write_text(json.dumps(aggregate, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_idx = out_dir / "mahalla_stir_index.json"
+    # Compact (no indent) — file is large-ish (~200 KB) and never read by humans.
+    out_idx.write_text(json.dumps(stir_index, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
-    print(f"Wrote {out_path} ({size_kb:.1f} KB)")
+    print(f"Wrote {out_agg} ({out_agg.stat().st_size / 1024:.1f} KB)")
+    print(f"Wrote {out_idx} ({out_idx.stat().st_size / 1024:.1f} KB, {len(stir_index)} entries)")
     print(f"  regions:           {len(aggregate['regions'])}")
     print(f"  with_data:         {aggregate['totals']['regions_with_data']}")
     print(f"  total population:  {aggregate['totals']['population']:,}")

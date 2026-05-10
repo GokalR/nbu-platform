@@ -129,6 +129,13 @@ class CerrDataIndex:
         self.regions_ordered: list[dict[str, Any]] = []
         self.districts: dict[int, dict[str, Any]] = {}
         self.region_districts: dict[int, list[dict[str, Any]]] = {}
+        # STIR -> district_code, loaded lazily from the precomputed static
+        # index file (data/cerr_static/mahalla_stir_index.json). Lets the
+        # mahalla lookup hit ONE district mahallas.json instead of walking
+        # all 212 districts. None when the static file is missing — falls
+        # back to the legacy walk.
+        self._stir_to_district: dict[str, int] | None = None
+        self._stir_index_attempted = False
 
     def _ensure_loaded(self) -> None:
         if self._loaded:
@@ -364,30 +371,68 @@ class CerrDataIndex:
             })
         return out
 
+    def _load_stir_index(self) -> dict[str, int] | None:
+        """One-time load of the precomputed stir->district index. Returns None
+        on first miss and caches that decision so we don't keep retrying."""
+        if self._stir_index_attempted:
+            return self._stir_to_district
+        self._stir_index_attempted = True
+        # Resolve path: cerr_data.py lives at app/services/, so backend root is
+        # parents[2], and the static dir is data/cerr_static/.
+        from pathlib import Path
+        idx_path = Path(__file__).resolve().parents[2] / "data" / "cerr_static" / "mahalla_stir_index.json"
+        if not idx_path.exists():
+            return None
+        try:
+            self._stir_to_district = json.loads(idx_path.read_text(encoding="utf-8"))
+        except Exception:
+            self._stir_to_district = None
+        return self._stir_to_district
+
+    def _extract_overview(self, m: dict[str, Any]) -> dict[str, Any] | None:
+        ov = m.get("overview")
+        if ov is None:
+            return None
+        if "ai_insights" not in ov and m.get("ai_insights") is not None:
+            ov = dict(ov)
+            # mahalla.ai_insights is sometimes wrapped: {status, ai_insights:{...}}
+            ai = m["ai_insights"]
+            if isinstance(ai, dict) and "ai_insights" in ai:
+                ov["ai_insights"] = ai.get("ai_insights")
+            else:
+                ov["ai_insights"] = ai
+        return ov
+
     def _mahalla_overview_lookup(self, stir: str) -> dict[str, Any] | None:
-        """Walks districts to find a mahalla by STIR. Each district's mahallas.json
-        is fetched at most once thanks to the reader cache, so subsequent lookups
-        for any STIR are O(districts) but fast (memory-only)."""
+        """Locate a mahalla by STIR. Fast path: precomputed index gives the
+        owning district -> 1 R2 fetch. Slow path (no index): walk all districts.
+        The slow path was costing 10s+ on Railway cold start before the index
+        landed; keep it as a fallback for dev or unsynced static data."""
         self._ensure_loaded()
+        idx = self._load_stir_index()
+        if idx is not None:
+            d_code = idx.get(stir)
+            if d_code is None:
+                return None
+            d = self.districts.get(int(d_code))
+            if not d:
+                return None
+            data = self._reader.read_json(f"{d['rel_dir']}/mahallas.json")
+            if not data:
+                return None
+            for m in data.get("mahallas", []):
+                if str(m.get("stir") or "") == stir:
+                    return self._extract_overview(m)
+            return None
+
+        # Fallback: legacy walk (no static index available).
         for d in self.districts.values():
             data = self._reader.read_json(f"{d['rel_dir']}/mahallas.json")
             if not data:
                 continue
             for m in data.get("mahallas", []):
-                if str(m.get("stir") or "") != stir:
-                    continue
-                ov = m.get("overview")
-                if ov is None:
-                    return None
-                if "ai_insights" not in ov and m.get("ai_insights") is not None:
-                    ov = dict(ov)
-                    # mahalla.ai_insights is sometimes wrapped: {status, ai_insights:{...}}
-                    ai = m["ai_insights"]
-                    if isinstance(ai, dict) and "ai_insights" in ai:
-                        ov["ai_insights"] = ai.get("ai_insights")
-                    else:
-                        ov["ai_insights"] = ai
-                return ov
+                if str(m.get("stir") or "") == stir:
+                    return self._extract_overview(m)
         return None
 
 
