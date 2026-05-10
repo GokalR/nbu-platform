@@ -306,9 +306,10 @@ async function downloadDocx() {
 
 const verdictColor = computed(() => {
   const v = plan.value?.feasibilityVerdict
-  if (v === 'high') return '#16a34a'
-  if (v === 'medium') return '#d97706'
-  return '#dc2626'
+  if (v === 'high') return '#16a34a'      // green
+  if (v === 'medium') return '#d97706'    // amber
+  if (v === 'needs_rework') return '#475569'  // slate — not a verdict, a "fix it" signal
+  return '#dc2626'                         // red (low)
 })
 
 onMounted(load)

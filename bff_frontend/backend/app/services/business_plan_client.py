@@ -286,12 +286,14 @@ def generate_business_plan(
     # Assemble the full plan structure from slim LLM output + deterministic
     # baseline + catalog. The downstream output validator runs on this.
     credit_score = (historical_financials or {}).get("score") or {}
+    credit_score_v2 = (historical_financials or {}).get("scoreV2") or None
     result["output"] = _assemble_full_plan(
         slim=result["output"],
         baseline=baseline,
         credit_score=credit_score,
         candidates=candidate_products,
         project=inputs.get("project") or {},
+        credit_score_v2=credit_score_v2,
     )
     result["baseline"] = baseline
     return result
@@ -351,6 +353,7 @@ def assemble_plan_from_raw(
     credit_score: dict[str, Any],
     candidates: list[dict[str, Any]],
     project: dict[str, Any],
+    credit_score_v2: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     """Parse the LLM's raw text and assemble it into the full plan shape.
     Returns None if the text is unparseable (caller decides what to do).
@@ -367,6 +370,7 @@ def assemble_plan_from_raw(
     return _assemble_full_plan(
         slim=parsed, baseline=baseline, credit_score=credit_score,
         candidates=candidates, project=project,
+        credit_score_v2=credit_score_v2,
     )
 
 
@@ -381,13 +385,17 @@ def _assemble_full_plan(
     credit_score: dict[str, Any],
     candidates: list[dict[str, Any]],
     project: dict[str, Any],
+    credit_score_v2: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Merge the slim LLM output with deterministic figures into the full
     plan shape that the frontend / validator / DOCX builder expect.
 
     Numbers come from baseline. Recommended products are hydrated from the
     catalog (LLM only chose IDs). Projection is synthesized from baseline.
-    Credit score drives feasibilityVerdict / feasibilityScore.
+    Feasibility verdict + score drive the big banner on the result page;
+    when v2 scoring is available, we use it (0-100 scale, 4 verdict bands
+    including "needs_rework"). Otherwise we fall back to v1 (0-100 percent
+    of 16-point scale, 3 verdicts).
 
     The output validator will further enforce enums and length caps.
     """
@@ -438,10 +446,18 @@ def _assemble_full_plan(
     proj = bpv.synthesize_projection_12m(baseline, project)
     breakeven = bpv._compute_breakeven_months(proj)
 
+    # Verdict source — v2 if available (single source of truth), else v1.
+    if credit_score_v2 and "verdict" in credit_score_v2 and "total" in credit_score_v2:
+        feasibility_verdict = credit_score_v2.get("verdict", "low")
+        feasibility_score = int(credit_score_v2.get("total", 0))
+    else:
+        feasibility_verdict = credit_score.get("verdict", "low")
+        feasibility_score = int(credit_score.get("percent", 0))
+
     return {
-        # Verdict — always from deterministic credit scoring
-        "feasibilityVerdict": credit_score.get("verdict", "low"),
-        "feasibilityScore": int(credit_score.get("percent", 0)),
+        # Verdict — from credit scoring (v2 preferred, v1 fallback)
+        "feasibilityVerdict": feasibility_verdict,
+        "feasibilityScore": feasibility_score,
 
         # Narrative — from LLM
         "summary": str(slim.get("summary") or "")[:300],

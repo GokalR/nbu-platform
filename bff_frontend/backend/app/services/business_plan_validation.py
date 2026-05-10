@@ -200,21 +200,30 @@ def validate_and_clean(
     credit_score: dict[str, Any],
     inputs: dict[str, Any],
     warnings: list[dict[str, str]] | None = None,
+    credit_score_v2: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Filter / replace LLM output so every displayed field is trustworthy.
 
     Mutates and returns `llm_output`. Adds `_validity` metadata so the
     frontend can reflect what was filtered.
+
+    Feasibility verdict + score: v2 (0-100, 4 bands) when available,
+    else v1 (0-100% of 16-point scale, 3 bands). Single source of truth so
+    the result-page banner matches the credit-scoring section below it.
     """
     if not isinstance(llm_output, dict):
         # LLM returned garbage — synthesize a minimal honest skeleton.
-        return _empty_plan(baseline, credit_score, inputs)
+        return _empty_plan(baseline, credit_score, inputs, credit_score_v2)
 
     flags: dict[str, Any] = {}
 
-    # ---------- Verdict / score: always come from credit scoring ----------
-    llm_output["feasibilityVerdict"] = credit_score.get("verdict", "low")
-    llm_output["feasibilityScore"] = int(credit_score.get("percent", 0))
+    # ---------- Verdict / score: from credit scoring (v2 preferred) ----------
+    if credit_score_v2 and "verdict" in credit_score_v2 and "total" in credit_score_v2:
+        llm_output["feasibilityVerdict"] = credit_score_v2.get("verdict", "low")
+        llm_output["feasibilityScore"] = int(credit_score_v2.get("total", 0))
+    else:
+        llm_output["feasibilityVerdict"] = credit_score.get("verdict", "low")
+        llm_output["feasibilityScore"] = int(credit_score.get("percent", 0))
 
     # ---------- recommendedProducts: hydrate from catalog, drop hallucinations ----------
     catalog_by_id = {c["id"]: c for c in candidates if "id" in c}
@@ -423,14 +432,21 @@ def _empty_plan(
     baseline: dict[str, Any],
     credit_score: dict[str, Any],
     inputs: dict[str, Any],
+    credit_score_v2: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Skeleton plan when the LLM output was unparseable. Honest fallback —
     deterministic numbers only, no narrative."""
     proj = synthesize_projection_12m(baseline, inputs.get("project") or {})
     margins = baseline.get("marginsAvg12m") or {}
+    if credit_score_v2 and "verdict" in credit_score_v2 and "total" in credit_score_v2:
+        verdict = credit_score_v2.get("verdict", "low")
+        score = int(credit_score_v2.get("total", 0))
+    else:
+        verdict = credit_score.get("verdict", "low")
+        score = int(credit_score.get("percent", 0))
     return {
-        "feasibilityVerdict": credit_score.get("verdict", "low"),
-        "feasibilityScore": int(credit_score.get("percent", 0)),
+        "feasibilityVerdict": verdict,
+        "feasibilityScore": score,
         "summary": "",
         "executiveSummary": "",
         "marketContext": "",

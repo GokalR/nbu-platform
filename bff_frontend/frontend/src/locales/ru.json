@@ -1210,7 +1210,7 @@
       "loading": "Загрузка...",
       "retry": "Повторить",
       "feasibility": "Оценка реалистичности",
-      "verdicts": { "high": "Высокая", "medium": "Средняя", "low": "Низкая" },
+      "verdicts": { "high": "Высокая", "medium": "Средняя", "low": "Низкая", "needs_rework": "Требует доработки" },
       "executiveSummary": "Резюме",
       "marketContext": "Контекст рынка",
       "monthlyRevenue": "Выручка / мес.",

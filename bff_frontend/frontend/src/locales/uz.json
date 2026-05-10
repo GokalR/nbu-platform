@@ -1210,7 +1210,7 @@
       "loading": "Yuklanmoqda...",
       "retry": "Qayta urinish",
       "feasibility": "Loyiha amalga oshirish reytingi",
-      "verdicts": { "high": "Yuqori", "medium": "Oʻrtacha", "low": "Past" },
+      "verdicts": { "high": "Yuqori", "medium": "Oʻrtacha", "low": "Past", "needs_rework": "Qayta ishlash kerak" },
       "executiveSummary": "Qisqacha xulosa",
       "marketContext": "Bozor konteksti",
       "monthlyRevenue": "Oylik daromad",

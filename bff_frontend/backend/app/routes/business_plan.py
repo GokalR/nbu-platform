@@ -256,7 +256,10 @@ def generate(
             inputs=inputs_dict,
             candidate_products=candidates,
             lang=body.lang or "uz",
-            historical_financials={"score": credit_score},
+            # Pass both v1 and v2 in historical_financials so the assembler
+            # uses v2's verdict + 0-100 total for the big banner (matches
+            # the credit-scoring section below).
+            historical_financials={"score": credit_score, "scoreV2": credit_score_v2},
             baseline=baseline,
         )
         # Output validator — strips hallucinated products, forces verdict to
@@ -268,6 +271,7 @@ def generate(
             candidates=candidates,
             baseline=baseline,
             credit_score=credit_score,
+            credit_score_v2=credit_score_v2,
             inputs=inputs_dict,
             warnings=warnings,
         )
@@ -396,7 +400,9 @@ def generate_stream(
                 inputs=inputs_dict,
                 candidate_products=candidates,
                 lang=body.lang or "uz",
-                historical_financials={"score": credit_score},
+                historical_financials={
+                    "score": credit_score, "scoreV2": credit_score_v2,
+                },
                 baseline=baseline,
             ):
                 if chunk.get("type") == "delta":
@@ -426,6 +432,7 @@ def generate_stream(
                 raw_text=output_text,
                 baseline=baseline,
                 credit_score=credit_score,
+                credit_score_v2=credit_score_v2,
                 candidates=candidates,
                 project=inputs_dict.get("project") or {},
             )
@@ -441,6 +448,7 @@ def generate_stream(
                 candidates=candidates,
                 baseline=baseline,
                 credit_score=credit_score,
+                credit_score_v2=credit_score_v2,
                 inputs=inputs_dict,
                 warnings=warnings,
             )
