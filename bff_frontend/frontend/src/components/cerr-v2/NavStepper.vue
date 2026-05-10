@@ -4,12 +4,14 @@
  *  context exists; "—" for levels you haven't drilled into yet. */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCerrV2Store } from '@/stores/cerrV2.js'
 import CerrIcon from './CerrIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
 const store = useCerrV2Store()
+const { t: tFn } = useI18n()
 
 const props = defineProps({
   /** Optional: { stir, name } override for the active mahalla. Falls back to
@@ -55,16 +57,21 @@ const levels = computed(() => [
   {
     key: 'country',
     icon: 'globe',
-    label: 'Узбекистан',
-    sub: '14 регионов',
+    label: tFn('cerrV2.stepper.uzbekistan'),
+    sub: tFn('cerrV2.stepper.uzSub'),
     active: !regionCode.value && !districtCode.value && !routeStir.value,
     target: { name: 'cerr-v2-country' },
   },
   {
     key: 'region',
     icon: 'map',
-    label: effectiveRegion.value?.name || (effectiveRegionCode.value ? `Регион ${effectiveRegionCode.value}` : 'Регион'),
-    sub: effectiveRegion.value ? `${effectiveRegion.value.districts_count} р-нов` : '—',
+    label: effectiveRegion.value?.name
+      || (effectiveRegionCode.value
+        ? tFn('cerrV2.stepper.regionFmt', { code: effectiveRegionCode.value })
+        : tFn('cerrV2.stepper.region')),
+    sub: effectiveRegion.value
+      ? tFn('cerrV2.stepper.regionDistrictsShort', { n: effectiveRegion.value.districts_count })
+      : '—',
     active: !!regionCode.value && !districtCode.value && !routeStir.value,
     target: effectiveRegionCode.value
       ? { name: 'cerr-v2-region', params: { regionCode: effectiveRegionCode.value } }
@@ -74,8 +81,13 @@ const levels = computed(() => [
   {
     key: 'district',
     icon: 'pin',
-    label: effectiveDistrict.value?.name || (effectiveDistrictCode.value ? `Район ${effectiveDistrictCode.value}` : 'Район / город'),
-    sub: effectiveDistrict.value ? `${effectiveDistrict.value.mahalla_count} махалл` : '—',
+    label: effectiveDistrict.value?.name
+      || (effectiveDistrictCode.value
+        ? tFn('cerrV2.stepper.districtFmt', { code: effectiveDistrictCode.value })
+        : tFn('cerrV2.stepper.districtCity')),
+    sub: effectiveDistrict.value
+      ? tFn('cerrV2.stepper.mahallaCount', { n: effectiveDistrict.value.mahalla_count })
+      : '—',
     active: !!districtCode.value && !routeStir.value,
     target: effectiveDistrictCode.value
       ? { name: 'cerr-v2-district', params: { districtCode: effectiveDistrictCode.value } }
@@ -85,7 +97,7 @@ const levels = computed(() => [
   {
     key: 'mahalla',
     icon: 'grid',
-    label: activeMahalla.value?.name || 'Махалля',
+    label: activeMahalla.value?.name || tFn('cerrV2.stepper.mahalla'),
     sub: activeMahalla.value?.stir ? `STIR ${activeMahalla.value.stir}` : '—',
     active: !!routeStir.value || !!props.mahalla,
     target: activeMahalla.value?.stir && !routeStir.value

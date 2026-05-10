@@ -175,12 +175,12 @@ const sideHistogram = computed(() => {
   const total = histogram.value.reduce((s, b) => s + b.count, 0)
   return {
     big: `${top10} / ${total}`,
-    lbl: 'Махаллей в топ-10%',
-    desc: `Распределение махаллей района по рейтинговым группам.`,
+    lbl: tFn('cerrV2.histogram.topPct'),
+    desc: tFn('cerrV2.histogram.desc'),
     chips: [
-      { tone: 'good', count: histogram.value[0]?.count || 0, label: 'лидеров' },
-      { tone: 'mid', count: histogram.value[2]?.count || 0, label: 'средних' },
-      { tone: 'bad', count: histogram.value[histogram.value.length - 1]?.count || 0, label: 'в зоне риска' },
+      { tone: 'good', count: histogram.value[0]?.count || 0, label: tFn('cerrV2.histogram.chipLeaders') },
+      { tone: 'mid',  count: histogram.value[2]?.count || 0, label: tFn('cerrV2.histogram.chipMid') },
+      { tone: 'bad',  count: histogram.value[histogram.value.length - 1]?.count || 0, label: tFn('cerrV2.histogram.chipRisk') },
     ],
   }
 })

@@ -6,11 +6,13 @@
  * value, rank chip) and 3-5 detail rows.
  */
 
+/* `nameKey` / `subKey` resolve via $t(...) inside ThemeBlock.vue so theme
+ * labels switch with the locale. Hardcoded `name` / `sub` removed. */
 export const THEMES = [
-  { id: 'prod', name: 'Производство', sub: 'Промышленность · сельское хозяйство', icon: 'factory' },
-  { id: 'ext',  name: 'Внешний сектор', sub: 'Экспорт · инвестиции',                icon: 'globe'   },
-  { id: 'bud',  name: 'Бюджет',         sub: 'Доходы · платные услуги',             icon: 'coin'    },
-  { id: 'soc',  name: 'Социальная сфера', sub: 'Бедность · занятость',              icon: 'users'   },
+  { id: 'prod', nameKey: 'cerrV2.themes.prod', subKey: 'cerrV2.themes.prodSub', icon: 'factory' },
+  { id: 'ext',  nameKey: 'cerrV2.themes.ext',  subKey: 'cerrV2.themes.extSub',  icon: 'globe'   },
+  { id: 'bud',  nameKey: 'cerrV2.themes.bud',  subKey: 'cerrV2.themes.budSub',  icon: 'coin'    },
+  { id: 'soc',  nameKey: 'cerrV2.themes.soc',  subKey: 'cerrV2.themes.socSub',  icon: 'users'   },
 ]
 
 // theme_id → { headline: indicatorKey, rows: [indicatorKey, ...] }

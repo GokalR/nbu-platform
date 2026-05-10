@@ -33,15 +33,15 @@ function pctPos(rank, total) {
     <div class="theme-head">
       <div class="theme-icon"><CerrIcon :name="theme.icon" :size="16" /></div>
       <div>
-        <div class="theme-name">{{ theme.name }}</div>
-        <div :style="{ fontSize: '11px', color: 'var(--text-soft)', fontWeight: 600 }">{{ theme.sub }}</div>
+        <div class="theme-name">{{ theme.nameKey ? $t(theme.nameKey) : theme.name }}</div>
+        <div :style="{ fontSize: '11px', color: 'var(--text-soft)', fontWeight: 600 }">{{ theme.subKey ? $t(theme.subKey) : theme.sub }}</div>
       </div>
     </div>
 
     <div v-if="theme.headline" class="headline-ind">
       <div class="left">
         <div :class="['rank-chip', tone(theme.headline.rank, theme.headline.total)]">
-          #{{ theme.headline.rank ?? '—' }} из {{ theme.headline.total ?? '—' }}
+          {{ $t('cerrV2.themeBlock.rankOf', { rank: theme.headline.rank ?? '—', total: theme.headline.total ?? '—' }) }}
         </div>
         <div class="lbl">{{ theme.headline.label }}</div>
         <div class="val tabular">
