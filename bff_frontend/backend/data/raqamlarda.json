@@ -1,0 +1,276 @@
+{
+  "national": {
+    "title": "Узбекистан в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "stat.uz",
+    "population": {
+      "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ",
+      "value": 38236704,
+      "asof": "на 1.01.2026"
+    },
+    "indicators": [
+      { "key": "gdp",     "label": "ВАЛОВОЙ ВНУТРЕННИЙ ПРОДУКТ",          "val": 107.7, "ico": "chart" },
+      { "key": "ind",     "label": "ПРОМЫШЛЕННОСТЬ",                       "val": 106.8, "ico": "factory" },
+      { "key": "agri",    "label": "СЕЛЬСКОЕ, ЛЕСНОЕ И РЫБНОЕ ХОЗЯЙСТВО",  "val": 104.4, "ico": "leaf" },
+      { "key": "inv",     "label": "ИНВЕСТИЦИИ В ОСНОВНОЙ КАПИТАЛ",        "val": 110.5, "ico": "coin" },
+      { "key": "constr",  "label": "СТРОИТЕЛЬНЫЕ РАБОТЫ",                  "val": 114.2, "ico": "tools" },
+      { "key": "cargo",   "label": "ГРУЗООБОРОТ",                          "val": 101.9, "ico": "box" },
+      { "key": "pass",    "label": "ПАССАЖИРООБОРОТ",                      "val": 105.8, "ico": "users" },
+      { "key": "retail",  "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",               "val": 111.2, "ico": "store" },
+      { "key": "serv",    "label": "УСЛУГИ",                               "val": 114.7, "ico": "spark" }
+    ]
+  },
+
+  "1735": {
+    "title": "Каракалпакстан в цифрах",
+    "period": "январь – март 2026 г.",
+    "source": "qrstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 2057730, "asof": "на 1.04.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 112.9, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 107.4, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 102.4, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 123.8, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 176.0, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 100.4, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 104.6, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 135.1, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 116.6, "ico": "spark" }
+    ]
+  },
+
+  "1733": {
+    "title": "Хорезмская область в цифрах",
+    "period": "январь – март 2026 г.",
+    "source": "xorazmstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 2075044, "asof": "на 1.04.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 110.6, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 108.1, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 105.0, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 143.3, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 128.4, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 109.7, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 103.4, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 139.8, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 117.0, "ico": "spark" }
+    ]
+  },
+
+  "1712": {
+    "title": "Навоийская область в цифрах",
+    "period": "январь – март 2026 г.",
+    "source": "navstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 1115044, "asof": "на 1.04.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 106.1, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 105.3, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 105.4, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 162.9, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 125.0, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 100.3, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 102.2, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 106.5, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 114.0, "ico": "spark" }
+    ]
+  },
+
+  "1706": {
+    "title": "Бухарская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "buxstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 2107035, "asof": "текущий учёт" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 107.2, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 107.1, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 104.3, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 80.6,  "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 111.3, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 102.6, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 101.2, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 109.2, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 114.0, "ico": "spark" }
+    ]
+  },
+
+  "1718": {
+    "title": "Самаркандская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "samstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 4379791, "asof": "на 1.01.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 108.0, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 108.5, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 103.3, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 125.6, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 117.3, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 119.5, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 113.1, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 110.3, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 115.9, "ico": "spark" }
+    ]
+  },
+
+  "1710": {
+    "title": "Кашкадарьинская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "qashstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 3716949, "asof": "на 1.01.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 106.8, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 107.2, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 104.3, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 106.9, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 110.8, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 104.8, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 103.2, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 108.6, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 113.6, "ico": "spark" }
+    ]
+  },
+
+  "1722": {
+    "title": "Сурхандарьинская область в цифрах",
+    "period": "январь – март 2026 г.",
+    "source": "surxonstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 3024871, "asof": "на 1.04.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 109.1, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 108.7, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 109.7, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 120.6, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 110.0, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 110.8, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 104.2, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 123.1, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 116.3, "ico": "spark" }
+    ]
+  },
+
+  "1708": {
+    "title": "Джизакская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "jizzaxstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 1566885, "asof": "текущий учёт" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 106.1, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 114.3, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 104.4, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 100.8, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 120.4, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 105.0, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 101.2, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 108.6, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 114.7, "ico": "spark" }
+    ]
+  },
+
+  "1724": {
+    "title": "Сырдарьинская область в цифрах",
+    "period": "январь – март 2026 г.",
+    "source": "sirstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 949559, "asof": "на 1.04.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 108.8, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 108.9, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 107.8, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 86.0,  "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 115.6, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 112.0, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 104.4, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 107.3, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 115.2, "ico": "spark" }
+    ]
+  },
+
+  "1727": {
+    "title": "Ташкентская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "toshvilstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 3160671, "asof": "текущий учёт" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 107.2, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 106.6, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 104.2, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 101.4, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 109.8, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 109.1, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 102.2, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 110.6, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 115.2, "ico": "spark" }
+    ]
+  },
+
+  "1726": {
+    "title": "Город Ташкент в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "toshstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 3178144, "asof": "на 1.01.2025" },
+    "indicators": [
+      { "key": "gdp",          "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 111.3, "ico": "chart" },
+      { "key": "ind",          "label": "ПРОМЫШЛЕННОСТЬ",               "val": 107.3, "ico": "factory" },
+      { "key": "tashqi_savdo", "label": "ВНЕШНЕТОРГОВЫЙ ОБОРОТ",         "val": 115.3, "ico": "globe" },
+      { "key": "inv",          "label": "ИНВЕСТИЦИИ",                   "val": 108.2, "ico": "coin" },
+      { "key": "constr",       "label": "СТРОИТЕЛЬСТВО",                "val": 118.3, "ico": "tools" },
+      { "key": "cargo",        "label": "ГРУЗООБОРОТ",                  "val": 106.4, "ico": "box" },
+      { "key": "pass",         "label": "ПАССАЖИРООБОРОТ",              "val": 108.7, "ico": "users" },
+      { "key": "retail",       "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 113.9, "ico": "store" },
+      { "key": "serv",         "label": "УСЛУГИ",                       "val": 117.7, "ico": "spark" }
+    ]
+  },
+
+  "1714": {
+    "title": "Наманганская область в цифрах",
+    "period": "январь – март 2026 г.",
+    "source": "namstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 3202700, "asof": "на 1.04.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 108.8, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 108.8, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 104.6, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 137.0, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 116.1, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 111.0, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 105.0, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 128.8, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 115.2, "ico": "spark" }
+    ]
+  },
+
+  "1703": {
+    "title": "Андижанская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "stat.uz",
+    "headlineOnly": true,
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 3510000, "asof": "оценка" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 106.8, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": null,  "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": null,  "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": null,  "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": null,  "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": null,  "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": null,  "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": null,  "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": null,  "ico": "spark" }
+    ]
+  },
+
+  "1730": {
+    "title": "Ферганская область в цифрах",
+    "period": "январь – декабрь 2025 г.",
+    "source": "farstat.uz",
+    "population": { "label": "ЧИСЛЕННОСТЬ ПОСТОЯННОГО НАСЕЛЕНИЯ", "value": 4223044, "asof": "на 1.01.2026" },
+    "indicators": [
+      { "key": "gdp",    "label": "ВАЛОВОЙ РЕГИОНАЛЬНЫЙ ПРОДУКТ", "val": 108.1, "ico": "chart" },
+      { "key": "ind",    "label": "ПРОМЫШЛЕННОСТЬ",               "val": 107.3, "ico": "factory" },
+      { "key": "agri",   "label": "СЕЛЬСКОЕ ХОЗЯЙСТВО",           "val": 105.6, "ico": "leaf" },
+      { "key": "inv",    "label": "ИНВЕСТИЦИИ",                   "val": 145.2, "ico": "coin" },
+      { "key": "constr", "label": "СТРОИТЕЛЬСТВО",                "val": 117.5, "ico": "tools" },
+      { "key": "cargo",  "label": "ГРУЗООБОРОТ",                  "val": 107.3, "ico": "box" },
+      { "key": "pass",   "label": "ПАССАЖИРООБОРОТ",              "val": 101.4, "ico": "users" },
+      { "key": "retail", "label": "РОЗНИЧНЫЙ ТОВАРООБОРОТ",       "val": 112.1, "ico": "store" },
+      { "key": "serv",   "label": "УСЛУГИ",                       "val": 114.4, "ico": "spark" }
+    ]
+  }
+}

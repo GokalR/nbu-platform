@@ -6,11 +6,58 @@ auth wrapper, since the data is reference / open.
 """
 from __future__ import annotations
 
+import json
+from functools import lru_cache
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException, Query
 
 from ..services.cerr_data import get_cerr_index
 
 router = APIRouter(prefix="/api/cerr", tags=["cerr-analytics"])
+
+
+# Static datasets shipped with the backend (geo polygons + RAQAMLARDA macro).
+# bff_frontend/backend/app/routes/cerr.py -> parents[2] is bff_frontend/backend/.
+_DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+_GEO_DIR = _DATA_DIR / "geo"
+_RAQAMLARDA_FILE = _DATA_DIR / "raqamlarda.json"
+
+
+@lru_cache(maxsize=1)
+def _geo_index() -> dict[int, str]:
+    """region_code -> region_slug, from geo_json/index.json."""
+    p = _GEO_DIR / "index.json"
+    if not p.exists():
+        return {}
+    j = json.loads(p.read_text(encoding="utf-8"))
+    return {int(r["region_code"]): r["region_slug"] for r in j.get("regions", [])}
+
+
+@lru_cache(maxsize=1)
+def _country_geo() -> dict | None:
+    p = _GEO_DIR / "regions.geojson"
+    if not p.exists():
+        return None
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=14)
+def _region_districts_geo(region_code: int) -> dict | None:
+    slug = _geo_index().get(region_code)
+    if not slug:
+        return None
+    p = _GEO_DIR / "regions" / slug / "districts.geojson"
+    if not p.exists():
+        return None
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def _raqamlarda() -> dict:
+    if not _RAQAMLARDA_FILE.exists():
+        return {}
+    return json.loads(_RAQAMLARDA_FILE.read_text(encoding="utf-8"))
 
 
 # ----------------------------------------------------------------------
@@ -115,3 +162,56 @@ def mahalla_ai_insights(stir: str):
     if ai is None:
         raise HTTPException(404, f"AI insights for mahalla {stir} not found")
     return ai
+
+
+# ----------------------------------------------------------------------
+# Geo (country regions, region districts) — for cerr-v2 choropleths.
+# Mahalla-level GeoJSON stays at /districts/{code}/geo above.
+# ----------------------------------------------------------------------
+
+@router.get("/geo/country")
+def country_geo():
+    """14-region FeatureCollection (WGS84 lon/lat) for the country choropleth."""
+    fc = _country_geo()
+    if fc is None:
+        raise HTTPException(404, "Country regions GeoJSON not found")
+    return fc
+
+
+@router.get("/regions/{region_code}/geo")
+def region_districts_geo(region_code: int):
+    """Per-region district FeatureCollection (WGS84 lon/lat). All 14 regions covered."""
+    fc = _region_districts_geo(region_code)
+    if fc is None:
+        raise HTTPException(404, f"District GeoJSON for region {region_code} not found")
+    return fc
+
+
+# ----------------------------------------------------------------------
+# RAQAMLARDA — national + per-region macro indicators (NOT in cerr_runs;
+# compiled from REGIONS_RAQAMLARDA.md into bff_frontend/backend/data/raqamlarda.json).
+# ----------------------------------------------------------------------
+
+@router.get("/raqamlarda/{scope}")
+def raqamlarda(scope: str):
+    """scope ∈ "national" | "<region_code>" (e.g. "1703")."""
+    data = _raqamlarda()
+    if not data:
+        raise HTTPException(404, "RAQAMLARDA dataset not loaded")
+    rec = data.get(scope)
+    if rec is None:
+        raise HTTPException(404, f"RAQAMLARDA scope '{scope}' not found")
+    return rec
+
+
+# ----------------------------------------------------------------------
+# Country-level region rankings — aggregates mahalla rating_score VALUE
+# up the hierarchy (mahalla → district mean → region mean → ranked).
+# This is the country-comparable composite score, distinct from the
+# region-relative rating_score "place" rank stored per district/mahalla.
+# ----------------------------------------------------------------------
+
+@router.get("/country/rankings")
+def country_rankings():
+    """Returns the 14 regions ranked by mean of mean mahalla rating_score."""
+    return get_cerr_index().get_country_rankings()

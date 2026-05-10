@@ -1,4 +1,4 @@
-"""CERR Mahalla Analytics v2 — read-only data layer.
+"""CERR Mahalla Analytics — read-only data layer.
 
 CERR_DATA_ROOT may be either:
   - A local filesystem path (e.g. /data/cerr_runs or the in-repo default), OR
@@ -14,6 +14,11 @@ copy before upload.
 In FS mode the manifest is optional; if absent we scan the directory.
 
 Coordinates stay in WGS84 (lon/lat) — MapLibre GL consumes them natively.
+
+Sirdaryo (1724) was originally only present as a single big JSON file
+(cerr_region_1724.json). We pre-extracted it into the same per-folder layout
+the other 13 regions use (see scripts/extract_sirdaryo_folder.py) so all 14
+regions hit the same fast per-file slice path.
 """
 from __future__ import annotations
 
@@ -272,6 +277,68 @@ class CerrDataIndex:
         return ov.get("ai_insights")
 
     # ------------------------------------------------------------------
+    # Country rankings — aggregate mahalla "rating_score" KPI value up the
+    # hierarchy: mahalla → district avg → region avg → sort all 14 regions.
+    # Computed once, cached on the index for the lifetime of the process.
+    # ------------------------------------------------------------------
+    _country_rankings_cache: list[dict[str, Any]] | None = None
+
+    def get_country_rankings(self) -> list[dict[str, Any]]:
+        """Returns 14 region records sorted by score desc:
+            [{code, name, score, rank, district_count, mahalla_count,
+              districts: [{code, name, score, mahalla_count}]}, ...]
+        """
+        if self._country_rankings_cache is not None:
+            return self._country_rankings_cache
+        self._ensure_loaded()
+
+        rows: list[dict[str, Any]] = []
+        for r_code, r_meta in self.regions.items():
+            district_rows: list[dict[str, Any]] = []
+            for d in self.region_districts.get(r_code, []):
+                d_full = self.districts.get(d["code"])
+                if not d_full:
+                    continue
+                data = self._reader.read_json(f"{d_full['rel_dir']}/mahallas.json")
+                if not data:
+                    continue
+                # Pull each mahalla's KPI rating_score VALUE (the 0-100 score,
+                # not the rank — that's a different field with the same name).
+                scores: list[float] = []
+                for m in data.get("mahallas") or []:
+                    ov = m.get("overview") or {}
+                    for k in ov.get("kpis") or []:
+                        if k.get("key") == "rating_score" and isinstance(k.get("value"), (int, float)):
+                            scores.append(float(k["value"]))
+                            break
+                if not scores:
+                    continue
+                d_score = sum(scores) / len(scores)
+                district_rows.append({
+                    "code": d["code"],
+                    "name": d["name"],
+                    "score": round(d_score, 2),
+                    "mahalla_count": len(scores),
+                })
+            if not district_rows:
+                continue
+            r_score = sum(d["score"] for d in district_rows) / len(district_rows)
+            rows.append({
+                "code": r_code,
+                "name": r_meta["name"],
+                "score": round(r_score, 2),
+                "district_count": len(district_rows),
+                "mahalla_count": sum(d["mahalla_count"] for d in district_rows),
+                "districts": district_rows,
+            })
+
+        rows.sort(key=lambda r: -r["score"])
+        for i, r in enumerate(rows):
+            r["rank"] = i + 1
+        self._country_rankings_cache = rows
+        return rows
+
+    # ------------------------------------------------------------------
     # Internals
     # ------------------------------------------------------------------
 
@@ -314,7 +381,12 @@ class CerrDataIndex:
                     return None
                 if "ai_insights" not in ov and m.get("ai_insights") is not None:
                     ov = dict(ov)
-                    ov["ai_insights"] = m["ai_insights"]
+                    # mahalla.ai_insights is sometimes wrapped: {status, ai_insights:{...}}
+                    ai = m["ai_insights"]
+                    if isinstance(ai, dict) and "ai_insights" in ai:
+                        ov["ai_insights"] = ai.get("ai_insights")
+                    else:
+                        ov["ai_insights"] = ai
                 return ov
         return None
 

@@ -19,11 +19,35 @@ const routes = [
     component: () => import('@/views/DistrictAnalyticsView.vue'),
     meta: { titleKey: 'nav.districts' },
   },
+  // CERR analytics service (cerr-v2) — native Vue port of the nbu_platform/
+  // prototype, backed by /api/cerr/* (real big-JSON data, all 14 regions).
+  // Open reference data → public routes; no auth guard required.
   {
     path: '/regions-v2',
-    name: 'regions-v2',
-    component: () => import('@/views/regionsV2/RegionsListView.vue'),
-    meta: { titleKey: 'nav.regionsV2' },
+    component: () => import('@/views/cerr-v2/CerrV2Layout.vue'),
+    meta: { titleKey: 'nav.regionsAnalytics', public: true },
+    children: [
+      {
+        path: '',
+        name: 'cerr-v2-country',
+        component: () => import('@/views/cerr-v2/CountryView.vue'),
+      },
+      {
+        path: 'region/:regionCode',
+        name: 'cerr-v2-region',
+        component: () => import('@/views/cerr-v2/RegionView.vue'),
+      },
+      {
+        path: 'district/:districtCode',
+        name: 'cerr-v2-district',
+        component: () => import('@/views/cerr-v2/DistrictView.vue'),
+      },
+      {
+        path: 'mahalla/:stir',
+        name: 'cerr-v2-mahalla',
+        component: () => import('@/views/cerr-v2/MahallaView.vue'),
+      },
+    ],
   },
   {
     path: '/ai',
