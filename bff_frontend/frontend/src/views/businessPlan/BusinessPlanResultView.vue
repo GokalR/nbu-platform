@@ -430,8 +430,8 @@ onMounted(load)
               <tr>
                 <th>{{ t('businessPlan.scoring.cols.ratio') }}</th>
                 <th class="num">{{ t('businessPlan.scoring.cols.value') }}</th>
-                <th class="num">Баллы</th>
-                <th>Шкала</th>
+                <th class="num">{{ t('businessPlan.scoring.cols.points') }}</th>
+                <th>{{ t('businessPlan.scoring.cols.scale') }}</th>
               </tr>
             </thead>
             <tbody>

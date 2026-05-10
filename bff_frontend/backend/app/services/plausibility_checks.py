@@ -11,7 +11,9 @@ even if the math checks out, and that should cost points.
 Each check returns either None (passed) or a flag dict with:
     code:        stable id, e.g. "revenue_per_employee_high"
     severity:    "high" | "medium" — for UI emphasis only
-    message_ru:  human-readable explanation
+    message_ru:  human-readable explanation in the requested `lang`
+                 (field name retained for backward compat with old plans
+                 in DB; the content is whatever language was requested)
     value:       the offending number (formatted)
     expected:    what was expected (formatted)
 """
@@ -26,8 +28,14 @@ def run_all_checks(
     *,
     inputs: dict[str, Any],
     baseline: dict[str, Any],
+    lang: str = "ru",
 ) -> list[dict[str, Any]]:
-    """Run every check; return the list of flags raised."""
+    """Run every check; return the list of flags raised.
+
+    `lang` selects the language for human-readable `message_ru` strings.
+    Defaults to Russian for backward compat with callers that haven't
+    been updated.
+    """
     org = inputs.get("organization") or {}
     benchmark = industry_benchmarks.classify(
         org.get("mainActivity"),
@@ -41,7 +49,7 @@ def run_all_checks(
     ]
     flags: list[dict[str, Any]] = []
     for check in checks:
-        result = check(inputs=inputs, baseline=baseline, benchmark=benchmark)
+        result = check(inputs=inputs, baseline=baseline, benchmark=benchmark, lang=lang)
         if result is not None:
             flags.append(result)
     return flags
@@ -50,46 +58,36 @@ def run_all_checks(
 # ---------- individual checks ----------
 
 def _check_revenue_per_employee(
-    *, inputs: dict, baseline: dict, benchmark
+    *, inputs: dict, baseline: dict, benchmark, lang: str
 ) -> dict | None:
-    """#1 — Monthly revenue per employee outside the industry's plausible band.
-
-    Catches projections where revenue is wildly disproportionate to staff:
-    e.g. claiming 300M UZS/month from a 3-person team in a category where
-    median is ~12M/employee. Could indicate inflated revenue OR understaffed
-    operations — either way, worth flagging.
-    """
+    """#1 — Monthly revenue per employee outside the industry's plausible band."""
     headcount = (baseline.get("team") or {}).get("totalHeadcount", 0)
     revenue = (baseline.get("revenue") or {}).get("monthlyRevenueUzs", 0)
     if headcount <= 0 or revenue <= 0:
-        return None  # other checks/gates handle these
+        return None
     rev_per_emp = revenue / headcount
     lo, hi = benchmark.rev_per_employee
     if lo <= rev_per_emp <= hi:
         return None
     severity = "high" if (rev_per_emp > hi * 2 or rev_per_emp < lo * 0.5) else "medium"
+    industry_label = benchmark.label(lang)
+    msg = _T[lang]["rev_per_employee"].format(
+        value=_fmt(rev_per_emp), industry=industry_label,
+        lo=_fmt(lo), hi=_fmt(hi),
+    )
     return {
         "code": "revenue_per_employee_outside_band",
         "severity": severity,
-        "message_ru": (
-            f"Выручка на сотрудника {_fmt(rev_per_emp)} UZS/мес — вне типичного "
-            f"диапазона для отрасли «{benchmark.label_ru}» "
-            f"({_fmt(lo)}–{_fmt(hi)} UZS)."
-        ),
+        "message_ru": msg,
         "value": f"{_fmt(rev_per_emp)} UZS",
         "expected": f"{_fmt(lo)}–{_fmt(hi)} UZS",
     }
 
 
 def _check_margin_too_high(
-    *, inputs: dict, baseline: dict, benchmark
+    *, inputs: dict, baseline: dict, benchmark, lang: str
 ) -> dict | None:
-    """#2 — EBITDA margin more than 2x the industry median.
-
-    Solves the bakery case directly: bakery industry median EBITDA ~10%,
-    so 28% margin is 2.8x median → flagged. Real projections rarely
-    sustain margins this far above industry norms.
-    """
+    """#2 — EBITDA margin more than 2× the industry median."""
     revenue = (baseline.get("revenue") or {}).get("monthlyRevenueUzs", 0)
     if revenue <= 0:
         return None
@@ -104,28 +102,25 @@ def _check_margin_too_high(
     margin = ebitda / revenue * 100
     if margin <= benchmark.ebitda_margin_median * 2:
         return None
+    industry_label = benchmark.label(lang)
+    msg = _T[lang]["margin_above_industry"].format(
+        margin=f"{margin:.1f}",
+        industry=industry_label,
+        median=f"{benchmark.ebitda_margin_median:.0f}",
+    )
     return {
         "code": "margin_above_industry",
         "severity": "high",
-        "message_ru": (
-            f"EBITDA маржа {margin:.1f}% более чем вдвое превышает медиану отрасли "
-            f"«{benchmark.label_ru}» ({benchmark.ebitda_margin_median:.0f}%). "
-            f"Проверьте реалистичность объёмов продаж и цен."
-        ),
+        "message_ru": msg,
         "value": f"{margin:.1f}%",
         "expected": f"≤{benchmark.ebitda_margin_median * 2:.0f}%",
     }
 
 
 def _check_loan_to_revenue(
-    *, inputs: dict, baseline: dict, benchmark
+    *, inputs: dict, baseline: dict, benchmark, lang: str
 ) -> dict | None:
-    """#3 — Loan amount > 1.5× annual revenue.
-
-    A loan of this magnitude relative to projected sales is unusually
-    large; either the entrepreneur is overestimating capital needs or
-    underestimating revenue.
-    """
+    """#3 — Loan amount > 1.5× annual revenue."""
     project = inputs.get("project") or {}
     loan = float(project.get("loanAmount") or 0)
     revenue = (baseline.get("revenue") or {}).get("monthlyRevenueUzs", 0)
@@ -135,26 +130,22 @@ def _check_loan_to_revenue(
     ratio = loan / annual_revenue
     if ratio <= 1.5:
         return None
+    msg = _T[lang]["loan_to_revenue_high"].format(
+        loan=_fmt(loan), ratio=f"{ratio:.2f}",
+    )
     return {
         "code": "loan_to_revenue_high",
         "severity": "medium",
-        "message_ru": (
-            f"Кредит {_fmt(loan)} UZS превышает годовую выручку в {ratio:.2f} раза. "
-            f"Сроки окупаемости и обслуживания могут быть недооценены."
-        ),
+        "message_ru": msg,
         "value": f"{ratio:.2f}x",
         "expected": "≤1.5x",
     }
 
 
 def _check_salary_outliers(
-    *, inputs: dict, baseline: dict, benchmark
+    *, inputs: dict, baseline: dict, benchmark, lang: str
 ) -> dict | None:
-    """#4 — Any team-row salary outside ±50% of the industry's salary band.
-
-    Off-band salaries inflate (or deflate) the cost structure unrealistically
-    and distort margin / DSCR calculations.
-    """
+    """#4 — Any team-row salary outside ±50% of the industry's salary band."""
     team = inputs.get("team") or []
     lo, hi = benchmark.salary_range
     lo_band = lo * 0.5
@@ -170,17 +161,62 @@ def _check_salary_outliers(
             outliers.append(f"«{role}» {_fmt(sal)} UZS")
     if not outliers:
         return None
+    industry_label = benchmark.label(lang)
+    listing = "; ".join(outliers[:3]) + ("; …" if len(outliers) > 3 else "")
+    msg = _T[lang]["salary_outliers"].format(
+        industry=industry_label, lo=_fmt(lo), hi=_fmt(hi), listing=listing,
+    )
     return {
         "code": "salary_outliers",
         "severity": "medium",
-        "message_ru": (
-            f"Оклады вне рыночного диапазона для отрасли «{benchmark.label_ru}» "
-            f"({_fmt(lo)}–{_fmt(hi)} UZS): {'; '.join(outliers[:3])}"
-            f"{'; …' if len(outliers) > 3 else ''}."
-        ),
+        "message_ru": msg,
         "value": "; ".join(outliers[:3]),
         "expected": f"{_fmt(int(lo_band))}–{_fmt(int(hi_band))} UZS",
     }
+
+
+# ---------- translation table ----------
+
+_T = {
+    "ru": {
+        "rev_per_employee": (
+            "Выручка на сотрудника {value} UZS/мес — вне типичного диапазона "
+            "для отрасли «{industry}» ({lo}–{hi} UZS)."
+        ),
+        "margin_above_industry": (
+            "EBITDA маржа {margin}% более чем вдвое превышает медиану отрасли "
+            "«{industry}» ({median}%). Проверьте реалистичность объёмов "
+            "продаж и цен."
+        ),
+        "loan_to_revenue_high": (
+            "Кредит {loan} UZS превышает годовую выручку в {ratio} раза. "
+            "Сроки окупаемости и обслуживания могут быть недооценены."
+        ),
+        "salary_outliers": (
+            "Оклады вне рыночного диапазона для отрасли «{industry}» "
+            "({lo}–{hi} UZS): {listing}."
+        ),
+    },
+    "uz": {
+        "rev_per_employee": (
+            "Xodimga toʻgʻri keladigan daromad {value} UZS/oy — «{industry}» "
+            "sohasi uchun tipik diapazondan tashqarida ({lo}–{hi} UZS)."
+        ),
+        "margin_above_industry": (
+            "EBITDA marjasi {margin}% «{industry}» sohasining medianasini "
+            "({median}%) ikki barobardan koʻpga oshirib yuboradi. Sotuv "
+            "hajmlari va narxlarning realligini tekshiring."
+        ),
+        "loan_to_revenue_high": (
+            "Kredit {loan} UZS yillik daromaddan {ratio} barobar koʻproq. "
+            "Qaytarilish va xizmat qilish muddatlari kam baholangan boʻlishi mumkin."
+        ),
+        "salary_outliers": (
+            "Ish haqlari «{industry}» sohasi uchun bozor diapazonidan "
+            "tashqarida ({lo}–{hi} UZS): {listing}."
+        ),
+    },
+}
 
 
 def _fmt(n: float | int) -> str:

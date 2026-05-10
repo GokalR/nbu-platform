@@ -231,7 +231,9 @@ def generate(
     # plausibility checks, stress test). Stored alongside v1 so the
     # frontend can render either; we monitor divergence in admin before
     # retiring v1.
-    credit_score_v2 = credit_scoring.compute_wizard_score_v2(inputs_dict, baseline)
+    credit_score_v2 = credit_scoring.compute_wizard_score_v2(
+        inputs_dict, baseline, lang=body.lang or "uz",
+    )
 
     # Input gate — refuse to call the LLM if the wizard payload can't
     # produce a meaningful plan. Saves 60-90s on garbage in.
@@ -383,7 +385,7 @@ def generate_stream(
             baseline = bpc.compute_baseline(inputs_dict)
             credit_score = credit_scoring.compute_wizard_score(inputs_dict, baseline)
             credit_score_v2 = credit_scoring.compute_wizard_score_v2(
-                inputs_dict, baseline,
+                inputs_dict, baseline, lang=body.lang or "uz",
             )
             yield _sse({"phase": "scoring", "pct": 15})
 

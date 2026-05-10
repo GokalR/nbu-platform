@@ -993,7 +993,9 @@
       "cols": {
         "ratio": "Koʻrsatkich",
         "value": "Qiymat",
-        "benchmark": "Mezon"
+        "benchmark": "Mezon",
+        "points": "Ballar",
+        "scale": "Shkala"
       },
       "ratioNames": {
         "operatingMargin": "Operatsion marja",
