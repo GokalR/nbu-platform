@@ -61,6 +61,15 @@ L = {
                 "paybackYears": "Срок окупаемости",
                 "businessAge": "Возраст бизнеса",
             },
+            "methodology": (
+                "Оценка рассчитана автоматически по 8 показателям из вашей анкеты в "
+                "5 группах: прибыльность (операционная и чистая маржа), эффективность "
+                "(расходы/выручка), структура капитала (доля собственных, кредит/выручка), "
+                "обслуживание долга (DSCR, срок окупаемости), история бизнеса (возраст). "
+                "Каждый показатель оценивается 0/1/2 балла, максимум — 16 баллов. "
+                "Бэнды: ≥75% — высокая, ≥45% — средняя, <45% — низкая. "
+                "Это самодиагностика на основе проектных данных, не решение банка."
+            ),
         },
         "months": "мес.",
         "footer": "NBU AI Hub — Генератор бизнес-плана",
@@ -110,6 +119,15 @@ L = {
                 "paybackYears": "Qaytarilish muddati",
                 "businessAge": "Biznes yoshi",
             },
+            "methodology": (
+                "Baho anketadagi 8 ta koʻrsatkich asosida 5 guruhda avtomatik "
+                "hisoblangan: foydalilik (operatsion va sof marja), samaradorlik "
+                "(xarajat/daromad), kapital tarkibi (oʻz ulush, kredit/daromad), "
+                "qarz xizmati (DSCR, qaytarilish muddati), biznes tarixi (yosh). "
+                "Har bir koʻrsatkich 0/1/2 ball bilan baholanadi, maksimum — 16 ball. "
+                "Bandlar: ≥75% — yuqori, ≥45% — oʻrtacha, <45% — past. "
+                "Bu loyiha maʼlumotlari boʻyicha oʻz-oʻzini diagnostika, bank qarori emas."
+            ),
         },
         "months": "oy",
         "footer": "NBU AI Hub — Biznes-reja generatori",
@@ -346,6 +364,13 @@ def build_docx(
         )
         if credit_score.get("summary"):
             _para(doc, credit_score["summary"])
+
+        # Methodology paragraph — explains how the score was computed so the
+        # number doesn't read like an authoritative verdict.
+        methodology = t["credit"].get("methodology")
+        if methodology:
+            doc.add_paragraph()
+            _para(doc, methodology, size=10)
 
         ratios = credit_score.get("ratios") or {}
         if ratios:

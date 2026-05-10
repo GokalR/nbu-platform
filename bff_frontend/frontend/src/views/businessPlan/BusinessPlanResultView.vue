@@ -44,6 +44,19 @@ const expenseChartEl = ref(null)
 const revenueChartEl = ref(null)
 const costStructureEl = ref(null)
 
+// Toggle for the credit-scoring methodology explainer (collapsed by default;
+// users who want to know how the score is calculated can expand it).
+const showScoringMethod = ref(false)
+
+// Order in which to render the 5 groups; each maps to its 1-2 criteria.
+const SCORING_GROUPS = [
+  { key: 'profitability', criteria: ['operatingMargin', 'netMargin'] },
+  { key: 'efficiency',    criteria: ['costToRevenue'] },
+  { key: 'structure',     criteria: ['projectEquity', 'loanToRevenue'] },
+  { key: 'debtCapacity',  criteria: ['dscr', 'paybackYears'] },
+  { key: 'trackRecord',   criteria: ['businessAge'] },
+]
+
 // ---------- formatters ----------
 const fmt = (n) => Number(n || 0).toLocaleString('ru-RU')
 const fmtPct = (n) => `${Number(n || 0).toFixed(1)}%`
@@ -361,6 +374,52 @@ onMounted(load)
             </div>
             <p class="bpr-fin-summary">{{ creditScore.summary }}</p>
           </div>
+
+          <!-- Methodology explainer: 1-line intro + collapsible details. -->
+          <p class="bpr-fin-intro">{{ t('businessPlan.scoring.explainer.intro') }}</p>
+          <button
+            type="button"
+            class="bpr-fin-toggle"
+            :aria-expanded="showScoringMethod"
+            @click="showScoringMethod = !showScoringMethod"
+          >
+            <AppIcon :name="showScoringMethod ? 'expand_less' : 'expand_more'" />
+            {{ showScoringMethod
+                ? t('businessPlan.scoring.explainer.toggleClose')
+                : t('businessPlan.scoring.explainer.toggle') }}
+          </button>
+          <div v-if="showScoringMethod" class="bpr-fin-method">
+            <h3>{{ t('businessPlan.scoring.explainer.title') }}</h3>
+            <p>{{ t('businessPlan.scoring.explainer.groupsLead') }}</p>
+            <div
+              v-for="g in SCORING_GROUPS"
+              :key="g.key"
+              class="bpr-method-group"
+            >
+              <h4>{{ t(`businessPlan.scoring.explainer.groups.${g.key}`) }}</h4>
+              <ul>
+                <li v-for="c in g.criteria" :key="c">
+                  {{ t(`businessPlan.scoring.explainer.criteria.${c}`) }}
+                </li>
+              </ul>
+            </div>
+            <div class="bpr-method-block">
+              <h4>{{ t('businessPlan.scoring.explainer.scaleTitle') }}</h4>
+              <p>{{ t('businessPlan.scoring.explainer.scaleBody') }}</p>
+            </div>
+            <div class="bpr-method-block">
+              <h4>{{ t('businessPlan.scoring.explainer.bandsTitle') }}</h4>
+              <ul class="bpr-method-bands">
+                <li class="is-high">{{ t('businessPlan.scoring.explainer.bands.high') }}</li>
+                <li class="is-medium">{{ t('businessPlan.scoring.explainer.bands.medium') }}</li>
+                <li class="is-low">{{ t('businessPlan.scoring.explainer.bands.low') }}</li>
+              </ul>
+            </div>
+            <p class="bpr-method-disclaimer">
+              {{ t('businessPlan.scoring.explainer.disclaimer') }}
+            </p>
+          </div>
+
           <table class="bpr-fin-ratios">
             <thead>
               <tr>
@@ -1001,6 +1060,85 @@ onMounted(load)
 .bpr-fin-bullet.s-0 { background: #dc2626; }
 .bpr-fin-bullet.s-1 { background: #d97706; }
 .bpr-fin-bullet.s-2 { background: #16a34a; }
+
+/* Methodology explainer */
+.bpr-fin-intro {
+  margin: 14px 0 8px 0;
+  padding: 10px 14px;
+  background: #f0f7ff;
+  border-left: 3px solid #003d7c;
+  border-radius: 6px;
+  color: #1e293b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.bpr-fin-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #003d7c;
+  margin-bottom: 14px;
+  font-family: inherit;
+}
+.bpr-fin-toggle:hover { background: #f1f5f9; }
+.bpr-fin-toggle:focus-visible { outline: 2px solid #003d7c; outline-offset: 2px; }
+
+.bpr-fin-method {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #1e293b;
+  line-height: 1.55;
+}
+.bpr-fin-method h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #003d7c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bpr-fin-method h4 {
+  margin: 14px 0 6px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.bpr-fin-method p { margin: 0 0 8px 0; }
+.bpr-fin-method ul { margin: 0; padding-left: 22px; }
+.bpr-fin-method li { padding-bottom: 3px; }
+.bpr-method-bands { list-style: none; padding-left: 0; }
+.bpr-method-bands li {
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.bpr-method-bands li.is-high   { background: rgba(22, 163, 74, 0.10); color: #15803d; }
+.bpr-method-bands li.is-medium { background: rgba(217, 119, 6, 0.10); color: #b45309; }
+.bpr-method-bands li.is-low    { background: rgba(220, 38, 38, 0.10); color: #991b1b; }
+.bpr-method-disclaimer {
+  margin: 14px 0 0 0;
+  padding: 10px 12px;
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #92400e;
+  line-height: 1.5;
+}
 
 @media (max-width: 900px) {
   .bpr-metrics { grid-template-columns: 1fr 1fr; }

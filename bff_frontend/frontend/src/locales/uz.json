@@ -9,6 +9,7 @@
     "home": "Bosh sahifa",
     "districts": "Tumanlar tahlili",
     "regionsV2": "Mahallalar tahlili",
+    "regionsV3": "Mahallalar (v3)",
     "ai": "AI Maslahatchi",
     "tools": "Biznes AI vositalari",
     "education": "NBU Education",
@@ -1004,6 +1005,40 @@
         "dscr": "Toʻlovlar qoplanishi (DSCR)",
         "paybackYears": "Qaytarilish muddati",
         "businessAge": "Biznes yoshi"
+      },
+      "explainer": {
+        "intro": "Baho anketadagi 8 ta koʻrsatkich asosida avtomatik hisoblangan. Bu loyiha maʼlumotlari boʻyicha oʻz-oʻzini diagnostika, bank qarori emas.",
+        "toggle": "Qanday hisoblangan?",
+        "toggleClose": "Metodikani yashirish",
+        "title": "Skoring metodikasi",
+        "groupsLead": "Baho 5 guruhdagi 8 ta koʻrsatkichdan tuziladi:",
+        "groups": {
+          "profitability": "Foydalilik",
+          "efficiency": "Samaradorlik",
+          "structure": "Kapital tarkibi",
+          "debtCapacity": "Qarz xizmati",
+          "trackRecord": "Biznes tarixi"
+        },
+        "criteriaTitle": "Mezonlar",
+        "criteria": {
+          "operatingMargin": "Operatsion marja — kredit oldidan foyda / daromad",
+          "netMargin": "Sof marja — kreditdan keyin foyda / daromad",
+          "costToRevenue": "Xarajat / daromad — daromadning qancha qismi xarajatga ketadi",
+          "projectEquity": "Loyihada oʻz ulush — own / total",
+          "loanToRevenue": "Kredit / yillik daromad — kredit oborotga nisbatan qanchalik katta",
+          "dscr": "DSCR — operatsion foyda / yillik kredit toʻlovi",
+          "paybackYears": "Qaytarilish muddati — kredit / yillik sof foyda",
+          "businessAge": "Biznes yoshi — roʻyxatdan oʻtgan sanadan beri yillar"
+        },
+        "scaleTitle": "Baholash shkalasi",
+        "scaleBody": "Har bir koʻrsatkich 0/1/2 ball bilan baholanadi (kuchsiz / oʻrta / yaxshi). Maksimum — 16 ball.",
+        "bandsTitle": "Yakuniy bandlar",
+        "bands": {
+          "high": "≥75% (12-16 ball) — yuqori kreditga layoqatlilik",
+          "medium": "≥45% (8-11 ball) — oʻrtacha",
+          "low": "<45% (0-7 ball) — past"
+        },
+        "disclaimer": "Bu anketa maʼlumotlari boʻyicha oʻz-oʻzini diagnostika. Bankning haqiqiy qarori qoʻshimcha omillarni hisobga oladi: garov, kredit tarixi, soliq intizomi, sohaviy xatarlar."
       }
     },
     "steps": {
