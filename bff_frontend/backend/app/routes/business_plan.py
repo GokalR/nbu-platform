@@ -61,6 +61,24 @@ def _require_admin(creds: HTTPAuthorizationCredentials | None = Depends(_securit
     return payload
 
 
+def _extract_scores(historical_financials: dict | None) -> tuple[dict | None, dict | None]:
+    """Pull `(creditScore, creditScoreV2)` out of the `historical_financials`
+    JSONB column, supporting both old and new on-disk shapes.
+
+    Old (pre-v2): `historical_financials` is the v1 score dict directly,
+                  i.e. has top-level keys like `verdict`, `points`.
+    New (with v2): `{"score": <v1>, "scoreV2": <v2>}`.
+    """
+    if not isinstance(historical_financials, dict):
+        return None, None
+    # New shape — has a "score" wrapper key (and v1 doesn't have a top-level
+    # "score" of its own, which is what makes this safe).
+    if "score" in historical_financials and isinstance(historical_financials["score"], dict):
+        return historical_financials.get("score"), historical_financials.get("scoreV2")
+    # Old shape — flat v1 directly.
+    return historical_financials, None
+
+
 # Resolve user_email from sub (user_id) — keeps the route sync without a DB hop
 # unless we really need it. We pull email lazily in generate().
 def _resolve_user_email(user_id: str | None, db: Session) -> str | None:
@@ -149,6 +167,7 @@ class GenerateResponse(BaseModel):
     output: dict[str, Any]
     recommendedProductsCandidates: list[dict[str, Any]]
     creditScore: dict[str, Any] | None = None
+    creditScoreV2: dict[str, Any] | None = None
 
 
 class AdminListItem(BaseModel):
@@ -198,6 +217,13 @@ def generate(
     # equity contribution, business age).
     credit_score = credit_scoring.compute_wizard_score(inputs_dict, baseline)
 
+    # V2 score runs in parallel — same inputs, different methodology
+    # (5 criteria × 0-20, steady-state DSCR, industry benchmarks,
+    # plausibility checks, stress test). Stored alongside v1 so the
+    # frontend can render either; we monitor divergence in admin before
+    # retiring v1.
+    credit_score_v2 = credit_scoring.compute_wizard_score_v2(inputs_dict, baseline)
+
     # Input gate — refuse to call the LLM if the wizard payload can't
     # produce a meaningful plan. Saves 60-90s on garbage in.
     errors, warnings = business_plan_validation.validate_inputs(
@@ -216,9 +242,12 @@ def generate(
         org_type=body.organization.type,
         inputs=inputs_dict,
         recommended_products=candidates,
-        # Reuse the existing historical_financials JSONB column to store
-        # the credit score blob — no DB migration needed.
-        historical_financials=credit_score,
+        # Store both v1 (legacy 8-criterion / 16 max) and v2 (new
+        # 5-criterion / 100 max) scores in the same JSONB column. New
+        # plans use the wrapped shape `{score: <v1>, scoreV2: <v2>}`;
+        # old plans before v2 just have the flat v1 dict directly.
+        # The read-side helper `_extract_scores` handles both shapes.
+        historical_financials={"score": credit_score, "scoreV2": credit_score_v2},
         model="",
     )
 
@@ -271,6 +300,7 @@ def generate(
         output=rec.output,
         recommendedProductsCandidates=rec.recommended_products,
         creditScore=credit_score,
+        creditScoreV2=credit_score_v2,
     )
 
 
@@ -339,6 +369,9 @@ def generate_stream(
             from ..services import business_plan_compute as bpc
             baseline = bpc.compute_baseline(inputs_dict)
             credit_score = credit_scoring.compute_wizard_score(inputs_dict, baseline)
+            credit_score_v2 = credit_scoring.compute_wizard_score_v2(
+                inputs_dict, baseline,
+            )
             yield _sse({"phase": "scoring", "pct": 15})
 
             # Input gate
@@ -424,7 +457,9 @@ def generate_stream(
                     inputs=inputs_dict,
                     output=cleaned,
                     recommended_products=candidates,
-                    historical_financials=credit_score,
+                    historical_financials={
+                        "score": credit_score, "scoreV2": credit_score_v2,
+                    },
                     model=f"{provider_used}/{model_used}",
                     input_tokens=input_tokens,
                     output_tokens=output_tokens,
@@ -464,10 +499,12 @@ def download_plan_docx(plan_id: str, db: Session = Depends(get_db)):
     if not rec or rec.error or not rec.output:
         raise HTTPException(status_code=404, detail="Business plan not found")
 
+    score_v1, score_v2 = _extract_scores(rec.historical_financials)
     blob = docx_builder.build_docx(
         plan=rec.output,
         inputs=rec.inputs or {},
-        credit_score=rec.historical_financials,
+        credit_score=score_v1,
+        credit_score_v2=score_v2,
         lang=(rec.lang or "ru"),
     )
 
@@ -488,6 +525,7 @@ def get_plan(plan_id: str, db: Session = Depends(get_db)):
     rec = db.get(BusinessPlanSubmission, plan_id)
     if not rec or rec.error:
         raise HTTPException(status_code=404, detail="Business plan not found")
+    score_v1, score_v2 = _extract_scores(rec.historical_financials)
     return {
         "id": rec.id,
         "createdAt": rec.created_at.isoformat(),
@@ -495,7 +533,8 @@ def get_plan(plan_id: str, db: Session = Depends(get_db)):
         "inputs": rec.inputs,
         "output": rec.output,
         "recommendedProductsCandidates": rec.recommended_products,
-        "creditScore": rec.historical_financials,  # column re-purposed; see generate()
+        "creditScore": score_v1,
+        "creditScoreV2": score_v2,
     }
 
 
@@ -594,6 +633,7 @@ def admin_detail(
     rec = db.get(BusinessPlanSubmission, plan_id)
     if not rec:
         raise HTTPException(status_code=404, detail="Submission not found")
+    score_v1, score_v2 = _extract_scores(rec.historical_financials)
     return {
         "id": rec.id,
         "createdAt": rec.created_at.isoformat(),
@@ -604,7 +644,8 @@ def admin_detail(
         "inputs": rec.inputs,
         "output": rec.output,
         "recommendedProductsCandidates": rec.recommended_products,
-        "creditScore": rec.historical_financials,
+        "creditScore": score_v1,
+        "creditScoreV2": score_v2,
         "model": rec.model,
         "inputTokens": rec.input_tokens,
         "outputTokens": rec.output_tokens,

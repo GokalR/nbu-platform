@@ -379,3 +379,210 @@ def _years_since(date_str: str | None) -> float:
 
 def _pretty(k: str) -> str:
     return _PRETTY.get(k, k)
+
+
+# ============================================================================
+# V2 scoring — 5 criteria × 0-20 points = 0-100, linear interpolation.
+# Designed to be honest (steady-state DSCR, industry benchmarks, plausibility
+# checks, stress test) and simple (no bins, no knockouts, no triple-counted
+# profitability ratios).
+# ============================================================================
+
+def _interp(value: float, zero_at: float, full_at: float, points: float = 20.0) -> float:
+    """Linear-interpolate `value` between `zero_at` (→ 0 pts) and `full_at`
+    (→ `points`). Direction is inferred from which endpoint is larger:
+    if `full_at > zero_at`, higher is better; if `full_at < zero_at`, lower
+    is better. Clamps at both ends.
+    """
+    if full_at > zero_at:  # higher better
+        if value <= zero_at:
+            return 0.0
+        if value >= full_at:
+            return points
+        return (value - zero_at) / (full_at - zero_at) * points
+    else:  # lower better
+        if value >= zero_at:
+            return 0.0
+        if value <= full_at:
+            return points
+        return (zero_at - value) / (zero_at - full_at) * points
+
+
+def compute_wizard_score_v2(
+    inputs: dict, baseline: dict, plausibility_flags: list[dict] | None = None,
+) -> dict[str, Any]:
+    """Five-criterion 0-100 credit-fitness score for SME wizard plans.
+
+    Criteria, each 0-20 pts via linear interpolation:
+      1. Покрытие платежей (steady-state DSCR)
+      2. Структура капитала (own contribution % of project)
+      3. Прибыльность (EBITDA margin vs. industry median × 1.5)
+      4. Реалистичность (plausibility-check flag count)
+      5. Устойчивость (stress-scenario DSCR)
+
+    Returns a dict with: total, percent, verdict, criteria (per-criterion
+    detail), stress (scenario summary), industry (matched category).
+    """
+    from . import industry_benchmarks
+    from . import plausibility_checks
+
+    project = inputs.get("project") or {}
+    org = inputs.get("organization") or {}
+
+    monthly_revenue = (baseline.get("revenue") or {}).get("monthlyRevenueUzs", 0)
+    monthly_op_costs = (baseline.get("monthlyCosts") or {}).get("operating", 0)
+    monthly_ebitda = monthly_revenue - monthly_op_costs
+    annual_ebitda = monthly_ebitda * 12
+    ebitda_margin_pct = (
+        (monthly_ebitda / monthly_revenue * 100) if monthly_revenue > 0 else 0.0
+    )
+
+    steady_payment_monthly = (baseline.get("loan") or {}).get(
+        "steadyStateMonthlyPayment", 0,
+    )
+    annual_steady_payment = steady_payment_monthly * 12
+
+    # ---------- Criterion 1: DSCR (steady state) ----------
+    dscr_ss = (
+        (annual_ebitda / annual_steady_payment) if annual_steady_payment > 0 else 0.0
+    )
+    c1_pts = _interp(dscr_ss, zero_at=1.0, full_at=2.0)
+
+    # ---------- Criterion 2: Equity share ----------
+    own = float(project.get("ownContribution") or 0)
+    total = float(project.get("totalValue") or 0)
+    if total <= 0:
+        total = own + float(project.get("loanAmount") or 0)
+    equity_pct = (own / total * 100) if total > 0 else 0.0
+    c2_pts = _interp(equity_pct, zero_at=10.0, full_at=30.0)
+
+    # ---------- Criterion 3: Profitability vs. industry ----------
+    benchmark = industry_benchmarks.classify(org.get("mainActivity"))
+    industry_median = benchmark.ebitda_margin_median
+    target_high = industry_median * 1.5
+    if ebitda_margin_pct <= 0:
+        c3_pts = 0.0
+    elif ebitda_margin_pct >= target_high:
+        c3_pts = 20.0
+    else:
+        c3_pts = ebitda_margin_pct / target_high * 20.0
+
+    # ---------- Criterion 4: Plausibility ----------
+    if plausibility_flags is None:
+        plausibility_flags = plausibility_checks.run_all_checks(
+            inputs=inputs, baseline=baseline,
+        )
+    flag_count = len(plausibility_flags)
+    if flag_count == 0:
+        c4_pts = 20.0
+    elif flag_count >= 4:
+        c4_pts = 0.0
+    else:
+        c4_pts = 20.0 - (flag_count * 5.0)
+
+    # ---------- Criterion 5: Stress DSCR ----------
+    stress = baseline.get("stressScenario") or {}
+    stress_dscr = float(stress.get("dscr") or 0.0)
+    c5_pts = _interp(stress_dscr, zero_at=0.8, full_at=1.5)
+
+    # ---------- Total + verdict ----------
+    total_pts = c1_pts + c2_pts + c3_pts + c4_pts + c5_pts
+    total_rounded = round(total_pts)
+    if total_rounded >= 75:
+        verdict = "high"
+    elif total_rounded >= 50:
+        verdict = "medium"
+    elif total_rounded >= 25:
+        verdict = "low"
+    else:
+        verdict = "needs_rework"
+
+    return {
+        "version": 2,
+        "total": total_rounded,
+        "maxTotal": 100,
+        "percent": total_rounded,  # already 0-100
+        "verdict": verdict,
+        "industry": {
+            "category": benchmark.category,
+            "label": benchmark.label_ru,
+            "ebitdaMarginMedian": benchmark.ebitda_margin_median,
+        },
+        "criteria": {
+            "dscrSteadyState": {
+                "label": "Покрытие платежей",
+                "value": round(dscr_ss, 2),
+                "unit": "x",
+                "points": round(c1_pts, 1),
+                "maxPoints": 20,
+                "scaleHint": "20 баллов при ≥2.0x, 0 при ≤1.0x",
+            },
+            "equityShare": {
+                "label": "Структура капитала",
+                "value": round(equity_pct, 1),
+                "unit": "%",
+                "points": round(c2_pts, 1),
+                "maxPoints": 20,
+                "scaleHint": "20 баллов при ≥30%, 0 при ≤10%",
+            },
+            "profitability": {
+                "label": "Прибыльность",
+                "value": round(ebitda_margin_pct, 1),
+                "unit": "%",
+                "points": round(c3_pts, 1),
+                "maxPoints": 20,
+                "scaleHint": (
+                    f"20 баллов при ≥{target_high:.0f}% (1.5× медианы отрасли "
+                    f"{industry_median:.0f}%), 0 при ≤0%"
+                ),
+            },
+            "realism": {
+                "label": "Реалистичность",
+                "value": flag_count,
+                "unit": " предупр.",
+                "points": round(c4_pts, 1),
+                "maxPoints": 20,
+                "scaleHint": "20 баллов при 0 предупреждений, 0 при 4+",
+                "flags": plausibility_flags,
+            },
+            "resilience": {
+                "label": "Устойчивость",
+                "value": round(stress_dscr, 2),
+                "unit": "x",
+                "points": round(c5_pts, 1),
+                "maxPoints": 20,
+                "scaleHint": (
+                    "DSCR при выручке −20% и расходах +10%. "
+                    "20 баллов при ≥1.5x, 0 при ≤0.8x"
+                ),
+            },
+        },
+        "stress": {
+            "revenueFactor": stress.get("revenueFactor", 0.80),
+            "costFactor": stress.get("costFactor", 1.10),
+            "dscr": stress_dscr,
+            "monthlyEbitda": stress.get("monthlyEbitda", 0),
+            "warning": stress_dscr < 1.0,
+        },
+        "summary": _build_v2_summary(verdict, total_rounded, flag_count, stress_dscr),
+    }
+
+
+def _build_v2_summary(
+    verdict: str, total: int, flag_count: int, stress_dscr: float
+) -> str:
+    """One-line natural-language summary for the v2 score banner."""
+    base = {
+        "high": f"Высокая кредитоспособность ({total}/100). Заявка имеет высокие шансы на одобрение.",
+        "medium": f"Средняя кредитоспособность ({total}/100). Возможны дополнительные требования банка.",
+        "low": f"Низкая кредитоспособность ({total}/100). Перед обращением рекомендуется усилить слабые показатели.",
+        "needs_rework": f"Бизнес-план требует доработки ({total}/100). Ключевые показатели не соответствуют требованиям.",
+    }.get(verdict, f"{total}/100")
+    extra = []
+    if flag_count > 0:
+        extra.append(f"{flag_count} предупреждений по реалистичности")
+    if stress_dscr < 1.0 and stress_dscr > 0:
+        extra.append("стресс-сценарий не покрывает платёж")
+    if extra:
+        return f"{base} Обратите внимание: {'; '.join(extra)}."
+    return base

@@ -198,6 +198,154 @@ def _numbered(doc: Document, items: list[str]) -> None:
             doc.add_paragraph(str(it), style="List Number")
 
 
+# Verdict labels for the v2 shape; we render in Russian regardless of `lang`
+# because DOCX is the formal export and the bank reads RU. (Frontend handles
+# UZ display.)
+_V2_VERDICTS = {
+    "high": "Высокая кредитоспособность",
+    "medium": "Средняя кредитоспособность",
+    "low": "Низкая кредитоспособность",
+    "needs_rework": "Бизнес-план требует доработки",
+}
+
+_V2_CRITERIA_LABELS = {
+    "dscrSteadyState": "Покрытие платежей",
+    "equityShare": "Структура капитала",
+    "profitability": "Прибыльность",
+    "realism": "Реалистичность",
+    "resilience": "Устойчивость",
+}
+
+_V2_CRITERIA_ORDER = [
+    "dscrSteadyState", "equityShare", "profitability", "realism", "resilience",
+]
+
+_V2_METHODOLOGY = (
+    "Оценка рассчитана автоматически по 5 критериям, каждый 0-20 баллов "
+    "(линейная интерполяция, без бинов): покрытие платежей в стационарном "
+    "режиме (DSCR), структура капитала (доля собственных), прибыльность "
+    "(EBITDA маржа vs медиана отрасли), реалистичность (число предупреждений "
+    "из 4 проверок), устойчивость (DSCR в стресс-сценарии −20%/+10%). "
+    "Итог 0-100. Бэнды: ≥75 — высокая, ≥50 — средняя, ≥25 — низкая, <25 — "
+    "требует доработки. Это самодиагностика на основе анкеты, не решение банка."
+)
+
+
+def _render_credit_score_v2(doc: Document, score: dict[str, Any], t: dict) -> None:
+    _heading(doc, t["creditScore"], 1)
+
+    verdict_label = _V2_VERDICTS.get(score.get("verdict", "medium"), "")
+    _para(doc, f"{verdict_label} — {score.get('total', 0)} / 100", bold=True)
+    if score.get("summary"):
+        _para(doc, score["summary"])
+
+    industry = score.get("industry") or {}
+    if industry.get("label"):
+        _para(
+            doc,
+            f"Отрасль (классификация): {industry['label']} — медиана EBITDA маржи "
+            f"{industry.get('ebitdaMarginMedian', 0)}%",
+            size=10,
+        )
+
+    doc.add_paragraph()
+    _para(doc, _V2_METHODOLOGY, size=10)
+
+    # Per-criterion table — Criterion | Value | Points | Scale
+    criteria = score.get("criteria") or {}
+    rows_data = [
+        (
+            _V2_CRITERIA_LABELS.get(k, k),
+            f"{criteria[k].get('value', '')}{criteria[k].get('unit', '')}",
+            f"{criteria[k].get('points', 0)} / 20",
+            criteria[k].get("scaleHint", ""),
+        )
+        for k in _V2_CRITERIA_ORDER
+        if k in criteria
+    ]
+    if rows_data:
+        doc.add_paragraph()
+        table = doc.add_table(rows=len(rows_data) + 1, cols=4)
+        table.style = "Light Grid Accent 1"
+        h = table.rows[0].cells
+        h[0].text, h[1].text, h[2].text, h[3].text = (
+            "Критерий", "Значение", "Баллы", "Шкала"
+        )
+        for i, (name, value, pts, scale) in enumerate(rows_data, start=1):
+            row = table.rows[i].cells
+            row[0].text = name
+            row[1].text = value
+            row[2].text = pts
+            row[3].text = scale
+
+    # Plausibility warnings
+    flags = (criteria.get("realism") or {}).get("flags") or []
+    if flags:
+        doc.add_paragraph()
+        _heading(doc, "Предупреждения по реалистичности", 2)
+        for flag in flags:
+            _para(doc, f"• {flag.get('message_ru', '')}", size=10)
+
+    # Stress-test summary
+    stress = score.get("stress") or {}
+    if stress:
+        doc.add_paragraph()
+        _heading(doc, "Стресс-тест", 2)
+        _para(
+            doc,
+            f"При снижении выручки на {int((1 - stress.get('revenueFactor', 0.8)) * 100)}% "
+            f"и росте расходов на {int((stress.get('costFactor', 1.1) - 1) * 100)}%: "
+            f"DSCR = {stress.get('dscr', 0):.2f}x",
+            bold=True, size=10,
+        )
+        if stress.get("warning"):
+            _para(
+                doc,
+                "⚠ В пессимистичном сценарии бизнес не покрывает платёж по кредиту.",
+                size=10,
+            )
+        else:
+            _para(
+                doc,
+                "Бизнес остаётся способным обслуживать кредит в пессимистичном сценарии.",
+                size=10,
+            )
+
+
+def _render_credit_score_v1(doc: Document, credit_score: dict, t: dict) -> None:
+    """Legacy v1 renderer — kept so DOCX downloads for old plans still work."""
+    _heading(doc, t["creditScore"], 1)
+    verdict = credit_score.get("verdict", "medium")
+    verdict_label = t["credit"]["verdicts"].get(verdict, "")
+    _para(
+        doc,
+        f"{verdict_label} — {credit_score.get('points', 0)}/{credit_score.get('maxPoints', 0)} "
+        f"({credit_score.get('percent', 0)}%)",
+        bold=True,
+    )
+    if credit_score.get("summary"):
+        _para(doc, credit_score["summary"])
+
+    methodology = t["credit"].get("methodology")
+    if methodology:
+        doc.add_paragraph()
+        _para(doc, methodology, size=10)
+
+    ratios = credit_score.get("ratios") or {}
+    if ratios:
+        doc.add_paragraph()
+        table = doc.add_table(rows=len(ratios) + 1, cols=3)
+        table.style = "Light Grid Accent 1"
+        h = table.rows[0].cells
+        h[0].text, h[1].text, h[2].text = "Показатель", "Значение", "Норма"
+        ratio_names = t["credit"]["ratioNames"]
+        for i, (key, info) in enumerate(ratios.items(), start=1):
+            row = table.rows[i].cells
+            row[0].text = ratio_names.get(key, key)
+            row[1].text = f"{info.get('value', '')}{info.get('unit', '')}"
+            row[2].text = str(info.get("benchmark") or "")
+
+
 # ---------- builder ----------
 
 def build_docx(
@@ -205,9 +353,16 @@ def build_docx(
     plan: dict[str, Any],
     inputs: dict[str, Any],
     credit_score: dict[str, Any] | None,
+    credit_score_v2: dict[str, Any] | None = None,
     lang: str = "ru",
 ) -> bytes:
-    """Build a .docx and return raw bytes."""
+    """Build a .docx and return raw bytes.
+
+    If `credit_score_v2` is provided we render the v2 section (5 criteria,
+    0-100, stress test, plausibility flags). Otherwise we fall back to the
+    legacy v1 table — preserves DOCX downloads for plans created before v2
+    rolled out.
+    """
     t = L.get(lang) or L["ru"]
     doc = Document()
 
@@ -351,40 +506,11 @@ def build_docx(
         _heading(doc, t["nextSteps"], 1)
         _numbered(doc, steps)
 
-    # Credit scoring (if computed)
-    if credit_score:
-        _heading(doc, t["creditScore"], 1)
-        verdict = credit_score.get("verdict", "medium")
-        verdict_label = t["credit"]["verdicts"].get(verdict, "")
-        _para(
-            doc,
-            f"{verdict_label} — {credit_score.get('points', 0)}/{credit_score.get('maxPoints', 0)} "
-            f"({credit_score.get('percent', 0)}%)",
-            bold=True,
-        )
-        if credit_score.get("summary"):
-            _para(doc, credit_score["summary"])
-
-        # Methodology paragraph — explains how the score was computed so the
-        # number doesn't read like an authoritative verdict.
-        methodology = t["credit"].get("methodology")
-        if methodology:
-            doc.add_paragraph()
-            _para(doc, methodology, size=10)
-
-        ratios = credit_score.get("ratios") or {}
-        if ratios:
-            doc.add_paragraph()
-            table = doc.add_table(rows=len(ratios) + 1, cols=3)
-            table.style = "Light Grid Accent 1"
-            h = table.rows[0].cells
-            h[0].text, h[1].text, h[2].text = "Показатель", "Значение", "Норма"
-            ratio_names = t["credit"]["ratioNames"]
-            for i, (key, info) in enumerate(ratios.items(), start=1):
-                row = table.rows[i].cells
-                row[0].text = ratio_names.get(key, key)
-                row[1].text = f"{info.get('value', '')}{info.get('unit', '')}"
-                row[2].text = str(info.get("benchmark") or "")
+    # Credit scoring — v2 first (5 criteria, 0-100), v1 fallback
+    if credit_score_v2:
+        _render_credit_score_v2(doc, credit_score_v2, t)
+    elif credit_score:
+        _render_credit_score_v1(doc, credit_score, t)
 
     # Footer note
     doc.add_paragraph()

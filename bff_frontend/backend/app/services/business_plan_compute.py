@@ -21,6 +21,16 @@ ELECTRICITY_UZS_PER_KWH = 900
 GAS_UZS_PER_M3 = 1800
 WATER_UZS_PER_M3 = 5500
 
+# Uzbekistan SME tax 2025 — we model only the social-insurance tax, since
+# the wizard doesn't capture VAT-input information. Turnover/VAT is left
+# out deliberately (would overstate costs for B2B businesses without input
+# credits). When INN/VAT-status integration arrives, expand this.
+SOCIAL_TAX_PCT = 12.0   # social tax on payroll fund
+
+# Stress-test scenario multipliers for criterion 5 (Устойчивость).
+STRESS_REVENUE_FACTOR = 0.80   # 20% drop in projected revenue
+STRESS_COST_FACTOR = 1.10      # 10% rise in projected costs
+
 
 def _annuity_payment(principal: float, monthly_rate: float, months: int) -> float:
     """Standard annuity formula. Returns 0 for degenerate inputs."""
@@ -100,29 +110,52 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
     post_grace_months = max(term_months - grace_months, 0)
     annuity_post_grace = _annuity_payment(loan_amount, monthly_rate, post_grace_months) \
         if post_grace_months > 0 else 0
-    # 12-month average loan payment (used for monthly P&L baseline)
+    # 12-month average loan payment (used for monthly P&L baseline). v1 score
+    # uses this; v2 deliberately uses `steadyStatePayment` instead because
+    # the year-1 average is misleading (it averages cheap grace months with
+    # expensive amortising months, hiding the true post-grace burden).
     avg_loan_12m = (
         grace_interest_only * min(grace_months, 12)
         + annuity_post_grace * max(12 - grace_months, 0)
     ) / 12 if term_months > 0 else 0
 
+    # Steady-state monthly payment — what the borrower actually pays once
+    # the grace period ends. This is the conservative figure used for v2
+    # DSCR calculations.
+    steady_state_payment = annuity_post_grace
+
+    # ---------- Taxes (social tax on payroll only — see SOCIAL_TAX_PCT note) ----------
+    monthly_social_tax = monthly_payroll * (SOCIAL_TAX_PCT / 100)
+    monthly_taxes_total = monthly_social_tax
+
     # ---------- Monthly costs baseline ----------
-    # We sum what we KNOW: payroll, utilities, extras, loan service.
+    # We sum what we KNOW: payroll, utilities, extras, taxes, loan service.
     # Raw materials / rent etc. live in extras (free-form labels), so we
     # don't try to split them here — the LLM does that based on names.
-    monthly_costs_during_grace = (
-        monthly_payroll + utilities_total + extras_total + grace_interest_only
+    monthly_op_costs_no_loan = (
+        monthly_payroll + utilities_total + extras_total + monthly_taxes_total
     )
-    monthly_costs_post_grace = (
-        monthly_payroll + utilities_total + extras_total + annuity_post_grace
-    )
-    monthly_costs_avg_12m = (
-        monthly_payroll + utilities_total + extras_total + avg_loan_12m
-    )
+    monthly_costs_during_grace = monthly_op_costs_no_loan + grace_interest_only
+    monthly_costs_post_grace = monthly_op_costs_no_loan + annuity_post_grace
+    monthly_costs_avg_12m = monthly_op_costs_no_loan + avg_loan_12m
+    monthly_costs_steady_state = monthly_op_costs_no_loan + steady_state_payment
 
     monthly_profit_during_grace = monthly_revenue_uzs - monthly_costs_during_grace
     monthly_profit_post_grace = monthly_revenue_uzs - monthly_costs_post_grace
     monthly_profit_avg_12m = monthly_revenue_uzs - monthly_costs_avg_12m
+
+    # ---------- Stress-test scenario (criterion 5) ----------
+    # Pessimistic: revenue drops 20%, operating costs rise 10%.
+    # Steady-state debt service is unchanged (the bank doesn't give
+    # discounts when the business slows down).
+    stress_revenue = monthly_revenue_uzs * STRESS_REVENUE_FACTOR
+    stress_op_costs = monthly_op_costs_no_loan * STRESS_COST_FACTOR
+    stress_ebitda_monthly = stress_revenue - stress_op_costs
+    stress_ebitda_annual = stress_ebitda_monthly * 12
+    stress_dscr = (
+        stress_ebitda_annual / (steady_state_payment * 12)
+        if steady_state_payment > 0 else 0.0
+    )
 
     return {
         "team": {
@@ -158,17 +191,31 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
             "graceMonthlyPayment": round(grace_interest_only),
             "postGraceMonthlyPayment": round(annuity_post_grace),
             "avgMonthlyPaymentFirst12m": round(avg_loan_12m),
+            # NEW (v2): post-grace amortising payment used for DSCR. Year-1
+            # average understates the burden because it dilutes amortising
+            # months with cheap grace months.
+            "steadyStateMonthlyPayment": round(steady_state_payment),
+        },
+        "taxes": {
+            "socialTax": round(monthly_social_tax),
+            "monthlyTotal": round(monthly_taxes_total),
+            "ratePct": SOCIAL_TAX_PCT,
         },
         "monthlyCosts": {
             "duringGrace": round(monthly_costs_during_grace),
             "postGrace": round(monthly_costs_post_grace),
             "avg12m": round(monthly_costs_avg_12m),
+            # NEW (v2): operating costs excluding loan service, used for
+            # EBITDA + stress test computations. Includes social tax.
+            "operating": round(monthly_op_costs_no_loan),
+            "steadyState": round(monthly_costs_steady_state),
             # Component breakdown — same composition as the LLM's
             # `monthlyCosts` schema field, using avg-12m for loan.
             "breakdown": {
                 "payroll": round(monthly_payroll),
                 "utilities": round(utilities_total),
                 "extrasLabeled": round(extras_total),
+                "taxes": round(monthly_taxes_total),
                 "loanPaymentAvg": round(avg_loan_12m),
             },
         },
@@ -181,6 +228,20 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
             "grossMarginPct": _safe_pct(monthly_revenue_uzs - extras_total, monthly_revenue_uzs),
             "operatingMarginPct": _safe_pct(monthly_profit_avg_12m + avg_loan_12m, monthly_revenue_uzs),
             "netMarginPct": _safe_pct(monthly_profit_avg_12m, monthly_revenue_uzs),
+            # EBITDA margin = operating profit (no debt service) / revenue.
+            # Used by v2 score criterion 3.
+            "ebitdaMarginPct": _safe_pct(
+                monthly_revenue_uzs - monthly_op_costs_no_loan, monthly_revenue_uzs
+            ),
+        },
+        "stressScenario": {
+            "revenueFactor": STRESS_REVENUE_FACTOR,
+            "costFactor": STRESS_COST_FACTOR,
+            "monthlyRevenue": round(stress_revenue),
+            "monthlyOpCosts": round(stress_op_costs),
+            "monthlyEbitda": round(stress_ebitda_monthly),
+            "annualEbitda": round(stress_ebitda_annual),
+            "dscr": round(stress_dscr, 2),
         },
     }
 

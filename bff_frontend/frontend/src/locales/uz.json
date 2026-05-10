@@ -8,8 +8,7 @@
   "nav": {
     "home": "Bosh sahifa",
     "districts": "Tumanlar tahlili",
-    "regionsV2": "Mahallalar tahlili",
-    "regionsV3": "Mahallalar (v3)",
+    "regionsAnalytics": "Mahallalar tahlili",
     "ai": "AI Maslahatchi",
     "tools": "Biznes AI vositalari",
     "education": "NBU Education",
@@ -1005,6 +1004,49 @@
         "dscr": "Toʻlovlar qoplanishi (DSCR)",
         "paybackYears": "Qaytarilish muddati",
         "businessAge": "Biznes yoshi"
+      },
+      "v2": {
+        "verdicts": {
+          "high": "Yuqori kreditga layoqatlilik",
+          "medium": "Oʻrtacha kreditga layoqatlilik",
+          "low": "Past kreditga layoqatlilik",
+          "needs_rework": "Biznes-reja qayta ishlashni talab qiladi"
+        },
+        "criteriaLabels": {
+          "dscrSteadyState": "Toʻlovlar qoplanishi",
+          "equityShare": "Kapital tarkibi",
+          "profitability": "Foydalilik",
+          "realism": "Reallik",
+          "resilience": "Barqarorlik"
+        },
+        "stressTitle": "Stress-test: pessimistik stsenariy",
+        "stressDescription": "Daromad 20% ga kamayganda va xarajat 10% ga oshganda",
+        "stressDscrLabel": "Stressdagi toʻlovlar qoplanishi",
+        "stressWarning": "Daromad 20% ga pasayib, xarajat 10% ga oshganda biznes kredit toʻlovini qoplay olmaydi.",
+        "stressOk": "Biznes pessimistik stsenariyda ham kreditni xizmat qila oladi.",
+        "warningsTitle": "Reallikka oid ogohlantirishlar",
+        "warningsCount": "topildi: {count}",
+        "warningsNone": "Ogohlantirishlar topilmadi.",
+        "explainerIntro": "Baho 5 ta mezon boʻyicha avtomatik hisoblanadi. Har bir mezon — 0 dan 20 ballgacha, jami 100 ball. Bu oʻz-oʻzini diagnostika, bank qarori emas.",
+        "explainerToggle": "Qanday hisoblangan?",
+        "explainerToggleClose": "Metodikani yashirish",
+        "explainerTitle": "Skoring metodikasi v2",
+        "explainerCriteriaIntro": "5 ta mezon, har biri 0-20 ball, ikki chegara orasida chiziqli interpolatsiya:",
+        "explainerCriteriaDetails": {
+          "dscrSteadyState": "DSCR (steady state) — yillik EBITDA / imtiyozli davrdan keyingi yillik toʻlov. ≥2.0x — 20 ball, ≤1.0x — 0 ball.",
+          "equityShare": "Loyihada oʻz mablagʻ ulushi (own/total). ≥30% — 20 ball, ≤10% — 0 ball.",
+          "profitability": "EBITDA marja sohaning mediana × 1.5 ga nisbatan. ≥1.5×mediana — 20 ball, ≤0% — 0 ball.",
+          "realism": "4 ta tekshiruvdan ogohlantirishlar soni (daromad/xodim, marja vs soha, kredit/daromad, ish haqi tarqalishi). 0 — 20 ball, 4+ — 0 ball.",
+          "resilience": "Stress-stsenariyda DSCR (daromad −20%, xarajat +10%). ≥1.5x — 20 ball, ≤0.8x — 0 ball."
+        },
+        "explainerBandsTitle": "Yakuniy bandlar",
+        "explainerBands": {
+          "high": "≥75 — yuqori kreditga layoqatlilik",
+          "medium": "≥50 — oʻrtacha",
+          "low": "≥25 — past",
+          "needs_rework": "<25 — biznes-reja qayta ishlashni talab qiladi"
+        },
+        "explainerDisclaimer": "Bu anketa maʼlumotlari boʻyicha oʻz-oʻzini diagnostika. Bankning haqiqiy qarori qoʻshimcha omillarni hisobga oladi: garov, kredit tarixi, soliq intizomi, sohaviy xatarlar."
       },
       "explainer": {
         "intro": "Baho anketadagi 8 ta koʻrsatkich asosida avtomatik hisoblangan. Bu loyiha maʼlumotlari boʻyicha oʻz-oʻzini diagnostika, bank qarori emas.",

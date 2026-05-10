@@ -38,6 +38,17 @@ const plan = ref(null)
 const inputs = ref(null)
 const candidates = ref([])
 const creditScore = ref(null)
+const creditScoreV2 = ref(null)
+// Whether v2 data is available — drives which scoring section we render.
+const hasV2 = computed(() => Boolean(creditScoreV2.value && creditScoreV2.value.criteria))
+// V2 criteria render order (matches the spec's ordering of the 5 criteria).
+const V2_CRITERIA_ORDER = [
+  'dscrSteadyState',
+  'equityShare',
+  'profitability',
+  'realism',
+  'resilience',
+]
 
 // Refs for chart canvases
 const expenseChartEl = ref(null)
@@ -75,6 +86,7 @@ async function load() {
       candidates.value = parsed.recommendedProductsCandidates || []
       inputs.value = parsed.inputs || null
       creditScore.value = parsed.creditScore || null
+      creditScoreV2.value = parsed.creditScoreV2 || null
       loading.value = false
       await nextTick()
       drawCharts()
@@ -94,6 +106,7 @@ async function load() {
   candidates.value = res.data.recommendedProductsCandidates || []
   inputs.value = res.data.inputs || null
   creditScore.value = res.data.creditScore || null
+  creditScoreV2.value = res.data.creditScoreV2 || null
   loading.value = false
   await nextTick()
   drawCharts()
@@ -361,8 +374,127 @@ onMounted(load)
           <p class="bpr-verdict-summary">{{ plan.summary }}</p>
         </section>
 
-        <!-- Credit scoring — computed from anketa inputs at submit time -->
-        <section v-if="creditScore" class="bpr-section bpr-fin-section">
+        <!-- Credit scoring — v2 (5 criteria, 0-100) if available, else legacy v1 -->
+        <section v-if="hasV2" class="bpr-section bpr-fin-section">
+          <h2><AppIcon name="account_balance_wallet" /> {{ t('businessPlan.result.creditScoring') }}</h2>
+          <div :class="['bpr-fin-banner', `is-${creditScoreV2.verdict}`]">
+            <div class="bpr-fin-tag">
+              {{ t(`businessPlan.scoring.v2.verdicts.${creditScoreV2.verdict}`) }}
+            </div>
+            <div class="bpr-fin-points">
+              {{ creditScoreV2.total }} <small>/ 100</small>
+            </div>
+            <p class="bpr-fin-summary">{{ creditScoreV2.summary }}</p>
+          </div>
+
+          <!-- V2 explainer: 1-line intro + collapsible methodology -->
+          <p class="bpr-fin-intro">{{ t('businessPlan.scoring.v2.explainerIntro') }}</p>
+          <button
+            type="button"
+            class="bpr-fin-toggle"
+            :aria-expanded="showScoringMethod"
+            @click="showScoringMethod = !showScoringMethod"
+          >
+            <AppIcon :name="showScoringMethod ? 'expand_less' : 'expand_more'" />
+            {{ showScoringMethod
+                ? t('businessPlan.scoring.v2.explainerToggleClose')
+                : t('businessPlan.scoring.v2.explainerToggle') }}
+          </button>
+          <div v-if="showScoringMethod" class="bpr-fin-method">
+            <h3>{{ t('businessPlan.scoring.v2.explainerTitle') }}</h3>
+            <p>{{ t('businessPlan.scoring.v2.explainerCriteriaIntro') }}</p>
+            <ul>
+              <li v-for="ck in V2_CRITERIA_ORDER" :key="ck">
+                <strong>{{ t(`businessPlan.scoring.v2.criteriaLabels.${ck}`) }}.</strong>
+                {{ t(`businessPlan.scoring.v2.explainerCriteriaDetails.${ck}`) }}
+              </li>
+            </ul>
+            <div class="bpr-method-block">
+              <h4>{{ t('businessPlan.scoring.v2.explainerBandsTitle') }}</h4>
+              <ul class="bpr-method-bands">
+                <li class="is-high">{{ t('businessPlan.scoring.v2.explainerBands.high') }}</li>
+                <li class="is-medium">{{ t('businessPlan.scoring.v2.explainerBands.medium') }}</li>
+                <li class="is-low">{{ t('businessPlan.scoring.v2.explainerBands.low') }}</li>
+                <li class="is-rework">{{ t('businessPlan.scoring.v2.explainerBands.needs_rework') }}</li>
+              </ul>
+            </div>
+            <p class="bpr-method-disclaimer">
+              {{ t('businessPlan.scoring.v2.explainerDisclaimer') }}
+            </p>
+          </div>
+
+          <!-- Per-criterion breakdown table -->
+          <table class="bpr-fin-ratios">
+            <thead>
+              <tr>
+                <th>{{ t('businessPlan.scoring.cols.ratio') }}</th>
+                <th class="num">{{ t('businessPlan.scoring.cols.value') }}</th>
+                <th class="num">Баллы</th>
+                <th>Шкала</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ck in V2_CRITERIA_ORDER" :key="ck">
+                <td>{{ t(`businessPlan.scoring.v2.criteriaLabels.${ck}`) }}</td>
+                <td class="num">
+                  {{ creditScoreV2.criteria[ck].value }}{{ creditScoreV2.criteria[ck].unit }}
+                </td>
+                <td class="num">
+                  <strong>{{ creditScoreV2.criteria[ck].points }}</strong>
+                  <small> / 20</small>
+                </td>
+                <td class="muted">{{ creditScoreV2.criteria[ck].scaleHint }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Plausibility flags (criterion 4 details) -->
+          <div
+            v-if="creditScoreV2.criteria.realism.flags && creditScoreV2.criteria.realism.flags.length"
+            class="bpr-warnings"
+          >
+            <h3>
+              <AppIcon name="warning" />
+              {{ t('businessPlan.scoring.v2.warningsTitle') }}
+              ({{ t('businessPlan.scoring.v2.warningsCount', {
+                count: creditScoreV2.criteria.realism.flags.length
+              }) }})
+            </h3>
+            <ul>
+              <li
+                v-for="(flag, i) in creditScoreV2.criteria.realism.flags"
+                :key="i"
+                :class="['bpr-warning', `is-${flag.severity}`]"
+              >
+                {{ flag.message_ru }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Stress test card (criterion 5 visualisation) -->
+          <div :class="['bpr-stress', creditScoreV2.stress.warning && 'is-warning']">
+            <h3>
+              <AppIcon name="trending_down" />
+              {{ t('businessPlan.scoring.v2.stressTitle') }}
+            </h3>
+            <p class="bpr-stress-desc">{{ t('businessPlan.scoring.v2.stressDescription') }}</p>
+            <div class="bpr-stress-numbers">
+              <div>
+                <span>{{ t('businessPlan.scoring.v2.stressDscrLabel') }}</span>
+                <strong>{{ creditScoreV2.stress.dscr.toFixed(2) }}x</strong>
+              </div>
+            </div>
+            <p v-if="creditScoreV2.stress.warning" class="bpr-stress-msg is-warn">
+              {{ t('businessPlan.scoring.v2.stressWarning') }}
+            </p>
+            <p v-else class="bpr-stress-msg is-ok">
+              {{ t('businessPlan.scoring.v2.stressOk') }}
+            </p>
+          </div>
+        </section>
+
+        <!-- Legacy v1 — only when v2 not available (back-compat for old plans) -->
+        <section v-else-if="creditScore" class="bpr-section bpr-fin-section">
           <h2><AppIcon name="account_balance_wallet" /> {{ t('businessPlan.result.creditScoring') }}</h2>
           <div :class="['bpr-fin-banner', `is-${creditScore.verdict}`]">
             <div class="bpr-fin-tag">
@@ -1129,6 +1261,94 @@ onMounted(load)
 .bpr-method-bands li.is-high   { background: rgba(22, 163, 74, 0.10); color: #15803d; }
 .bpr-method-bands li.is-medium { background: rgba(217, 119, 6, 0.10); color: #b45309; }
 .bpr-method-bands li.is-low    { background: rgba(220, 38, 38, 0.10); color: #991b1b; }
+.bpr-method-bands li.is-rework { background: rgba(100, 116, 139, 0.15); color: #475569; }
+
+/* V2 verdict banner — adds "needs_rework" colour */
+.bpr-fin-banner.is-needs_rework { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
+
+/* V2 plausibility warnings list */
+.bpr-warnings {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 16px 0;
+}
+.bpr-warnings h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.bpr-warnings ul { margin: 0; padding-left: 22px; }
+.bpr-warning { padding-bottom: 6px; font-size: 13px; line-height: 1.5; color: #78350f; }
+.bpr-warning.is-high { color: #92400e; font-weight: 600; }
+
+/* V2 stress-test card */
+.bpr-stress {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+.bpr-stress.is-warning {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.bpr-stress h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #15803d;
+}
+.bpr-stress.is-warning h3 { color: #b91c1c; }
+.bpr-stress-desc {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: #475569;
+}
+.bpr-stress-numbers {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 10px;
+}
+.bpr-stress-numbers > div {
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bpr-stress-numbers span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.4px;
+}
+.bpr-stress-numbers strong {
+  font-size: 18px;
+  font-weight: 800;
+  color: #003d7c;
+}
+.bpr-stress-msg {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.bpr-stress-msg.is-warn { color: #b91c1c; }
+.bpr-stress-msg.is-ok { color: #15803d; }
 .bpr-method-disclaimer {
   margin: 14px 0 0 0;
   padding: 10px 12px;
