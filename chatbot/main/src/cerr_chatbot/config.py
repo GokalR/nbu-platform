@@ -64,7 +64,12 @@ class Settings(BaseSettings):
 
     def resolved_database_url(self) -> str:
         if self.database_url:
-            return self.database_url
+            url = self.database_url
+            if url.startswith("postgres://"):
+                url = url.replace("postgres://", "postgresql+psycopg://", 1)
+            elif url.startswith("postgresql://") and "+psycopg" not in url:
+                url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+            return url
         return (
             f"postgresql+psycopg://{self.postgres_user}:{self.postgres_password}"
             f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
