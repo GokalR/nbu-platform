@@ -21,6 +21,24 @@ function scrollToBottom() {
   nextTick(() => messagesContainer.value?.scrollTo({ top: 1e9, behavior: 'smooth' }))
 }
 
+// Tiny markdown renderer — escapes HTML first (XSS-safe), then applies the
+// inline markers the chatbot actually emits: **bold**, *italic*, `code`, and
+// turns "1) " / "- " line starts into a styled list-like row. Paragraph and
+// line breaks are preserved by the surrounding `whitespace: pre-line` CSS.
+function renderMessage(text) {
+  if (!text) return ''
+  const escaped = String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+  return escaped
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code class="bg-surface-container-high px-1 rounded text-[0.85em]">$1</code>')
+}
+
 async function send() {
   const text = input.value.trim()
   if (!text || isThinking.value) return
@@ -46,7 +64,14 @@ async function send() {
   }
 }
 
-const suggestions = ['chatbot.suggestions.q1', 'chatbot.suggestions.q2', 'chatbot.suggestions.q3']
+const suggestions = [
+  'chatbot.suggestions.q1',
+  'chatbot.suggestions.q2',
+  'chatbot.suggestions.q3',
+  'chatbot.suggestions.q4',
+  'chatbot.suggestions.q5',
+  'chatbot.suggestions.q6',
+]
 function ask(key) {
   input.value = t(key)
   send()
@@ -76,10 +101,11 @@ function ask(key) {
                   ? 'bg-primary text-on-primary rounded-tr-sm'
                   : m.error
                     ? 'bg-red-100 text-red-900 rounded-tl-sm'
-                    : 'bg-surface-container text-on-surface rounded-tl-sm'
+                    : 'bg-surface-container text-on-surface rounded-tl-sm chat-prose'
               "
             >
-              {{ m.text }}
+              <div v-if="m.role === 'user'">{{ m.text }}</div>
+              <div v-else v-html="renderMessage(m.text)" />
               <div
                 v-if="m.meta"
                 class="mt-2 pt-2 border-t border-outline-variant/20 text-[11px] text-on-surface-variant"
@@ -151,5 +177,16 @@ function ask(key) {
 @keyframes thinking-bounce {
   0%, 80%, 100% { transform: scale(0.7); opacity: 0.35; }
   40%          { transform: scale(1);   opacity: 0.9;  }
+}
+
+.chat-prose :deep(strong) {
+  font-weight: 700;
+  color: rgb(var(--md-sys-color-primary, 30 58 138));
+}
+.chat-prose :deep(em) {
+  font-style: italic;
+}
+.chat-prose :deep(code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 </style>

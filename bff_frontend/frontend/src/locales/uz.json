@@ -849,7 +849,10 @@
       "title": "Tavsiya etilgan savollar",
       "q1": "Toshkent viloyatida nechta tuman bor?",
       "q2": "Andijon viloyatining aholisi qancha?",
-      "q3": "Fargʻona viloyatida eng katta mahalla qaysi?"
+      "q3": "Fargʻona viloyatida eng katta mahalla qaysi?",
+      "q4": "Toshkent shahri va Buxoro viloyatini solishtirib ber",
+      "q5": "Aholisi eng koʻp 5 ta viloyatni koʻrsat",
+      "q6": "Eng yuqori reyting balliga ega tuman qaysi?"
     }
   },
   "tools": {
