@@ -1,6 +1,8 @@
 <script setup>
 import { ref, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import AppIcon from '@/components/AppIcon.vue'
 import { sendChatMessage, ensureChatSessionId } from '@/services/chatbotApi'
 
@@ -21,22 +23,16 @@ function scrollToBottom() {
   nextTick(() => messagesContainer.value?.scrollTo({ top: 1e9, behavior: 'smooth' }))
 }
 
-// Tiny markdown renderer — escapes HTML first (XSS-safe), then applies the
-// inline markers the chatbot actually emits: **bold**, *italic*, `code`, and
-// turns "1) " / "- " line starts into a styled list-like row. Paragraph and
-// line breaks are preserved by the surrounding `whitespace: pre-line` CSS.
+// GFM-mode marked parses tables, task lists, strikethrough, autolinks. `breaks`
+// makes single newlines into <br> so the chatbot's plain-text paragraph style
+// renders correctly without the user having to double-newline. DOMPurify is the
+// XSS sanitizer — keeps the renderer safe even if the LLM ever returned HTML.
+marked.setOptions({ gfm: true, breaks: true })
+
 function renderMessage(text) {
   if (!text) return ''
-  const escaped = String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-  return escaped
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code class="bg-surface-container-high px-1 rounded text-[0.85em]">$1</code>')
+  const html = marked.parse(String(text))
+  return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel'] })
 }
 
 async function send() {
@@ -95,16 +91,16 @@ function ask(key) {
             :class="m.role === 'user' ? 'justify-end' : 'justify-start'"
           >
             <div
-              class="max-w-[75%] px-4 py-3 rounded-xl text-sm leading-relaxed whitespace-pre-line"
+              class="max-w-[75%] px-4 py-3 rounded-xl text-sm leading-relaxed"
               :class="
                 m.role === 'user'
-                  ? 'bg-primary text-on-primary rounded-tr-sm'
+                  ? 'bg-primary text-on-primary rounded-tr-sm whitespace-pre-line'
                   : m.error
-                    ? 'bg-red-100 text-red-900 rounded-tl-sm'
+                    ? 'bg-red-100 text-red-900 rounded-tl-sm whitespace-pre-line'
                     : 'bg-surface-container text-on-surface rounded-tl-sm chat-prose'
               "
             >
-              <div v-if="m.role === 'user'">{{ m.text }}</div>
+              <div v-if="m.role === 'user' || m.error">{{ m.text }}</div>
               <div v-else v-html="renderMessage(m.text)" />
               <div
                 v-if="m.meta"
@@ -179,14 +175,105 @@ function ask(key) {
   40%          { transform: scale(1);   opacity: 0.9;  }
 }
 
-.chat-prose :deep(strong) {
+/* Prose styles for the assistant bubble. Tailwind's `prose` plugin would do
+ * this too but pulling it in for one component is overkill. Tight spacing
+ * (mb-2 between paragraphs, no margin on first/last) keeps bubbles compact. */
+.chat-prose :deep(> *:first-child) { margin-top: 0; }
+.chat-prose :deep(> *:last-child) { margin-bottom: 0; }
+
+.chat-prose :deep(p) { margin: 0 0 0.5rem 0; }
+.chat-prose :deep(strong) { font-weight: 700; color: #1e3a8a; }
+.chat-prose :deep(em) { font-style: italic; }
+.chat-prose :deep(a) {
+  color: #1d4ed8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chat-prose :deep(a:hover) { color: #1e3a8a; }
+
+.chat-prose :deep(h1),
+.chat-prose :deep(h2),
+.chat-prose :deep(h3),
+.chat-prose :deep(h4) {
   font-weight: 700;
-  color: rgb(var(--md-sys-color-primary, 30 58 138));
+  color: #1e3a8a;
+  margin: 0.75rem 0 0.4rem 0;
+  line-height: 1.2;
 }
-.chat-prose :deep(em) {
-  font-style: italic;
+.chat-prose :deep(h1) { font-size: 1.15rem; }
+.chat-prose :deep(h2) { font-size: 1.05rem; }
+.chat-prose :deep(h3) { font-size: 0.95rem; }
+.chat-prose :deep(h4) { font-size: 0.9rem; }
+
+.chat-prose :deep(ul),
+.chat-prose :deep(ol) {
+  margin: 0.25rem 0 0.5rem 0;
+  padding-left: 1.25rem;
 }
+.chat-prose :deep(ul) { list-style-type: disc; }
+.chat-prose :deep(ol) { list-style-type: decimal; }
+.chat-prose :deep(li) { margin: 0.15rem 0; }
+.chat-prose :deep(li > p) { margin: 0; }
+
 .chat-prose :deep(code) {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
 }
+.chat-prose :deep(pre) {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.4rem 0 0.6rem 0;
+}
+.chat-prose :deep(pre code) {
+  background: none;
+  padding: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.chat-prose :deep(blockquote) {
+  border-left: 3px solid rgba(30, 58, 138, 0.4);
+  padding-left: 0.75rem;
+  margin: 0.4rem 0;
+  color: #475569;
+  font-style: italic;
+}
+
+.chat-prose :deep(hr) {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 0.6rem 0;
+}
+
+/* Tables: tight, header row tinted, zebra body. Cells wrap their text so a
+ * many-column table grows tall instead of overflowing the bubble. */
+.chat-prose :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin: 0.4rem 0 0.6rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.chat-prose :deep(th) {
+  background: rgba(30, 58, 138, 0.08);
+  font-weight: 700;
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1e3a8a;
+}
+.chat-prose :deep(td) {
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  vertical-align: top;
+}
+.chat-prose :deep(tr:last-child td) { border-bottom: none; }
+.chat-prose :deep(tr:nth-child(even) td) { background: rgba(0, 0, 0, 0.02); }
 </style>
