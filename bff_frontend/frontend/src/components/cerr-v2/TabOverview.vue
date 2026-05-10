@@ -26,14 +26,14 @@ const topWeakness = computed(() => props.m?.peer_profile?.weaknesses?.[0] || nul
     <header class="mh-ai-head">
       <div class="mh-ai-stamp">
         <CerrIcon name="brain" :size="14" />
-        <span>AI Анализ</span>
+        <span>{{ $t('cerrV2.ai.title') }}</span>
       </div>
     </header>
     <div class="mh-ai-cols">
       <div v-if="ai.pros?.length" class="mh-ai-col">
         <div class="mh-ai-col-h pos">
           <CerrIcon name="check" :size="12" />
-          <span>Сильные стороны</span>
+          <span>{{ $t('cerrV2.ai.strengths') }}</span>
           <span class="ct">{{ ai.pros.length }}</span>
         </div>
         <ul class="mh-ai-list">
@@ -43,7 +43,7 @@ const topWeakness = computed(() => props.m?.peer_profile?.weaknesses?.[0] || nul
       <div v-if="ai.cons?.length" class="mh-ai-col">
         <div class="mh-ai-col-h neg">
           <CerrIcon name="warn" :size="12" />
-          <span>Проблемы</span>
+          <span>{{ $t('cerrV2.ai.issues') }}</span>
           <span class="ct">{{ ai.cons.length }}</span>
         </div>
         <ul class="mh-ai-list">
@@ -57,20 +57,20 @@ const topWeakness = computed(() => props.m?.peer_profile?.weaknesses?.[0] || nul
   <section v-if="topStrength || topWeakness" class="card">
     <h3 class="card-title">
       <span class="ico-tile"><CerrIcon name="target" :size="14" /></span>
-      Сравнение с пир-группой
+      {{ $t('cerrV2.peer.compare') }}
       <span v-if="peerSet" class="card-title-end">{{ peerSet.description }}</span>
     </h3>
     <div class="mh-peer-grid">
       <div v-if="topStrength" class="mh-peer-card pos">
         <div class="mh-peer-tag">
           <CerrIcon name="check" :size="11" />
-          <span>Топ перцентиль</span>
+          <span>{{ $t('cerrV2.peer.topPercentile') }}</span>
         </div>
         <div class="mh-peer-label">{{ topStrength.label }}</div>
         <div class="mh-peer-row">
           <span class="mh-peer-val tabular">{{ topStrength.this_value }}</span>
           <span class="mh-peer-vs">
-            vs ср. {{ Number(topStrength.district_avg).toFixed(2) }} {{ topStrength.unit }}
+            {{ $t('cerrV2.peer.vsAvg') }} {{ Number(topStrength.district_avg).toFixed(2) }} {{ topStrength.unit }}
           </span>
           <span class="mh-peer-rk">#{{ topStrength.peer_rank }}/{{ topStrength.peer_count }}</span>
         </div>
@@ -79,20 +79,20 @@ const topWeakness = computed(() => props.m?.peer_profile?.weaknesses?.[0] || nul
         </div>
         <div class="mh-peer-foot">
           <span>0</span>
-          <span class="emp">перцентиль {{ Math.round(topStrength.percentile) }}</span>
+          <span class="emp">{{ $t('cerrV2.peer.percentile', { n: Math.round(topStrength.percentile) }) }}</span>
           <span>100</span>
         </div>
       </div>
       <div v-if="topWeakness" class="mh-peer-card neg">
         <div class="mh-peer-tag">
           <CerrIcon name="warn" :size="11" />
-          <span>Нижний перцентиль</span>
+          <span>{{ $t('cerrV2.peer.lowPercentile') }}</span>
         </div>
         <div class="mh-peer-label">{{ topWeakness.label }}</div>
         <div class="mh-peer-row">
           <span class="mh-peer-val tabular">{{ topWeakness.this_value }}</span>
           <span class="mh-peer-vs">
-            vs ср. {{ Number(topWeakness.district_avg).toFixed(2) }} {{ topWeakness.unit }}
+            {{ $t('cerrV2.peer.vsAvg') }} {{ Number(topWeakness.district_avg).toFixed(2) }} {{ topWeakness.unit }}
           </span>
           <span class="mh-peer-rk">#{{ topWeakness.peer_rank }}/{{ topWeakness.peer_count }}</span>
         </div>
@@ -101,7 +101,7 @@ const topWeakness = computed(() => props.m?.peer_profile?.weaknesses?.[0] || nul
         </div>
         <div class="mh-peer-foot">
           <span>0</span>
-          <span class="emp">перцентиль {{ Math.round(topWeakness.percentile) }}</span>
+          <span class="emp">{{ $t('cerrV2.peer.percentile', { n: Math.round(topWeakness.percentile) }) }}</span>
           <span>100</span>
         </div>
       </div>

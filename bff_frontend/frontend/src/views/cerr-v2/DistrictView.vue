@@ -274,7 +274,7 @@ function openTier(stir) {
       </section>
 
       <div v-if="macroThemes.length" class="section-h">
-        <span>{{ macro?.indicators?.length || 0 }} макропоказателей · {{ macroThemes.length }} тематических блока</span>
+        <span>{{ $t('cerrV2.macroSummary', { n: macro?.indicators?.length || 0, m: macroThemes.length }) }}</span>
       </div>
       <div v-if="macroThemes.length" class="macro-themes">
         <ThemeBlock v-for="t in macroThemes" :key="t.id" :theme="t" />

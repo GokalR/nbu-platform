@@ -2,6 +2,7 @@
 /* "Хозяйство" tab — economic specialization, crops, infrastructure.
  * Source: mahalla.overview.detail.{specialization, crops, infra} */
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import CerrIcon from './CerrIcon.vue'
 import { fmt } from '@/data/cerrV2Format.js'
 
@@ -46,13 +47,14 @@ const asphaltShare = computed(() => {
   return Math.min(100, (infra.value.road_asphalt_km / infra.value.road_km) * 100)
 })
 
-const SLOT_BADGE = {
-  main: 'Основное',
-  add_2: 'Доп. #2',
-  add_3: 'Доп. #3',
-  add_4: 'Доп. #4',
-  add_5: 'Доп. #5',
-}
+const { t: tFn } = useI18n()
+const SLOT_BADGE = computed(() => ({
+  main: tFn('cerrV2.farm.slot.main'),
+  add_2: tFn('cerrV2.farm.slot.add_2'),
+  add_3: tFn('cerrV2.farm.slot.add_3'),
+  add_4: tFn('cerrV2.farm.slot.add_4'),
+  add_5: tFn('cerrV2.farm.slot.add_5'),
+}))
 </script>
 
 <template>
@@ -64,16 +66,16 @@ const SLOT_BADGE = {
           <CerrIcon name="leaf" :size="14" />
         </div>
         <div>
-          <div class="t">Экономическая специализация</div>
-          <div class="s">Чем занимаются хозяйства маҳалли</div>
+          <div class="t">{{ $t('cerrV2.farm.specTitle') }}</div>
+          <div class="s">{{ $t('cerrV2.farm.specSub') }}</div>
         </div>
       </div>
       <div class="t-r">
         <div class="kbig">
           <span class="num tabular">{{ fmt.num(totalSpecHh) }}</span>
-          <span class="lbl">хонадон занято</span>
+          <span class="lbl">{{ $t('cerrV2.farm.households') }}</span>
         </div>
-        <div v-if="totalSpecPop" class="period">{{ fmt.num(totalSpecPop) }} аҳоли</div>
+        <div v-if="totalSpecPop" class="period">{{ $t('cerrV2.farm.population', { n: fmt.num(totalSpecPop) }) }}</div>
       </div>
     </header>
 
@@ -104,14 +106,14 @@ const SLOT_BADGE = {
         <div class="spec-emoji">{{ s.icon || '🌱' }}</div>
         <div class="info">
           <div class="row-top">
-            <span class="badge">{{ SLOT_BADGE[s.slot] || s.slot_label || 'Доп.' }}</span>
+            <span class="badge">{{ SLOT_BADGE[s.slot] || s.slot_label || $t('cerrV2.farm.slot.default') }}</span>
             <span class="type">{{ s.type }}</span>
             <span class="dir">{{ s.direction }}</span>
           </div>
           <div class="row-meta">
             <span class="meta-item">
               <CerrIcon name="home2" :size="11" />
-              <b>{{ fmt.num(s.households) }}</b> хонадон
+              <b>{{ fmt.num(s.households) }}</b> {{ $t('cerrV2.farm.households2') }}
             </span>
             <span class="meta-item">
               <CerrIcon name="users" :size="11" />
@@ -121,16 +123,16 @@ const SLOT_BADGE = {
         </div>
         <div class="pct-block">
           <div class="pct-num tabular">{{ Number(s.percent).toFixed(1).replace('.', ',') }}<span class="pct-sym">%</span></div>
-          <div class="pct-lbl">от хонадонов</div>
+          <div class="pct-lbl">{{ $t('cerrV2.farm.fromHouseholds') }}</div>
         </div>
       </div>
       <div v-if="spec.residual_percent && spec.residual_percent > 0" class="mh-spec-row residual">
         <div class="spec-emoji">⋯</div>
         <div class="info">
           <div class="row-top">
-            <span class="type muted">Прочая активность</span>
+            <span class="type muted">{{ $t('cerrV2.farm.otherActivity') }}</span>
           </div>
-          <div class="row-meta muted">остальные хозяйства</div>
+          <div class="row-meta muted">{{ $t('cerrV2.farm.otherHouseholds') }}</div>
         </div>
         <div class="pct-block">
           <div class="pct-num tabular muted">{{ Number(spec.residual_percent).toFixed(1).replace('.', ',') }}<span class="pct-sym">%</span></div>
@@ -147,16 +149,16 @@ const SLOT_BADGE = {
           <CerrIcon name="leaf" :size="14" />
         </div>
         <div>
-          <div class="t">Tomorqa · сезонные посевы</div>
-          <div class="s">Распределение хонадонов и площадей по сезонам</div>
+          <div class="t">{{ $t('cerrV2.farm.tomorqaTitle') }}</div>
+          <div class="s">{{ $t('cerrV2.farm.tomorqaSub') }}</div>
         </div>
       </div>
       <div class="t-r">
         <div class="kbig">
           <span class="num tabular">{{ Number(crops.total_homestead_area_sotikh ?? 0).toFixed(1).replace('.', ',') }}</span>
-          <span class="lbl">сотих</span>
+          <span class="lbl">{{ $t('cerrV2.farm.sotix') }}</span>
         </div>
-        <div class="period">общая площадь tomorqa</div>
+        <div class="period">{{ $t('cerrV2.farm.totalArea') }}</div>
       </div>
     </header>
 
@@ -181,14 +183,14 @@ const SLOT_BADGE = {
         </div>
         <div class="cell-v">
           <span class="num tabular">{{ fmt.num(s.household_count) }}</span>
-          <span class="u">хонадон</span>
+          <span class="u">{{ $t('cerrV2.farm.households2') }}</span>
         </div>
         <div class="cell-foot">
           <CerrIcon name="leaf" :size="11" />
           <span v-if="s.homestead_area_ha != null">
-            <b>{{ Number(s.homestead_area_ha).toFixed(1) }}</b> га площадь
+            {{ $t('cerrV2.farm.areaHa', { n: Number(s.homestead_area_ha).toFixed(1) }) }}
           </span>
-          <span v-else class="muted">площадь не указана</span>
+          <span v-else class="muted">{{ $t('cerrV2.farm.areaUnknown') }}</span>
         </div>
       </div>
     </div>
@@ -202,8 +204,8 @@ const SLOT_BADGE = {
           <CerrIcon name="road" :size="14" />
         </div>
         <div>
-          <div class="t">Инфраструктура</div>
-          <div class="s">Дороги, коммуналка, социальные объекты</div>
+          <div class="t">{{ $t('cerrV2.farm.infraTitle') }}</div>
+          <div class="s">{{ $t('cerrV2.farm.infraSub') }}</div>
         </div>
       </div>
     </header>
@@ -213,26 +215,26 @@ const SLOT_BADGE = {
       <div class="mh-infra-block">
         <div class="block-h">
           <CerrIcon name="road" :size="13" />
-          <span>Дороги</span>
+          <span>{{ $t('cerrV2.farm.roads') }}</span>
         </div>
         <div class="block-v">
           <span class="num tabular">{{ Number(infra.road_km || 0).toFixed(1) }}</span>
-          <span class="u">км всего</span>
+          <span class="u">{{ $t('cerrV2.farm.kmTotal') }}</span>
         </div>
         <div v-if="infra.road_km > 0" class="block-bar">
           <i :style="{ width: `${asphaltShare}%` }" />
         </div>
         <div class="block-meta">
           <div class="item pos">
-            <span class="dot" /> Асфальт
+            <span class="dot" /> {{ $t('cerrV2.farm.asphalt') }}
             <span class="iv tabular">{{ Number(infra.road_asphalt_km || 0).toFixed(2) }} км</span>
           </div>
           <div class="item neu">
-            <span class="dot" /> Грунт
+            <span class="dot" /> {{ $t('cerrV2.farm.dirt') }}
             <span class="iv tabular">{{ Number(infra.road_dirt_km || 0).toFixed(1) }} км</span>
           </div>
           <div v-if="infra.road_km > 0" class="item asphalt-pct">
-            <span>Асфальтированы</span>
+            <span>{{ $t('cerrV2.farm.asphalted') }}</span>
             <span class="iv tabular">{{ asphaltShare.toFixed(0) }}%</span>
           </div>
         </div>
@@ -242,19 +244,19 @@ const SLOT_BADGE = {
       <div class="mh-infra-block">
         <div class="block-h">
           <CerrIcon name="bolt" :size="13" />
-          <span>Коммуналка</span>
+          <span>{{ $t('cerrV2.farm.utility') }}</span>
         </div>
         <div class="block-v">
           <span class="num tabular">{{ infra.power_cuts ?? 0 }}</span>
-          <span class="u">отключений</span>
+          <span class="u">{{ $t('cerrV2.farm.outages') }}</span>
         </div>
         <div class="block-meta">
           <div :class="['item', (infra.no_water || 0) > 0 ? 'neg' : 'pos']">
-            <CerrIcon name="drop" :size="11" /> Без воды
-            <span class="iv tabular">{{ infra.no_water ?? 0 }} хон.</span>
+            <CerrIcon name="drop" :size="11" /> {{ $t('cerrV2.farm.noWater') }}
+            <span class="iv tabular">{{ infra.no_water ?? 0 }} {{ $t('cerrV2.farm.households3') }}</span>
           </div>
           <div class="item neu">
-            <CerrIcon name="info" :size="11" /> Длительность
+            <CerrIcon name="info" :size="11" /> {{ $t('cerrV2.farm.duration') }}
             <span class="iv tabular">{{ infra.power_hrs ?? '0' }} ч</span>
           </div>
         </div>
@@ -264,36 +266,36 @@ const SLOT_BADGE = {
       <div class="mh-infra-block">
         <div class="block-h">
           <CerrIcon name="hospital" :size="13" />
-          <span>Социальные объекты</span>
+          <span>{{ $t('cerrV2.farm.social') }}</span>
         </div>
         <div class="block-v">
           <span class="num tabular">{{ socialCount }}</span>
-          <span class="u">объекта</span>
+          <span class="u">{{ $t('cerrV2.farm.objects') }}</span>
         </div>
         <div class="block-meta social">
           <div class="item">
-            <CerrIcon name="school" :size="11" /> Школы
+            <CerrIcon name="school" :size="11" /> {{ $t('cerrV2.farm.schools') }}
             <span class="iv tabular">{{ infra.school ?? 0 }}</span>
           </div>
           <div class="item">
-            <CerrIcon name="home2" :size="11" /> Детсады
+            <CerrIcon name="home2" :size="11" /> {{ $t('cerrV2.farm.kindergartens') }}
             <span class="iv tabular">{{ infra.kindergarten ?? 0 }}</span>
           </div>
           <div class="item">
-            <CerrIcon name="award" :size="11" /> Спорт
+            <CerrIcon name="award" :size="11" /> {{ $t('cerrV2.farm.sport') }}
             <span class="iv tabular">{{ infra.sport ?? 0 }}</span>
           </div>
         </div>
         <div v-if="infra.medical_km != null" class="block-foot">
           <CerrIcon name="hospital" :size="11" />
-          До медучреждения: <b>{{ Number(infra.medical_km).toFixed(1) }} км</b>
+          {{ $t('cerrV2.farm.medical') }}: <b>{{ Number(infra.medical_km).toFixed(1) }} км</b>
         </div>
       </div>
     </div>
 
     <div v-if="infra.tomorqa_ha != null" class="mh-infra-foot">
       <CerrIcon name="leaf" :size="12" />
-      <span>Общая площадь tomorqa в маҳалле: <b class="tabular">{{ fmt.num(Math.round(infra.tomorqa_ha)) }}</b> га</span>
+      <span>{{ $t('cerrV2.farm.tomorqaTotal') }}: <b class="tabular">{{ fmt.num(Math.round(infra.tomorqa_ha)) }}</b> {{ $t('cerrV2.farm.ha') }}</span>
     </div>
   </section>
 </template>

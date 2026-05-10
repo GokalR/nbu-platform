@@ -57,46 +57,46 @@ function fmtBand(n) { return Math.round(n).toLocaleString('ru-RU').replace(/,/g,
     <header class="mh-cmp-howto-h">
       <div class="ico-tile"><CerrIcon name="target" :size="14" /></div>
       <div>
-        <div class="t">Как работает сравнение</div>
-        <div class="s">Махалля сравнивается с похожими соседями, а не со всем районом</div>
+        <div class="t">{{ $t('cerrV2.compare.title') }}</div>
+        <div class="s">{{ $t('cerrV2.compare.sub') }}</div>
       </div>
     </header>
     <ol class="mh-cmp-steps">
       <li>
         <span class="n">1</span>
         <div>
-          <b>Берётся район.</b>
-          <div class="muted">{{ districtName || 'тот же тұман / шаҳри' }} · все махалли района</div>
+          <b>{{ $t('cerrV2.compare.step1Bold') }}</b>
+          <div class="muted">{{ $t('cerrV2.compare.step1Sub', { name: districtName || $t('cerrV2.compare.sameDistrict') }) }}</div>
         </div>
       </li>
       <li>
         <span class="n">2</span>
         <div>
-          <b>Отбираются махалли со схожей численностью населения</b> (~ ±30%).
+          <b>{{ $t('cerrV2.compare.step2Bold') }}</b> {{ $t('cerrV2.compare.step2Range') }}
           <div v-if="popBand" class="muted">
-            Диапазон: <b class="emp">{{ fmtBand(popBand.low) }} – {{ fmtBand(popBand.high) }}</b> человек
+            {{ $t('cerrV2.compare.step2RangeText', { low: fmtBand(popBand.low), high: fmtBand(popBand.high) }) }}
           </div>
         </div>
       </li>
       <li>
         <span class="n">3</span>
         <div>
-          <b>Получается группа из {{ peerSet?.count ?? 0 }} махаллей</b> — это и есть «пир-группа».
+          <b>{{ $t('cerrV2.compare.step3Bold', { n: peerSet?.count ?? 0 }) }}</b> {{ $t('cerrV2.compare.step3Sub') }}
           <div v-if="peerSet?.fallback_to_district" class="muted">
-            Если соседей с похожим населением мало, CERR берёт весь район ({{ peerSet?.count }}).
+            {{ $t('cerrV2.compare.step3Note', { n: peerSet?.count }) }}
           </div>
         </div>
       </li>
       <li>
         <span class="n">4</span>
         <div>
-          <b>По каждому из {{ indicatorCount || '31' }} показателей</b> считается ранг этой махалли среди пиров → перцентиль (100% = лучше всех в группе).
+          <b>{{ $t('cerrV2.compare.step4Bold', { n: indicatorCount || '31' }) }}</b> {{ $t('cerrV2.compare.step4Sub') }}
         </div>
       </li>
       <li>
         <span class="n">5</span>
         <div>
-          <b>Выбираются ТОП-5 сильных</b> (макс. перцентили) <b>и ТОП-5 слабых</b> (мин. перцентили).
+          <b>{{ $t('cerrV2.compare.step5Bold') }}</b> {{ $t('cerrV2.compare.step5Sub') }}
         </div>
       </li>
     </ol>
@@ -107,10 +107,10 @@ function fmtBand(n) { return Math.round(n).toLocaleString('ru-RU').replace(/,/g,
     <header class="mh-cmp-h pos">
       <div class="t-l">
         <CerrIcon name="check" :size="14" />
-        <span class="t">Сильные стороны</span>
+        <span class="t">{{ $t('cerrV2.compare.strengths') }}</span>
         <span class="ct">{{ strengths.length }}</span>
       </div>
-      <div class="t-r">здесь махалля лучше большинства пиров</div>
+      <div class="t-r">{{ $t('cerrV2.compare.strengthsSub') }}</div>
     </header>
     <div class="mh-cmp-list">
       <div v-for="(p, i) in strengths" :key="`s-${i}`" class="mh-cmp-row pos">
@@ -122,16 +122,16 @@ function fmtBand(n) { return Math.round(n).toLocaleString('ru-RU').replace(/,/g,
         <div class="row-vals">
           <div class="me">
             <span class="num">{{ fmtNum(p.this_value) }}</span>
-            <span class="me-lbl">эта махалля</span>
+            <span class="me-lbl">{{ $t('cerrV2.compare.thisMahalla') }}</span>
           </div>
           <div class="vs-sep">vs</div>
           <div class="avg">
             <span class="num">{{ fmtNum(p.district_avg) }}</span>
-            <span class="me-lbl">среднее по пирам</span>
+            <span class="me-lbl">{{ $t('cerrV2.compare.peerAvg') }}</span>
           </div>
           <div class="unit">{{ p.unit }}</div>
-          <div v-if="p.direction" class="dir" :title="p.direction === 'down' ? 'меньше — лучше' : 'больше — лучше'">
-            {{ p.direction === 'down' ? '↓ меньше = лучше' : '↑ больше = лучше' }}
+          <div v-if="p.direction" class="dir" :title="p.direction === 'down' ? $t('cerrV2.compare.lessIsBetterAlt') : $t('cerrV2.compare.moreIsBetterAlt')">
+            {{ p.direction === 'down' ? $t('cerrV2.compare.lessIsBetter') : $t('cerrV2.compare.moreIsBetter') }}
           </div>
         </div>
         <div class="pct-bar pos"><i :style="{ width: `${p.percentile}%` }" /></div>
@@ -144,10 +144,10 @@ function fmtBand(n) { return Math.round(n).toLocaleString('ru-RU').replace(/,/g,
     <header class="mh-cmp-h neg">
       <div class="t-l">
         <CerrIcon name="warn" :size="14" />
-        <span class="t">Слабые стороны</span>
+        <span class="t">{{ $t('cerrV2.compare.weaknesses') }}</span>
         <span class="ct">{{ weaknesses.length }}</span>
       </div>
-      <div class="t-r">здесь махалля хуже большинства пиров</div>
+      <div class="t-r">{{ $t('cerrV2.compare.weaknessesSub') }}</div>
     </header>
     <div class="mh-cmp-list">
       <div v-for="(p, i) in weaknesses" :key="`w-${i}`" class="mh-cmp-row neg">
@@ -159,16 +159,16 @@ function fmtBand(n) { return Math.round(n).toLocaleString('ru-RU').replace(/,/g,
         <div class="row-vals">
           <div class="me">
             <span class="num">{{ fmtNum(p.this_value) }}</span>
-            <span class="me-lbl">эта махалля</span>
+            <span class="me-lbl">{{ $t('cerrV2.compare.thisMahalla') }}</span>
           </div>
           <div class="vs-sep">vs</div>
           <div class="avg">
             <span class="num">{{ fmtNum(p.district_avg) }}</span>
-            <span class="me-lbl">среднее по пирам</span>
+            <span class="me-lbl">{{ $t('cerrV2.compare.peerAvg') }}</span>
           </div>
           <div class="unit">{{ p.unit }}</div>
-          <div v-if="p.direction" class="dir" :title="p.direction === 'down' ? 'меньше — лучше' : 'больше — лучше'">
-            {{ p.direction === 'down' ? '↓ меньше = лучше' : '↑ больше = лучше' }}
+          <div v-if="p.direction" class="dir" :title="p.direction === 'down' ? $t('cerrV2.compare.lessIsBetterAlt') : $t('cerrV2.compare.moreIsBetterAlt')">
+            {{ p.direction === 'down' ? $t('cerrV2.compare.lessIsBetter') : $t('cerrV2.compare.moreIsBetter') }}
           </div>
         </div>
         <div class="pct-bar neg"><i :style="{ width: `${p.percentile}%` }" /></div>

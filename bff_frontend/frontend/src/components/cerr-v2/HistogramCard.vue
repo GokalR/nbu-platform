@@ -18,8 +18,8 @@ function tier(i) { return ['t1', 't2', 't3', 't4', 't5'][i] || 't5' }
   <section class="card featured">
     <h3 class="card-title">
       <span class="ico-tile"><CerrIcon name="award" :size="14" /></span>
-      Распределение махаллей по рейтингу
-      <span class="card-title-end">{{ total }} махаллей · {{ histogram.length }} групп</span>
+      {{ $t('cerrV2.histogram.title') }}
+      <span class="card-title-end">{{ $t('cerrV2.histogram.summary', { n: total, g: histogram.length }) }}</span>
     </h3>
     <div class="rating-hero">
       <div v-if="side" class="rating-side">

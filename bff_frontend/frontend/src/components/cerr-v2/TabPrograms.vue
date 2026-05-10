@@ -10,23 +10,26 @@
  *   appeals.year + appeals.period — reporting window (e.g. "2026 йил 1-чорак")
  */
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import CerrIcon from './CerrIcon.vue'
 
 const props = defineProps({
   m: { type: Object, required: true },
 })
 
+const { t: tFn } = useI18n()
+
 const programs = computed(() => props.m?.detail?.subsidies?.programs || [])
 const appeals = computed(() => props.m?.appeals || null)
 
-const APPEAL_CATS = [
-  { k: 'crime',      lbl: 'Преступность', sub: 'правонарушения', ico: 'shield', color: '#d83838' },
-  { k: 'divorce',    lbl: 'Разводы',      sub: 'семейные',        ico: 'users',  color: '#a855f7' },
-  { k: 'aid',        lbl: 'Соц. помощь',  sub: 'материальная',    ico: 'help',   color: '#f59e0b' },
-  { k: 'employment', lbl: 'Занятость',    sub: 'трудоустройство', ico: 'tools',  color: '#0ea5e9' },
-  { k: 'gas',        lbl: 'Газ / комму.', sub: 'инфратузилма',    ico: 'bolt',   color: '#facc15' },
-  { k: 'registry',   lbl: 'Реестр',       sub: 'документы',       ico: 'file',   color: '#64748b' },
-]
+const APPEAL_CATS = computed(() => [
+  { k: 'crime',      lbl: tFn('cerrV2.programs.categories.crime'),      sub: tFn('cerrV2.programs.categories.crimeSub'),      ico: 'shield', color: '#d83838' },
+  { k: 'divorce',    lbl: tFn('cerrV2.programs.categories.divorce'),    sub: tFn('cerrV2.programs.categories.divorceSub'),    ico: 'users',  color: '#a855f7' },
+  { k: 'aid',        lbl: tFn('cerrV2.programs.categories.aid'),        sub: tFn('cerrV2.programs.categories.aidSub'),        ico: 'help',   color: '#f59e0b' },
+  { k: 'employment', lbl: tFn('cerrV2.programs.categories.employment'), sub: tFn('cerrV2.programs.categories.employmentSub'), ico: 'tools',  color: '#0ea5e9' },
+  { k: 'gas',        lbl: tFn('cerrV2.programs.categories.gas'),        sub: tFn('cerrV2.programs.categories.gasSub'),        ico: 'bolt',   color: '#facc15' },
+  { k: 'registry',   lbl: tFn('cerrV2.programs.categories.registry'),   sub: tFn('cerrV2.programs.categories.registrySub'),   ico: 'file',   color: '#64748b' },
+])
 
 const active = computed(() => programs.value.filter((s) => s.applications != null && s.applications > 0))
 const inactive = computed(() => programs.value.filter((s) => !(s.applications != null && s.applications > 0)))
@@ -37,11 +40,11 @@ const totalAmount = computed(() =>
 
 const totalAppeals = computed(() => {
   if (!appeals.value) return 0
-  return APPEAL_CATS.reduce((s, c) => s + (appeals.value[c.k] || 0), 0)
+  return APPEAL_CATS.value.reduce((s, c) => s + (appeals.value[c.k] || 0), 0)
 })
 const maxAppeal = computed(() => {
   if (!appeals.value) return 1
-  return Math.max(1, ...APPEAL_CATS.map((c) => appeals.value[c.k] || 0))
+  return Math.max(1, ...APPEAL_CATS.value.map((c) => appeals.value[c.k] || 0))
 })
 
 function fmt(v) {
@@ -63,33 +66,33 @@ function fmtAmount(v) {
           <CerrIcon name="docs" :size="14" />
         </div>
         <div>
-          <div class="t">Государственные программы поддержки</div>
-          <div class="s">Какие субсидии и дотации работают в маҳалле</div>
+          <div class="t">{{ $t('cerrV2.programs.title') }}</div>
+          <div class="s">{{ $t('cerrV2.programs.sub') }}</div>
         </div>
       </div>
       <div class="t-r">
         <div class="kbig">
           <span class="num tabular">{{ active.length }}</span>
-          <span class="lbl">из {{ programs.length }} активных</span>
+          <span class="lbl">{{ $t('cerrV2.programs.ofActive', { n: programs.length }) }}</span>
         </div>
       </div>
     </header>
 
     <div v-if="active.length || totalAmount" class="mh-pgr-summary">
       <div class="mh-pgr-stat">
-        <div class="lbl">Заявок принято</div>
-        <div class="v"><span class="num tabular">{{ totalApps }}</span><span class="u">заявок</span></div>
+        <div class="lbl">{{ $t('cerrV2.programs.applicationsAccepted') }}</div>
+        <div class="v"><span class="num tabular">{{ totalApps }}</span><span class="u">{{ $t('cerrV2.programs.applications') }}</span></div>
       </div>
       <div class="mh-pgr-stat">
-        <div class="lbl">Запрошено бюджета</div>
+        <div class="lbl">{{ $t('cerrV2.programs.budgetRequested') }}</div>
         <div class="v">
           <span class="num tabular">{{ totalAmount > 0 ? fmtAmount(totalAmount) : '—' }}</span>
-          <span class="u">млн сум</span>
+          <span class="u">{{ $t('cerrV2.programs.mlnSum') }}</span>
         </div>
       </div>
       <div class="mh-pgr-stat">
-        <div class="lbl">Не использовано</div>
-        <div class="v"><span class="num tabular">{{ inactive.length }}</span><span class="u">программ</span></div>
+        <div class="lbl">{{ $t('cerrV2.programs.notUsed') }}</div>
+        <div class="v"><span class="num tabular">{{ inactive.length }}</span><span class="u">{{ $t('cerrV2.programs.programs') }}</span></div>
       </div>
     </div>
 
@@ -97,7 +100,7 @@ function fmtAmount(v) {
     <div v-if="active.length" class="mh-pgr-section">
       <div class="mh-pgr-section-h">
         <CerrIcon name="check" :size="11" />
-        <span>Активные программы</span>
+        <span>{{ $t('cerrV2.programs.activePrograms') }}</span>
       </div>
       <div class="mh-pgr-list">
         <div v-for="(s, i) in active" :key="`a-${i}`" class="mh-pgr-row active">
@@ -106,11 +109,11 @@ function fmtAmount(v) {
             <span class="lbl">{{ s.label }}</span>
           </div>
           <div class="row-meta">
-            <span class="apps tabular"><b>{{ s.applications }}</b> заявок</span>
+            <span class="apps tabular"><b>{{ s.applications }}</b> {{ $t('cerrV2.programs.applications') }}</span>
             <span v-if="s.required_amount_mln != null" class="amt tabular">
-              <b>{{ fmtAmount(s.required_amount_mln) }}</b> млн сум
+              <b>{{ fmtAmount(s.required_amount_mln) }}</b> {{ $t('cerrV2.programs.mlnSum') }}
             </span>
-            <span v-else class="muted">сумма уточняется</span>
+            <span v-else class="muted">{{ $t('cerrV2.programs.amountTBD') }}</span>
           </div>
         </div>
       </div>
@@ -120,7 +123,7 @@ function fmtAmount(v) {
     <div v-if="inactive.length" class="mh-pgr-section">
       <div class="mh-pgr-section-h muted">
         <CerrIcon name="info" :size="11" />
-        <span>Не используются в маҳалле</span>
+        <span>{{ $t('cerrV2.programs.notUsedTitle') }}</span>
         <span class="ct">{{ inactive.length }}</span>
       </div>
       <div class="mh-pgr-tags">
@@ -137,14 +140,14 @@ function fmtAmount(v) {
           <CerrIcon name="users" :size="14" />
         </div>
         <div>
-          <div class="t">Обращения граждан</div>
-          <div class="s">Зарегистрированные жалобы и запросы за период</div>
+          <div class="t">{{ $t('cerrV2.programs.appealsTitle') }}</div>
+          <div class="s">{{ $t('cerrV2.programs.appealsSub') }}</div>
         </div>
       </div>
       <div class="t-r">
         <div class="kbig">
           <span class="num tabular">{{ totalAppeals }}</span>
-          <span class="lbl">всего обращений</span>
+          <span class="lbl">{{ $t('cerrV2.programs.appealsTotal') }}</span>
         </div>
         <div v-if="appeals.period" class="period">{{ appeals.period }}</div>
       </div>
@@ -184,7 +187,7 @@ function fmtAmount(v) {
 
     <div v-if="totalAppeals === 0" class="mh-app-empty">
       <CerrIcon name="check" :size="14" />
-      <span>За {{ appeals.period || 'период' }} обращений не зарегистрировано.</span>
+      <span>{{ $t('cerrV2.programs.noAppeals') }}</span>
     </div>
   </section>
 </template>
