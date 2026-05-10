@@ -90,3 +90,9 @@ export const getRaqamlarda = (scope) => request(`/api/cerr/raqamlarda/${scope}`)
 // Country rankings: 14 regions ranked by aggregated mahalla rating_score.
 // First call ~7s (cold compute), subsequent calls cached.
 export const getCountryRankings = () => request('/api/cerr/country/rankings')
+
+// Country aggregate: one-shot payload (regions + populations + ranks +
+// totals + tier counts) backed by a precomputed static JSON. Replaces the
+// previous fan-out (regions list + 14 region overviews + country/rankings)
+// with a single ~10 KB request. Powers the cerr-v2 country page.
+export const getCountryAggregate = () => request('/api/cerr/country/aggregate')

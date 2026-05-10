@@ -6,6 +6,7 @@ import {
   getDistrictOverview, getDistrictMacro, listDistrictMahallas, getDistrictGeo,
   getMahallaOverview,
   getCountryGeo, getRegionDistrictsGeo, getRaqamlarda, getCountryRankings,
+  getCountryAggregate,
 } from '@/services/cerrApi.js'
 
 export const useCerrV2Store = defineStore('cerrV2', {
@@ -22,6 +23,7 @@ export const useCerrV2Store = defineStore('cerrV2', {
     regionGeo: {},                         // {[code]: districts FC}
     raqamlarda: {},                        // {[scope]: record} where scope = "national" | "<code>"
     countryRankings: null,                 // [{code, name, score, rank, district_count, mahalla_count, districts:[]}]
+    countryAggregate: null,                // {regions, totals, tier_counts} — one-shot country page payload
     loading: false,
     error: null,
   }),
@@ -88,6 +90,52 @@ export const useCerrV2Store = defineStore('cerrV2', {
         this.countryRankings = []
       }
       return this.countryRankings
+    },
+    /** Single-fetch country page payload. Hydrates `regions`, `regionOverview`
+     *  (population KPI only) and `countryRankings` so the country page doesn't
+     *  need to fan out to 14 region overviews. */
+    async loadCountryAggregate() {
+      if (this.countryAggregate) return this.countryAggregate
+      try {
+        const agg = await getCountryAggregate()
+        this.countryAggregate = agg
+        // Hydrate `regions` so existing getters / pages keep working.
+        if (!this.regions) {
+          this.regions = agg.regions.map((r) => ({
+            code: r.code,
+            name: r.name,
+            mahalla_count: r.mahalla_count,
+            districts_count: r.districts_count,
+          }))
+        }
+        // Synthesise minimal regionOverview entries (just population) so
+        // CountryView's `regionsEnriched` resolves without 14 extra fetches.
+        for (const r of agg.regions) {
+          if (!this.regionOverview[r.code] && r.population != null) {
+            this.regionOverview[r.code] = {
+              kpis: [{ key: 'population', value: r.population }],
+            }
+          }
+        }
+        // Materialise countryRankings in the legacy shape too.
+        if (!this.countryRankings) {
+          this.countryRankings = agg.regions
+            .filter((r) => r.has_cerr)
+            .map((r) => ({
+              code: r.code,
+              name: r.name,
+              score: r.score,
+              rank: r.rank,
+              district_count: r.districts_count,
+              mahalla_count: r.mahalla_count,
+            }))
+            .sort((a, b) => a.rank - b.rank)
+        }
+        return agg
+      } catch {
+        this.countryAggregate = null
+        return null
+      }
     },
   },
   getters: {

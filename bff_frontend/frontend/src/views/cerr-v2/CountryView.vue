@@ -16,15 +16,16 @@ const store = useCerrV2Store()
 const sortMode = ref('pop')
 
 onMounted(async () => {
+  /* Single aggregate fetch (~10 KB, served from a precomputed static file)
+   * hydrates `regions`, `regionOverview` (population only) and
+   * `countryRankings` in one shot — replaces the previous fan-out of
+   * 14 region overviews + a country-rankings call that was walking
+   * ~200 mahallas.json files from R2 on every cold start. */
   await Promise.all([
-    store.loadRegions(),
+    store.loadCountryAggregate(),
     store.loadCountryGeo(),
     store.loadRaqamlarda('national'),
-    store.loadCountryRankings(),
   ])
-  // Side-load each region overview in parallel so the country aggregate
-  // and rail render numbers without 14 sequential round-trips.
-  await Promise.all((store.regions || []).map((r) => store.loadRegionOverview(r.code)))
 })
 
 const regionsEnriched = computed(() => {

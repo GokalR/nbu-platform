@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-05-10T17:15:38+00:00",
+  "regions": [
+    {
+      "code": 1703,
+      "name": "Андижон вилояти",
+      "districts_count": 16,
+      "mahalla_count": 879,
+      "population": 3479657,
+      "rank": 11,
+      "score": 54.25,
+      "has_cerr": true,
+      "tier": "mid"
+    },
+    {
+      "code": 1706,
+      "name": "Бухоро вилояти",
+      "districts_count": 13,
+      "mahalla_count": 516,
+      "population": 2139910,
+      "rank": 9,
+      "score": 56.58,
+      "has_cerr": true,
+      "tier": "mid"
+    },
+    {
+      "code": 1708,
+      "name": "Жиззах вилояти",
+      "districts_count": 13,
+      "mahalla_count": 304,
+      "population": 1555514,
+      "rank": 10,
+      "score": 55.16,
+      "has_cerr": true,
+      "tier": "mid"
+    },
+    {
+      "code": 1712,
+      "name": "Навоий вилояти",
+      "districts_count": 11,
+      "mahalla_count": 310,
+      "population": 1109649,
+      "rank": 8,
+      "score": 56.93,
+      "has_cerr": true,
+      "tier": "mid"
+    },
+    {
+      "code": 1714,
+      "name": "Наманган вилояти",
+      "districts_count": 14,
+      "mahalla_count": 754,
+      "population": 3006092,
+      "rank": 12,
+      "score": 52.35,
+      "has_cerr": true,
+      "tier": "low"
+    },
+    {
+      "code": 1718,
+      "name": "Самарқанд вилояти",
+      "districts_count": 16,
+      "mahalla_count": 1070,
+      "population": 4330143,
+      "rank": 2,
+      "score": 60.64,
+      "has_cerr": true,
+      "tier": "lead"
+    },
+    {
+      "code": 1724,
+      "name": "Сирдарё вилояти",
+      "districts_count": 11,
+      "mahalla_count": 221,
+      "population": 942801,
+      "rank": 13,
+      "score": 49.87,
+      "has_cerr": true,
+      "tier": "low"
+    },
+    {
+      "code": 1722,
+      "name": "Сурхондарё вилояти",
+      "districts_count": 15,
+      "mahalla_count": 723,
+      "population": 2976759,
+      "rank": 1,
+      "score": 61.08,
+      "has_cerr": true,
+      "tier": "lead"
+    },
+    {
+      "code": 1727,
+      "name": "Тошкент вилояти",
+      "districts_count": 22,
+      "mahalla_count": 883,
+      "population": 2944601,
+      "rank": 5,
+      "score": 58.94,
+      "has_cerr": true,
+      "tier": "lead"
+    },
+    {
+      "code": 1726,
+      "name": "Тошкент шаҳри",
+      "districts_count": 12,
+      "mahalla_count": 585,
+      "population": 3177589,
+      "rank": 4,
+      "score": 59.37,
+      "has_cerr": true,
+      "tier": "lead"
+    },
+    {
+      "code": 1730,
+      "name": "Фарғона вилояти",
+      "districts_count": 21,
+      "mahalla_count": 1015,
+      "population": 4204055,
+      "rank": 3,
+      "score": 59.94,
+      "has_cerr": true,
+      "tier": "lead"
+    },
+    {
+      "code": 1733,
+      "name": "Хоразм вилояти",
+      "districts_count": 14,
+      "mahalla_count": 509,
+      "population": 2033531,
+      "rank": 6,
+      "score": 58.1,
+      "has_cerr": true,
+      "tier": "mid"
+    },
+    {
+      "code": 1710,
+      "name": "Қашқадарё вилояти",
+      "districts_count": 16,
+      "mahalla_count": 776,
+      "population": 3591291,
+      "rank": 14,
+      "score": 49.71,
+      "has_cerr": true,
+      "tier": "low"
+    },
+    {
+      "code": 1735,
+      "name": "Қорақалпоғистон Республикаси",
+      "districts_count": 18,
+      "mahalla_count": 452,
+      "population": 2049782,
+      "rank": 7,
+      "score": 57.63,
+      "has_cerr": true,
+      "tier": "mid"
+    }
+  ],
+  "totals": {
+    "population": 37541374,
+    "districts": 212,
+    "mahallas": 8997,
+    "regions": 14,
+    "regions_with_data": 14
+  },
+  "tier_counts": {
+    "lead": 5,
+    "mid": 6,
+    "low": 3
+  }
+}
