@@ -449,46 +449,117 @@ onMounted(load)
             </tbody>
           </table>
 
-          <!-- Plausibility flags (criterion 4 details) -->
+          <!-- Plausibility flags — each warning is a card with severity
+               dot, message, and value-vs-expected meta line. -->
           <div
             v-if="creditScoreV2.criteria.realism.flags && creditScoreV2.criteria.realism.flags.length"
             class="bpr-warnings"
           >
-            <h3>
-              <AppIcon name="warning" />
-              {{ t('businessPlan.scoring.v2.warningsTitle') }}
-              ({{ t('businessPlan.scoring.v2.warningsCount', {
-                count: creditScoreV2.criteria.realism.flags.length
-              }) }})
-            </h3>
-            <ul>
+            <header class="bpr-warnings-header">
+              <span class="bpr-warnings-icon">
+                <AppIcon name="warning" />
+              </span>
+              <div class="bpr-warnings-title">
+                <h3>{{ t('businessPlan.scoring.v2.warningsTitle') }}</h3>
+                <span class="bpr-warnings-badge">
+                  {{ creditScoreV2.criteria.realism.flags.length }}
+                </span>
+              </div>
+            </header>
+            <ul class="bpr-warnings-list">
               <li
                 v-for="(flag, i) in creditScoreV2.criteria.realism.flags"
                 :key="i"
-                :class="['bpr-warning', `is-${flag.severity}`]"
+                :class="['bpr-warning-card', `is-${flag.severity}`]"
               >
-                {{ flag.message_ru }}
+                <span class="bpr-warning-dot" aria-hidden="true"></span>
+                <div class="bpr-warning-body">
+                  <p class="bpr-warning-msg">{{ flag.message_ru }}</p>
+                  <div
+                    v-if="flag.value || flag.expected"
+                    class="bpr-warning-meta"
+                  >
+                    <span v-if="flag.value" class="bpr-warning-value">
+                      <strong>{{ flag.value }}</strong>
+                    </span>
+                    <span v-if="flag.expected" class="bpr-warning-expected">
+                      {{ t('businessPlan.scoring.v2.expectedLabel') }}
+                      <strong>{{ flag.expected }}</strong>
+                    </span>
+                  </div>
+                </div>
               </li>
             </ul>
           </div>
 
-          <!-- Stress test card (criterion 5 visualisation) -->
+          <!-- Stress test card — base vs pessimistic side-by-side comparison
+               with a prominent traffic-light DSCR. -->
           <div :class="['bpr-stress', creditScoreV2.stress.warning && 'is-warning']">
-            <h3>
-              <AppIcon name="trending_down" />
-              {{ t('businessPlan.scoring.v2.stressTitle') }}
-            </h3>
-            <p class="bpr-stress-desc">{{ t('businessPlan.scoring.v2.stressDescription') }}</p>
-            <div class="bpr-stress-numbers">
+            <header class="bpr-stress-header">
+              <span class="bpr-stress-icon">
+                <AppIcon name="trending_down" />
+              </span>
               <div>
-                <span>{{ t('businessPlan.scoring.v2.stressDscrLabel') }}</span>
-                <strong>{{ creditScoreV2.stress.dscr.toFixed(2) }}x</strong>
+                <h3>{{ t('businessPlan.scoring.v2.stressTitle') }}</h3>
+                <p class="bpr-stress-desc">
+                  {{ t('businessPlan.scoring.v2.stressDescription') }}
+                </p>
+              </div>
+            </header>
+
+            <div class="bpr-stress-grid">
+              <!-- Base case -->
+              <div class="bpr-stress-col">
+                <div class="bpr-stress-tag">
+                  {{ t('businessPlan.scoring.v2.stressBaseLabel') }}
+                </div>
+                <div class="bpr-stress-row">
+                  <span>{{ t('businessPlan.scoring.v2.revenueLabel') }}</span>
+                  <strong>{{ fmt(plan.financials?.monthlyRevenue) }} <small>UZS</small></strong>
+                </div>
+                <div class="bpr-stress-row">
+                  <span>DSCR</span>
+                  <strong>
+                    {{ Number(creditScoreV2.criteria.dscrSteadyState.value).toFixed(2) }}x
+                  </strong>
+                </div>
+              </div>
+
+              <div class="bpr-stress-arrow" aria-hidden="true">
+                <AppIcon name="arrow_forward" />
+              </div>
+
+              <!-- Stressed case -->
+              <div :class="['bpr-stress-col', 'is-stress',
+                            creditScoreV2.stress.warning ? 'is-warn' : 'is-ok']">
+                <div class="bpr-stress-tag">
+                  {{ t('businessPlan.scoring.v2.stressStressLabel') }}
+                  <span class="bpr-stress-factors">
+                    −{{ Math.round((1 - creditScoreV2.stress.revenueFactor) * 100) }}% /
+                    +{{ Math.round((creditScoreV2.stress.costFactor - 1) * 100) }}%
+                  </span>
+                </div>
+                <div class="bpr-stress-row">
+                  <span>{{ t('businessPlan.scoring.v2.revenueLabel') }}</span>
+                  <strong>
+                    {{ fmt(Math.round((plan.financials?.monthlyRevenue || 0)
+                                       * creditScoreV2.stress.revenueFactor)) }}
+                    <small>UZS</small>
+                  </strong>
+                </div>
+                <div class="bpr-stress-row bpr-stress-dscr">
+                  <span>DSCR</span>
+                  <strong>{{ creditScoreV2.stress.dscr.toFixed(2) }}x</strong>
+                </div>
               </div>
             </div>
+
             <p v-if="creditScoreV2.stress.warning" class="bpr-stress-msg is-warn">
+              <AppIcon name="error" />
               {{ t('businessPlan.scoring.v2.stressWarning') }}
             </p>
             <p v-else class="bpr-stress-msg is-ok">
+              <AppIcon name="check_circle" />
               {{ t('businessPlan.scoring.v2.stressOk') }}
             </p>
           </div>
@@ -1267,89 +1338,283 @@ onMounted(load)
 /* V2 verdict banner — adds "needs_rework" colour */
 .bpr-fin-banner.is-needs_rework { background: linear-gradient(135deg, #64748b 0%, #475569 100%); }
 
-/* V2 plausibility warnings list */
+/* ============================================================
+   V2 plausibility warnings — card-per-warning with severity dot
+   ============================================================ */
 .bpr-warnings {
-  background: #fffbeb;
-  border-left: 3px solid #f59e0b;
-  border-radius: 8px;
-  padding: 14px 18px;
-  margin: 16px 0;
+  background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fde68a;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 18px 0;
 }
-.bpr-warnings h3 {
+.bpr-warnings-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 0 0 10px 0;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.bpr-warnings-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f59e0b;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.25);
+}
+.bpr-warnings-icon .material-symbols-outlined,
+.bpr-warnings-icon svg { font-size: 20px; }
+.bpr-warnings-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.bpr-warnings-title h3 {
+  margin: 0;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   color: #92400e;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
-.bpr-warnings ul { margin: 0; padding-left: 22px; }
-.bpr-warning { padding-bottom: 6px; font-size: 13px; line-height: 1.5; color: #78350f; }
-.bpr-warning.is-high { color: #92400e; font-weight: 600; }
-
-/* V2 stress-test card */
-.bpr-stress {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 12px;
-  padding: 16px 20px;
-  margin-top: 16px;
+.bpr-warnings-badge {
+  background: #f59e0b;
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  min-width: 22px;
+  text-align: center;
 }
-.bpr-stress.is-warning {
-  background: #fef2f2;
-  border-color: #fecaca;
-}
-.bpr-stress h3 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 6px 0;
-  font-size: 14px;
-  font-weight: 700;
-  color: #15803d;
-}
-.bpr-stress.is-warning h3 { color: #b91c1c; }
-.bpr-stress-desc {
-  margin: 0 0 12px 0;
-  font-size: 13px;
-  color: #475569;
-}
-.bpr-stress-numbers {
-  display: flex;
-  gap: 18px;
-  margin-bottom: 10px;
-}
-.bpr-stress-numbers > div {
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px 14px;
+.bpr-warnings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
 }
-.bpr-stress-numbers span {
+.bpr-warning-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px 12px 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.bpr-warning-card.is-high {
+  border-color: rgba(220, 38, 38, 0.20);
+  background: linear-gradient(180deg, #fff 0%, #fef2f2 100%);
+}
+.bpr-warning-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.bpr-warning-card.is-high .bpr-warning-dot { background: #dc2626; }
+.bpr-warning-body { flex: 1; min-width: 0; }
+.bpr-warning-msg {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1e293b;
+}
+.bpr-warning-card.is-high .bpr-warning-msg { color: #7f1d1d; font-weight: 600; }
+.bpr-warning-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
   font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
   color: #64748b;
+}
+.bpr-warning-value strong { color: #b45309; font-weight: 700; }
+.bpr-warning-card.is-high .bpr-warning-value strong { color: #b91c1c; }
+.bpr-warning-expected strong { color: #15803d; font-weight: 700; }
+
+/* ============================================================
+   V2 stress-test — base vs pessimistic side-by-side
+   ============================================================ */
+.bpr-stress {
+  background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 18px 0;
+}
+.bpr-stress.is-warning {
+  background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+  border-color: #fecaca;
+}
+.bpr-stress-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.bpr-stress-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #16a34a;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.22);
+}
+.bpr-stress.is-warning .bpr-stress-icon {
+  background: #dc2626;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.22);
+}
+.bpr-stress-header h3 {
+  margin: 0 0 2px 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #15803d;
+  text-transform: uppercase;
   letter-spacing: 0.4px;
 }
-.bpr-stress-numbers strong {
-  font-size: 18px;
-  font-weight: 800;
-  color: #003d7c;
+.bpr-stress.is-warning .bpr-stress-header h3 { color: #b91c1c; }
+.bpr-stress-desc {
+  margin: 0;
+  font-size: 12px;
+  color: #475569;
 }
+
+.bpr-stress-grid {
+  display: grid;
+  grid-template-columns: 1fr 30px 1fr;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.bpr-stress-col {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #e2e8f0;
+}
+.bpr-stress-col.is-stress.is-warn {
+  border-color: rgba(220, 38, 38, 0.30);
+  background: linear-gradient(180deg, #fff 0%, #fef2f2 100%);
+}
+.bpr-stress-col.is-stress.is-ok {
+  border-color: rgba(22, 163, 74, 0.30);
+  background: linear-gradient(180deg, #fff 0%, #f0fdf4 100%);
+}
+.bpr-stress-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+  margin-bottom: 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.bpr-stress-col.is-stress .bpr-stress-tag { color: #475569; }
+.bpr-stress-col.is-stress.is-warn .bpr-stress-tag { color: #b91c1c; }
+.bpr-stress-col.is-stress.is-ok .bpr-stress-tag { color: #15803d; }
+.bpr-stress-factors {
+  font-size: 10px;
+  font-weight: 700;
+  color: inherit;
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.bpr-stress-col.is-stress.is-warn .bpr-stress-factors {
+  background: rgba(220, 38, 38, 0.10);
+}
+.bpr-stress-col.is-stress.is-ok .bpr-stress-factors {
+  background: rgba(22, 163, 74, 0.10);
+}
+.bpr-stress-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bpr-stress-row span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.bpr-stress-row strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+}
+.bpr-stress-row strong small {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-left: 2px;
+}
+/* DSCR row gets emphasis — this is the key number */
+.bpr-stress-row.bpr-stress-dscr strong {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1e293b;
+}
+.bpr-stress-col.is-stress.is-warn .bpr-stress-row.bpr-stress-dscr strong { color: #b91c1c; }
+.bpr-stress-col.is-stress.is-ok .bpr-stress-row.bpr-stress-dscr strong { color: #15803d; }
+
+.bpr-stress-arrow {
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+}
+
 .bpr-stress-msg {
   margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
   line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
-.bpr-stress-msg.is-warn { color: #b91c1c; }
-.bpr-stress-msg.is-ok { color: #15803d; }
+.bpr-stress-msg.is-warn {
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+}
+.bpr-stress-msg.is-ok {
+  background: rgba(22, 163, 74, 0.08);
+  color: #15803d;
+}
+
+@media (max-width: 720px) {
+  .bpr-stress-grid {
+    grid-template-columns: 1fr;
+  }
+  .bpr-stress-arrow {
+    transform: rotate(90deg);
+    padding: 4px 0;
+  }
+}
 .bpr-method-disclaimer {
   margin: 14px 0 0 0;
   padding: 10px 12px;
