@@ -28,8 +28,10 @@ def run_all_checks(
     baseline: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Run every check; return the list of flags raised."""
+    org = inputs.get("organization") or {}
     benchmark = industry_benchmarks.classify(
-        (inputs.get("organization") or {}).get("mainActivity"),
+        org.get("mainActivity"),
+        category_hint=org.get("industryCategory"),
     )
     checks = [
         _check_revenue_per_employee,

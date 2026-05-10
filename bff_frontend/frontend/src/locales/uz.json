@@ -1020,9 +1020,11 @@
           "resilience": "Barqarorlik"
         },
         "stressTitle": "Barqarorlik stress-testi",
-        "stressDescription": "Agar daromad 20% ga kamaysa va xarajat 10% ga oshsa nima boʻladi",
+        "stressDescription": "Bazaviy reja vs 1-yildagi ramp vs pessimistik stsenariy",
         "stressBaseLabel": "Bazaviy",
+        "stressYear1Label": "1-yil (ramp)",
         "stressStressLabel": "Pessimistik",
+        "year1Warning": "1-yil davomida (loyihaviy quvvatga aste-asta chiqishni hisobga olganda) biznes oʻrtacha kredit toʻlovini zoʻrgʻa qoplaydi — birinchi oylarda kassa tanqisligi xavfi bor.",
         "stressDscrLabel": "Stressdagi toʻlovlar qoplanishi",
         "stressWarning": "Pessimistik stsenariyda biznes kredit toʻlovini qoplay olmaydi — bozor yomonlashganda defolt xavfi mavjud.",
         "stressOk": "Biznes koʻrsatkichlar yomonlashganda ham kreditni xizmat qila oladi.",
@@ -1106,7 +1108,8 @@
       "orgType": "Tashkilot shaklini tanlang.",
       "products": "Loyihangiz ishlab chiqaradigan yoki taqdim etadigan asosiy mahsulot/xizmatlarni kiriting.",
       "utilities": "Loyiha uchun oylik kommunal va boshqa doimiy xarajatlarni kiriting. Bu maʻlumotlar moliyaviy prognoz uchun muhim.",
-      "review": "Maʻlumotlaringizni tekshiring va biznes-rejani yarating."
+      "review": "Maʻlumotlaringizni tekshiring va biznes-rejani yarating.",
+      "vatPayer": "Standart rejim (12% QQS). Soddalashtirilgan oborot rejimida boʻlsangiz katakni olib tashlang — 4% oborot solig'i qoʻshiladi."
     },
     "template": {
       "or": "yoki",
@@ -1119,7 +1122,9 @@
       "name": "Tashkilot nomi",
       "foundedDate": "Tashkil qilingan sana",
       "address": "Manzil",
-      "mainActivity": "Asosiy faoliyat turi",
+      "industryCategory": "Soha",
+      "mainActivity": "Faoliyat aniqlanmasi",
+      "vatPayer": "QQS toʻlovchi",
       "founder": "Asoschisi",
       "director": "Rahbar",
       "charterCapital": "Ustav fondi (soʻm)",
@@ -1128,7 +1133,7 @@
       "ownContribution": "Oʻz ulushi (soʻm)",
       "loanAmount": "Kredit miqdori (soʻm)",
       "totalValue": "Loyiha umumiy qiymati (soʻm)",
-      "startupMonths": "Ishga tushish muddati (oyda)",
+      "startupMonths": "Loyihaviy quvvatga chiqish muddati (oy)",
       "termMonths": "Kredit muddati (oy)",
       "graceMonths": "Imtiyozli davri (oy)",
       "interestRate": "Kredit stavkasi (%)",
@@ -1143,7 +1148,19 @@
     },
     "placeholders": {
       "unit": "Masalan: dona, kg, soat",
-      "expenseName": "Xarajat nomi"
+      "expenseName": "Xarajat nomi",
+      "mainActivity": "Masalan: Non mahsulotlarini ishlab chiqarish"
+    },
+    "industries": {
+      "select": "— Sohani tanlang —",
+      "bakery": "Non / qandolat",
+      "retail_food": "Oziq-ovqat chakana savdo",
+      "manufacturing": "Ishlab chiqarish",
+      "services": "Xizmatlar",
+      "construction": "Qurilish",
+      "agriculture": "Qishloq xoʻjaligi",
+      "transport": "Transport va logistika",
+      "other": "Boshqa (qoʻlda kiriting)"
     },
     "sections": {
       "projectDescription": "Loyiha tavsifi",

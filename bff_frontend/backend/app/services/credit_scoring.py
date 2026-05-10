@@ -457,7 +457,12 @@ def compute_wizard_score_v2(
     c2_pts = _interp(equity_pct, zero_at=10.0, full_at=30.0)
 
     # ---------- Criterion 3: Profitability vs. industry ----------
-    benchmark = industry_benchmarks.classify(org.get("mainActivity"))
+    # Prefer the explicit dropdown choice over regex on free-text — when
+    # both are present, the user-selected category wins.
+    benchmark = industry_benchmarks.classify(
+        org.get("mainActivity"),
+        category_hint=org.get("industryCategory"),
+    )
     industry_median = benchmark.ebitda_margin_median
     target_high = industry_median * 1.5
     if ebitda_margin_pct <= 0:
@@ -480,10 +485,19 @@ def compute_wizard_score_v2(
     else:
         c4_pts = 20.0 - (flag_count * 5.0)
 
-    # ---------- Criterion 5: Stress DSCR ----------
+    # ---------- Criterion 5: Resilience DSCR ----------
+    # Worst of (pessimistic stress, year-1 ramp). Resilience means
+    # surviving the binding constraint, not the average — so we score
+    # against whichever scenario is harder.
     stress = baseline.get("stressScenario") or {}
     stress_dscr = float(stress.get("dscr") or 0.0)
-    c5_pts = _interp(stress_dscr, zero_at=0.8, full_at=1.5)
+    year1 = baseline.get("year1RampScenario") or {}
+    year1_dscr = float(year1.get("dscr") or 0.0)
+    # Use the worse of the two (lowest non-zero DSCR). If either is zero
+    # because of zero revenue, that already indicates a broken plan.
+    candidate_dscrs = [d for d in (stress_dscr, year1_dscr) if d > 0]
+    resilience_dscr = min(candidate_dscrs) if candidate_dscrs else 0.0
+    c5_pts = _interp(resilience_dscr, zero_at=0.8, full_at=1.5)
 
     # ---------- Total + verdict ----------
     total_pts = c1_pts + c2_pts + c3_pts + c4_pts + c5_pts
@@ -547,12 +561,14 @@ def compute_wizard_score_v2(
             },
             "resilience": {
                 "label": "Устойчивость",
-                "value": round(stress_dscr, 2),
+                # Display the binding (worse) DSCR — that's what scored.
+                "value": round(resilience_dscr, 2),
                 "unit": "x",
                 "points": round(c5_pts, 1),
                 "maxPoints": 20,
                 "scaleHint": (
-                    "DSCR при выручке −20% и расходах +10%. "
+                    "Худший из: стресс (выручка −20%, расходы +10%) и "
+                    "год 1 со средним ростом выручки. "
                     "20 баллов при ≥1.5x, 0 при ≤0.8x"
                 ),
             },
@@ -563,6 +579,13 @@ def compute_wizard_score_v2(
             "dscr": stress_dscr,
             "monthlyEbitda": stress.get("monthlyEbitda", 0),
             "warning": stress_dscr < 1.0,
+        },
+        "year1Ramp": {
+            "startupMonths": year1.get("startupMonths", 3),
+            "monthlyAvgRevenue": year1.get("monthlyAvgRevenue", 0),
+            "monthlyAvgEbitda": year1.get("monthlyAvgEbitda", 0),
+            "dscr": year1_dscr,
+            "warning": 0 < year1_dscr < 1.0,
         },
         "summary": _build_v2_summary(verdict, total_rounded, flag_count, stress_dscr),
     }

@@ -27,6 +27,11 @@ WATER_UZS_PER_M3 = 5500
 # credits). When INN/VAT-status integration arrives, expand this.
 SOCIAL_TAX_PCT = 12.0   # social tax on payroll fund
 
+# Turnover tax applied for non-VAT-payers (simplified regime, Uzbekistan
+# 2025). VAT-payers face VAT-out − VAT-in, which we don't model without
+# input-credit data; for them we leave only the social tax line.
+TURNOVER_TAX_PCT = 4.0
+
 # Stress-test scenario multipliers for criterion 5 (Устойчивость).
 STRESS_REVENUE_FACTOR = 0.80   # 20% drop in projected revenue
 STRESS_COST_FACTOR = 1.10      # 10% rise in projected costs
@@ -124,9 +129,16 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
     # DSCR calculations.
     steady_state_payment = annuity_post_grace
 
-    # ---------- Taxes (social tax on payroll only — see SOCIAL_TAX_PCT note) ----------
+    # ---------- Taxes ----------
+    # Social tax always applies (12% on payroll fund). Turnover tax (4%)
+    # applies only for non-VAT-payers under the simplified regime.
+    is_vat_payer = bool(org.get("vatPayer", True))
     monthly_social_tax = monthly_payroll * (SOCIAL_TAX_PCT / 100)
-    monthly_taxes_total = monthly_social_tax
+    monthly_turnover_tax = (
+        monthly_revenue_uzs * (TURNOVER_TAX_PCT / 100)
+        if not is_vat_payer else 0.0
+    )
+    monthly_taxes_total = monthly_social_tax + monthly_turnover_tax
 
     # ---------- Monthly costs baseline ----------
     # We sum what we KNOW: payroll, utilities, extras, taxes, loan service.
@@ -154,6 +166,33 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
     stress_ebitda_annual = stress_ebitda_monthly * 12
     stress_dscr = (
         stress_ebitda_annual / (steady_state_payment * 12)
+        if steady_state_payment > 0 else 0.0
+    )
+
+    # ---------- Year-1 ramp DSCR ----------
+    # Most projects don't hit full revenue from month 1. We model a linear
+    # ramp from 30% revenue at month 1 to 100% at month (startupMonths + 1).
+    # Variable cost portion (50% of op_costs) scales with the ramp; fixed
+    # portion stays constant. This produces a more honest picture for
+    # criterion 5 (Resilience): if year-1 average DSCR is worse than the
+    # stress-DSCR, that's the binding constraint.
+    startup_months = max(int(project.get("startupMonths") or 3), 1)
+    year1_total_revenue = 0.0
+    year1_total_ebitda = 0.0
+    for m in range(1, 13):
+        ramp = min(0.30 + 0.70 * (m - 1) / startup_months, 1.0)
+        rev_m = monthly_revenue_uzs * ramp
+        # Variable costs (raw materials portion) scale with revenue;
+        # fixed costs (payroll, rent, utilities) don't. Approximation:
+        # 50/50 split between variable and fixed.
+        cost_m = monthly_op_costs_no_loan * (0.5 + 0.5 * ramp)
+        year1_total_revenue += rev_m
+        year1_total_ebitda += rev_m - cost_m
+    year1_avg_revenue_monthly = year1_total_revenue / 12
+    year1_avg_ebitda_monthly = year1_total_ebitda / 12
+    year1_avg_ebitda_annual = year1_total_ebitda  # already 12 months
+    year1_ramp_dscr = (
+        year1_avg_ebitda_annual / (steady_state_payment * 12)
         if steady_state_payment > 0 else 0.0
     )
 
@@ -198,8 +237,11 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
         },
         "taxes": {
             "socialTax": round(monthly_social_tax),
+            "turnoverTax": round(monthly_turnover_tax),
             "monthlyTotal": round(monthly_taxes_total),
-            "ratePct": SOCIAL_TAX_PCT,
+            "socialRatePct": SOCIAL_TAX_PCT,
+            "turnoverRatePct": TURNOVER_TAX_PCT if not is_vat_payer else 0.0,
+            "isVatPayer": is_vat_payer,
         },
         "monthlyCosts": {
             "duringGrace": round(monthly_costs_during_grace),
@@ -242,6 +284,17 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
             "monthlyEbitda": round(stress_ebitda_monthly),
             "annualEbitda": round(stress_ebitda_annual),
             "dscr": round(stress_dscr, 2),
+        },
+        # NEW (Bundle A): year-1 average DSCR with revenue ramp. For
+        # short ramps (e.g. 3 months) this is close to steady-state DSCR;
+        # for slow-ramping projects (12 months) it's a much harsher number
+        # and exposes risks that steady-state hides.
+        "year1RampScenario": {
+            "startupMonths": startup_months,
+            "monthlyAvgRevenue": round(year1_avg_revenue_monthly),
+            "monthlyAvgEbitda": round(year1_avg_ebitda_monthly),
+            "annualEbitda": round(year1_avg_ebitda_annual),
+            "dscr": round(year1_ramp_dscr, 2),
         },
     }
 

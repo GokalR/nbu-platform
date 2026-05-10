@@ -101,9 +101,18 @@ class OrganizationIn(BaseModel):
     address: str | None = None
     foundedDate: str | None = None
     mainActivity: str | None = None
+    # NEW (Bundle A): explicit industry category from the wizard dropdown.
+    # When set, the classifier uses it directly; mainActivity becomes pure
+    # display text. Falls back to regex matching on mainActivity when blank
+    # (preserves backward compat with old plans).
+    industryCategory: str | None = None
     founder: str | None = None
     director: str | None = None
     charterCapital: float | None = 0
+    # NEW (Bundle A): VAT payer flag. Drives whether 4% turnover tax is
+    # applied (for non-VAT-payers). VAT-payers are assumed to recover input
+    # VAT — net VAT cost not modeled in v1, only social tax.
+    vatPayer: bool = True
 
 
 class ProjectIn(BaseModel):

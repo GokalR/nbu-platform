@@ -91,6 +91,14 @@ const progressLabel = computed(() => {
   return PHASE_LABELS[p.phase]?.[lng] || ''
 })
 
+// Industry categories — must match the backend dropdown source of truth in
+// `services/industry_benchmarks.list_categories()`. If you add a category
+// there, also add the locale keys `businessPlan.industries.<key>` in ru/uz.
+const INDUSTRY_CATEGORIES = [
+  'bakery', 'retail_food', 'manufacturing', 'services',
+  'construction', 'agriculture', 'transport',
+]
+
 const form = reactive({
   organization: {
     type: 'legal_entity', // legal_entity | individual
@@ -99,7 +107,9 @@ const form = reactive({
     name: '',
     address: '',
     foundedDate: '',
-    mainActivity: '',
+    industryCategory: '',  // dropdown selection; empty = "Other / specify below"
+    mainActivity: '',       // free-text refinement (kept for narrative)
+    vatPayer: true,         // 12% VAT regime (default) vs 4% turnover (false)
     founder: '',
     director: '',
     charterCapital: 0,
@@ -170,6 +180,7 @@ function isStepValid(s) {
         form.organization.name.trim() &&
         form.organization.address.trim() &&
         form.organization.mainActivity.trim() &&
+        form.organization.industryCategory &&
         form.organization.founder.trim()
       )
     case 3:
@@ -228,7 +239,9 @@ function fillTemplate() {
     name: 'Issiq Non Ishlab Chiqarish',
     address: 'Toshkent shahri, Yunusobod tumani, A. Temur ko‘chasi 115',
     foundedDate: '2024-04-07',
+    industryCategory: 'bakery',
     mainActivity: 'Non mahsulotlarini ishlab chiqarish',
+    vatPayer: true,
     founder: "Muhsinov Alisher Azizbek o'g'li",
     director: 'Muhsinov Alisher',
     charterCapital: 50_000_000,
@@ -516,10 +529,24 @@ onUnmounted(() => _stopSmoothing())
               <span class="req">{{ t('businessPlan.fields.address') }}</span>
               <input v-model="form.organization.address" />
             </label>
+
+            <!-- Industry category — drives benchmark selection for scoring -->
+            <label class="bp-field">
+              <span class="req">{{ t('businessPlan.fields.industryCategory') }}</span>
+              <select v-model="form.organization.industryCategory">
+                <option value="">{{ t('businessPlan.industries.select') }}</option>
+                <option v-for="cat in INDUSTRY_CATEGORIES" :key="cat" :value="cat">
+                  {{ t(`businessPlan.industries.${cat}`) }}
+                </option>
+                <option value="other">{{ t('businessPlan.industries.other') }}</option>
+              </select>
+            </label>
             <label class="bp-field">
               <span class="req">{{ t('businessPlan.fields.mainActivity') }}</span>
-              <input v-model="form.organization.mainActivity" />
+              <input v-model="form.organization.mainActivity"
+                     :placeholder="t('businessPlan.placeholders.mainActivity')" />
             </label>
+
             <label class="bp-field">
               <span class="req">{{ t('businessPlan.fields.founder') }}</span>
               <input v-model="form.organization.founder" />
@@ -531,6 +558,15 @@ onUnmounted(() => _stopSmoothing())
             <label class="bp-field">
               <span>{{ t('businessPlan.fields.charterCapital') }}</span>
               <input v-model.number="form.organization.charterCapital" type="number" min="0" />
+            </label>
+
+            <!-- VAT regime — drives turnover-tax computation for non-payers -->
+            <label class="bp-field bp-col-span-2 bp-checkbox-field">
+              <input type="checkbox" v-model="form.organization.vatPayer" />
+              <span>
+                <strong>{{ t('businessPlan.fields.vatPayer') }}</strong>
+                <small>{{ t('businessPlan.hints.vatPayer') }}</small>
+              </span>
             </label>
           </div>
         </div>
@@ -1206,6 +1242,45 @@ onUnmounted(() => _stopSmoothing())
 .bp-field input.bp-readonly {
   background: #f1f5f9;
   color: #475569;
+}
+
+/* Inline checkbox field — used for VAT regime + similar yes/no questions */
+.bp-checkbox-field {
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: 12px !important;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+}
+.bp-checkbox-field:hover { background: #f1f5f9; }
+.bp-checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0 0 !important;
+  cursor: pointer;
+  accent-color: #003d7c;
+  padding: 0 !important;
+  flex-shrink: 0;
+}
+.bp-checkbox-field span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.bp-checkbox-field strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.bp-checkbox-field small {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 /* Tables */

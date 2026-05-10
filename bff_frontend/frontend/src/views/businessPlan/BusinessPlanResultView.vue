@@ -492,8 +492,9 @@ onMounted(load)
             </ul>
           </div>
 
-          <!-- Stress test card — base vs pessimistic side-by-side comparison
-               with a prominent traffic-light DSCR. -->
+          <!-- Stress test card — three columns: base / year-1 ramp / pessimistic.
+               The "binding" column (whichever DSCR scored Resilience) gets
+               extra emphasis. -->
           <div :class="['bpr-stress', creditScoreV2.stress.warning && 'is-warning']">
             <header class="bpr-stress-header">
               <span class="bpr-stress-icon">
@@ -517,7 +518,7 @@ onMounted(load)
                   <span>{{ t('businessPlan.scoring.v2.revenueLabel') }}</span>
                   <strong>{{ fmt(plan.financials?.monthlyRevenue) }} <small>UZS</small></strong>
                 </div>
-                <div class="bpr-stress-row">
+                <div class="bpr-stress-row bpr-stress-dscr">
                   <span>DSCR</span>
                   <strong>
                     {{ Number(creditScoreV2.criteria.dscrSteadyState.value).toFixed(2) }}x
@@ -525,11 +526,33 @@ onMounted(load)
                 </div>
               </div>
 
-              <div class="bpr-stress-arrow" aria-hidden="true">
-                <AppIcon name="arrow_forward" />
+              <!-- Year-1 ramp -->
+              <div
+                v-if="creditScoreV2.year1Ramp"
+                :class="['bpr-stress-col', 'is-ramp',
+                         creditScoreV2.year1Ramp.warning ? 'is-warn' : 'is-ok']"
+              >
+                <div class="bpr-stress-tag">
+                  {{ t('businessPlan.scoring.v2.stressYear1Label') }}
+                  <span class="bpr-stress-factors">
+                    {{ creditScoreV2.year1Ramp.startupMonths }}
+                    {{ t('businessPlan.units.months') }}
+                  </span>
+                </div>
+                <div class="bpr-stress-row">
+                  <span>{{ t('businessPlan.scoring.v2.revenueLabel') }}</span>
+                  <strong>
+                    {{ fmt(creditScoreV2.year1Ramp.monthlyAvgRevenue) }}
+                    <small>UZS</small>
+                  </strong>
+                </div>
+                <div class="bpr-stress-row bpr-stress-dscr">
+                  <span>DSCR</span>
+                  <strong>{{ creditScoreV2.year1Ramp.dscr.toFixed(2) }}x</strong>
+                </div>
               </div>
 
-              <!-- Stressed case -->
+              <!-- Pessimistic stress -->
               <div :class="['bpr-stress-col', 'is-stress',
                             creditScoreV2.stress.warning ? 'is-warn' : 'is-ok']">
                 <div class="bpr-stress-tag">
@@ -557,6 +580,11 @@ onMounted(load)
             <p v-if="creditScoreV2.stress.warning" class="bpr-stress-msg is-warn">
               <AppIcon name="error" />
               {{ t('businessPlan.scoring.v2.stressWarning') }}
+            </p>
+            <p v-else-if="creditScoreV2.year1Ramp && creditScoreV2.year1Ramp.warning"
+               class="bpr-stress-msg is-warn">
+              <AppIcon name="error" />
+              {{ t('businessPlan.scoring.v2.year1Warning') }}
             </p>
             <p v-else class="bpr-stress-msg is-ok">
               <AppIcon name="check_circle" />
@@ -1494,9 +1522,9 @@ onMounted(load)
 
 .bpr-stress-grid {
   display: grid;
-  grid-template-columns: 1fr 30px 1fr;
+  grid-template-columns: repeat(3, 1fr);
   align-items: stretch;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 14px;
 }
 .bpr-stress-col {
@@ -1508,14 +1536,21 @@ onMounted(load)
   gap: 8px;
   border: 1px solid #e2e8f0;
 }
-.bpr-stress-col.is-stress.is-warn {
+.bpr-stress-col.is-stress.is-warn,
+.bpr-stress-col.is-ramp.is-warn {
   border-color: rgba(220, 38, 38, 0.30);
   background: linear-gradient(180deg, #fff 0%, #fef2f2 100%);
 }
-.bpr-stress-col.is-stress.is-ok {
+.bpr-stress-col.is-stress.is-ok,
+.bpr-stress-col.is-ramp.is-ok {
   border-color: rgba(22, 163, 74, 0.30);
   background: linear-gradient(180deg, #fff 0%, #f0fdf4 100%);
 }
+.bpr-stress-col.is-ramp.is-warn { border-color: rgba(217, 119, 6, 0.40); background: linear-gradient(180deg, #fff 0%, #fffbeb 100%); }
+.bpr-stress-col.is-ramp.is-warn .bpr-stress-tag { color: #b45309; }
+.bpr-stress-col.is-ramp.is-warn .bpr-stress-factors { background: rgba(217, 119, 6, 0.12); }
+.bpr-stress-col.is-ramp.is-warn .bpr-stress-row.bpr-stress-dscr strong { color: #b45309; }
+.bpr-stress-col.is-ramp.is-ok .bpr-stress-tag { color: #15803d; }
 .bpr-stress-tag {
   display: flex;
   align-items: center;
@@ -1580,12 +1615,6 @@ onMounted(load)
 .bpr-stress-col.is-stress.is-warn .bpr-stress-row.bpr-stress-dscr strong { color: #b91c1c; }
 .bpr-stress-col.is-stress.is-ok .bpr-stress-row.bpr-stress-dscr strong { color: #15803d; }
 
-.bpr-stress-arrow {
-  display: grid;
-  place-items: center;
-  color: #94a3b8;
-}
-
 .bpr-stress-msg {
   margin: 0;
   padding: 10px 14px;
@@ -1609,10 +1638,6 @@ onMounted(load)
 @media (max-width: 720px) {
   .bpr-stress-grid {
     grid-template-columns: 1fr;
-  }
-  .bpr-stress-arrow {
-    transform: rotate(90deg);
-    padding: 4px 0;
   }
 }
 .bpr-method-disclaimer {

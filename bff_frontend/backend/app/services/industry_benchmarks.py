@@ -140,19 +140,42 @@ _BENCHMARKS: dict[str, IndustryBenchmark] = {
 }
 
 
-def classify(activity_text: str | None) -> IndustryBenchmark:
+def classify(
+    activity_text: str | None,
+    category_hint: str | None = None,
+) -> IndustryBenchmark:
     """Classify a free-form activity description into a benchmark category.
 
-    Returns the benchmark for the first pattern that matches; falls back
-    to "default" when nothing matches. Matching is greedy in declaration
-    order — declare more specific categories first if you add new ones.
+    If `category_hint` is a known category name (from the wizard dropdown),
+    it wins — deterministic input is always preferred over regex guessing.
+    Otherwise we match patterns against `activity_text`, falling back to
+    "default" if nothing matches. Matching is greedy in declaration order
+    — declare more specific categories first if you add new ones.
     """
+    if category_hint and category_hint in _BENCHMARKS:
+        return _BENCHMARKS[category_hint]
     if not activity_text:
         return _BENCHMARKS["default"]
     for category, pattern in _PATTERNS.items():
         if pattern.search(activity_text):
             return _BENCHMARKS[category]
     return _BENCHMARKS["default"]
+
+
+# Public catalog so the frontend dropdown can render the same labels we
+# use server-side. Returned in a stable order.
+def list_categories() -> list[dict[str, str]]:
+    """Return [{category, label_ru}, ...] for every concrete category, in
+    a stable display order. Excludes 'default' (it's the fallback, not a
+    user choice)."""
+    order = [
+        "bakery", "retail_food", "manufacturing", "services",
+        "construction", "agriculture", "transport",
+    ]
+    return [
+        {"category": c, "label_ru": _BENCHMARKS[c].label_ru}
+        for c in order if c in _BENCHMARKS
+    ]
 
 
 def get_benchmark(category: str) -> IndustryBenchmark:

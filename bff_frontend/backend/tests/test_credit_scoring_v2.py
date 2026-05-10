@@ -285,3 +285,111 @@ class TestWizardScoreV2:
     def test_summary_string_includes_total(self, bakery_inputs, bakery_baseline):
         score = credit_scoring.compute_wizard_score_v2(bakery_inputs, bakery_baseline)
         assert str(score["total"]) in score["summary"]
+
+
+# ============================================================================
+# Bundle A: explicit industryCategory takes precedence over regex matching
+# ============================================================================
+
+class TestIndustryCategoryHint:
+    def test_explicit_hint_wins_over_text(self, bakery_inputs, bakery_baseline):
+        """If user picks 'manufacturing' from dropdown, that wins even if
+        their free-text says 'non' (which would regex-match to bakery)."""
+        bakery_inputs["organization"]["industryCategory"] = "manufacturing"
+        # mainActivity still says "Non mahsulotlari..." — would normally classify as bakery
+        score = credit_scoring.compute_wizard_score_v2(bakery_inputs, bakery_baseline)
+        assert score["industry"]["category"] == "manufacturing"
+
+    def test_unknown_hint_falls_back_to_regex(self, bakery_inputs, bakery_baseline):
+        bakery_inputs["organization"]["industryCategory"] = "totally_made_up"
+        score = credit_scoring.compute_wizard_score_v2(bakery_inputs, bakery_baseline)
+        # Falls back to regex match on mainActivity ("Non...") → bakery
+        assert score["industry"]["category"] == "bakery"
+
+    def test_empty_hint_uses_regex(self, bakery_inputs, bakery_baseline):
+        bakery_inputs["organization"]["industryCategory"] = ""
+        score = credit_scoring.compute_wizard_score_v2(bakery_inputs, bakery_baseline)
+        assert score["industry"]["category"] == "bakery"
+
+
+# ============================================================================
+# Bundle A: VAT toggle drives turnover-tax computation
+# ============================================================================
+
+class TestVatRegime:
+    def test_vat_payer_no_turnover_tax(self, bakery_inputs):
+        bakery_inputs["organization"]["vatPayer"] = True
+        baseline = bpc.compute_baseline(bakery_inputs)
+        assert baseline["taxes"]["turnoverTax"] == 0
+        assert baseline["taxes"]["isVatPayer"] is True
+        # Total tax = social tax only
+        assert baseline["taxes"]["monthlyTotal"] == baseline["taxes"]["socialTax"]
+
+    def test_non_vat_payer_adds_4pct_turnover(self, bakery_inputs):
+        bakery_inputs["organization"]["vatPayer"] = False
+        baseline = bpc.compute_baseline(bakery_inputs)
+        revenue = baseline["revenue"]["monthlyRevenueUzs"]
+        expected_turnover = round(revenue * 0.04)
+        assert abs(baseline["taxes"]["turnoverTax"] - expected_turnover) <= 1
+        assert baseline["taxes"]["isVatPayer"] is False
+        # Total = social + turnover
+        assert baseline["taxes"]["monthlyTotal"] == (
+            baseline["taxes"]["socialTax"] + baseline["taxes"]["turnoverTax"]
+        )
+
+    def test_non_vat_payer_lowers_ebitda(self, bakery_inputs):
+        """Adding 4% turnover tax should reduce EBITDA proportionally."""
+        bakery_inputs["organization"]["vatPayer"] = True
+        baseline_with_vat = bpc.compute_baseline(bakery_inputs)
+        ebitda_vat = (baseline_with_vat["revenue"]["monthlyRevenueUzs"]
+                      - baseline_with_vat["monthlyCosts"]["operating"])
+
+        bakery_inputs["organization"]["vatPayer"] = False
+        baseline_no_vat = bpc.compute_baseline(bakery_inputs)
+        ebitda_no_vat = (baseline_no_vat["revenue"]["monthlyRevenueUzs"]
+                         - baseline_no_vat["monthlyCosts"]["operating"])
+
+        # EBITDA should drop by ~4% of revenue when switching off VAT regime
+        revenue = baseline_with_vat["revenue"]["monthlyRevenueUzs"]
+        assert abs((ebitda_vat - ebitda_no_vat) - revenue * 0.04) <= 2
+
+
+# ============================================================================
+# Bundle A: year-1 ramp DSCR + criterion 5 uses worst-of
+# ============================================================================
+
+class TestYear1RampDscr:
+    def test_year1_scenario_in_baseline(self, bakery_baseline):
+        year1 = bakery_baseline["year1RampScenario"]
+        assert "dscr" in year1
+        assert "monthlyAvgRevenue" in year1
+        assert "startupMonths" in year1
+        assert year1["startupMonths"] == 3  # bakery template default
+
+    def test_year1_dscr_lower_than_steady_state(self, bakery_baseline, bakery_inputs):
+        """Bakery template: 3-mo ramp. Year-1 average revenue is lower than
+        full revenue, so year-1 DSCR should be lower than steady-state DSCR."""
+        score = credit_scoring.compute_wizard_score_v2(bakery_inputs, bakery_baseline)
+        year1_dscr = score["year1Ramp"]["dscr"]
+        ss_dscr = score["criteria"]["dscrSteadyState"]["value"]
+        assert year1_dscr < ss_dscr
+
+    def test_resilience_uses_worst_of_stress_and_year1(self, bakery_inputs):
+        """Force year-1 DSCR < stress DSCR by using a longer ramp; verify
+        resilience criterion picks the year-1 (worse) value."""
+        bakery_inputs["project"]["startupMonths"] = 12  # painfully slow ramp
+        baseline = bpc.compute_baseline(bakery_inputs)
+        score = credit_scoring.compute_wizard_score_v2(bakery_inputs, baseline)
+        resilience = score["criteria"]["resilience"]["value"]
+        year1_dscr = score["year1Ramp"]["dscr"]
+        stress_dscr = score["stress"]["dscr"]
+        # Resilience displays whichever is lower (the binding constraint)
+        assert resilience == min(d for d in (year1_dscr, stress_dscr) if d > 0)
+
+    def test_year1_warning_flag(self, bakery_inputs):
+        """When year-1 DSCR drops below 1.0 (slow ramp), warning fires."""
+        bakery_inputs["project"]["startupMonths"] = 12
+        baseline = bpc.compute_baseline(bakery_inputs)
+        score = credit_scoring.compute_wizard_score_v2(bakery_inputs, baseline)
+        if 0 < score["year1Ramp"]["dscr"] < 1.0:
+            assert score["year1Ramp"]["warning"] is True
