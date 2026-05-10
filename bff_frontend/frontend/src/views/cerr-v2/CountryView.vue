@@ -534,7 +534,10 @@ function colorize(f) {
 .cerr-v2-scope .hv2-meta-sep  { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.3); }
 
 .cerr-v2-scope .hero-v2-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  /* Concentrated on the left — strip takes only what it needs (≈ 70 % of
+   * the hero) instead of stretching to full width. The macro grid below
+   * stays full-width as before. */
+  display: grid; grid-template-columns: repeat(4, minmax(0, 220px)); gap: 0;
   border-top: 1px solid rgba(255,255,255,.12);
   border-bottom: 1px solid rgba(255,255,255,.12);
   padding: 14px 0;
