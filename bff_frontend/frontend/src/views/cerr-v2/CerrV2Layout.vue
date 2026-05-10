@@ -3,15 +3,17 @@
  * apply only here. Renders the breadcrumb topbar above the active route view. */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useCerrV2Store } from '@/stores/cerrV2.js'
 import '@/styles/cerr-v2-theme.css'
 
 const route = useRoute()
 const router = useRouter()
 const store = useCerrV2Store()
+const { t: tFn } = useI18n()
 
 const crumbs = computed(() => {
-  const out = [{ label: 'Республика Узбекистан', target: { name: 'cerr-v2-country' } }]
+  const out = [{ label: tFn('cerrV2.country.title'), target: { name: 'cerr-v2-country' } }]
   const rc = Number(route.params.regionCode || 0)
   const dc = Number(route.params.districtCode || 0)
   const stir = route.params.stir ? String(route.params.stir) : null
@@ -31,20 +33,23 @@ const crumbs = computed(() => {
   if (effectiveRc) {
     const r = store.regionByCode(effectiveRc)
     out.push({
-      label: r?.name || `Регион ${effectiveRc}`,
+      label: r?.name || tFn('cerrV2.topbar.regionFallback', { code: effectiveRc }),
       target: { name: 'cerr-v2-region', params: { regionCode: effectiveRc } },
     })
   }
   if (effectiveDc) {
     const d = store.districtByCode(effectiveDc)
     out.push({
-      label: d?.name || `Район ${effectiveDc}`,
+      label: d?.name || tFn('cerrV2.topbar.districtFallback', { code: effectiveDc }),
       target: stir ? { name: 'cerr-v2-district', params: { districtCode: effectiveDc } } : null,
     })
   }
   if (stir) {
     const ov = store.mahallaOverview[stir]
-    out.push({ label: ov?.header?.title || mahallaSummary?.name || `STIR ${stir}`, target: null })
+    out.push({
+      label: ov?.header?.title || mahallaSummary?.name || tFn('cerrV2.topbar.mahallaFallback', { stir }),
+      target: null,
+    })
   }
   return out
 })
@@ -55,7 +60,7 @@ function go(target) { if (target) router.push(target) }
 <template>
   <div class="cerr-v2-scope cerr-v2-root">
     <header class="topbar">
-      <h1>Анализ махаллей</h1>
+      <h1>{{ $t('cerrV2.topbar.title') }}</h1>
       <span class="crumb-sep">/</span>
       <div class="crumbs">
         <template v-for="(c, i) in crumbs" :key="i">

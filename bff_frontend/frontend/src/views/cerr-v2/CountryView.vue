@@ -392,8 +392,8 @@ function colorize(f) {
             :get-tooltip="getTooltip"
             :colorize="colorize"
             :selectable="selectable"
-            title="Республика Узбекистан"
-            :subtitle="`14 регионов · ${aggregates.districts} районов`"
+            :title="$t('cerrV2.country.title')"
+            :subtitle="$t('cerrV2.country.mapSub', { r: 14, d: aggregates.districts })"
             @select="(k) => go(Number(k))"
           />
           <div class="map-side">

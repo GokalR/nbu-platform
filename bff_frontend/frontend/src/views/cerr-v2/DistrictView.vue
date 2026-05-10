@@ -240,7 +240,7 @@ function openTier(stir) {
             :show-labels="false"
             :label-min="28"
             :title="overview?.header?.title || district?.name || ''"
-            :subtitle="district ? `${district.region_name} · ${district.mahalla_count} махаллей` : ''"
+            :subtitle="district ? $t('cerrV2.district.mapSub', { region: district.region_name, n: district.mahalla_count }) : ''"
             @select="(k) => openTier(String(k))"
           />
           <div class="map-side">

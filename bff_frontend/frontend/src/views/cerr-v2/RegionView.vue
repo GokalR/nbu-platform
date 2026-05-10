@@ -202,7 +202,7 @@ const periodLabel = computed(() => '2026 1-кв.')
             :colorize="dColorize"
             :selectable="() => true"
             :title="overview?.header?.title || region?.name || ''"
-            :subtitle="region ? `${region.districts_count} районов · ${fmt.num(region.mahalla_count)} махаллей` : ''"
+            :subtitle="region ? $t('cerrV2.region.mapSub', { n: region.districts_count, m: fmt.num(region.mahalla_count) }) : ''"
             @select="(k) => goDistrict(Number(k))"
             :label-min="32"
           />
