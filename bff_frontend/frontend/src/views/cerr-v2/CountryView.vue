@@ -101,15 +101,18 @@ const heroMacro = computed(() => {
   }).filter(Boolean)
 })
 
-/** Population mini-chart for the demographic strip's "Аҳоли сони" tile —
- *  rendered as a polyline + per-year dots. Latest value from raqamlarda
- *  (38,24 млн asof 1.01.2026); 2024 is linear-interpolated and tagged so
- *  the dot can be styled differently from real data points. */
+/** Population mini-chart for the demographic strip's "Аҳоли сони" tile.
+ *  Renders a smooth Catmull-Rom-to-Bezier curve with an area fill underneath
+ *  (instead of the previous straight polyline). Latest value from raqamlarda
+ *  (38,24 млн asof 1.01.2026); 2024 is linear-interpolated. Delta is the
+ *  cumulative 5-year growth (2021 → 2025) since population grows steadily
+ *  rather than in measurable YoY steps. */
 const popChart = computed(() => {
   const hist = UZ_MACRO_HISTORY.pop
   const interp = new Set(hist.interpolatedYears || [])
-  const w = 100, h = 22, pad = 3
+  const w = 100, h = 60, pad = 4
   const last = hist.abs[hist.abs.length - 1]
+  const first = hist.abs.find((v) => v != null)
   const valid = hist.abs.filter((v) => v != null)
   const min = Math.min(...valid), max = Math.max(...valid)
   const range = max - min || 1
@@ -125,8 +128,46 @@ const popChart = computed(() => {
       isInterp: interp.has(UZ_MACRO_YEARS[i]),
     }
   }).filter(Boolean)
-  const polyline = points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
-  return { valueStr: fmtTrln(last), polyline, points }
+
+  // Catmull-Rom → cubic Bezier smoothing. Tension 1/6 produces a gentle
+  // S-curve that doesn't overshoot above the highest point.
+  let path = ''
+  if (points.length >= 2) {
+    path = `M ${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[i - 1] || points[i]
+      const p1 = points[i]
+      const p2 = points[i + 1]
+      const p3 = points[i + 2] || p2
+      const c1x = p1.x + (p2.x - p0.x) / 6
+      const c1y = p1.y + (p2.y - p0.y) / 6
+      const c2x = p2.x - (p3.x - p1.x) / 6
+      const c2y = p2.y - (p3.y - p1.y) / 6
+      path += ` C ${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(2)},${c2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`
+    }
+  }
+  const areaPath = path
+    ? `${path} L ${points[points.length - 1].x.toFixed(2)},${h} L ${points[0].x.toFixed(2)},${h} Z`
+    : ''
+
+  // Cumulative growth across the full series (2021 → 2025).
+  const delta = (first != null && last != null && first > 0)
+    ? ((last - first) / first) * 100
+    : null
+  const deltaStr = delta == null
+    ? null
+    : (delta >= 0 ? '+' : '') + delta.toFixed(1).replace('.', ',') + '%'
+
+  return {
+    valueStr: fmtTrln(last),
+    path,
+    areaPath,
+    points,
+    deltaStr,
+    isPos: delta == null ? true : delta >= 0,
+    width: w,
+    height: h,
+  }
 })
 
 const macroYears = UZ_MACRO_YEARS
@@ -254,31 +295,34 @@ function colorize(f) {
         </div>
 
         <div class="hero-v2-stats">
-          <div v-for="s in heroStats" :key="s.key" class="hv2-stat">
+          <div v-for="s in heroStats" :key="s.key" :class="['hv2-stat', s.hasChart ? 'is-pop' : '']">
             <div class="hv2-stat-head">
               <span class="hv2-stat-ico"><CerrIcon :name="s.ico" :size="14" /></span>
               <div class="hv2-stat-label">{{ s.label }}</div>
+              <span
+                v-if="s.hasChart && popChart.deltaStr"
+                :class="['hv2-pop-delta', popChart.isPos ? 'pos' : 'neg']"
+              >{{ popChart.deltaStr }}</span>
             </div>
             <div class="hv2-stat-row">
-              <span class="hv2-stat-val tabular">{{ s.value }}</span>
+              <span :class="['hv2-stat-val tabular', s.hasChart ? 'is-pop-num' : '']">{{ s.value }}</span>
               <span v-if="s.unit" class="hv2-stat-unit">{{ s.unit }}</span>
             </div>
             <div v-if="s.hasChart" class="hv2-stat-chart">
               <svg
                 class="hv2-stat-line"
-                viewBox="0 0 100 22"
+                :viewBox="`0 0 ${popChart.width} ${popChart.height}`"
                 preserveAspectRatio="none"
                 aria-hidden="true"
               >
-                <polyline class="hv2-stat-poly" :points="popChart.polyline" />
-                <circle
-                  v-for="p in popChart.points"
-                  :key="p.year"
-                  :class="['hv2-stat-dot', p.isLast ? 'is-last' : '', p.isInterp ? 'is-interp' : '']"
-                  :cx="p.x"
-                  :cy="p.y"
-                  r="1.6"
-                />
+                <defs>
+                  <linearGradient id="popAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%"   stop-color="#21b6ce" stop-opacity="0.55" />
+                    <stop offset="100%" stop-color="#21b6ce" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path v-if="popChart.areaPath" class="hv2-pop-area" :d="popChart.areaPath" />
+                <path v-if="popChart.path"     class="hv2-pop-line" :d="popChart.path" />
               </svg>
               <div class="hv2-stat-axis">
                 <span v-for="(y, i) in macroYears" :key="y" :class="['hv2-stat-tick', i === macroYears.length - 1 ? 'is-last' : '']">
@@ -564,19 +608,45 @@ function colorize(f) {
 }
 .cerr-v2-scope .hv2-stat-unit { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.5); white-space: nowrap; }
 
-.cerr-v2-scope .hv2-stat-chart { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
-.cerr-v2-scope .hv2-stat-line  { width: 100%; height: 22px; display: block; overflow: visible; }
-.cerr-v2-scope .hv2-stat-poly  {
+.cerr-v2-scope .hv2-stat-chart { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.cerr-v2-scope .hv2-stat-line  { width: 100%; height: 60px; display: block; overflow: visible; }
+.cerr-v2-scope .hv2-pop-line {
   fill: none;
-  stroke: rgba(255, 255, 255, .55);
-  stroke-width: 1.4;
+  stroke: #34d399;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
-.cerr-v2-scope .hv2-stat-dot          { fill: rgba(255, 255, 255, .85); }
-.cerr-v2-scope .hv2-stat-dot.is-interp{ fill: rgba(255, 255, 255, .35); }
-.cerr-v2-scope .hv2-stat-dot.is-last  { fill: #34d399; r: 2.2; }
+.cerr-v2-scope .hv2-pop-area { fill: url(#popAreaGrad); stroke: none; }
+
+/* Population value rendered green, matching the +delta chip and the
+ * curve stroke. Other stat tiles keep the white default. */
+.cerr-v2-scope .hv2-stat-val.is-pop-num { color: #34d399; }
+
+/* Delta chip ('+13,5%') aligned right inside the stat head. */
+.cerr-v2-scope .hv2-pop-delta {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -.005em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.cerr-v2-scope .hv2-pop-delta.pos {
+  background: rgba(52, 211, 153, .14);
+  border-color: rgba(52, 211, 153, .35);
+  color: #34d399;
+}
+.cerr-v2-scope .hv2-pop-delta.neg {
+  background: rgba(248, 113, 113, .14);
+  border-color: rgba(248, 113, 113, .35);
+  color: #f87171;
+}
+
 .cerr-v2-scope .hv2-stat-axis  {
   display: flex; justify-content: space-between;
   font-size: 9px; font-weight: 700; letter-spacing: .04em;
