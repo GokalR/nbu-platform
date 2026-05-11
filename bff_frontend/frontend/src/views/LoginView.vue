@@ -151,7 +151,7 @@ async function submit() {
     } else {
       await auth.register(email.value.trim(), password.value, fullName.value.trim())
     }
-    const redirect = route.query.redirect || '/'
+    const redirect = route.query.redirect || '/regions-v2'
     router.push(redirect)
   } catch (e) {
     error.value = mapBackendError(e.message)

@@ -7,18 +7,10 @@ const routes = [
     component: () => import('@/views/LoginView.vue'),
     meta: { layout: 'blank', public: true },
   },
-  {
-    path: '/',
-    name: 'home',
-    component: () => import('@/views/HomeView.vue'),
-    meta: { titleKey: 'nav.home' },
-  },
-  {
-    path: '/districts',
-    name: 'districts',
-    component: () => import('@/views/DistrictAnalyticsView.vue'),
-    meta: { titleKey: 'nav.districts' },
-  },
+  // Legacy home + district pages removed (Oct 2026). The cerr-v2 service
+  // at /regions-v2 is now the landing page after login.
+  { path: '/', redirect: '/regions-v2' },
+  { path: '/districts', redirect: '/regions-v2' },
   // CERR analytics service (cerr-v2) — native Vue port of the nbu_platform/
   // prototype, backed by /api/cerr/* (real big-JSON data, all 14 regions).
   // Open reference data → public routes; no auth guard required.
@@ -210,7 +202,7 @@ const routes = [
     path: '/admin/golden-mart/table',
     redirect: '/admin/golden-mart',
   },
-  { path: '/:pathMatch(.*)*', redirect: '/' },
+  { path: '/:pathMatch(.*)*', redirect: '/regions-v2' },
 ]
 
 const router = createRouter({

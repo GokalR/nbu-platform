@@ -29,37 +29,6 @@ async function request(url) {
   return res.json()
 }
 
-// Map app-level region keys (used by UzbekistanMap.vue, regionColors, i18n)
-// to CERR numeric codes used by the backend.
-export const REGION_KEY_TO_CODE = {
-  andijan: 1703,
-  bukhara: 1706,
-  jizzax: 1708,
-  qashqadaryo: 1710,
-  navoiy: 1712,
-  namangan: 1714,
-  samarqand: 1718,
-  surxondaryo: 1722,
-  tashkent_city: 1726,
-  tashkent_region: 1727,
-  fergana: 1730,
-  khorezm: 1733,
-  karakalpakstan: 1735,
-  sirdaryo: 1724,
-}
-
-export const CODE_TO_REGION_KEY = Object.fromEntries(
-  Object.entries(REGION_KEY_TO_CODE).map(([k, v]) => [v, k]),
-)
-
-export function regionKeyToCode(key) {
-  return REGION_KEY_TO_CODE[key]
-}
-
-export function regionCodeToKey(code) {
-  return CODE_TO_REGION_KEY[code]
-}
-
 // Regions
 export const listRegions = () => request('/api/cerr/regions')
 export const getRegion = (code) => request(`/api/cerr/regions/${code}`)
