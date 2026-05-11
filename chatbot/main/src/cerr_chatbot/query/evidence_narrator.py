@@ -206,6 +206,39 @@ def _metrics_block(metrics: dict[str, object]) -> str:
     return "\n".join(f"- {k}: {v}" for k, v in metrics.items())
 
 
+_STYLE_BLOCK_CONCISE = (
+    "ANSWER STYLE: CONCISE (planner decided this is a direct scalar lookup).\n"
+    "  * Write ONE bold sentence with THE asked number — that is the entire\n"
+    "    primary answer. Example: **Andijon viloyati aholisi 3,289,800 nafar.**\n"
+    "  * Optionally add ONE short follow-up sentence (max 25 words) only if a\n"
+    "    peer baseline / share / national context from the context evidence\n"
+    "    genuinely sharpens the answer. Otherwise stop after the headline.\n"
+    "  * NO tables. NO multi-paragraph analysis. NO bullet lists. NO `##`\n"
+    "    section headings.\n"
+    "  * DO NOT append the 'Umumiy ko'rsatkichlar' section.\n"
+    "  * DO NOT append the 'Keyingi savollar' section.\n"
+    "  * Total length: 1 short paragraph, 1-2 sentences. That is the goal —\n"
+    "    not a constraint to chafe against.\n"
+    "  * All HARD RULES below still apply (bold hygiene, no leaked codes, no\n"
+    "    snake_case, no invented numbers, etc.).\n"
+)
+
+_STYLE_BLOCK_RICH = (
+    "ANSWER STYLE: RICH (planner decided this question warrants depth).\n"
+    "  * Aim for 4-7 substantive paragraphs whenever the evidence supports it.\n"
+    "  * Use markdown tables for any ranking with 3+ rows.\n"
+    "  * Follow the STRUCTURE & FORMAT and CLOSING SECTIONS rules below in\n"
+    "    full (Umumiy ko'rsatkichlar + Keyingi savollar required for any\n"
+    "    ranking / filter / comparison answer).\n"
+)
+
+
+def _style_block(style: str) -> str:
+    if style == "concise":
+        return _STYLE_BLOCK_CONCISE
+    return _STYLE_BLOCK_RICH
+
+
 def build_evidence_prompt(pack: EvidencePack, brief: AnswerBrief | None = None) -> str:
     primary_payload = _query_payload(pack.primary, max_rows=80)
     contexts = "\n\n".join(_query_payload(c, max_rows=50) for c in pack.context) or "(none)"
@@ -216,16 +249,16 @@ def build_evidence_prompt(pack: EvidencePack, brief: AnswerBrief | None = None) 
     brief_block = render_brief_for_prompt(brief)
     assumed = (pack.assumed_interpretation or "").strip()
     assumption_block = assumed if assumed else "(none)"
+    style_block = _style_block(pack.answer_style)
 
     return (
         "You are a senior regional analyst writing in Uzbek Latin script.\n"
-        "Write a RICH, MULTI-PARAGRAPH answer for a non-technical user. Reason\n"
-        "FREELY over the evidence: compute ratios, densities, shares,\n"
+        f"{style_block}"
+        "Reason from the evidence: compute ratios, densities, shares,\n"
         "comparisons, distributions, plain-language interpretations — whatever\n"
         "genuinely helps the reader. The ANSWER BRIEF below is ADVISORY; use it\n"
-        "as a hint, not a cage. Aim for 4-7 substantive paragraphs whenever the\n"
-        "evidence supports it — for very simple scalar lookups a shorter answer\n"
-        "is fine. The user is rewarded for thoroughness.\n"
+        "as a hint, not a cage. The user is rewarded for thoroughness when the\n"
+        "question warrants it, and for brevity when it does not.\n"
         "\n"
         f"USER QUESTION:\n{pack.question}\n"
         "\n"
@@ -418,9 +451,12 @@ def build_evidence_prompt(pack: EvidencePack, brief: AnswerBrief | None = None) 
         "  * Short paragraphs (2–3 sentences). Bold every key number.\n"
         "\n"
         "CLOSING SECTIONS — REQUIRED whenever the answer is a ranking, filter,\n"
-        "or comparison (anything with multiple rows). Skip ONLY for a single\n"
-        "scalar lookup like 'X soni qancha?'. Append BOTH sections below the\n"
-        "main answer, separated by a blank line. Use the EXACT headings.\n"
+        "or comparison (anything with multiple rows) AND the ANSWER STYLE above\n"
+        "is 'rich'. SKIP BOTH SECTIONS ENTIRELY whenever the ANSWER STYLE is\n"
+        "'concise' (the user only needs the one-sentence headline). Also skip\n"
+        "for a single scalar lookup like 'X soni qancha?' regardless of style.\n"
+        "When appending, separate from the main answer with a blank line and\n"
+        "use the EXACT headings.\n"
         "\n"
         "  **Umumiy ko'rsatkichlar**\n"
         "  Two or three bullet lines pulling totals/baselines from the context\n"

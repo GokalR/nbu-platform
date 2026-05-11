@@ -42,6 +42,14 @@ MemoryUse = Literal["used", "ignored", "unclear"]
 _ALLOWED_MEMORY_USE: tuple[MemoryUse, ...] = ("used", "ignored", "unclear")
 _DEFAULT_MEMORY_USE: MemoryUse = "ignored"
 
+# How long the narrator's answer should be. "concise" is for direct scalar
+# lookups where one bolded number is the whole answer; the narrator skips
+# the multi-paragraph analysis and the closing sections. "rich" is the
+# default deep-analysis behavior.
+AnswerStyle = Literal["concise", "rich"]
+_ALLOWED_ANSWER_STYLE: tuple[AnswerStyle, ...] = ("concise", "rich")
+_DEFAULT_ANSWER_STYLE: AnswerStyle = "rich"
+
 
 # ---------------------------------------------------------------------------
 # Data shapes
@@ -72,6 +80,10 @@ class EvidencePack:
     # overview"). Empty string when no assumption was needed. The narrator
     # surfaces this in the opening line so the user can refine.
     assumed_interpretation: str = ""
+    # Whether the narrator should write a short or rich answer. Planner picks
+    # "concise" only for direct scalar lookups (one metric, one entity, one
+    # number).
+    answer_style: AnswerStyle = _DEFAULT_ANSWER_STYLE
 
 
 @dataclass(frozen=True)
@@ -115,6 +127,7 @@ class ParsedEvidencePlan:
     memory_use: MemoryUse = _DEFAULT_MEMORY_USE
     resolved_question: str = ""
     assumed_interpretation: str = ""
+    answer_style: AnswerStyle = _DEFAULT_ANSWER_STYLE
 
 
 _ALLOWED_PLAN_KINDS = ("sql_plan", "clarify", "no_data", "unsupported")
@@ -177,6 +190,11 @@ def parse_evidence_plan(text: str, *, user_question: str = "") -> ParsedEvidence
     else:
         assumed_interpretation = ""
 
+    style_raw = data.get("answer_style")
+    answer_style: AnswerStyle = (
+        style_raw if style_raw in _ALLOWED_ANSWER_STYLE else _DEFAULT_ANSWER_STYLE
+    )
+
     return ParsedEvidencePlan(
         kind=kind,
         user_message=user_message,
@@ -185,6 +203,7 @@ def parse_evidence_plan(text: str, *, user_question: str = "") -> ParsedEvidence
         memory_use=memory_use,
         resolved_question=resolved_question,
         assumed_interpretation=assumed_interpretation,
+        answer_style=answer_style,
     )
 
 
@@ -302,11 +321,13 @@ def evidence_ask(
         primary=primary_result,
         context=context_results,
         assumed_interpretation=plan.assumed_interpretation,
+        answer_style=plan.answer_style,
     )
     notes: list[str] = []
     if memory_snapshot is not None:
         notes.append("memory_snapshot=present")
     notes.append(f"memory_use={plan.memory_use}")
+    notes.append(f"answer_style={plan.answer_style}")
     if plan.resolved_question and plan.resolved_question != user_question:
         notes.append(f"resolved_question={plan.resolved_question}")
     if plan.assumed_interpretation:
@@ -340,6 +361,7 @@ def _run_context_query(engine: Engine, purpose: str, sql: str) -> EvidenceQueryR
 
 
 __all__ = [
+    "AnswerStyle",
     "EvidenceKind",
     "EvidencePack",
     "EvidencePlanParseError",

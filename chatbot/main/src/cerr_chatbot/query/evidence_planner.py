@@ -74,6 +74,45 @@ prose). The JSON object has these fields:
   resolved_question     : string (optional; the question after any future
                           memory-based resolution; if omitted or empty the
                           backend falls back to the current user question)
+  answer_style          : "concise" or "rich" — controls answer LENGTH and
+                          shape. Default "rich". Set "concise" ONLY for
+                          direct scalar lookups where ONE bolded number IS
+                          the answer.
+                          USE "concise" WHEN ALL apply:
+                            * question names ONE specific metric explicitly
+                              (aholi / population, ishsizlik, reyting,
+                              kompaniyalar soni, mahallalar soni, ekin
+                              maydoni, etc.)
+                            * question names ONE specific entity (one
+                              viloyat, OR one district, OR one mahalla, OR
+                              one country code)
+                            * the answer fits in ONE number — primary_sql
+                              returns 1 row (or a tiny COUNT of a finite
+                              catalog)
+                            * NO ranking, NO comparison, NO "top N", NO
+                              "list", NO "haqida" / "profile" request
+                            Examples that ARE concise:
+                              "Andijon viloyati aholisi qancha?"
+                              "Toshkent shahrida nechta kompaniya bor?"
+                              "Samarqand viloyatining reyting bali?"
+                              "O'zbekistonda nechta viloyat bor?"
+                          USE "rich" (default) WHEN ANY apply:
+                            * top-N / lowest-K / ranking
+                            * comparison between 2+ entities
+                            * "haqida", "ma'lumot ber", "tell me about",
+                              "umumiy ko'rsatkichlar" — profile request
+                            * list-style ("qaysi kompaniyalar", "yetkazib
+                              beruvchilar")
+                            * advisory / recommendation (tavsiya, taklif,
+                              "where to start", "what suppliers")
+                            * primary_sql returns multiple rows
+                            * multiple metrics in one question
+                          For "concise" plans, context_queries are
+                          OPTIONAL — emit 0-2 ONLY if a single peer
+                          baseline or share genuinely adds value
+                          (otherwise emit zero). The downstream narrator
+                          will skip the multi-paragraph analysis and the
+                          closing sections.
 
 PRIMARY SQL policy:
   - METRIC-FOCUSED PRIMARY (CRITICAL when the question names ONE metric).
@@ -227,10 +266,15 @@ PRIMARY SQL policy:
     ROUND(CAST(AVG(metric) AS NUMERIC), 2), not ROUND(AVG(metric), 2).
     Source identifiers (codes, IDs, names) must never be transformed.
 
-CONTEXT QUERIES policy (REQUIRED when kind=="sql_plan"):
-  - Emit AT LEAST 3 and UP TO {max_ctx} extra read-only SELECTs. The
-    downstream answer agent is rewarded for rich, comparative answers — so
-    pull ENOUGH context to support 4-7 paragraphs of analysis.
+CONTEXT QUERIES policy (REQUIRED when kind=="sql_plan" AND
+answer_style=="rich"):
+  - When answer_style=="concise": emit 0-2 context queries ONLY if a single
+    peer baseline / share genuinely adds value (e.g. national total when
+    the user asked one region's count). Otherwise emit zero.
+  - When answer_style=="rich" (default): emit AT LEAST 3 and UP TO
+    {max_ctx} extra read-only SELECTs. The downstream answer agent is
+    rewarded for rich, comparative answers — so pull ENOUGH context to
+    support 4-7 paragraphs of analysis.
   - Cover MULTIPLE angles for the same question shape:
       * top-N            -> SUM(metric) for share-of-total, AVG cohort
                             baseline, MIN/MAX extremes, COUNT(*) of NULLs,
@@ -450,11 +494,36 @@ GLOBAL WARNINGS (apply to every SQL):
 
 
 _FEW_SHOT = """\
+EXAMPLE A0 - direct scalar lookup, concise answer (one metric, one entity,
+one number — narrator will write a short answer):
+{
+  "kind": "sql_plan",
+  "user_message": "Natijani topdim.",
+  "assumed_interpretation": "",
+  "answer_style": "concise",
+  "primary_sql": "SELECT region_name_cyr, population FROM v_regions WHERE region_name_cyr LIKE '%Андижон%'",
+  "context_queries": []
+}
+
+EXAMPLE A0b - direct scalar lookup with ONE peer baseline (still concise):
+{
+  "kind": "sql_plan",
+  "user_message": "Natijani topdim.",
+  "assumed_interpretation": "",
+  "answer_style": "concise",
+  "primary_sql": "SELECT region_name_cyr, active_businesses FROM v_regions WHERE region_name_cyr LIKE '%Тошкент шаҳ%'",
+  "context_queries": [
+    {"purpose": "average active_businesses across all regions for baseline",
+     "sql": "SELECT ROUND(CAST(AVG(active_businesses) AS NUMERIC), 0) AS avg_active_businesses FROM v_regions WHERE active_businesses IS NOT NULL"}
+  ]
+}
+
 EXAMPLE A - top-N + rich context (5 context queries from different angles):
 {
   "kind": "sql_plan",
   "user_message": "Natijani topdim.",
   "assumed_interpretation": "",
+  "answer_style": "rich",
   "primary_sql": "SELECT region_name_cyr, population FROM v_regions ORDER BY population DESC LIMIT 5",
   "context_queries": [
     {"purpose": "total population for share calculation",
