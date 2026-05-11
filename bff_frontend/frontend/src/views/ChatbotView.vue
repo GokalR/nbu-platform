@@ -46,10 +46,31 @@ function scrollToBottom() {
 
 marked.setOptions({ gfm: true, breaks: true })
 
+// Defensive markdown fixes for two CommonMark gotchas the LLM keeps hitting:
+//   1) Bold closer followed by a letter — `**80%**i` — closing `**` is not
+//      right-flanking when followed by a word char, so emphasis doesn't close.
+//      Fix: insert a space between `**` and the next letter.
+//   2) Whitespace flush inside bold markers — `** 5 tasi**` or `**5 tasi **`.
+//      Opening `**` must NOT be followed by whitespace (else not left-flanking).
+//      Closing `**` must NOT be preceded by whitespace (else not right-flanking).
+//      Fix: trim whitespace inside any `**...**` span.
+const _BOLD_SPACING_RE = /\*\*(\s*)([^*\n]+?)(\s*)\*\*/g
+const _ITALIC_SPACING_RE = /(?<!\*)\*(\s*)([^*\n\s][^*\n]*?)(\s*)\*(?!\*)/g
 const _BOLD_SUFFIX_RE = /(\*\*[^*\n]+\*\*)([\p{L}\p{N}])/gu
 const _ITALIC_SUFFIX_RE = /(?<![\*])(\*[^*\s][^*\n]*\*)([\p{L}\p{N}])/gu
+
 function _fixBoldSuffix(s) {
-  return s.replace(_BOLD_SUFFIX_RE, '$1 $2').replace(_ITALIC_SUFFIX_RE, '$1 $2')
+  return s
+    .replace(_BOLD_SPACING_RE, (m, _o, content) => {
+      const trimmed = content.trim()
+      return trimmed ? `**${trimmed}**` : m
+    })
+    .replace(_ITALIC_SPACING_RE, (m, _o, content) => {
+      const trimmed = content.trim()
+      return trimmed ? `*${trimmed}*` : m
+    })
+    .replace(_BOLD_SUFFIX_RE, '$1 $2')
+    .replace(_ITALIC_SUFFIX_RE, '$1 $2')
 }
 function renderMessage(text) {
   if (!text) return ''
@@ -247,62 +268,10 @@ function formatSessionDate(iso) {
       <p class="text-on-surface-variant text-sm mt-1">{{ t('chatbot.subtitle') }}</p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1 overflow-hidden">
-      <!-- ============ Left sidebar: chat history ============= -->
-      <aside class="bg-surface-container-lowest rounded-xl shadow-sm flex flex-col overflow-hidden">
-        <div class="p-4 border-b border-outline-variant/20">
-          <button
-            type="button"
-            class="w-full bg-primary text-on-primary text-sm font-bold py-2.5 rounded-lg hover:scale-[1.01] active:scale-[0.99] transition-transform flex items-center justify-center gap-2"
-            @click="startNewChat"
-          >
-            <AppIcon name="add" />
-            {{ t('chatbot.newChat') }}
-          </button>
-        </div>
-        <div class="flex-1 overflow-y-auto p-2 space-y-1">
-          <div v-if="sessionsLoading" class="text-center text-xs text-on-surface-variant py-4">
-            …
-          </div>
-          <div
-            v-else-if="sessions.length === 0"
-            class="text-center text-xs text-on-surface-variant py-4 px-2"
-          >
-            {{ t('chatbot.noSessions') }}
-          </div>
-          <button
-            v-for="s in sessions"
-            :key="s.id"
-            type="button"
-            class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors group flex items-start gap-2"
-            :class="
-              s.id === activeSessionId
-                ? 'bg-primary-fixed text-primary font-semibold'
-                : 'hover:bg-surface-container text-on-surface'
-            "
-            @click="openSession(s.id)"
-          >
-            <span class="flex-1 truncate leading-snug">
-              {{ s.title || t('chatbot.untitled') }}
-            </span>
-            <span class="text-[10px] text-on-surface-variant flex-shrink-0 mt-0.5">
-              {{ formatSessionDate(s.last_message_at) }}
-            </span>
-            <span
-              role="button"
-              :aria-label="t('chatbot.deleteSession')"
-              class="opacity-0 group-hover:opacity-70 hover:opacity-100 hover:text-red-700 flex-shrink-0"
-              @click.stop="removeSession(s.id, $event)"
-            >
-              <AppIcon name="delete" />
-            </span>
-          </button>
-        </div>
-      </aside>
-
-      <!-- ============ Main chat area ============= -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6 flex-1 overflow-hidden">
+      <!-- ============ Main chat area (left, takes remaining width) ============= -->
       <div
-        class="lg:col-span-3 bg-surface-container-lowest rounded-xl flex flex-col overflow-hidden shadow-sm"
+        class="bg-surface-container-lowest rounded-xl flex flex-col overflow-hidden shadow-sm order-1"
       >
         <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
           <div
@@ -383,6 +352,60 @@ function formatSessionDate(iso) {
           </button>
         </form>
       </div>
+
+      <!-- ============ Right sidebar: chat history (240px fixed) ============= -->
+      <aside
+        class="bg-surface-container-lowest rounded-xl shadow-sm flex flex-col overflow-hidden order-2"
+      >
+        <div class="p-3 border-b border-outline-variant/20">
+          <button
+            type="button"
+            class="w-full bg-primary text-on-primary text-xs font-bold py-2 rounded-lg hover:scale-[1.01] active:scale-[0.99] transition-transform flex items-center justify-center gap-1.5"
+            @click="startNewChat"
+          >
+            <AppIcon name="add" />
+            {{ t('chatbot.newChat') }}
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+          <div v-if="sessionsLoading" class="text-center text-xs text-on-surface-variant py-4">
+            …
+          </div>
+          <div
+            v-else-if="sessions.length === 0"
+            class="text-center text-[11px] text-on-surface-variant py-4 px-2"
+          >
+            {{ t('chatbot.noSessions') }}
+          </div>
+          <button
+            v-for="s in sessions"
+            :key="s.id"
+            type="button"
+            class="w-full text-left px-2.5 py-1.5 rounded-md text-xs transition-colors group flex items-start gap-1.5"
+            :class="
+              s.id === activeSessionId
+                ? 'bg-primary-fixed text-primary font-semibold'
+                : 'hover:bg-surface-container text-on-surface'
+            "
+            @click="openSession(s.id)"
+          >
+            <span class="flex-1 truncate leading-snug">
+              {{ s.title || t('chatbot.untitled') }}
+            </span>
+            <span class="text-[10px] text-on-surface-variant flex-shrink-0 mt-0.5">
+              {{ formatSessionDate(s.last_message_at) }}
+            </span>
+            <span
+              role="button"
+              :aria-label="t('chatbot.deleteSession')"
+              class="opacity-0 group-hover:opacity-70 hover:opacity-100 hover:text-red-700 flex-shrink-0 text-sm"
+              @click.stop="removeSession(s.id, $event)"
+            >
+              <AppIcon name="delete" />
+            </span>
+          </button>
+        </div>
+      </aside>
     </div>
   </section>
 </template>
