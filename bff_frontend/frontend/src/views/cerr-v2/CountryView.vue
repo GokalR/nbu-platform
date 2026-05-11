@@ -711,7 +711,15 @@ function colorize(f) {
 }
 .cerr-v2-scope .hv2m-tick.is-last { color: #34d399; }
 
-.cerr-v2-scope .hv2m-foot    { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
+.cerr-v2-scope .hv2m-foot    {
+  display: flex; align-items: baseline; gap: 6px; margin-top: 2px;
+  /* Wrap when the tile is too narrow for both delta + since on one line
+   * (happens at uz where the period label is longer). row-gap keeps the
+   * two lines tight when they DO wrap. */
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+.cerr-v2-scope .hv2m-foot > * { white-space: nowrap; }
 .cerr-v2-scope .hv2m-delta   {
   font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
   letter-spacing: -.01em;
