@@ -337,103 +337,10 @@ const heroStats = computed(() => {
   letter-spacing: 0.01em;
 }
 
-/* Rating callout on the right of hero head — tinted by tier */
-.cerr-v2-scope .mh-rating-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 10px 14px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 12px;
-  align-items: center;
-  align-self: start;
-  backdrop-filter: blur(2px);
-  position: relative;
-  overflow: hidden;
-}
-.cerr-v2-scope .mh-rating-card .mh-rating-num {
-  grid-row: 1 / 3;
-  grid-column: 1;
-}
-.cerr-v2-scope .mh-rating-card .mh-rating-lbl {
-  grid-row: 1;
-  grid-column: 2;
-  margin-bottom: 0;
-}
-.cerr-v2-scope .mh-rating-card .mh-rating-ranks {
-  grid-row: 2;
-  grid-column: 2;
-}
-.cerr-v2-scope .mh-rating-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: var(--mh-rate-color, rgba(255,255,255,.3));
-  opacity: 0.85;
-}
-.cerr-v2-scope .mh-rating-card.tier-lead { --mh-rate-color: #34d399; }
-.cerr-v2-scope .mh-rating-card.tier-mid  { --mh-rate-color: #f5cd65; }
-.cerr-v2-scope .mh-rating-card.tier-low  { --mh-rate-color: #f87171; }
-
-.cerr-v2-scope .mh-rating-num {
-  font-size: 42px;
-  font-weight: 900;
-  letter-spacing: -.04em;
-  line-height: 0.95;
-  font-variant-numeric: tabular-nums;
-  color: var(--mh-rate-color, #fff);
-  text-shadow: 0 0 24px rgba(255, 255, 255, 0.06);
-}
-.cerr-v2-scope .mh-rating-lbl {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
-  line-height: 1.3;
-  margin-bottom: 6px;
-}
-.cerr-v2-scope .mh-rating-ranks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.cerr-v2-scope .mh-rank-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.92);
-  white-space: nowrap;
-}
-.cerr-v2-scope .mh-rank-pill b { font-weight: 900; font-variant-numeric: tabular-nums; }
-.cerr-v2-scope .mh-rank-pill .lbl { color: rgba(255, 255, 255, 0.6); font-weight: 600; }
-.cerr-v2-scope .mh-rank-pill.tier-lead {
-  background: rgba(52, 211, 153, 0.18);
-  border-color: rgba(52, 211, 153, 0.4);
-  color: #d1fae5;
-}
-.cerr-v2-scope .mh-rank-pill.tier-lead .lbl { color: rgba(209, 250, 229, 0.7); }
-.cerr-v2-scope .mh-rank-pill.tier-mid {
-  background: rgba(245, 205, 101, 0.16);
-  border-color: rgba(245, 205, 101, 0.38);
-  color: #fef3c7;
-}
-.cerr-v2-scope .mh-rank-pill.tier-mid .lbl { color: rgba(254, 243, 199, 0.7); }
-.cerr-v2-scope .mh-rank-pill.tier-low {
-  background: rgba(248, 113, 113, 0.18);
-  border-color: rgba(248, 113, 113, 0.4);
-  color: #fecaca;
-}
-.cerr-v2-scope .mh-rank-pill.tier-low .lbl { color: rgba(254, 202, 202, 0.7); }
+/* Rating callout CSS (.mh-rating-card, .mh-rank-pill, .mh-rating-num,
+ * .mh-rating-lbl, .mh-rating-ranks) lives in src/styles/cerr-v2-theme.css
+ * so it loads on every cerr-v2 page, not just when MahallaView is mounted.
+ */
 
 /* 6-up stat strip — fixed-height head so values align across tiles.
  * Tight outer chrome (smaller strip padding, no row gaps) keeps the panel
