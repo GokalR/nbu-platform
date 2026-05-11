@@ -26,10 +26,15 @@ export const UZ_MACRO_HISTORY = {
   retail: {
     label: 'Розничный товарооборот',
     unit: 'трлн сум',
-    /* 2021 cell intentionally null — only Jan-Aug 2021 is published
-     * (143.4 трлн); using a partial-year value next to full-year totals
-     * would distort the bar chart. Documented in UZBEKISTAN_MACRO_2021_2025.md. */
-    abs: [null, 319.3, 326.2, 403.4, 482.4],
+    /* 2021 = 220 трлн (estimated). The official full-year figure for 2021
+     * retail turnover isn't published in the same series; the estimate is
+     * derived from two partial-period publications:
+     *   - Jan-Aug 2021 = 143.4 трлн  →  linear annualisation 215 трлн
+     *   - Q1 2021     =  46.7 трлн  →  Q4-weighted seasonality 222 трлн
+     * Midpoint rounded to 220 трлн. Documented in
+     * UZBEKISTAN_MACRO_2021_2025.md; treat as approximate. */
+    abs: [220.0, 319.3, 326.2, 403.4, 482.4],
+    interpolatedYears: [2021],
   },
   serv: {
     label: 'Рыночные услуги',
