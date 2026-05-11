@@ -290,8 +290,11 @@ const heroStats = computed(() => {
  * container chrome (padding, section gap, stats-strip padding) is tight,
  * so the panel as a whole is shorter without shrinking the data tiles. */
 .cerr-v2-scope .mahalla-hero {
-  padding: 22px 32px 20px;
-  gap: 26px;
+  /* Shrunk panel chrome: 22/32/20 → 18/28/16, gap 26 → 18.
+   * Saves ≈ 18 px of overall hero height across mahalla / region /
+   * district pages while keeping the title and KPI value sizes the same. */
+  padding: 18px 28px 16px;
+  gap: 18px;
 }
 .cerr-v2-scope .mahalla-hero .hero-v2-head {
   grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
@@ -346,7 +349,7 @@ const heroStats = computed(() => {
  * Tight outer chrome (smaller strip padding, no row gaps) keeps the panel
  * short while the inner KPI tiles stay at full size. */
 .cerr-v2-scope .mahalla-hero .hero-v2-stats {
-  padding: 18px 0 8px;
+  padding: 12px 0 4px;
   border-bottom: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.10);
 }
