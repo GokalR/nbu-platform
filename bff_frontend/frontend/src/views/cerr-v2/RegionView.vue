@@ -86,65 +86,36 @@ function tierTone(tier) {
   return 'neu'
 }
 
-/** 5-tile structured hero: population + districts + mahallas + rating score
- *  + country rank. All values come from already-loaded stores so this is
- *  cheap to compute. */
+/** 3-tile structured stat strip: population, districts, mahallas. Rating
+ *  + rank live in the right-side callout instead (see ratingPanel below). */
 const heroStats = computed(() => {
   const pop = populationKpi.value
   const r = region.value
-  const ce = countryEntry.value
-  const total = countryRegionsCount.value
   const out = []
-
   if (pop) {
-    out.push({
-      key: 'pop',
-      label: tFn('cerrV2.region.stat.pop'),
-      ico: iconForKpi('population'),
-      value: fmt.num(pop.value),
-      delta: null,
-    })
+    out.push({ key: 'pop', label: tFn('cerrV2.region.stat.pop'), ico: iconForKpi('population'), value: fmt.num(pop.value) })
   }
   if (r?.districts_count != null) {
-    out.push({
-      key: 'districts',
-      label: tFn('cerrV2.region.stat.districts'),
-      ico: iconForKpi('mahalla_count'),
-      value: fmt.num(r.districts_count),
-      delta: null,
-    })
+    out.push({ key: 'districts', label: tFn('cerrV2.region.stat.districts'), ico: iconForKpi('mahalla_count'), value: fmt.num(r.districts_count) })
   }
   if (r?.mahalla_count != null) {
-    out.push({
-      key: 'mahallas',
-      label: tFn('cerrV2.region.stat.mahallas'),
-      ico: 'grid',
-      value: fmt.num(r.mahalla_count),
-      delta: null,
-    })
-  }
-  if (ce?.score != null) {
-    out.push({
-      key: 'rating',
-      label: tFn('cerrV2.region.stat.rating'),
-      ico: 'award',
-      value: Number(ce.score).toFixed(1).replace('.', ','),
-      delta: null,
-      deltaTone: tierTone(ce.tier),
-    })
-  }
-  if (ce?.rank != null) {
-    out.push({
-      key: 'rank',
-      label: tFn('cerrV2.region.stat.rank'),
-      ico: 'check',
-      value: `#${ce.rank}`,
-      unit: tFn('cerrV2.region.rankOfTotal', { total }),
-      delta: null,
-      deltaTone: tierTone(ce.tier),
-    })
+    out.push({ key: 'mahallas', label: tFn('cerrV2.region.stat.mahallas'), ico: 'grid', value: fmt.num(r.mahalla_count) })
   }
   return out
+})
+
+/** Rating callout on the right side of the hero (same look as the mahalla
+ *  page): big score + tier-tinted rank chip. Tier comes from country
+ *  aggregate so colour matches the country map. */
+const ratingPanel = computed(() => {
+  const ce = countryEntry.value
+  if (!ce || ce.score == null) return null
+  return {
+    score: Number(ce.score).toFixed(1).replace('.', ','),
+    tier: ce.tier || 'mid',
+    rank: ce.rank,
+    total: countryRegionsCount.value,
+  }
 })
 
 /** Tier districts by rank-percentile within THEIR region (not absolute pos),
@@ -216,7 +187,7 @@ const periodLabel = computed(() => '2026 1-кв.')
 <template>
   <div class="page with-rail">
     <div :style="{ display: 'flex', flexDirection: 'column', gap: '22px', minWidth: 0 }">
-      <section class="hero hero-v2 mahalla-hero entity-hero">
+      <section :class="['hero hero-v2 mahalla-hero entity-hero', ratingPanel ? 'has-rating-card' : '']">
         <div class="hero-v2-head">
           <div class="hero-v2-l">
             <div class="hv2-eyebrow">{{ $t('cerrV2.eyebrow.region') }}</div>
@@ -232,6 +203,19 @@ const periodLabel = computed(() => '2026 1-кв.')
                 <CerrIcon name="info" :size="11" /> {{ $t('cerrV2.common.data2025') }}
               </span>
             </p>
+          </div>
+
+          <!-- Rating callout on the right side of hero (same look as mahalla page) -->
+          <div v-if="ratingPanel" :class="['mh-rating-card', `tier-${ratingPanel.tier}`]">
+            <div class="mh-rating-num tabular">{{ ratingPanel.score }}</div>
+            <div class="mh-rating-lbl">{{ $t('cerrV2.mahalla.ratingScore') }}</div>
+            <div class="mh-rating-ranks">
+              <div v-if="ratingPanel.rank" :class="['mh-rank-pill', `tier-${ratingPanel.tier}`]">
+                <CerrIcon name="map" :size="11" />
+                <span><b>{{ ratingPanel.rank }}</b> / {{ ratingPanel.total }}</span>
+                <span class="lbl">{{ $t('cerrV2.region.inCountry') }}</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="hero-v2-stats mh-stats" :data-count="heroStats.length">
@@ -330,8 +314,14 @@ const periodLabel = computed(() => '2026 1-кв.')
 <style>
 /* Entity-hero variant (region/district): same chrome as mahalla-hero but
  * the head is single-column (no rating-card on the right) and the KPI
- * strip column count adapts to how many tiles are in the data. */
+ * strip column count adapts to how many tiles are in the data. When a
+ * rating callout is present (region with country rank, district with
+ * region rank), restore the 2-column head to give the callout a slot. */
 .cerr-v2-scope .entity-hero .hero-v2-head { grid-template-columns: 1fr; }
+.cerr-v2-scope .entity-hero.has-rating-card .hero-v2-head {
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: 32px;
+}
 .cerr-v2-scope .entity-hero .mh-stats[data-count="4"] { grid-template-columns: repeat(4, 1fr); }
 .cerr-v2-scope .entity-hero .mh-stats[data-count="5"] { grid-template-columns: repeat(5, 1fr); }
 .cerr-v2-scope .entity-hero .mh-stats[data-count="6"] { grid-template-columns: repeat(6, 1fr); }

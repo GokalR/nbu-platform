@@ -2997,6 +2997,7 @@
         "rank": "Место в стране"
       },
       "rankOfTotal": "из {total}",
+      "inCountry": "в стране",
       "tierGroups": "Рейтинговые группы",
       "tier": {
         "lead": "Лидеры (топ 25%)",

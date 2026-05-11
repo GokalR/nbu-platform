@@ -86,53 +86,35 @@ function tierTone(t) {
   return 'neu'
 }
 
-/** 4-tile structured hero: population, mahallas count, derived rating
- *  score, rank in region. Rating + rank tinted by tier (top 40 % green,
- *  bottom 20 % red, middle neutral). */
+/** 2-tile structured stat strip: population, mahallas. Rating + rank
+ *  moved to the right-side callout (see ratingPanel below). */
 const heroStats = computed(() => {
   const pop = populationKpi.value
+  const out = []
+  if (pop) {
+    out.push({ key: 'pop', label: tFn('cerrV2.district.stat.pop'), ico: iconForKpi('population'), value: fmt.num(pop.value) })
+  }
+  if (district.value?.mahalla_count != null) {
+    out.push({ key: 'mahallas', label: tFn('cerrV2.district.stat.mahallas'), ico: 'grid', value: fmt.num(district.value.mahalla_count) })
+  }
+  return out
+})
+
+/** Rating callout on the right side of the hero — same look as the mahalla
+ *  page. Score derived from the place rank within the region; tier picks
+ *  the chip colour. */
+const ratingPanel = computed(() => {
   const rankVal = ratingRankKpi.value?.value || null
   const total = districtsInRegion.value
   const score = scoreFromRank(rankVal, total)
   const tier = tierFromRankPos(rankVal, total)
-  const out = []
-
-  if (pop) {
-    out.push({
-      key: 'pop',
-      label: tFn('cerrV2.district.stat.pop'),
-      ico: iconForKpi('population'),
-      value: fmt.num(pop.value),
-    })
+  if (score == null || rankVal == null || !total) return null
+  return {
+    score: score.toFixed(1).replace('.', ','),
+    tier: tier || 'mid',
+    rank: rankVal,
+    total,
   }
-  if (district.value?.mahalla_count != null) {
-    out.push({
-      key: 'mahallas',
-      label: tFn('cerrV2.district.stat.mahallas'),
-      ico: 'grid',
-      value: fmt.num(district.value.mahalla_count),
-    })
-  }
-  if (score != null) {
-    out.push({
-      key: 'rating',
-      label: tFn('cerrV2.district.stat.rating'),
-      ico: 'award',
-      value: score.toFixed(1).replace('.', ','),
-      deltaTone: tierTone(tier),
-    })
-  }
-  if (rankVal != null) {
-    out.push({
-      key: 'rank',
-      label: tFn('cerrV2.district.stat.rank'),
-      ico: 'check',
-      value: `#${rankVal}`,
-      unit: total ? tFn('cerrV2.district.rankOfTotal', { total }) : '',
-      deltaTone: tierTone(tier),
-    })
-  }
-  return out
 })
 
 const histogram = computed(() => overview.value?.rating_histogram || [])
@@ -228,7 +210,7 @@ function openTier(stir) {
 <template>
   <div class="page with-rail district-page">
     <div :style="{ display: 'flex', flexDirection: 'column', gap: '22px', minWidth: 0 }">
-      <section class="hero hero-v2 mahalla-hero entity-hero">
+      <section :class="['hero hero-v2 mahalla-hero entity-hero', ratingPanel ? 'has-rating-card' : '']">
         <div class="hero-v2-head">
           <div class="hero-v2-l">
             <div class="hv2-eyebrow">{{ $t('cerrV2.eyebrow.district') }}</div>
@@ -244,6 +226,20 @@ function openTier(stir) {
                 <CerrIcon name="info" :size="11" /> {{ $t('cerrV2.common.data2025') }}
               </span>
             </p>
+          </div>
+
+          <!-- Rating callout (same look as mahalla page) — score derived from
+               the district's place rank within its region. -->
+          <div v-if="ratingPanel" :class="['mh-rating-card', `tier-${ratingPanel.tier}`]">
+            <div class="mh-rating-num tabular">{{ ratingPanel.score }}</div>
+            <div class="mh-rating-lbl">{{ $t('cerrV2.mahalla.ratingScore') }}</div>
+            <div class="mh-rating-ranks">
+              <div :class="['mh-rank-pill', `tier-${ratingPanel.tier}`]">
+                <CerrIcon name="award" :size="11" />
+                <span><b>{{ ratingPanel.rank }}</b> / {{ ratingPanel.total }}</span>
+                <span class="lbl">{{ $t('cerrV2.mahalla.inRegion') }}</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="hero-v2-stats mh-stats" :data-count="heroStats.length">
