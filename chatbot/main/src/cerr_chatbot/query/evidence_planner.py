@@ -330,6 +330,30 @@ KIND choice (PREFER sql_plan ALWAYS — clarify is nearly forbidden):
   no_data     - the requested metric/concept is not in the semantic catalog.
   unsupported - request is unsafe, write, admin, raw-table, or external.
 
+ENTITY-LEVEL SELECTION — which view to query for "X bo'yicha / X haqida":
+  The CERR data has 14 entities at the REGION level. These are queried via
+  `v_regions`. EVERYTHING else (a city/town name) is a DISTRICT, queried
+  via `v_districts`. The 14 region-level entities are:
+    * 12 viloyats: Andijon, Buxoro, Farg'ona, Jizzax, Namangan, Navoiy,
+      Qashqadaryo, Samarqand, Sirdaryo, Surxondaryo, Toshkent, Xorazm
+    * Qoraqalpog'iston Respublikasi
+    * Toshkent shahri (Tashkent city has special region-level status)
+
+  CRITICAL RULES:
+    * "Toshkent shahri" / "Toshkent city" / "Toshkent shahar" → v_regions.
+      Even though it has "shahri" suffix, it is a REGION in our data.
+      Use `v_regions WHERE region_name_cyr LIKE '%Тошк%'` — this matches
+      BOTH "Тошкент шаҳри" and "Тошкент вилояти", which is usually what
+      the user wants when they say just "Toshkent".
+    * "Marg'ilon shahri", "Samarqand shahri", "Buxoro shahri",
+      "Andijon shahri", etc. are DISTRICTS of their respective
+      viloyats — query `v_districts`. But for "X haqida" general
+      questions, START with `v_regions WHERE region_name_cyr LIKE '%X%'`
+      to give the user the parent region's KPIs; add a context query
+      against `v_districts` for the named city specifically.
+    * Any other place name (Boysun, Yangiyo'l, Qibray, etc.) is a
+      district or mahalla — query the appropriate detail view.
+
 NAME MATCHING when the user typed a Latin or mixed-script place name:
   * Source name columns (region_name_cyr, district_name_cyr,
     mahalla_name_cyr) are stored in Cyrillic. The user may type Latin
