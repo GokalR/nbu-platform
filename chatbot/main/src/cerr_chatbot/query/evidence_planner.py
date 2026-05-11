@@ -340,19 +340,47 @@ ENTITY-LEVEL SELECTION — which view to query for "X bo'yicha / X haqida":
     * Toshkent shahri (Tashkent city has special region-level status)
 
   CRITICAL RULES:
+    * "Toshkent" / "Ташкент" / "Tashkent" with NO qualifier — default to
+      Toshkent shahri (the capital). Use
+      `v_regions WHERE region_name_cyr LIKE '%Тошкент шаҳ%'` to get the
+      city specifically. If the user wanted the surrounding viloyat,
+      they would have said "Toshkent viloyati". NEVER fall back to
+      `v_districts WHERE district_name_cyr LIKE '%Тошкент%'` — that
+      matches "Toshkent tumani" which is a rural district of Toshkent
+      viloyati and is NEVER what the user means by "Toshkent".
     * "Toshkent shahri" / "Toshkent city" / "Toshkent shahar" → v_regions.
       Even though it has "shahri" suffix, it is a REGION in our data.
-      Use `v_regions WHERE region_name_cyr LIKE '%Тошк%'` — this matches
-      BOTH "Тошкент шаҳри" and "Тошкент вилояти", which is usually what
-      the user wants when they say just "Toshkent".
     * "Marg'ilon shahri", "Samarqand shahri", "Buxoro shahri",
-      "Andijon shahri", etc. are DISTRICTS of their respective
-      viloyats — query `v_districts`. But for "X haqida" general
-      questions, START with `v_regions WHERE region_name_cyr LIKE '%X%'`
-      to give the user the parent region's KPIs; add a context query
-      against `v_districts` for the named city specifically.
+      "Andijon shahri", "Farg'ona shahri", "Nukus shahri", etc. are
+      DISTRICTS of their respective viloyats — query `v_districts`.
+      For these, use a TIGHT name pattern including the "шаҳ" suffix:
+      `district_name_cyr LIKE '%Фарғона шаҳ%'`, NOT the loose stem
+      `'%Фарғ%'` (which also matches "Фарғона тумани", the surrounding
+      rural district).
     * Any other place name (Boysun, Yangiyo'l, Qibray, etc.) is a
       district or mahalla — query the appropriate detail view.
+
+  CROSS-LEVEL CITY COMPARISONS (e.g. "compare Toshkent and Farg'ona shahri"):
+    When the user compares Toshkent with another city, you have a
+    cross-level situation: Toshkent shahri lives in v_regions, the other
+    city lives in v_districts. Handle it with two queries:
+      * primary_sql: v_districts WHERE district_name_cyr LIKE
+        '%<other-city> шаҳ%' — get the district-level city's metrics.
+      * context query: v_regions WHERE region_name_cyr LIKE
+        '%Тошкент шаҳ%' — get Toshkent shahri's metrics.
+      * additional context: regional baseline averages so the answer
+        can put both numbers in perspective.
+    The downstream narrator merges both into one comparison table.
+
+  DEDUPLICATION:
+    Some district names appear twice with different surrogate ids
+    (district_code is not globally unique — see v_data_quality_issues
+    for the documented duplicate groups). When a city-name SELECT
+    returns multiple rows with the SAME parent (region_name_cyr) AND
+    SAME district_name_cyr, that's a data-quality duplicate. Aggregate
+    via `SUM(metric)` or pick the row with the larger population —
+    NEVER present both rows verbatim to the user as if they were two
+    separate cities.
 
 NAME MATCHING when the user typed a Latin or mixed-script place name:
   * Source name columns (region_name_cyr, district_name_cyr,
