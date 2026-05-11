@@ -74,8 +74,54 @@ PRIMARY SQL policy:
           '%прочие виды%', '%other%'. They produce noise like rows whose
           OKED is 'retail of other goods' — that does NOT answer the
           user's question.
-      (b) PREFER cross-referencing via v_business_imports.tnved_chapter
-          when a product category maps cleanly to an HS chapter:
+      (b) PATH CHOICE for product-category supplier questions:
+
+          For "qaysi kompaniyalar / yetkazib beruvchilar bor" type
+          questions, v_companies is the PRIMARY source (it has all
+          167k registered businesses with their primary OKED). The
+          v_business_imports / tnved_chapter path is a CONTEXT query
+          showing customs IMPORTERS only — that's ~3000 companies
+          nationwide and most regions have zero importers for any
+          given chapter, so it cannot be primary.
+
+          STRUCTURE for these questions:
+
+            primary_sql: v_companies with STRICT OKED filter:
+              SELECT company_name, district_name_cyr, oked_label_uz,
+                     address_raw
+              FROM v_companies
+              WHERE region_name_cyr LIKE '%<region>%'
+                AND (oked_label_uz LIKE '%<product-root>%'
+                     OR oked_label_ru LIKE '%<product-root-ru>%')
+                AND oked_label_uz NOT LIKE '%бошқа товарлар%'
+                AND oked_label_uz NOT LIKE '%boshqa tovarlar%'
+                AND oked_label_ru NOT LIKE '%прочие товары%'
+              ORDER BY company_name ASC
+              LIMIT 20
+
+            context_query 1: TOTAL count of strict matches in the region
+              SELECT COUNT(*) AS total_strict_matches FROM v_companies
+              WHERE region_name_cyr LIKE '%<region>%'
+                AND (oked_label_uz LIKE '%<product-root>%'
+                     OR oked_label_ru LIKE '%<product-root-ru>%')
+                AND oked_label_uz NOT LIKE '%бошқа товарлар%'
+                AND oked_label_uz NOT LIKE '%boshqa tovarlar%'
+
+            context_query 2: importers of the matching TN_VED chapter
+              in the region (may return 0 rows for many region+chapter
+              combos — that's fine, it just signals "no importers")
+              SELECT company_name, district_name_cyr,
+                     ROUND(CAST(SUM(value_usd) AS NUMERIC), 2) AS total_usd
+              FROM v_business_imports
+              WHERE region_name_cyr LIKE '%<region>%'
+                AND tnved_chapter = '<chapter>'
+                AND value_usd IS NOT NULL
+              GROUP BY company_name, district_name_cyr
+              ORDER BY total_usd DESC LIMIT 10
+
+          Use this product-category -> TN_VED chapter map for the
+          chapter context query (and rough Uzbek/Russian roots for the
+          OKED filter):
 
             drinks / ichimliklar / напитки  -> chapter 22
             meat / go'sht / мясо            -> chapter 02
@@ -104,21 +150,21 @@ PRIMARY SQL policy:
             electronics / elektr            -> chapter 85
             vehicles / transport            -> chapter 87
 
-          When the user asks "what drinks suppliers / importers in
-          region X", the canonical primary query is:
-            SELECT company_name, district_name_cyr, mahalla_name_cyr,
-                   SUM(value_usd) AS total_usd
-            FROM v_business_imports
-            WHERE region_name_cyr LIKE '%<region>%'
-              AND tnved_chapter = '22'
-              AND value_usd IS NOT NULL
-            GROUP BY company_name, district_name_cyr, mahalla_name_cyr
-            ORDER BY total_usd DESC LIMIT 20
+          Concrete example — "Farg'onada ichimliklar yetkazib beruvchilar":
+            product-root (uz): ичимлик
+            product-root (ru): напит
+            chapter: 22
 
-          You may EMIT a second context query against v_companies with
-          a tight OKED filter (e.g. `oked_label_uz LIKE '%ichimlik%'`)
-          for domestic retailers — but the primary path is TN_VED when
-          the category maps to a chapter above.
+            primary_sql: v_companies WHERE region LIKE '%Фарғ%' AND
+                         (oked_label_uz LIKE '%ичимлик%' OR
+                          oked_label_ru LIKE '%напит%') AND
+                         oked_label_uz NOT LIKE '%бошқа товарлар%'
+                         ORDER BY company_name LIMIT 20
+                         -> returns the actual drink retailers/sellers.
+
+            context: COUNT(*) of strict matches (for the totals section).
+            context: top-10 importers in chapter 22 in the region
+                     (likely 0 rows in Fergana — that's a valid signal).
   - When the view has a period or label column (e.g. macro_period_label_cyr),
     INCLUDE it so the downstream answer can quote the correct period
     instead of inventing one.
