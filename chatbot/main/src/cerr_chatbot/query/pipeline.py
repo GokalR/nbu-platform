@@ -16,6 +16,7 @@ shape so transports and the eval runner do not need to know which is in use.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -67,6 +68,15 @@ class Pipeline(Protocol):
         session_id: str | None = None,
     ) -> dict[str, Any]: ...
 
+    def answer_stream(
+        self,
+        question: str,
+        *,
+        max_rows: int = 10,
+        include_debug: bool = True,
+        session_id: str | None = None,
+    ) -> Iterator[dict[str, Any]]: ...
+
 
 # ---------------------------------------------------------------------------
 # Legacy single-SQL path
@@ -77,6 +87,33 @@ class Pipeline(Protocol):
 class LegacyPipeline:
     service: QueryService
     narrator: Narrator = field(default_factory=DeterministicNarrator)
+
+    def answer_stream(
+        self,
+        question: str,
+        *,
+        max_rows: int = 10,
+        include_debug: bool = True,
+        session_id: str | None = None,
+    ) -> Iterator[dict[str, Any]]:
+        """Streaming wrapper for the legacy single-SQL path.
+
+        The legacy narrator is deterministic markdown (no LLM call), so there
+        is nothing to stream token-by-token. We emit a single status event,
+        compute the full answer, and emit one done event so the SSE consumer
+        sees the same protocol as the evidence pipeline.
+        """
+        result = self.answer(
+            question,
+            max_rows=max_rows,
+            include_debug=include_debug,
+            session_id=session_id,
+        )
+        yield {"type": "status", "stage": "planning", "message": "Javob hisoblanmoqda..."}
+        text = result.get("answer", "")
+        if text:
+            yield {"type": "token", "text": text}
+        yield {"type": "done", **result}
 
     def answer(
         self,
@@ -116,6 +153,113 @@ class EvidencePipeline:
     planner: EvidencePlanner
     narrator: EvidenceLlmNarrator | None = None
     memory_store: SessionMemoryStore | None = None
+
+    def answer_stream(
+        self,
+        question: str,
+        *,
+        max_rows: int = 10,
+        include_debug: bool = True,
+        session_id: str | None = None,
+    ) -> Iterator[dict[str, Any]]:
+        """Yield SSE event dicts as the pipeline runs.
+
+        Events match `EvidenceLlmNarrator.narrate_stream`:
+          {"type": "status", "stage": "planning|executing|narrating", "message": "..."}
+          {"type": "token",  "text": "..."}
+          {"type": "done",   "kind": "...", "answer": "...", "sql": "...",
+                              "row_count": N, "columns": [...], "pipeline": "evidence"}
+
+        Empty question short-circuits with one done event.
+        """
+        cleaned = question.strip()
+        if not cleaned:
+            yield {"type": "done", **EMPTY_QUESTION_RESPONSE, "pipeline": "evidence"}
+            return
+
+        yield {
+            "type": "status",
+            "stage": "planning",
+            "message": "So'rovingiz rejalashtirilmoqda...",
+        }
+
+        prior_snapshot = (
+            self.memory_store.get(session_id)
+            if (self.memory_store is not None and session_id)
+            else None
+        )
+        result: EvidenceServiceResult = evidence_ask(
+            self.engine,
+            self.planner,
+            cleaned,
+            memory_snapshot=prior_snapshot,
+        )
+
+        # Persist memory snapshot (matches the non-streaming path).
+        if self.memory_store is not None and session_id:
+            resolved = result.pack.question if result.pack is not None else cleaned
+            snapshot = build_snapshot_from_evidence_result(
+                original_question=cleaned,
+                resolved_question=resolved,
+                result=result,
+            )
+            if snapshot is not None:
+                self.memory_store.set(session_id, snapshot)
+
+        if result.kind != "sql_result" or result.pack is None:
+            # No data path — emit user_message in a single done.
+            yield {
+                "type": "done",
+                "kind": result.kind,
+                "ok": False,
+                "answer": result.user_message,
+                "sql": None,
+                "row_count": 0,
+                "columns": [],
+                "pipeline": "evidence",
+            }
+            return
+
+        yield {
+            "type": "status",
+            "stage": "executing",
+            "message": (
+                f"{result.pack.primary.row_count} ta yozuv topildi. "
+                "Javob tayyorlanmoqda..."
+            ),
+        }
+
+        narrator = self.narrator or EvidenceLlmNarrator()
+        final_done: dict[str, Any] | None = None
+        for event in narrator.narrate_stream(result):
+            if event.get("type") == "done":
+                # Merge narrator's done with pipeline metadata; defer emit
+                # until after the loop so we always emit one terminal event.
+                final_done = {
+                    "type": "done",
+                    "ok": event.get("kind") == "sql_result",
+                    "kind": event.get("kind"),
+                    "answer": event.get("answer", ""),
+                    "sql": event.get("sql"),
+                    "row_count": event.get("row_count", 0),
+                    "columns": event.get("columns", []),
+                    "pipeline": "evidence",
+                }
+            else:
+                yield event
+
+        if final_done is None:
+            final_done = {
+                "type": "done",
+                "ok": True,
+                "kind": "sql_result",
+                "answer": "",
+                "sql": result.pack.primary.sql,
+                "row_count": result.pack.primary.row_count,
+                "columns": list(result.pack.primary.columns),
+                "pipeline": "evidence",
+            }
+        yield final_done
 
     def answer(
         self,

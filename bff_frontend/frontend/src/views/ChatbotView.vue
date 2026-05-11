@@ -1,10 +1,10 @@
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import AppIcon from '@/components/AppIcon.vue'
-import { sendChatMessage, ensureChatSessionId } from '@/services/chatbotApi'
+import { openChatStream, ensureChatSessionId } from '@/services/chatbotApi'
 
 const { t } = useI18n()
 
@@ -12,11 +12,18 @@ const input = ref('')
 const messagesContainer = ref(null)
 const messages = ref([])
 const isThinking = ref(false)
+const statusMessage = ref('')
 let sessionId = ''
+let activeStream = null
 
 onMounted(() => {
   sessionId = ensureChatSessionId()
   messages.value.push({ role: 'assistant', text: t('chatbot.greeting') })
+})
+
+onBeforeUnmount(() => {
+  activeStream?.close?.()
+  activeStream = null
 })
 
 function scrollToBottom() {
@@ -35,29 +42,89 @@ function renderMessage(text) {
   return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel'] })
 }
 
-async function send() {
+function send() {
   const text = input.value.trim()
   if (!text || isThinking.value) return
 
+  // Close any leftover stream from a prior message.
+  activeStream?.close?.()
+  activeStream = null
+
   messages.value.push({ role: 'user', text })
+  // Push an empty assistant bubble that we fill as tokens arrive.
+  messages.value.push({ role: 'assistant', text: '', streaming: true })
+  const bubbleIdx = messages.value.length - 1
+
   input.value = ''
   isThinking.value = true
+  statusMessage.value = ''
   scrollToBottom()
 
-  try {
-    const result = await sendChatMessage({ message: text, sessionId })
-    const answer = result.answer || t('chatbot.errorEmpty')
-    const meta =
-      result.kind === 'sql_result' && typeof result.row_count === 'number'
-        ? { rowCount: result.row_count, columns: result.columns || [], sql: result.sql || '' }
-        : null
-    messages.value.push({ role: 'assistant', text: answer, meta })
-  } catch (err) {
-    messages.value.push({ role: 'assistant', text: t('chatbot.errorNetwork'), error: true })
-  } finally {
-    isThinking.value = false
-    scrollToBottom()
-  }
+  let firstTokenSeen = false
+
+  activeStream = openChatStream(
+    { message: text, sessionId },
+    {
+      onStatus: (status) => {
+        statusMessage.value = status?.message || ''
+        scrollToBottom()
+      },
+      onToken: (chunk) => {
+        if (!firstTokenSeen) {
+          firstTokenSeen = true
+          isThinking.value = false
+          statusMessage.value = ''
+        }
+        const bubble = messages.value[bubbleIdx]
+        if (bubble) {
+          // Re-assign so Vue picks up the change (mutating .text won't
+          // always trigger a re-render on the v-html binding).
+          messages.value[bubbleIdx] = { ...bubble, text: bubble.text + chunk }
+        }
+        scrollToBottom()
+      },
+      onDone: (final) => {
+        isThinking.value = false
+        statusMessage.value = ''
+        const bubble = messages.value[bubbleIdx]
+        if (bubble) {
+          // Replace with the canonical full answer + metadata from `done`.
+          // The streamed tokens already match this text but using the final
+          // payload guarantees consistency (e.g. server-side trim/transliterate).
+          messages.value[bubbleIdx] = {
+            role: 'assistant',
+            text: final?.answer || bubble.text || t('chatbot.errorEmpty'),
+            meta:
+              final?.kind === 'sql_result' && typeof final?.row_count === 'number'
+                ? { rowCount: final.row_count, columns: final.columns || [], sql: final.sql || '' }
+                : null,
+            streaming: false,
+          }
+        }
+        activeStream = null
+        scrollToBottom()
+      },
+      onError: (_detail) => {
+        isThinking.value = false
+        statusMessage.value = ''
+        const bubble = messages.value[bubbleIdx]
+        if (bubble && !bubble.text) {
+          // No tokens arrived — replace placeholder with an error message.
+          messages.value[bubbleIdx] = {
+            role: 'assistant',
+            text: t('chatbot.errorNetwork'),
+            error: true,
+            streaming: false,
+          }
+        } else if (bubble) {
+          // We have partial text — keep it but mark stream ended.
+          messages.value[bubbleIdx] = { ...bubble, streaming: false }
+        }
+        activeStream = null
+        scrollToBottom()
+      },
+    },
+  )
 }
 
 const suggestions = [
@@ -112,10 +179,13 @@ function ask(key) {
           </div>
 
           <div v-if="isThinking" class="flex justify-start">
-            <div class="bg-surface-container text-on-surface rounded-xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
+            <div class="bg-surface-container text-on-surface rounded-xl rounded-tl-sm px-4 py-3 flex items-center gap-2">
               <span class="thinking-dot" style="animation-delay: 0ms" />
               <span class="thinking-dot" style="animation-delay: 200ms" />
               <span class="thinking-dot" style="animation-delay: 400ms" />
+              <span v-if="statusMessage" class="text-[11px] text-on-surface-variant ml-1">
+                {{ statusMessage }}
+              </span>
             </div>
           </div>
         </div>

@@ -33,7 +33,9 @@ from __future__ import annotations
 import json
 import logging
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
+from typing import Any
 
 from cerr_chatbot.config import Settings, get_settings
 from cerr_chatbot.query.answer import NULL_DISPLAY, Answer, compose_answer
@@ -47,7 +49,11 @@ from cerr_chatbot.query.evidence import (
     EvidenceQueryResult,
     EvidenceServiceResult,
 )
-from cerr_chatbot.query.llm_planner import ProviderCall, _resolve_provider
+from cerr_chatbot.query.llm_planner import (
+    ProviderCall,
+    _resolve_provider,
+    resolve_streaming_provider,
+)
 from cerr_chatbot.query.narrator_format import (
     compute_derived_metrics,
     format_cell,
@@ -116,6 +122,13 @@ def _column_descriptions(columns: tuple[str, ...]) -> list[tuple[str, str]]:
             if col.name not in found:
                 found[col.name] = col.description
     return [(c, found.get(c, "(no description)")) for c in columns]
+
+
+__all__ = [
+    "EvidenceLlmNarrator",
+    "build_evidence_prompt",
+    "build_evidence_stream_prompt",
+]
 
 
 def _query_payload(qr: EvidenceQueryResult, *, max_rows: int) -> str:
@@ -227,6 +240,25 @@ def build_evidence_prompt(pack: EvidencePack, brief: AnswerBrief | None = None) 
     )
 
 
+def build_evidence_stream_prompt(pack: EvidencePack, brief: AnswerBrief | None = None) -> str:
+    """Streaming-friendly prompt: emit raw markdown, NO JSON wrapper.
+
+    Identical reasoning + safety to `build_evidence_prompt`, except the
+    OUTPUT CONTRACT changes so each streamed token is part of the final
+    user-facing markdown directly. Used only by `narrate_stream`.
+    """
+    base = build_evidence_prompt(pack, brief=brief)
+    return base.replace(
+        "OUTPUT CONTRACT:\n"
+        "Return exactly one JSON object and nothing else:\n"
+        '{"answer_markdown": "<final user-facing answer in markdown>"}\n',
+        "OUTPUT CONTRACT (STREAMING MODE):\n"
+        "Write the user-facing markdown answer DIRECTLY. No JSON wrapper.\n"
+        "No code fences, no preface, no <answer> tags. Just the markdown\n"
+        "the user should read.\n",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Narrator
 # ---------------------------------------------------------------------------
@@ -246,6 +278,96 @@ class EvidenceLlmNarrator:
     settings: Settings | None = None
     provider_call: ProviderCall | None = None
     log_full_prompt: bool = False
+
+    def narrate_stream(self, result: EvidenceServiceResult) -> Iterator[dict[str, Any]]:
+        """Yield SSE-friendly events while the narrator LLM streams its answer.
+
+        Event shapes:
+          {"type": "status",   "stage": "narrating", "message": "..."}
+          {"type": "token",    "text": "..."}                     # delta from LLM
+          {"type": "done",     "kind": "...", "answer": "<full>",
+           "sql": "...", "row_count": N, "columns": [...]}
+
+        Non-sql_result paths short-circuit to a single done event so the caller
+        always sees a terminator. Provider/SDK failures fall back to the
+        deterministic markdown composer and emit it as a single token.
+        """
+        if result.kind != "sql_result" or result.pack is None:
+            yield {
+                "type": "done",
+                "kind": result.kind,
+                "answer": result.user_message,
+                "sql": None,
+                "row_count": 0,
+                "columns": [],
+            }
+            return
+
+        cfg = self.settings or get_settings()
+        try:
+            stream_provider, model, api_key = resolve_streaming_provider(cfg)
+        except Exception as exc:  # noqa: BLE001 — missing key / wrong provider
+            log.info("evidence narrator streaming unavailable, falling back: %s", exc)
+            ans = self.narrate(result)
+            yield {"type": "token", "text": ans.text}
+            yield {
+                "type": "done",
+                "kind": result.kind,
+                "answer": ans.text,
+                "sql": ans.sql,
+                "row_count": ans.row_count,
+                "columns": list(ans.columns),
+            }
+            return
+
+        brief = build_answer_brief(result.pack.question, result.pack.primary, result.pack.context)
+        prompt = build_evidence_stream_prompt(result.pack, brief=brief)
+        if self.log_full_prompt:
+            log.info("evidence stream prompt: %s", prompt)
+        else:
+            log.info("evidence stream prompt built (%d chars)", len(prompt))
+
+        yield {"type": "status", "stage": "narrating", "message": "Javob yozilmoqda..."}
+
+        accumulated: list[str] = []
+        had_provider_error = False
+        try:
+            for delta in stream_provider(model, prompt, api_key):
+                if not isinstance(delta, str) or not delta:
+                    continue
+                accumulated.append(delta)
+                yield {"type": "token", "text": delta}
+        except Exception as exc:  # noqa: BLE001
+            had_provider_error = True
+            log.warning("evidence streaming provider failed: %s", exc)
+
+        cleaned = "".join(accumulated).strip()
+        if not cleaned or had_provider_error:
+            # Provider died with no output. Fall back to the deterministic
+            # composer (the user has nothing useful yet).
+            if not accumulated:
+                ans = self.narrate(result)
+                yield {"type": "token", "text": ans.text}
+                yield {
+                    "type": "done",
+                    "kind": result.kind,
+                    "answer": ans.text,
+                    "sql": ans.sql,
+                    "row_count": ans.row_count,
+                    "columns": list(ans.columns),
+                }
+                return
+            # Partial output already streamed — keep what we have but flag it
+            # in debug notes via the done event.
+        cleaned_for_done = uz_cyrillic_to_latin(cleaned) if cleaned else ""
+        yield {
+            "type": "done",
+            "kind": result.kind,
+            "answer": cleaned_for_done,
+            "sql": result.pack.primary.sql,
+            "row_count": result.pack.primary.row_count,
+            "columns": list(result.pack.primary.columns),
+        }
 
     def narrate(self, result: EvidenceServiceResult) -> Answer:
         if result.kind != "sql_result" or result.pack is None:

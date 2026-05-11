@@ -14,7 +14,7 @@ import json
 import logging
 import urllib.error
 import urllib.request
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
 from cerr_chatbot.config import Settings, get_settings
@@ -35,6 +35,9 @@ class LlmPlannerError(RuntimeError):
 # A provider call takes the resolved (model, prompt, api_key) and returns
 # the raw model text. Tests pass a stub; default impl is selected by settings.
 ProviderCall = Callable[[str, str, str], str]
+# Streaming variant: yields token deltas as they arrive. The narrator uses
+# this for SSE; planner/schema-linker still use ProviderCall (need full JSON).
+StreamingProviderCall = Callable[[str, str, str], Iterator[str]]
 
 
 @dataclass
@@ -85,6 +88,37 @@ def _resolve_provider(
             raise LlmPlannerError("OpenAI provider requires an OpenAI LLM_MODEL, e.g. gpt-4o-mini")
         return injected_provider or _openai_provider_call, model, cfg.openai_api_key
 
+    raise LlmPlannerError("Unsupported LLM_PROVIDER; expected 'anthropic' or 'openai'")
+
+
+def resolve_streaming_provider(
+    cfg: Settings,
+    injected_provider: StreamingProviderCall | None = None,
+) -> tuple[StreamingProviderCall, str, str]:
+    """Pick the streaming provider matching `cfg.llm_provider`.
+
+    Mirrors `_resolve_provider` but returns a generator-style callable. Used
+    by the narrator's streaming path (planner stays on blocking calls — it
+    needs the full JSON before any downstream step can run).
+    """
+    provider_name = cfg.llm_provider.strip().lower()
+    model = cfg.llm_model.strip()
+    if not model:
+        raise LlmPlannerError("LLM provider not configured: set LLM_MODEL")
+    if provider_name == "anthropic":
+        if not cfg.anthropic_api_key:
+            raise LlmPlannerError("LLM provider not configured: set ANTHROPIC_API_KEY")
+        return (
+            injected_provider or _anthropic_streaming_provider_call,
+            model,
+            cfg.anthropic_api_key,
+        )
+    if provider_name == "openai":
+        if not cfg.openai_api_key:
+            raise LlmPlannerError("LLM provider not configured: set OPENAI_API_KEY")
+        if model.startswith("claude-"):
+            raise LlmPlannerError("OpenAI provider requires an OpenAI LLM_MODEL, e.g. gpt-4o-mini")
+        return injected_provider or _openai_streaming_provider_call, model, cfg.openai_api_key
     raise LlmPlannerError("Unsupported LLM_PROVIDER; expected 'anthropic' or 'openai'")
 
 
@@ -153,6 +187,80 @@ def _openai_provider_call(model: str, prompt: str, api_key: str) -> str:
     if not isinstance(text, str):
         raise LlmPlannerError("OpenAI provider returned non-text content")
     return text.strip()
+
+
+def _anthropic_streaming_provider_call(
+    model: str, prompt: str, api_key: str
+) -> Iterator[str]:
+    """Streaming Anthropic provider — yields each text delta as it arrives."""
+    try:
+        import anthropic  # type: ignore[import-not-found]
+    except ImportError as exc:  # pragma: no cover - optional dep
+        raise LlmPlannerError('anthropic SDK not installed; pip install -e ".[llm]"') from exc
+
+    client = anthropic.Anthropic(api_key=api_key, timeout=60.0, max_retries=1)
+    with client.messages.stream(
+        model=model,
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+    ) as stream:
+        for text in stream.text_stream:
+            if isinstance(text, str) and text:
+                yield text
+
+
+def _openai_streaming_provider_call(
+    model: str, prompt: str, api_key: str
+) -> Iterator[str]:
+    """Streaming OpenAI provider — parses SSE `data:` lines from chat completions.
+
+    Uses stdlib only (no SDK dep). Reads chunks line by line and yields each
+    `choices[0].delta.content` string as it arrives. `[DONE]` ends the stream.
+    """
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "stream": True,
+    }
+    req = urllib.request.Request(
+        "https://api.openai.com/v1/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        },
+        method="POST",
+    )
+    try:
+        resp = urllib.request.urlopen(req, timeout=120)  # noqa: S310
+    except urllib.error.HTTPError as exc:  # pragma: no cover
+        detail = exc.read().decode("utf-8", errors="replace")[:500]
+        raise LlmPlannerError(f"OpenAI streaming failed: HTTP {exc.code}: {detail}") from exc
+    except urllib.error.URLError as exc:  # pragma: no cover
+        raise LlmPlannerError(f"OpenAI streaming failed: {exc.reason}") from exc
+
+    try:
+        for raw_line in resp:
+            line = raw_line.decode("utf-8", errors="replace").rstrip("\r\n")
+            if not line or not line.startswith("data:"):
+                continue
+            data = line[5:].strip()
+            if data == "[DONE]":
+                break
+            try:
+                event = json.loads(data)
+            except json.JSONDecodeError:
+                continue
+            try:
+                delta = event["choices"][0]["delta"].get("content")
+            except (KeyError, IndexError, TypeError):
+                continue
+            if isinstance(delta, str) and delta:
+                yield delta
+    finally:
+        resp.close()
 
 
 @dataclass
@@ -244,6 +352,8 @@ __all__ = [
     "LlmPlanner",
     "LlmPlannerError",
     "ProviderCall",
+    "StreamingProviderCall",
     "TwoStageLlmPlanner",
     "make_planner_from_settings",
+    "resolve_streaming_provider",
 ]
