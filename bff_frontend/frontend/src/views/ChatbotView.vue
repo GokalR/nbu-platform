@@ -46,18 +46,23 @@ function scrollToBottom() {
 
 marked.setOptions({ gfm: true, breaks: true })
 
-// Defensive markdown fixes for two CommonMark gotchas the LLM keeps hitting:
-//   1) Bold closer followed by a letter — `**80%**i` — closing `**` is not
-//      right-flanking when followed by a word char, so emphasis doesn't close.
-//      Fix: insert a space between `**` and the next letter.
-//   2) Whitespace flush inside bold markers — `** 5 tasi**` or `**5 tasi **`.
-//      Opening `**` must NOT be followed by whitespace (else not left-flanking).
-//      Closing `**` must NOT be preceded by whitespace (else not right-flanking).
-//      Fix: trim whitespace inside any `**...**` span.
+// Defensive markdown fixes for the CommonMark gotchas the LLM keeps hitting.
+//   1) Whitespace flush inside emphasis markers — `** 5 tasi**` or
+//      `**5 tasi **`. Opening `**` must NOT be followed by whitespace,
+//      closing `**` must NOT be preceded by whitespace. Trim the inside.
+//   2) Bold/italic followed by a letter — `**80%**i` — closing `**` is not
+//      right-flanking when followed by a word char, so emphasis doesn't
+//      close. Insert a space between `**` and the next letter.
+//
+// CRITICAL: the SUFFIX regexes need a negative lookbehind on the OPENING
+// `**` to make sure it isn't really a CLOSING `**` of a previous bold span.
+// Without that lookbehind, a string like `**a** hamda **b**` matches as if
+// `** hamda **` were one bold span and we end up inserting a stray space
+// before `b`, destroying the user's actual bold formatting.
 const _BOLD_SPACING_RE = /\*\*(\s*)([^*\n]+?)(\s*)\*\*/g
 const _ITALIC_SPACING_RE = /(?<!\*)\*(\s*)([^*\n\s][^*\n]*?)(\s*)\*(?!\*)/g
-const _BOLD_SUFFIX_RE = /(\*\*[^*\n]+\*\*)([\p{L}\p{N}])/gu
-const _ITALIC_SUFFIX_RE = /(?<![\*])(\*[^*\s][^*\n]*\*)([\p{L}\p{N}])/gu
+const _BOLD_SUFFIX_RE = /(?<![\p{L}\p{N}])(\*\*[^*\n]+?\*\*)([\p{L}\p{N}])/gu
+const _ITALIC_SUFFIX_RE = /(?<![\p{L}\p{N}\*])(\*[^*\n\s][^*\n]*?\*)(?!\*)([\p{L}\p{N}])/gu
 
 function _fixBoldSuffix(s) {
   return s
