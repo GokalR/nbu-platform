@@ -76,6 +76,35 @@ prose). The JSON object has these fields:
                           backend falls back to the current user question)
 
 PRIMARY SQL policy:
+  - METRIC-FOCUSED PRIMARY (CRITICAL when the question names ONE metric).
+    If the user's question explicitly names a single specific metric —
+    "ishsizlik" / "ишсизлик" / "unemployed", "aholi" / "population",
+    "reyting" / "rating", "biznes" / "active_businesses", "tibbiyot
+    masofa" / "medical_facility_distance_km", "asfalt yo'l" /
+    "road_asphalt_km", "muammoli kredit" / "problem_loans", "kam
+    ta'minlangan oila" / "poor_families", "ekin maydoni",
+    "ixtisoslashuv", a specific macro indicator key, etc. — the
+    primary_sql MUST be NARROWLY focused on that metric:
+
+      SELECT <entity name columns>, <THE asked metric>
+      FROM <appropriate view>
+      WHERE <entity filter>
+      ORDER BY <THE asked metric> DESC NULLS LAST   -- or appropriate
+      LIMIT N;
+
+    Do NOT bundle population, businesses, rating, loans and the metric
+    together in the SELECT just because v_regions / v_districts has all
+    of them. That kind of "profile dump" is reserved for VAGUE questions
+    ("Andijon haqida"), not metric-named questions. The downstream
+    narrator leads its answer with the FIRST value column in the primary
+    row — so if you put population first when the user asked about
+    unemployment, the headline becomes about population. Always put THE
+    ASKED METRIC as the primary value column.
+
+    Context queries then broaden the picture: population for share
+    context, district-level distribution, NULL counts, etc. The primary
+    stays focused.
+
   - Always project a human-readable label column for each row when the
     view exposes one (region_name_cyr, district_name_cyr, mahalla_name_cyr,
     issue_code, etc). Never return only an opaque numeric value.
@@ -305,17 +334,31 @@ NAME MATCHING when the user typed a Latin or mixed-script place name:
   * Source name columns (region_name_cyr, district_name_cyr,
     mahalla_name_cyr) are stored in Cyrillic. The user may type Latin
     (Marg'ilon, Yoyilma) or mixed forms.
-  * Take the most distinctive Cyrillic-likely fragment from the name
-    (e.g. "Yoyilma" -> "Йойилма" / "Ёйилма") and use a LIKE filter on
-    the relevant *_name_cyr column. When unsure of the exact spelling,
-    stem it: "Marg'ilon" -> WHERE district_name_cyr LIKE '%Марғ%' OR
-    district_name_cyr LIKE '%Марг%'.
+  * STEM AGGRESSIVELY. NEVER transliterate the user's spelling verbatim.
+    Users typo Latin names all the time (Toshkent / Toshekent / Toshkeent
+    / Toshkant — all the same place). The correct response is to extract
+    the SHORTEST distinctive 3-5 char prefix (or root) and LIKE on that.
+    Never embed the full user spelling in the LIKE pattern.
+      "Toshkent" / "Toshekent" / "Toshkeent" -> LIKE '%Тошк%'
+      "Andijon"  / "Andejon"   / "Андижан"   -> LIKE '%Андиж%'
+      "Buxoro"   / "Buhoro"    / "Buxara"    -> LIKE '%Бухор%'
+      "Marg'ilon" / "Margilon" / "Margilan"  -> LIKE '%Марғ%' OR LIKE '%Марг%'
+      "Yoyilma"  / "Yayilma"                 -> LIKE '%Йойилма%' OR LIKE '%Ёйилма%'
+      "Samarqand" / "Samarkand"              -> LIKE '%Самар%'
+      "Farg'ona" / "Fergana"                 -> LIKE '%Фарғ%' OR LIKE '%Ферг%'
+      "Qashqadaryo" / "Qashqadarya"          -> LIKE '%Қашқа%' OR LIKE '%Кашка%'
+    The shorter the stem, the more typo-tolerant. As long as the stem is
+    not a substring of any OTHER region/district name in the catalog (3-5
+    chars is almost always safe), false positives are negligible.
+  * For uncertain Cyrillic letter swaps (қ/к, ҳ/х, ў/у, ғ/г, ё/е), emit
+    a 2-arm OR on the same column with both variants. Better to over-match
+    than under-match.
   * LIKE filters in WHERE are allowed for this purpose. Do NOT JOIN on
     name columns — use the surrogate ids (mahalla_id, district_id,
     region_id) for joins, just like normal.
-  * If the resulting SELECT returns 0 rows, that is a valid empty
-    answer — the downstream agent will tell the user "topilmadi". Do
-    not pre-emptively clarify.
+  * If the resulting SELECT returns 0 rows after stem-aggressive
+    matching, that is a valid empty answer — the downstream agent will
+    tell the user "topilmadi". Do not pre-emptively clarify.
 
   * MULTIPLE ENTITIES WITH THE SAME NAME (CRITICAL):
     Names like "Yoyilma", "Bog'", "Yangi hayot" exist in many districts.
