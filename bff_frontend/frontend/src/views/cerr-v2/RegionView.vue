@@ -26,6 +26,9 @@ watch(regionCode, async (code) => {
     store.loadRegionDistricts(code),
     store.loadRegionGeo(code),
     store.loadRaqamlarda(String(code)),
+    /* Country aggregate carries the cross-region rank + integrated score
+     * this region's hero shows in the bottom-right two tiles. */
+    store.loadCountryAggregate(),
   ])
   // Side-load district overviews (for rating tier coloring) in parallel —
   // 16-22 districts otherwise stack into ~600ms of sequential round-trips.
@@ -60,33 +63,88 @@ const chartData = computed(() => overview.value?.chart?.data || [])
 const chartTitle = computed(() => overview.value?.chart?.title || 'Туманлар бўйича энг юқори рейтинг ўрни')
 const maxChart = computed(() => Math.max(1, ...chartData.value.map((d) => d.value || 0)))
 
-const heroKpis = computed(() => {
-  const k = (overview.value?.kpis || [])
-  return k.filter((x) => ['population', 'active_businesses', 'unemployed', 'rating_score'].includes(x.key))
+/** Pull the population KPI from the region overview (kept separate so the
+ *  structured 5-tile hero below doesn't have to scan kpis on every render). */
+const populationKpi = computed(() => {
+  return (overview.value?.kpis || []).find((k) => k.key === 'population') || null
 })
 
-/** KPI strip data (mahalla-hero look): each tile gets a delta chip and an
- *  optional district-average footnote. Tone follows direction: for "down"
- *  KPIs (e.g. unemployed) a positive change_pct is bad. */
+/** Rank + integrated score of this region within the country (mean of
+ *  district means of mahalla rating_score). Comes from the precomputed
+ *  country aggregate so it doesn't trigger any new R2 reads. */
+const countryEntry = computed(() => {
+  const arr = store.countryAggregate?.regions || []
+  return arr.find((r) => r.code === regionCode.value) || null
+})
+const countryRegionsCount = computed(() => (store.countryAggregate?.regions || []).length || 14)
+
+/** Tone helper: 'lead' tier (top 40%) is positive, 'low' (bottom 20%) is
+ *  negative, 'mid' is neutral. Matches the country page's rank-tier split. */
+function tierTone(tier) {
+  if (tier === 'lead') return 'pos'
+  if (tier === 'low')  return 'neg'
+  return 'neu'
+}
+
+/** 5-tile structured hero: population + districts + mahallas + rating score
+ *  + country rank. All values come from already-loaded stores so this is
+ *  cheap to compute. */
 const heroStats = computed(() => {
-  return heroKpis.value.map((k) => {
-    const dir = k.direction
-    let tone = 'neu'
-    if (k.change_pct != null) {
-      if (dir === 'down') tone = k.change_pct > 0 ? 'neg' : 'pos'
-      else tone = k.change_pct > 0 ? 'pos' : 'neg'
-    }
-    return {
-      key: k.key,
-      label: k.label,
-      ico: iconForKpi(k.key),
-      value: fmt.num(k.value),
-      delta: k.change_pct != null
-        ? `${k.change_pct > 0 ? '+' : ''}${Number(k.change_pct).toFixed(1).replace('.', ',')}%`
-        : null,
-      deltaTone: tone,
-    }
-  })
+  const pop = populationKpi.value
+  const r = region.value
+  const ce = countryEntry.value
+  const total = countryRegionsCount.value
+  const out = []
+
+  if (pop) {
+    out.push({
+      key: 'pop',
+      label: tFn('cerrV2.region.stat.pop'),
+      ico: iconForKpi('population'),
+      value: fmt.num(pop.value),
+      delta: null,
+    })
+  }
+  if (r?.districts_count != null) {
+    out.push({
+      key: 'districts',
+      label: tFn('cerrV2.region.stat.districts'),
+      ico: iconForKpi('mahalla_count'),
+      value: fmt.num(r.districts_count),
+      delta: null,
+    })
+  }
+  if (r?.mahalla_count != null) {
+    out.push({
+      key: 'mahallas',
+      label: tFn('cerrV2.region.stat.mahallas'),
+      ico: 'grid',
+      value: fmt.num(r.mahalla_count),
+      delta: null,
+    })
+  }
+  if (ce?.score != null) {
+    out.push({
+      key: 'rating',
+      label: tFn('cerrV2.region.stat.rating'),
+      ico: 'award',
+      value: Number(ce.score).toFixed(1).replace('.', ','),
+      delta: null,
+      deltaTone: tierTone(ce.tier),
+    })
+  }
+  if (ce?.rank != null) {
+    out.push({
+      key: 'rank',
+      label: tFn('cerrV2.region.stat.rank'),
+      ico: 'check',
+      value: `#${ce.rank}`,
+      unit: tFn('cerrV2.region.rankOfTotal', { total }),
+      delta: null,
+      deltaTone: tierTone(ce.tier),
+    })
+  }
+  return out
 })
 
 /** Tier districts by rank-percentile within THEIR region (not absolute pos),
@@ -183,7 +241,8 @@ const periodLabel = computed(() => '2026 1-кв.')
               <div class="hv2-stat-label">{{ s.label }}</div>
             </div>
             <div class="hv2-stat-row">
-              <span class="hv2-stat-val tabular">{{ s.value }}</span>
+              <span :class="['hv2-stat-val tabular', s.deltaTone === 'pos' ? 'is-pos' : s.deltaTone === 'neg' ? 'is-neg' : '']">{{ s.value }}</span>
+              <span v-if="s.unit" class="hv2-stat-unit">{{ s.unit }}</span>
               <span v-if="s.delta" :class="['mh-delta', s.deltaTone]">{{ s.delta }}</span>
             </div>
           </div>
@@ -281,4 +340,9 @@ const periodLabel = computed(() => '2026 1-кв.')
   .cerr-v2-scope .entity-hero .mh-stats[data-count="5"],
   .cerr-v2-scope .entity-hero .mh-stats[data-count="6"] { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Rating / rank tiles use a tier-tone colour for the value so 'top 40 %'
+ * regions show green and 'bottom 20 %' show red. */
+.cerr-v2-scope .entity-hero .hv2-stat-val.is-pos { color: #34d399; }
+.cerr-v2-scope .entity-hero .hv2-stat-val.is-neg { color: #f87171; }
 </style>

@@ -2989,6 +2989,14 @@
       "districtsAndCities": "{n} туман ва шаҳар",
       "mahallasCount": "{n} маҳалла",
       "mapSub": "{n} туман · {m} маҳалла",
+      "stat": {
+        "pop": "Аҳоли сони",
+        "districts": "Туман ва шаҳарлар",
+        "mahallas": "Маҳаллалар сони",
+        "rating": "Рейтинг балли",
+        "rank": "Мамлакатдаги ўрни"
+      },
+      "rankOfTotal": "{total} тадан",
       "tierGroups": "Рейтинг гуруҳлари",
       "tier": {
         "lead": "Етакчилар (юқори 25%)",

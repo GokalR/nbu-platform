@@ -2989,6 +2989,14 @@
       "districtsAndCities": "{n} районов и городов",
       "mahallasCount": "{n} махаллей",
       "mapSub": "{n} районов · {m} махаллей",
+      "stat": {
+        "pop": "Население",
+        "districts": "Туманы и города",
+        "mahallas": "Махаллей",
+        "rating": "Балл рейтинга",
+        "rank": "Место в стране"
+      },
+      "rankOfTotal": "из {total}",
       "tierGroups": "Рейтинговые группы",
       "tier": {
         "lead": "Лидеры (топ 25%)",
