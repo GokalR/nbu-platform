@@ -32,6 +32,12 @@ region_analytics_platform_template/cerr_runs/
 # Railway builds from source via the Dockerfile, so the tars are local-only.
 chatbot/*.tar
 
+# Phase 2A business directory: OKED.xlsx + TN_VED.xlsx + TN_VED_description.xls
+# (~115 MB total) plus the postgres dump from the colleague. Loaded into Railway
+# Postgres once via `cerr_chatbot.cli import-business`; raw files stay local.
+chatbot/business/
+chatbot/*.dump
+
 # detailed_map_city: large scraped JSON checkpoints (regenerable)
 detailed_map_city/checkpoint.json
 

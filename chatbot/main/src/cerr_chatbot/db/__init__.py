@@ -6,6 +6,9 @@ no data-loading logic - the importer is a later phase.
 
 from cerr_chatbot.db.base import NAMING_CONVENTION, Base, JsonbType
 from cerr_chatbot.db.models import (
+    BusinessCompany,
+    BusinessImport,
+    BusinessImportSummary,
     DataQualityIssue,
     District,
     DistrictGeometry,
@@ -25,10 +28,14 @@ from cerr_chatbot.db.models import (
     Region,
     RegionGeometry,
     SourceRegionFile,
+    TnvedCategory,
 )
 
 __all__ = [
     "Base",
+    "BusinessCompany",
+    "BusinessImport",
+    "BusinessImportSummary",
     "DataQualityIssue",
     "District",
     "DistrictGeometry",
@@ -50,4 +57,5 @@ __all__ = [
     "Region",
     "RegionGeometry",
     "SourceRegionFile",
+    "TnvedCategory",
 ]

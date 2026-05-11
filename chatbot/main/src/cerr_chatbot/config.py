@@ -29,6 +29,13 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("SOURCE_DIR", "CERR_SOURCE_DIR", "cerr_source_dir"),
     )
 
+    # Phase 2A business directory source. Three Excel files live here:
+    # OKED.xlsx, TN_VED.xlsx, TN_VED_description.xls.
+    business_source_dir: Path = Field(
+        default=Path("./chatbot/business"),
+        validation_alias=AliasChoices("BUSINESS_SOURCE_DIR", "business_source_dir"),
+    )
+
     # PostgreSQL
     postgres_host: str = "localhost"
     postgres_port: int = 5432

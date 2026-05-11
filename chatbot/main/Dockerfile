@@ -16,7 +16,7 @@ COPY src ./src
 COPY questions.md questions_uz_latn.md questions_user_uz_latn.md ./
 
 RUN python -m pip install --upgrade pip \
-    && python -m pip install ".[db,query,llm,api]" \
+    && python -m pip install ".[db,query,llm,api,business]" \
     && useradd --create-home --shell /usr/sbin/nologin appuser \
     && mkdir -p /app/audit_reports /app/profile_reports /app/eval_reports \
     && chown -R appuser:appuser /app

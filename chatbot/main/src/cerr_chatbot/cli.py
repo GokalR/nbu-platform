@@ -208,6 +208,43 @@ def _cmd_import_json(_args: argparse.Namespace) -> int:
     return 0 if summary.status == "completed" else 1
 
 
+def _cmd_import_business(args: argparse.Namespace) -> int:
+    from cerr_chatbot.db.session import make_engine
+    from cerr_chatbot.importer import import_business
+
+    if args.source_dir is not None:
+        # Allow --source-dir to override BUSINESS_SOURCE_DIR for one-off runs.
+        import os
+
+        os.environ["BUSINESS_SOURCE_DIR"] = str(args.source_dir)
+        from cerr_chatbot.config import get_settings as _gs
+
+        _gs.cache_clear()  # type: ignore[attr-defined]
+
+    engine = make_engine()
+    try:
+        stats = import_business(engine)
+    except Exception as exc:  # noqa: BLE001
+        print(f"ERROR: business import failed: {exc}", file=sys.stderr)
+        return 1
+
+    print("=== Business directory import (Phase 2A) ===")
+    print(f"import_run_id           : {stats.import_run_id}")
+    print(f"status                  : {stats.status}")
+    print(f"tnved_categories        : {stats.tnved_categories}")
+    print(f"business_companies      : {stats.business_companies}")
+    print(f"business_imports        : {stats.business_imports}")
+    print(f"import_summaries        : {stats.business_import_summaries}")
+    print(f"region match hits/miss  : {stats.region_match_hits} / {stats.region_match_misses}")
+    print(
+        f"district match hits/miss: {stats.district_match_hits} / {stats.district_match_misses}"
+    )
+    print(
+        f"mahalla match hits/miss : {stats.mahalla_match_hits} / {stats.mahalla_match_misses}"
+    )
+    return 0 if stats.status == "completed_business" else 1
+
+
 def _build_runtime_pipeline() -> Pipeline:
     from cerr_chatbot.config import get_settings
     from cerr_chatbot.db.session import make_engine
@@ -319,6 +356,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Phase 4A: import entities + KPIs + data quality issues into PostgreSQL",
     )
     imp_p.set_defaults(func=_cmd_import_json)
+
+    biz_p = sub.add_parser(
+        "import-business",
+        help="Phase 2A: import OKED.xlsx + TN_VED.xlsx + TN_VED_description.xls into PostgreSQL",
+    )
+    biz_p.add_argument(
+        "--source-dir",
+        type=Path,
+        default=None,
+        help="Directory containing OKED.xlsx, TN_VED.xlsx, TN_VED_description.xls "
+        "(default: $BUSINESS_SOURCE_DIR, else ./chatbot/business).",
+    )
+    biz_p.set_defaults(func=_cmd_import_business)
 
     eval_p = sub.add_parser(
         "eval-questions",

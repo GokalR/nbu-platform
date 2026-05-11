@@ -400,3 +400,171 @@ CREATE_VIEW_STATEMENTS: list[str] = [
 
 # Drop in reverse order; safe with IF EXISTS so re-runs do not fail.
 DROP_VIEW_STATEMENTS: list[str] = [f"DROP VIEW IF EXISTS {name}" for name in reversed(VIEW_NAMES)]
+
+
+# ---------------------------------------------------------------------------
+# Phase 2A: business directory views
+# ---------------------------------------------------------------------------
+#
+# Business imports use status='completed_business' on their import_runs row so
+# the CERR latest-run subquery (status='completed') keeps pointing at the CERR
+# snapshot. Each business view filters to the latest business run.
+
+BUSINESS_LATEST_RUN_SUBQUERY = (
+    "(SELECT max(import_run_id) FROM import_runs WHERE status = 'completed_business')"
+)
+
+
+def _v_companies() -> str:
+    return f"""
+SELECT
+    c.company_id,
+    c.region_id,
+    c.district_id,
+    c.inn,
+    c.client_code,
+    c.company_name,
+    c.client_type_cyr,
+    c.address_raw,
+    c.country_name_cyr,
+    c.region_name_raw_cyr,
+    c.district_name_raw_cyr,
+    r.region_name_cyr,
+    d.district_name_cyr,
+    c.oked_label_ru,
+    c.oked_label_uz
+FROM business_companies c
+LEFT JOIN regions r ON r.region_id = c.region_id
+LEFT JOIN districts d ON d.district_id = c.district_id
+WHERE c.import_run_id = {BUSINESS_LATEST_RUN_SUBQUERY}
+""".strip()
+
+
+def _v_tnved_categories() -> str:
+    return f"""
+SELECT
+    t.tnved_category_id,
+    t.tnved_code,
+    t.chapter,
+    t.heading,
+    t.description_ru
+FROM tnved_categories t
+WHERE t.import_run_id = {BUSINESS_LATEST_RUN_SUBQUERY}
+""".strip()
+
+
+def _v_business_imports() -> str:
+    return f"""
+SELECT
+    bi.business_import_id,
+    bi.region_id,
+    bi.district_id,
+    bi.mahalla_id,
+    bi.inn,
+    bi.company_name,
+    bi.contract_number,
+    bi.declaration_number,
+    bi.declaration_date,
+    bi.region_name_raw_cyr,
+    bi.district_name_raw_cyr,
+    bi.mahalla_name_raw_cyr,
+    r.region_name_cyr,
+    d.district_name_cyr,
+    m.mahalla_name_cyr,
+    bi.tnved_code,
+    bi.tnved_chapter,
+    t.description_ru AS tnved_description_ru,
+    bi.currency_code,
+    bi.origin_country_code,
+    bi.invoice_value_total,
+    bi.invoice_value_item,
+    bi.value_usd,
+    bi.exchange_rate,
+    bi.item_description
+FROM business_imports bi
+LEFT JOIN regions r ON r.region_id = bi.region_id
+LEFT JOIN districts d ON d.district_id = bi.district_id
+LEFT JOIN mahallas m ON m.mahalla_id = bi.mahalla_id
+LEFT JOIN tnved_categories t
+       ON t.tnved_code = bi.tnved_code
+      AND t.import_run_id = {BUSINESS_LATEST_RUN_SUBQUERY}
+WHERE bi.import_run_id = {BUSINESS_LATEST_RUN_SUBQUERY}
+""".strip()
+
+
+def _v_business_import_summaries() -> str:
+    return f"""
+SELECT
+    s.business_import_summary_id,
+    s.inn,
+    s.company_name,
+    s.total_import_usd,
+    s.value_machines_usd,
+    s.value_chemicals_usd,
+    s.value_misc_goods_usd,
+    s.value_industrial_usd,
+    s.value_animal_oils_usd,
+    s.value_non_food_raw_usd,
+    s.value_building_mats_usd,
+    s.value_food_products_usd,
+    s.value_fruit_veg_usd,
+    s.value_mineral_fuel_usd,
+    s.value_beverages_tobacco_usd,
+    s.value_other_goods_usd
+FROM business_import_summaries s
+WHERE s.import_run_id = {BUSINESS_LATEST_RUN_SUBQUERY}
+""".strip()
+
+
+def _v_company_density_by_district() -> str:
+    """Pre-aggregated rollup: company count per (district, OKED label).
+
+    Avoids GROUP BY in chatbot SQL for the most common business-density
+    queries ('how many restaurants per district', 'company gap analysis').
+    Materialised as a view (re-evaluated on read), not a real materialized view,
+    so it always reflects the latest business import.
+    """
+    return f"""
+SELECT
+    c.region_id,
+    c.district_id,
+    r.region_name_cyr,
+    d.district_name_cyr,
+    c.oked_label_uz,
+    c.oked_label_ru,
+    COUNT(*) AS company_count
+FROM business_companies c
+LEFT JOIN regions r ON r.region_id = c.region_id
+LEFT JOIN districts d ON d.district_id = c.district_id
+WHERE c.import_run_id = {BUSINESS_LATEST_RUN_SUBQUERY}
+  AND c.region_id IS NOT NULL
+  AND c.district_id IS NOT NULL
+  AND c.oked_label_uz IS NOT NULL
+GROUP BY c.region_id, c.district_id, r.region_name_cyr, d.district_name_cyr,
+         c.oked_label_uz, c.oked_label_ru
+""".strip()
+
+
+BUSINESS_VIEW_NAMES: tuple[str, ...] = (
+    "v_tnved_categories",
+    "v_companies",
+    "v_business_imports",
+    "v_business_import_summaries",
+    "v_company_density_by_district",
+)
+
+BUSINESS_VIEW_BODIES: dict[str, str] = {
+    "v_tnved_categories": _v_tnved_categories(),
+    "v_companies": _v_companies(),
+    "v_business_imports": _v_business_imports(),
+    "v_business_import_summaries": _v_business_import_summaries(),
+    "v_company_density_by_district": _v_company_density_by_district(),
+}
+
+BUSINESS_CREATE_VIEW_STATEMENTS: list[str] = [
+    f"CREATE VIEW {name} AS {BUSINESS_VIEW_BODIES[name]}" for name in BUSINESS_VIEW_NAMES
+]
+
+BUSINESS_DROP_VIEW_STATEMENTS: list[str] = [
+    f"DROP VIEW IF EXISTS {name}" for name in reversed(BUSINESS_VIEW_NAMES)
+]

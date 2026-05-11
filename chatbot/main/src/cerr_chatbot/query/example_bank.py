@@ -32,6 +32,10 @@ TAG_CROPS = "crops"
 TAG_DISTRIBUTION = "distribution"
 TAG_SCALAR_COUNT = "scalar_count"
 TAG_SAMPLE = "sample"
+# Phase 2A — business directory tags
+TAG_BUSINESS_COMPANY = "business_company"
+TAG_BUSINESS_IMPORT = "business_import"
+TAG_BUSINESS_TNVED = "business_tnved"
 
 
 @dataclass(frozen=True)
@@ -371,6 +375,161 @@ EXAMPLES: tuple[PromptExample, ...] = (
         tags=(TAG_DATA_QUALITY, TAG_DISTRIBUTION),
         keywords=("data quality", "issue", "muammo", "issue_code"),
     ),
+    # ----- Phase 2A: business directory examples -------------------------
+    PromptExample(
+        title="company count per region",
+        sql=(
+            "SELECT region_name_cyr, COUNT(*) AS company_count "
+            "FROM v_companies "
+            "WHERE region_name_cyr IS NOT NULL "
+            "GROUP BY region_name_cyr "
+            "ORDER BY company_count DESC LIMIT 20"
+        ),
+        views=("v_companies",),
+        tags=(TAG_BUSINESS_COMPANY, TAG_GROUP_BY_REGION),
+        keywords=("korxona", "kompaniya", "company", "biznes", "soni", "nechta"),
+    ),
+    PromptExample(
+        title="company count per OKED activity in a single region",
+        sql=(
+            "SELECT oked_label_uz, COUNT(*) AS company_count "
+            "FROM v_companies "
+            "WHERE region_name_cyr LIKE '%Фарғона%' "
+            "AND oked_label_uz IS NOT NULL "
+            "GROUP BY oked_label_uz "
+            "ORDER BY company_count DESC LIMIT 25"
+        ),
+        views=("v_companies",),
+        tags=(TAG_BUSINESS_COMPANY, TAG_DISTRIBUTION),
+        keywords=("faoliyat", "soha", "yo'nalish", "tadbirkorlik", "oked"),
+    ),
+    PromptExample(
+        title="search companies in a specific industry (restaurant) in a region",
+        sql=(
+            "SELECT company_name, district_name_cyr, oked_label_uz "
+            "FROM v_companies "
+            "WHERE region_name_cyr LIKE '%Самарқанд%' "
+            "AND (oked_label_ru LIKE '%ресторан%' OR oked_label_uz LIKE '%ресторан%') "
+            "LIMIT 50"
+        ),
+        views=("v_companies",),
+        tags=(TAG_BUSINESS_COMPANY, TAG_SAMPLE),
+        keywords=("restoran", "kafe", "ресторан", "samarqand", "samarkand"),
+    ),
+    PromptExample(
+        title="top districts by retail-trade company density",
+        sql=(
+            "SELECT region_name_cyr, district_name_cyr, company_count "
+            "FROM v_company_density_by_district "
+            "WHERE oked_label_uz LIKE '%чакана%' "
+            "ORDER BY company_count DESC LIMIT 20"
+        ),
+        views=("v_company_density_by_district",),
+        tags=(TAG_BUSINESS_COMPANY, TAG_TOP_N),
+        keywords=("chakana", "savdo", "zichlik", "density", "tuman"),
+    ),
+    PromptExample(
+        title="top importers by total USD value",
+        sql=(
+            "SELECT company_name, total_import_usd "
+            "FROM v_business_import_summaries "
+            "WHERE total_import_usd IS NOT NULL "
+            "ORDER BY total_import_usd DESC LIMIT 10"
+        ),
+        views=("v_business_import_summaries",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_TOP_N),
+        keywords=("import", "importer", "yetkazib beruvchi", "eng katta", "top"),
+    ),
+    PromptExample(
+        title="top food-product importers (pre-aggregated category column)",
+        sql=(
+            "SELECT company_name, value_food_products_usd "
+            "FROM v_business_import_summaries "
+            "WHERE value_food_products_usd IS NOT NULL "
+            "ORDER BY value_food_products_usd DESC LIMIT 15"
+        ),
+        views=("v_business_import_summaries",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_TOP_N),
+        keywords=("oziq-ovqat", "продукты", "food", "import"),
+    ),
+    PromptExample(
+        title="top importing regions by total USD value",
+        sql=(
+            "SELECT region_name_cyr, SUM(value_usd) AS region_import_usd "
+            "FROM v_business_imports "
+            "WHERE region_name_cyr IS NOT NULL AND value_usd IS NOT NULL "
+            "GROUP BY region_name_cyr "
+            "ORDER BY region_import_usd DESC LIMIT 14"
+        ),
+        views=("v_business_imports",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_GROUP_BY_REGION),
+        keywords=("region", "viloyat", "import", "summa"),
+    ),
+    PromptExample(
+        title="imports by TN_VED chapter in a single region",
+        sql=(
+            "SELECT tnved_chapter, SUM(value_usd) AS chapter_total_usd "
+            "FROM v_business_imports "
+            "WHERE region_name_cyr LIKE '%Тошкент%' "
+            "AND tnved_chapter IS NOT NULL AND value_usd IS NOT NULL "
+            "GROUP BY tnved_chapter "
+            "ORDER BY chapter_total_usd DESC LIMIT 20"
+        ),
+        views=("v_business_imports",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_BUSINESS_TNVED, TAG_DISTRIBUTION),
+        keywords=("tnved", "tn ved", "chapter", "bob", "mahsulot"),
+    ),
+    PromptExample(
+        title="look up TN_VED code description",
+        sql=(
+            "SELECT tnved_code, description_ru "
+            "FROM v_tnved_categories "
+            "WHERE chapter = '02' LIMIT 25"
+        ),
+        views=("v_tnved_categories",),
+        tags=(TAG_BUSINESS_TNVED, TAG_SAMPLE),
+        keywords=("tn ved", "tnved", "tovar kodi", "mahsulot kodi"),
+    ),
+    PromptExample(
+        title="what does a single company import (by TN_VED chapter)",
+        sql=(
+            "SELECT tnved_chapter, SUM(value_usd) AS chapter_usd, "
+            "COUNT(*) AS declaration_lines "
+            "FROM v_business_imports "
+            "WHERE company_name LIKE '%UzGasTrade%' "
+            "AND tnved_chapter IS NOT NULL AND value_usd IS NOT NULL "
+            "GROUP BY tnved_chapter "
+            "ORDER BY chapter_usd DESC LIMIT 20"
+        ),
+        views=("v_business_imports",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_BUSINESS_TNVED),
+        keywords=("kompaniya", "import", "nima", "qancha"),
+    ),
+    PromptExample(
+        title="top countries of origin by import USD",
+        sql=(
+            "SELECT origin_country_code, SUM(value_usd) AS country_total_usd "
+            "FROM v_business_imports "
+            "WHERE origin_country_code IS NOT NULL AND value_usd IS NOT NULL "
+            "GROUP BY origin_country_code "
+            "ORDER BY country_total_usd DESC LIMIT 15"
+        ),
+        views=("v_business_imports",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_TOP_N),
+        keywords=("davlat", "country", "kelib chiqgan", "origin"),
+    ),
+    PromptExample(
+        title="grand total imports across all importers",
+        sql=(
+            "SELECT SUM(total_import_usd) AS grand_total_import_usd, "
+            "COUNT(*) AS importer_count "
+            "FROM v_business_import_summaries "
+            "WHERE total_import_usd IS NOT NULL"
+        ),
+        views=("v_business_import_summaries",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_SCALAR_COUNT),
+        keywords=("jami", "umumiy", "barcha", "total", "grand total"),
+    ),
     PromptExample(
         title="combined cross-view scalar counts (no joins)",
         sql=(
@@ -444,6 +603,9 @@ __all__ = [
     "EXAMPLES",
     "PromptExample",
     "TAG_APPEALS",
+    "TAG_BUSINESS_COMPANY",
+    "TAG_BUSINESS_IMPORT",
+    "TAG_BUSINESS_TNVED",
     "TAG_CROPS",
     "TAG_DATA_QUALITY",
     "TAG_DISTRIBUTION",

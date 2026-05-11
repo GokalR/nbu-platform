@@ -485,6 +485,249 @@ V_DATA_QUALITY_ISSUES = SemanticView(
 )
 
 
+# ---------------------------------------------------------------------------
+# Phase 2A: business directory views
+# ---------------------------------------------------------------------------
+#
+# These views expose company registry + customs import data alongside the
+# existing regional / district / mahalla geography. They use the same
+# surrogate-id join contract (region_id, district_id, mahalla_id) so they
+# JOIN cleanly against v_regions / v_districts / v_mahallas.
+#
+# OKED (industry classification) lives in v_companies as free-text labels —
+# the source ships no numeric OKED code. Filter with LIKE on oked_label_uz
+# or oked_label_ru.
+#
+# TN_VED (product classification) is a 10-digit code. v_tnved_categories is
+# the HS-style dictionary. v_business_imports already joins the description
+# in via tnved_description_ru so most queries don't need to touch the dict.
+
+V_TNVED_CATEGORIES = SemanticView(
+    name="v_tnved_categories",
+    grain="one row per TN_VED product code in the latest business import",
+    purpose="HS-style product classification dictionary. Use for chapter/heading lookups.",
+    columns=(
+        SemanticViewColumn("tnved_category_id", "Surrogate id.", nullable=False),
+        SemanticViewColumn("tnved_code", "Full TN_VED code (10 digits as text).", nullable=False),
+        SemanticViewColumn("chapter", "First 2 digits of the code (HS chapter)."),
+        SemanticViewColumn("heading", "First 4 digits (HS heading)."),
+        SemanticViewColumn("description_ru", "Russian description of the product code."),
+    ),
+    use_cases=("look up what a TN_VED code means", "group products by HS chapter"),
+    examples=(
+        "SELECT tnved_code, description_ru FROM v_tnved_categories "
+        "WHERE chapter = '02' LIMIT 50",
+    ),
+)
+
+V_COMPANIES = SemanticView(
+    name="v_companies",
+    grain="one row per registered Uzbek company (~167k rows)",
+    purpose=(
+        "Full business directory. Has region + district FK (resolved by name match), "
+        "OKED industry label in both Russian and Uzbek, free-text address."
+    ),
+    columns=(
+        SemanticViewColumn("company_id", "Surrogate company id.", nullable=False),
+        SemanticViewColumn(
+            "region_id", "Surrogate region id; NULL when geo resolution failed."
+        ),
+        SemanticViewColumn("district_id", "Surrogate district id; NULL when unresolved."),
+        SemanticViewColumn("inn", "Company tax id; not strictly unique across branches."),
+        SemanticViewColumn("client_code", "Internal client code from the source feed."),
+        SemanticViewColumn("company_name", "Company name as stored in the source (mixed scripts)."),
+        SemanticViewColumn(
+            "client_type_cyr",
+            "Cyrillic legal form, e.g. 'Индивидуальные предприниматели'.",
+        ),
+        SemanticViewColumn("address_raw", "Free-text address (mahalla-level granularity)."),
+        SemanticViewColumn("country_name_cyr", "Country in Cyrillic, almost always 'Узбекистан'."),
+        SemanticViewColumn(
+            "region_name_raw_cyr", "Region name as it appears in the source (UPPER-CASE Cyrillic)."
+        ),
+        SemanticViewColumn(
+            "district_name_raw_cyr",
+            "District name as it appears in the source (UPPER-CASE Cyrillic).",
+        ),
+        SemanticViewColumn("region_name_cyr", "Region name from CERR geography (Title Case)."),
+        SemanticViewColumn("district_name_cyr", "District name from CERR geography."),
+        SemanticViewColumn(
+            "oked_label_ru",
+            "Russian OKED activity label, e.g. 'Розничная торговля в неспециализированных магазинах'. "
+            "No numeric code in the source — use LIKE for category filters.",
+        ),
+        SemanticViewColumn(
+            "oked_label_uz",
+            "Uzbek OKED activity label, e.g. 'Чакана савдо'. Use LIKE for category filters.",
+        ),
+    ),
+    join_keys=("region_id", "district_id"),
+    use_cases=(
+        "count companies in a region/district",
+        "find companies in a specific industry via OKED label LIKE filter",
+        "rank districts by company count for a given OKED",
+    ),
+    warnings=(
+        "There is no numeric OKED code; filter with `oked_label_ru LIKE '%pattern%'` or `oked_label_uz LIKE ...`.",
+        "region_id / district_id are NULL when the source name could not be matched to CERR geography.",
+        "INN is not unique — one tax id can have multiple branch rows.",
+    ),
+    examples=(
+        "SELECT region_name_cyr, COUNT(*) AS company_count FROM v_companies "
+        "WHERE oked_label_ru LIKE '%ресторан%' GROUP BY region_name_cyr "
+        "ORDER BY company_count DESC LIMIT 14",
+        "SELECT company_name, district_name_cyr, oked_label_uz FROM v_companies "
+        "WHERE region_name_cyr LIKE '%Фарғона%' AND oked_label_uz LIKE '%чакана%' LIMIT 50",
+    ),
+)
+
+V_BUSINESS_IMPORTS = SemanticView(
+    name="v_business_imports",
+    grain="one row per TN_VED product line on an import declaration (~427k rows, 2024-2025)",
+    purpose=(
+        "Customs import line items. Each row ties one company (importer) to one TN_VED "
+        "product code and a USD invoice value. Region/district/mahalla resolved from "
+        "the source geo fields. Already joined to v_tnved_categories for description."
+    ),
+    columns=(
+        SemanticViewColumn("business_import_id", "Surrogate id.", nullable=False),
+        SemanticViewColumn("region_id", "Importer region surrogate id; NULL if unresolved."),
+        SemanticViewColumn("district_id", "Importer district surrogate id; NULL if unresolved."),
+        SemanticViewColumn("mahalla_id", "Importer mahalla surrogate id; NULL if unresolved."),
+        SemanticViewColumn("inn", "Importer tax id."),
+        SemanticViewColumn("company_name", "Importer name as on the declaration."),
+        SemanticViewColumn("contract_number", "Customs contract identifier."),
+        SemanticViewColumn("declaration_number", "Declaration sequence number."),
+        SemanticViewColumn("declaration_date", "Declaration date (DATE)."),
+        SemanticViewColumn("region_name_raw_cyr", "Importer region as on declaration (Cyrillic)."),
+        SemanticViewColumn("district_name_raw_cyr", "Importer district as on declaration."),
+        SemanticViewColumn("mahalla_name_raw_cyr", "Importer mahalla as on declaration."),
+        SemanticViewColumn("region_name_cyr", "Importer region from CERR geography."),
+        SemanticViewColumn("district_name_cyr", "Importer district from CERR geography."),
+        SemanticViewColumn("mahalla_name_cyr", "Importer mahalla from CERR geography."),
+        SemanticViewColumn("tnved_code", "TN_VED 10-digit code as text.", nullable=False),
+        SemanticViewColumn("tnved_chapter", "First 2 digits of TN_VED code (HS chapter)."),
+        SemanticViewColumn(
+            "tnved_description_ru", "Russian product description joined from v_tnved_categories."
+        ),
+        SemanticViewColumn(
+            "currency_code", "Numeric ISO currency code (e.g. '840' for USD, '978' for EUR)."
+        ),
+        SemanticViewColumn(
+            "origin_country_code", "Numeric ISO country code of origin (e.g. '156' for China)."
+        ),
+        SemanticViewColumn("invoice_value_total", "Invoice total for the declaration."),
+        SemanticViewColumn("invoice_value_item", "Invoice total for this line item."),
+        SemanticViewColumn(
+            "value_usd",
+            "USD equivalent of the line item; THIS is the column to sum for import value.",
+        ),
+        SemanticViewColumn("exchange_rate", "Declaration-day exchange rate to UZS."),
+        SemanticViewColumn(
+            "item_description", "Free-text item description (very long; rarely useful for SQL)."
+        ),
+    ),
+    join_keys=("region_id", "district_id", "mahalla_id"),
+    use_cases=(
+        "top importers by total USD value",
+        "import volume per region/district",
+        "what does company X import (by TN_VED chapter)",
+        "which countries do imports originate from",
+    ),
+    warnings=(
+        "Use value_usd for monetary aggregation; invoice_value_item is in source currency.",
+        "tnved_chapter is a substring of tnved_code; either is fine for chapter filters.",
+        "currency_code and origin_country_code are NUMERIC ISO codes stored as text.",
+    ),
+    examples=(
+        "SELECT company_name, SUM(value_usd) AS total_usd FROM v_business_imports "
+        "GROUP BY company_name ORDER BY total_usd DESC LIMIT 10",
+        "SELECT region_name_cyr, SUM(value_usd) AS region_total_usd FROM v_business_imports "
+        "WHERE tnved_chapter = '02' GROUP BY region_name_cyr ORDER BY region_total_usd DESC LIMIT 14",
+    ),
+)
+
+V_BUSINESS_IMPORT_SUMMARIES = SemanticView(
+    name="v_business_import_summaries",
+    grain="one row per importer aggregated across 12 product categories (~2,959 rows)",
+    purpose=(
+        "Pre-aggregated per-importer totals over the 2024-2025 snapshot. Twelve category "
+        "columns sum to total_import_usd. Use this for fast top-importer queries; for "
+        "TN_VED-level detail use v_business_imports."
+    ),
+    columns=(
+        SemanticViewColumn("business_import_summary_id", "Surrogate id.", nullable=False),
+        SemanticViewColumn("inn", "Importer tax id."),
+        SemanticViewColumn("company_name", "Importer name."),
+        SemanticViewColumn("total_import_usd", "Total import value across all categories, USD."),
+        SemanticViewColumn("value_machines_usd", "Machines and equipment, USD."),
+        SemanticViewColumn("value_chemicals_usd", "Chemical products, USD."),
+        SemanticViewColumn("value_misc_goods_usd", "Various finished goods, USD."),
+        SemanticViewColumn("value_industrial_usd", "Industrial goods, USD."),
+        SemanticViewColumn("value_animal_oils_usd", "Animal and vegetable oils, USD."),
+        SemanticViewColumn("value_non_food_raw_usd", "Non-food raw materials except fuel, USD."),
+        SemanticViewColumn("value_building_mats_usd", "Construction materials, USD."),
+        SemanticViewColumn("value_food_products_usd", "Food products (excl. fruit/veg), USD."),
+        SemanticViewColumn("value_fruit_veg_usd", "Fruit and vegetable products, USD."),
+        SemanticViewColumn("value_mineral_fuel_usd", "Mineral fuel and oils, USD."),
+        SemanticViewColumn("value_beverages_tobacco_usd", "Beverages and tobacco products, USD."),
+        SemanticViewColumn("value_other_goods_usd", "Other goods, USD."),
+    ),
+    use_cases=(
+        "top importers by total value",
+        "top importers in a specific product category",
+        "share-of-category for a company",
+    ),
+    warnings=(
+        "Category columns are pre-aggregated by the source; do NOT also join "
+        "v_business_imports and re-sum the same values.",
+        "NULL in a category column means no import in that category; do not COALESCE to 0 unless explicitly asked.",
+    ),
+    examples=(
+        "SELECT company_name, total_import_usd FROM v_business_import_summaries "
+        "ORDER BY total_import_usd DESC LIMIT 10",
+        "SELECT company_name, value_food_products_usd FROM v_business_import_summaries "
+        "WHERE value_food_products_usd IS NOT NULL "
+        "ORDER BY value_food_products_usd DESC LIMIT 10",
+    ),
+)
+
+V_COMPANY_DENSITY_BY_DISTRICT = SemanticView(
+    name="v_company_density_by_district",
+    grain="one row per (district, oked_label) combination with company count",
+    purpose=(
+        "Pre-aggregated company count per district per industry. Use for "
+        "'how many bakeries in district X' and gap analysis."
+    ),
+    columns=(
+        SemanticViewColumn("region_id", "Region surrogate id.", nullable=False),
+        SemanticViewColumn("district_id", "District surrogate id.", nullable=False),
+        SemanticViewColumn("region_name_cyr", "Region name (CERR)."),
+        SemanticViewColumn("district_name_cyr", "District name (CERR)."),
+        SemanticViewColumn(
+            "oked_label_uz", "Uzbek OKED activity label.", nullable=False
+        ),
+        SemanticViewColumn("oked_label_ru", "Russian OKED activity label."),
+        SemanticViewColumn(
+            "company_count", "Number of companies in this (district, oked) bucket.", nullable=False
+        ),
+    ),
+    join_keys=("region_id", "district_id"),
+    use_cases=(
+        "find under-served industries per district",
+        "rank districts by density of a specific industry",
+    ),
+    warnings=(
+        "Only rows where region_id, district_id, and oked_label_uz are all non-NULL are aggregated.",
+        "Use LIKE on oked_label_uz / oked_label_ru to find an industry; exact match is fragile.",
+    ),
+    examples=(
+        "SELECT district_name_cyr, company_count FROM v_company_density_by_district "
+        "WHERE oked_label_uz LIKE '%чакана%' ORDER BY company_count DESC LIMIT 20",
+    ),
+)
+
+
 SEMANTIC_CATALOG: dict[str, SemanticView] = {
     v.name: v
     for v in (
@@ -500,5 +743,10 @@ SEMANTIC_CATALOG: dict[str, SemanticView] = {
         V_MAHALLA_SUBSIDY_PROGRAMS,
         V_MAHALLA_PEER_FACTORS,
         V_DATA_QUALITY_ISSUES,
+        V_TNVED_CATEGORIES,
+        V_COMPANIES,
+        V_BUSINESS_IMPORTS,
+        V_BUSINESS_IMPORT_SUMMARIES,
+        V_COMPANY_DENSITY_BY_DISTRICT,
     )
 }
