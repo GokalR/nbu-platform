@@ -36,9 +36,22 @@ function scrollToBottom() {
 // XSS sanitizer — keeps the renderer safe even if the LLM ever returned HTML.
 marked.setOptions({ gfm: true, breaks: true })
 
+// CommonMark closes **bold** only when the closer is followed by whitespace
+// or punctuation. When the chatbot writes `**80%**i` (an Uzbek suffix stuck
+// to the close marker) marked leaves the asterisks literal. Defensively
+// rewrite `**X**[letter]` → `**X** [letter]` so the parser can close the
+// emphasis. Same fix applies to single-asterisk italics. We only touch the
+// boundary character; the bold/italic text itself is left intact.
+const _BOLD_SUFFIX_RE = /(\*\*[^*\n]+\*\*)([\p{L}\p{N}])/gu
+const _ITALIC_SUFFIX_RE = /(?<![\*])(\*[^*\s][^*\n]*\*)([\p{L}\p{N}])/gu
+
+function _fixBoldSuffix(s) {
+  return s.replace(_BOLD_SUFFIX_RE, '$1 $2').replace(_ITALIC_SUFFIX_RE, '$1 $2')
+}
+
 function renderMessage(text) {
   if (!text) return ''
-  const html = marked.parse(String(text))
+  const html = marked.parse(_fixBoldSuffix(String(text)))
   return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel'] })
 }
 
