@@ -151,6 +151,22 @@ def compute_derived_metrics(primary: Any, context: Iterable[Any] = ()) -> dict[s
     metrics["shown_count"] = primary.row_count
     metrics["rows_with_value"] = n
     metrics["rows_with_null_value"] = len(value_pairs) - n
+
+    # Multi-entity collision detection. When a *_id column is present and
+    # multiple distinct values appear in primary rows, the user likely asked
+    # about one named entity but several share the name (e.g. "Yoyilma" exists
+    # in 4 districts). The narrator must not average across them — it should
+    # present them separately or list them. Surface a clear flag + count per
+    # entity-level id so the prompt can branch on it.
+    for id_col in ("mahalla_id", "district_id", "region_id"):
+        if id_col in primary.columns:
+            idx = primary.columns.index(id_col)
+            distinct = {row[idx] for row in primary.rows if row[idx] is not None}
+            if distinct:
+                metrics[f"distinct_{id_col}_count"] = len(distinct)
+                if len(distinct) > 1:
+                    metrics[f"multi_entity_collision_{id_col}"] = True
+
     metrics["min_value_in_shown"] = format_number(min_val)
     metrics["max_value_in_shown"] = format_number(max_val)
     metrics["sum_shown"] = format_number(sum_shown)

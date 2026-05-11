@@ -35,7 +35,7 @@ from cerr_chatbot.query.sql_guard import SqlGuardError, validate
 
 log = logging.getLogger(__name__)
 
-MAX_CONTEXT_QUERIES = 5
+MAX_CONTEXT_QUERIES = 10
 
 EvidenceKind = Literal["sql_plan", "clarify", "no_data", "unsupported"]
 MemoryUse = Literal["used", "ignored", "unclear"]
@@ -67,6 +67,11 @@ class EvidencePack:
     question: str
     primary: EvidenceQueryResult
     context: tuple[EvidenceQueryResult, ...] = ()
+    # Set when the planner had to make a real interpretive choice on a vague
+    # question (e.g. "Andijon haqida" -> "I assumed you want a regional
+    # overview"). Empty string when no assumption was needed. The narrator
+    # surfaces this in the opening line so the user can refine.
+    assumed_interpretation: str = ""
 
 
 @dataclass(frozen=True)
@@ -109,6 +114,7 @@ class ParsedEvidencePlan:
     context_queries: tuple[ParsedContextQuery, ...]
     memory_use: MemoryUse = _DEFAULT_MEMORY_USE
     resolved_question: str = ""
+    assumed_interpretation: str = ""
 
 
 _ALLOWED_PLAN_KINDS = ("sql_plan", "clarify", "no_data", "unsupported")
@@ -165,6 +171,12 @@ def parse_evidence_plan(text: str, *, user_question: str = "") -> ParsedEvidence
     else:
         resolved_question = user_question
 
+    interp_raw = data.get("assumed_interpretation")
+    if isinstance(interp_raw, str) and interp_raw.strip():
+        assumed_interpretation = interp_raw.strip()
+    else:
+        assumed_interpretation = ""
+
     return ParsedEvidencePlan(
         kind=kind,
         user_message=user_message,
@@ -172,6 +184,7 @@ def parse_evidence_plan(text: str, *, user_question: str = "") -> ParsedEvidence
         context_queries=tuple(context),
         memory_use=memory_use,
         resolved_question=resolved_question,
+        assumed_interpretation=assumed_interpretation,
     )
 
 
@@ -288,6 +301,7 @@ def evidence_ask(
         question=plan.resolved_question or user_question,
         primary=primary_result,
         context=context_results,
+        assumed_interpretation=plan.assumed_interpretation,
     )
     notes: list[str] = []
     if memory_snapshot is not None:
@@ -295,6 +309,8 @@ def evidence_ask(
     notes.append(f"memory_use={plan.memory_use}")
     if plan.resolved_question and plan.resolved_question != user_question:
         notes.append(f"resolved_question={plan.resolved_question}")
+    if plan.assumed_interpretation:
+        notes.append(f"assumed_interpretation={plan.assumed_interpretation}")
     return EvidenceServiceResult(
         kind="sql_result",
         user_message=SQL_RESULT_GENERIC_INTRO,

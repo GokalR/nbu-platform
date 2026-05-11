@@ -109,6 +109,55 @@ _SCRATCHPAD_MARKERS: tuple[str, ...] = (
 # underscored tokens.
 _SNAKE_CASE_LEAK_RE = re.compile(r"\b[a-z][a-z0-9]*_[a-z0-9_]+\b")
 
+# Disclosure preambles the narrator must NEVER write itself. The backend
+# prepends a clean version separately when the planner flagged the question
+# as ambiguous. We strip any leaked variants that sneak through.
+_LEAKED_DISCLOSURE_RE = re.compile(
+    r"^\s*(?:savolingizni\s+shunday\s+tushundim|men\s+tushundim|"
+    r"sizning\s+savolingizni|sizning\s+so'rovingizni|"
+    r"i\s+understood\s+your\s+question|qabul\s+qildim)[^\n]*\n+",
+    re.IGNORECASE,
+)
+
+
+def _strip_leaked_disclosure(text: str) -> str:
+    """Drop the first line if it is a self-written interpretation preamble."""
+    return _LEAKED_DISCLOSURE_RE.sub("", text, count=1)
+
+
+# The follow-up section: narrator should produce a markdown bulleted list,
+# but compliance is unreliable. We detect the header and rewrite the body
+# below it so each non-empty, non-bulleted line gets a `- ` prefix.
+_FOLLOWUP_HEADER_RE = re.compile(
+    r"(Keyingi savollar|Yana qiziq bo'lishi mumkin):?\s*\n+([^\n].*?)(?=\Z)",
+    re.DOTALL,
+)
+
+
+def _bulletize_followups(text: str) -> str:
+    """Force the follow-up block into a `- ` bulleted markdown list.
+
+    The narrator prompt requires the bullet prefix; this is a safety net.
+    """
+    m = _FOLLOWUP_HEADER_RE.search(text)
+    if not m:
+        return text
+    header, body = m.group(1), m.group(2).strip()
+    if not body:
+        return text
+    fixed: list[str] = []
+    for line in body.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith(("- ", "* ", "•")):
+            fixed.append(s if s.startswith("- ") else "- " + s.lstrip("*•").strip())
+        else:
+            # Drop common "N." numeric prefixes too.
+            s = re.sub(r"^\d+[.)]\s+", "", s)
+            fixed.append("- " + s)
+    return text[: m.start()] + f"**{header}**" + "\n" + "\n".join(fixed) + "\n"
+
 
 # ---------------------------------------------------------------------------
 # Prompt construction
@@ -158,24 +207,65 @@ def _metrics_block(metrics: dict[str, object]) -> str:
 
 
 def build_evidence_prompt(pack: EvidencePack, brief: AnswerBrief | None = None) -> str:
-    primary_payload = _query_payload(pack.primary, max_rows=50)
-    contexts = "\n\n".join(_query_payload(c, max_rows=30) for c in pack.context) or "(none)"
+    primary_payload = _query_payload(pack.primary, max_rows=80)
+    contexts = "\n\n".join(_query_payload(c, max_rows=50) for c in pack.context) or "(none)"
     metrics = compute_derived_metrics(pack.primary, pack.context)
     metrics_block = _metrics_block(metrics)
     if brief is None:
         brief = build_answer_brief(pack.question, pack.primary, pack.context)
     brief_block = render_brief_for_prompt(brief)
+    assumed = (pack.assumed_interpretation or "").strip()
+    assumption_block = assumed if assumed else "(none)"
 
     return (
         "You are a senior regional analyst writing in Uzbek Latin script.\n"
-        "Write a USEFUL, informative answer for a non-technical user. Reason\n"
-        "FREELY over the evidence: compute ratios, densities, shares, "
-        "comparisons, plain-language interpretations — whatever genuinely\n"
-        "helps the reader understand the result. The ANSWER BRIEF below is\n"
-        "ADVISORY guidance about what fits THIS question shape; use it as a\n"
-        "hint, not a cage.\n"
+        "Write a RICH, MULTI-PARAGRAPH answer for a non-technical user. Reason\n"
+        "FREELY over the evidence: compute ratios, densities, shares,\n"
+        "comparisons, distributions, plain-language interpretations — whatever\n"
+        "genuinely helps the reader. The ANSWER BRIEF below is ADVISORY; use it\n"
+        "as a hint, not a cage. Aim for 4-7 substantive paragraphs whenever the\n"
+        "evidence supports it — for very simple scalar lookups a shorter answer\n"
+        "is fine. The user is rewarded for thoroughness.\n"
         "\n"
         f"USER QUESTION:\n{pack.question}\n"
+        "\n"
+        "PLANNER INTERPRETATION HINT:\n"
+        f"{assumption_block}\n"
+        "Use this hint to write the OPENING SENTENCE only when it is non-empty\n"
+        "AND the user genuinely needs to know what you assumed. Weave it into\n"
+        "the first line as plain natural Uzbek — NEVER use 'Savolingizni\n"
+        "shunday tushundim', 'Men tushundim', 'I understood', or any other\n"
+        "fixed disclosure prefix. Examples (use as patterns, not templates):\n"
+        "  hint: 'Bir nechta mahalla shu nom bilan topildi — barchasini ko'rsatdim.'\n"
+        "  -> opening: 'Yoyilma nomli 4 ta mahalla topildi. Quyida ularning\n"
+        "     kuchli tomonlari:'\n"
+        "  hint: 'Biznes deganda faol tadbirkorlik subyektlari sonini hisobladim.'\n"
+        "  -> opening: 'Faol tadbirkorlik subyektlari soni bo'yicha ...'\n"
+        "  hint: 'Andijon viloyati bo'yicha umumiy ko'rsatkichlarni ko'rsatdim.'\n"
+        "  -> opening: 'Andijon viloyati bo'yicha asosiy ko'rsatkichlar quyidagicha:'\n"
+        "When the hint is '(none)' or empty, open directly with the result and\n"
+        "do NOT add any meta-sentence about your interpretation.\n"
+        "\n"
+        "MULTI-ENTITY COLLISION RULE (CRITICAL):\n"
+        "  If PRE-COMPUTED METRICS contains any of\n"
+        "  `multi_entity_collision_mahalla_id`,\n"
+        "  `multi_entity_collision_district_id`, or\n"
+        "  `multi_entity_collision_region_id` set to true, the primary\n"
+        "  result contains rows from MULTIPLE DISTINCT entities sharing\n"
+        "  the same name. You MUST:\n"
+        "    * NEVER average, sum, or summarize numeric columns across\n"
+        "      those entities as if they were one. No combined percentile,\n"
+        "      no combined averages, no merged stats.\n"
+        "    * Open with one short sentence in Uzbek Latin naming the\n"
+        "      count, e.g. \"Bu nom bilan 4 ta mahalla topildi.\" (use\n"
+        "      `distinct_mahalla_id_count` for the number).\n"
+        "    * Present each entity SEPARATELY: a compact section per entity\n"
+        "      OR a markdown table where each row identifies the entity by\n"
+        "      its parents (region + district + mahalla name), with that\n"
+        "      entity's own numbers only.\n"
+        "    * If the user clearly meant one specific entity but you cannot\n"
+        "      tell which, list them with the disambiguating parent so the\n"
+        "      user can pick. Do NOT invent the one they meant.\n"
         "\n"
         "ANSWER BRIEF (advisory, not restrictive):\n"
         f"{brief_block}\n"
@@ -462,6 +552,11 @@ class EvidenceLlmNarrator:
                 return
             # Partial output already streamed — keep what we have but flag it
             # in debug notes via the done event.
+        # Apply the same post-processors as the blocking path so the done
+        # event's canonical answer text matches what the user expects.
+        if cleaned:
+            cleaned = _strip_leaked_disclosure(cleaned)
+            cleaned = _bulletize_followups(cleaned)
         cleaned_for_done = uz_cyrillic_to_latin(cleaned) if cleaned else ""
         yield {
             "type": "done",
@@ -521,6 +616,16 @@ class EvidenceLlmNarrator:
         if _SNAKE_CASE_LEAK_RE.search(cleaned):
             log.warning("evidence narrator output leaked snake_case identifier; falling back")
             return _fallback_answer(result.pack)
+
+        # Defensive post-processing:
+        # 1. Strip any leaked "Savolingizni shunday tushundim..." preface the
+        #    narrator wrote despite the prompt forbidding it. The backend
+        #    surfaces the disclosure separately when needed.
+        # 2. Force the "Keyingi savollar" / "Yana qiziq..." section into a
+        #    proper markdown bulleted list when the LLM produced plain
+        #    paragraphs or numbered lines.
+        cleaned = _strip_leaked_disclosure(cleaned)
+        cleaned = _bulletize_followups(cleaned)
 
         # Final guarantee: any Cyrillic source name still in the answer is
         # transliterated to Uzbek Latin server-side. The prompt asks the LLM
