@@ -113,7 +113,10 @@ def validate_inputs(
                                   f"{_INTEREST_RATE_MIN}–{_INTEREST_RATE_MAX}%"})
 
     # ---------- Organization ----------
-    founded = (org.get("foundedDate") or "").strip()
+    # str(...) coerces non-string values (e.g. an int founding year typed
+    # as a number by mistake) so .strip() never crashes with
+    # 'int has no attribute strip'.
+    founded = str(org.get("foundedDate") or "").strip()
     if founded:
         try:
             y, m, d = (int(x) for x in founded.split("-")[:3])
@@ -146,7 +149,7 @@ def validate_inputs(
     for i, row in enumerate(team):
         sal = float(row.get("salary") or 0)
         cnt = int(row.get("count") or 0)
-        role = (row.get("role") or "").strip()
+        role = str(row.get("role") or "").strip()
         if cnt > 0 and sal > 0:
             if sal < _SALARY_MIN_UZS:
                 errors.append({"field": f"team[{i}].salary",
@@ -297,8 +300,10 @@ def validate_and_clean(
             continue
         rtype = r.get("type")
         sev = r.get("severity")
-        desc = (r.get("description") or "").strip()
-        mit = (r.get("mitigation") or "").strip()
+        # str(...) defends against LLM returning numbers where the
+        # schema expected strings (common failure mode for short fields).
+        desc = str(r.get("description") or "").strip()
+        mit = str(r.get("mitigation") or "").strip()
         if rtype not in _RISK_TYPES or sev not in _RISK_SEVERITY:
             continue
         if not desc or not mit:
@@ -325,9 +330,11 @@ def validate_and_clean(
     for k in raw_kpis:
         if not isinstance(k, dict):
             continue
-        name = (k.get("name") or "").strip()
-        target = (k.get("target") or "").strip()
-        freq = (k.get("frequency") or "").strip().lower()
+        # KPI target very often comes back as a raw number from the LLM
+        # (e.g. target: 85000 instead of "85 000 ед/мес"). str() coerces.
+        name = str(k.get("name") or "").strip()
+        target = str(k.get("target") or "").strip()
+        freq = str(k.get("frequency") or "").strip().lower()
         if not name or not target:
             continue
         if freq not in _KPI_FREQUENCY_ALLOWED:
@@ -340,18 +347,24 @@ def validate_and_clean(
     llm_output["kpis"] = cleaned_kpis
 
     # ---------- marketContext: blank on unverifiable quant claims ----------
-    mc_text = (llm_output.get("marketContext") or "").strip()
+    mc_text = str(llm_output.get("marketContext") or "").strip()
     if mc_text and _QUANT_CLAIM_RE.search(mc_text):
         llm_output["marketContext"] = ""
         flags["marketContextBlanked"] = True
 
-    # ---------- length caps on free text ----------
+    # ---------- length caps + string coercion on free text ----------
+    # Coerce to string unconditionally so downstream renderers (frontend,
+    # DOCX) always see a string, even if the LLM returned a number.
     for field, cap in (("summary", 300),
                        ("executiveSummary", 600),
                        ("marketContext", 500)):
         v = llm_output.get(field)
-        if isinstance(v, str) and len(v) > cap:
-            llm_output[field] = v[:cap].rstrip()
+        if v is None:
+            continue
+        s = str(v)
+        if len(s) > cap:
+            s = s[:cap].rstrip()
+        llm_output[field] = s
 
     # ---------- attach validity metadata ----------
     if flags:

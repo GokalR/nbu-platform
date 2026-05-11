@@ -99,7 +99,8 @@ def compute_baseline(inputs: dict[str, Any]) -> dict[str, Any]:
     extras_breakdown = []
     for e in extras:
         amt = float(e.get("amount") or 0)
-        name = (e.get("name") or "").strip()
+        # str() so a non-string extras name doesn't blow up .strip()
+        name = str(e.get("name") or "").strip()
         if name and amt > 0:
             extras_total += amt
             extras_breakdown.append({"name": name, "amount": amt})

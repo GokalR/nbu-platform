@@ -163,6 +163,21 @@ class TestValidateInputs:
         assert errors == []
         assert any("валют" in w["message"].lower() for w in warnings)
 
+    def test_non_string_role_does_not_crash(
+        self, bakery_inputs, bakery_baseline, bakery_candidates
+    ):
+        """Regression: validate_inputs must coerce non-string `role` values
+        instead of crashing with 'int has no attribute strip'."""
+        bakery_inputs["team"] = [
+            {"role": 12345, "count": 1, "salary": 5_000_000},  # int role
+        ]
+        # Should not raise
+        errors, warnings = bpv.validate_inputs(
+            bakery_inputs, bakery_baseline, bakery_candidates,
+        )
+        # Salary is in band; no team-related errors expected
+        assert not any(e["field"].startswith("team[") for e in errors)
+
 
 # ============================================================================
 # Output validator
@@ -370,6 +385,44 @@ class TestValidateAndClean:
             credit_score=bakery_credit_score, inputs=bakery_inputs,
         )
         assert cleaned["financials"]["breakevenMonths"] is None
+
+    def test_llm_returning_int_for_string_field_does_not_crash(
+        self, bakery_baseline, bakery_credit_score, bakery_candidates, bakery_inputs
+    ):
+        """Defends against 'int' object has no attribute 'strip'.
+
+        The LLM sometimes returns raw numbers where the schema expects
+        strings (e.g. kpi.target: 85000 instead of "85 000 шт/мес").
+        validate_and_clean must coerce, not crash.
+        """
+        out = self._llm_skeleton()
+        # All four common offender fields fed non-string values:
+        out["risks"] = [
+            {"type": "market", "severity": "medium",
+             "description": 12345,       # ← int!
+             "mitigation": True},         # ← bool!
+        ]
+        out["kpis"] = [
+            {"name": 99,                  # ← int
+             "target": 85000,             # ← int (most common LLM mistake)
+             "frequency": 1},             # ← int
+        ]
+        out["marketContext"] = 42         # ← int
+        # Should NOT raise; should just filter/clean what's left
+        cleaned = bpv.validate_and_clean(
+            out, candidates=bakery_candidates, baseline=bakery_baseline,
+            credit_score=bakery_credit_score, inputs=bakery_inputs,
+        )
+        # Risk survived (description/mitigation now non-empty after coerce)
+        market_risks = [r for r in cleaned["risks"] if r["type"] == "market"]
+        assert len(market_risks) >= 1
+        assert market_risks[0]["description"] == "12345"
+        # KPI survived (name "99" + target "85000" non-empty)
+        assert len(cleaned["kpis"]) >= 1
+        assert cleaned["kpis"][0]["target"] == "85000"
+        # marketContext doesn't contain quantitative markers as a bare int,
+        # so it gets through to the length cap (not blanked).
+        assert isinstance(cleaned.get("marketContext"), str)
 
 
 # ============================================================================

@@ -154,7 +154,8 @@ def _check_salary_outliers(
     for row in team:
         sal = float(row.get("salary") or 0)
         cnt = int(row.get("count") or 0)
-        role = (row.get("role") or "").strip() or "—"
+        # str() so a non-string role value doesn't blow up .strip()
+        role = str(row.get("role") or "").strip() or "—"
         if cnt <= 0 or sal <= 0:
             continue
         if sal < lo_band or sal > hi_band:
