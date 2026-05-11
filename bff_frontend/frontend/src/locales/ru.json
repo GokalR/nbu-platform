@@ -3017,7 +3017,14 @@
       "siblingsTitle": "Махаллы",
       "searchMahalla": "Поиск махалли…",
       "mahallasShort": "{n} м.",
-      "mapSub": "{region} · {n} махаллей"
+      "mapSub": "{region} · {n} махаллей",
+      "stat": {
+        "pop": "Население",
+        "mahallas": "Махаллей",
+        "rating": "Балл рейтинга",
+        "rank": "Место в регионе"
+      },
+      "rankOfTotal": "из {total}"
     },
     "mahalla": {
       "ratingScore": "Балл социально-экономического рейтинга",

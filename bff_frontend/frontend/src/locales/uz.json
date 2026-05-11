@@ -3017,7 +3017,14 @@
       "siblingsTitle": "Маҳаллалар",
       "searchMahalla": "Маҳалла қидириш…",
       "mahallasShort": "{n} м.",
-      "mapSub": "{region} · {n} маҳалла"
+      "mapSub": "{region} · {n} маҳалла",
+      "stat": {
+        "pop": "Аҳоли сони",
+        "mahallas": "Маҳаллалар сони",
+        "rating": "Рейтинг балли",
+        "rank": "Вилоятдаги ўрни"
+      },
+      "rankOfTotal": "{total} тадан"
     },
     "mahalla": {
       "ratingScore": "Ижтимоий-иқтисодий рейтинг балли",

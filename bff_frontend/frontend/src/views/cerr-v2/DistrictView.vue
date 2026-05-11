@@ -52,52 +52,87 @@ const macro = computed(() => store.districtMacro[districtCode.value] || null)
 const mahallas = computed(() => store.districtMahallas[districtCode.value] || [])
 const geo = computed(() => store.districtGeo[districtCode.value])
 
-const heroKpis = computed(() => {
-  const k = (overview.value?.kpis || []).filter((x) =>
-    ['population', 'active_businesses', 'unemployed', 'rating_score'].includes(x.key)
-  )
-  // Add investment + industry from macro.indicators highlighted points if present.
-  const m = macro.value
-  if (m?.indicators) {
-    for (const ind of m.indicators) {
-      if (['investment_volume_mln_usd', 'industry_volume_bln_uzs'].includes(ind.key)) {
-        const me = (ind.points || []).find((p) => p.highlighted)
-        if (me) {
-          k.push({
-            key: ind.key === 'investment_volume_mln_usd' ? 'investment' : 'industry',
-            label: ind.label,
-            value: me.value,
-            format: 'raw',
-            direction: ind.direction || 'up',
-            unit: ind.unit,
-          })
-        }
-      }
-    }
-  }
-  return k
+/** Place rank of this district within its region (1 = best — direction is
+ *  'down' in CERR). Pulled from overview.kpis.rating_score VALUE. */
+const populationKpi = computed(() => (overview.value?.kpis || []).find((k) => k.key === 'population') || null)
+const ratingRankKpi = computed(() => (overview.value?.kpis || []).find((k) => k.key === 'rating_score') || null)
+
+/** Total districts in the owning region. Tries: 1) the rating_score KPI's
+ *  district_avg (CERR fills it with ~total/2 — not exact), 2) the cached
+ *  region record. */
+const districtsInRegion = computed(() => {
+  const r = district.value?.region_code ? store.regionByCode(district.value.region_code) : null
+  return r?.districts_count || null
 })
 
-/** KPI strip data (mahalla-hero look): formatted value + delta chip. */
+/** Compose a 0-100 score from the place rank: top of region → 100, bottom → ~0.
+ *  Formula: ((total - rank + 1) / total) * 100. Falls back to null when we
+ *  don't know the total yet. */
+function scoreFromRank(rank, total) {
+  if (!rank || !total) return null
+  return ((total - rank + 1) / total) * 100
+}
+
+function tierFromRankPos(rank, total) {
+  if (!rank || !total) return null
+  const ratio = rank / total
+  if (ratio <= 0.40) return 'lead'
+  if (ratio <= 0.80) return 'mid'
+  return 'low'
+}
+function tierTone(t) {
+  if (t === 'lead') return 'pos'
+  if (t === 'low')  return 'neg'
+  return 'neu'
+}
+
+/** 4-tile structured hero: population, mahallas count, derived rating
+ *  score, rank in region. Rating + rank tinted by tier (top 40 % green,
+ *  bottom 20 % red, middle neutral). */
 const heroStats = computed(() => {
-  return heroKpis.value.map((k) => {
-    const dir = k.direction
-    let tone = 'neu'
-    if (k.change_pct != null) {
-      if (dir === 'down') tone = k.change_pct > 0 ? 'neg' : 'pos'
-      else tone = k.change_pct > 0 ? 'pos' : 'neg'
-    }
-    return {
-      key: k.key,
-      label: k.label,
-      ico: iconForKpi(k.key),
-      value: fmt.num(k.value),
-      delta: k.change_pct != null
-        ? `${k.change_pct > 0 ? '+' : ''}${Number(k.change_pct).toFixed(1).replace('.', ',')}%`
-        : null,
-      deltaTone: tone,
-    }
-  })
+  const pop = populationKpi.value
+  const rankVal = ratingRankKpi.value?.value || null
+  const total = districtsInRegion.value
+  const score = scoreFromRank(rankVal, total)
+  const tier = tierFromRankPos(rankVal, total)
+  const out = []
+
+  if (pop) {
+    out.push({
+      key: 'pop',
+      label: tFn('cerrV2.district.stat.pop'),
+      ico: iconForKpi('population'),
+      value: fmt.num(pop.value),
+    })
+  }
+  if (district.value?.mahalla_count != null) {
+    out.push({
+      key: 'mahallas',
+      label: tFn('cerrV2.district.stat.mahallas'),
+      ico: 'grid',
+      value: fmt.num(district.value.mahalla_count),
+    })
+  }
+  if (score != null) {
+    out.push({
+      key: 'rating',
+      label: tFn('cerrV2.district.stat.rating'),
+      ico: 'award',
+      value: score.toFixed(1).replace('.', ','),
+      deltaTone: tierTone(tier),
+    })
+  }
+  if (rankVal != null) {
+    out.push({
+      key: 'rank',
+      label: tFn('cerrV2.district.stat.rank'),
+      ico: 'check',
+      value: `#${rankVal}`,
+      unit: total ? tFn('cerrV2.district.rankOfTotal', { total }) : '',
+      deltaTone: tierTone(tier),
+    })
+  }
+  return out
 })
 
 const histogram = computed(() => overview.value?.rating_histogram || [])
@@ -218,7 +253,8 @@ function openTier(stir) {
               <div class="hv2-stat-label">{{ s.label }}</div>
             </div>
             <div class="hv2-stat-row">
-              <span class="hv2-stat-val tabular">{{ s.value }}</span>
+              <span :class="['hv2-stat-val tabular', s.deltaTone === 'pos' ? 'is-pos' : s.deltaTone === 'neg' ? 'is-neg' : '']">{{ s.value }}</span>
+              <span v-if="s.unit" class="hv2-stat-unit">{{ s.unit }}</span>
               <span v-if="s.delta" :class="['mh-delta', s.deltaTone]">{{ s.delta }}</span>
             </div>
           </div>
