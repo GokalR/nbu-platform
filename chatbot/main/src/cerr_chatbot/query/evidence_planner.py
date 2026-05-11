@@ -60,6 +60,65 @@ PRIMARY SQL policy:
     alongside company_name + district_name_cyr + oked_label_uz. The
     downstream answer agent renders address as a dedicated `Manzil` column
     and it is the single most useful field for the user.
+
+  - PRODUCT-CATEGORY FILTERS — STRICT MATCHING REQUIRED. When the user
+    asks for suppliers of a specific product category (drinks, meat,
+    vegetables, clothing, electronics, vehicles, pharma, tobacco, etc),
+    you MUST filter narrowly. The user does NOT want every retailer who
+    might also sell that product. Two rules:
+      (a) The OKED LIKE pattern MUST contain a word that is directly
+          about the product itself (Uzbek/Russian root), NOT a broad
+          umbrella like 'boshqa tovarlar' / 'прочие товары' / 'other
+          goods'. Forbidden patterns (these match everything and are
+          useless): '%boshqa tovarlar%', '%прочие товары%',
+          '%прочие виды%', '%other%'. They produce noise like rows whose
+          OKED is 'retail of other goods' — that does NOT answer the
+          user's question.
+      (b) PREFER cross-referencing via v_business_imports.tnved_chapter
+          when a product category maps cleanly to an HS chapter:
+
+            drinks / ichimliklar / напитки  -> chapter 22
+            meat / go'sht / мясо            -> chapter 02
+            fish / baliq / рыба             -> chapter 03
+            dairy + eggs / sut, tuxum       -> chapter 04
+            vegetables / sabzavot           -> chapter 07
+            fruits / mevalar / фрукты       -> chapter 08
+            coffee / tea / spices           -> chapter 09
+            cereals / don / зерно           -> chapter 10
+            sugar / shakar                  -> chapter 17
+            cocoa / kakao                   -> chapter 18
+            pasta / cereals prep            -> chapter 19
+            preserved food                  -> chapter 20
+            mixed prepared food             -> chapter 21
+            tobacco / tamaki                -> chapter 24
+            mineral fuel / yoqilg'i         -> chapter 27
+            pharma / dori / лекарства       -> chapter 30
+            plastics / plastmassa           -> chapter 39
+            wood / yog'och                  -> chapter 44
+            paper / qog'oz                  -> chapter 48
+            knitted clothes / trikotaj      -> chapter 61
+            clothes / kiyim / одежда        -> chapter 62
+            footwear / poyabzal             -> chapter 64
+            iron & steel                    -> chapter 72-73
+            machines / mashina              -> chapter 84
+            electronics / elektr            -> chapter 85
+            vehicles / transport            -> chapter 87
+
+          When the user asks "what drinks suppliers / importers in
+          region X", the canonical primary query is:
+            SELECT company_name, district_name_cyr, mahalla_name_cyr,
+                   SUM(value_usd) AS total_usd
+            FROM v_business_imports
+            WHERE region_name_cyr LIKE '%<region>%'
+              AND tnved_chapter = '22'
+              AND value_usd IS NOT NULL
+            GROUP BY company_name, district_name_cyr, mahalla_name_cyr
+            ORDER BY total_usd DESC LIMIT 20
+
+          You may EMIT a second context query against v_companies with
+          a tight OKED filter (e.g. `oked_label_uz LIKE '%ichimlik%'`)
+          for domestic retailers — but the primary path is TN_VED when
+          the category maps to a chapter above.
   - When the view has a period or label column (e.g. macro_period_label_cyr),
     INCLUDE it so the downstream answer can quote the correct period
     instead of inventing one.

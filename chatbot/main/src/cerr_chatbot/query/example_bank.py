@@ -435,6 +435,44 @@ EXAMPLES: tuple[PromptExample, ...] = (
         ),
     ),
     PromptExample(
+        title="drinks suppliers in a region via TN_VED chapter 22 (canonical product-category path)",
+        sql=(
+            "SELECT company_name, district_name_cyr, mahalla_name_cyr, "
+            "ROUND(CAST(SUM(value_usd) AS NUMERIC), 2) AS total_usd "
+            "FROM v_business_imports "
+            "WHERE region_name_cyr LIKE '%Фарғона%' "
+            "AND tnved_chapter = '22' "
+            "AND value_usd IS NOT NULL "
+            "GROUP BY company_name, district_name_cyr, mahalla_name_cyr "
+            "ORDER BY total_usd DESC LIMIT 20"
+        ),
+        views=("v_business_imports",),
+        tags=(TAG_BUSINESS_IMPORT, TAG_BUSINESS_TNVED, TAG_TOP_N),
+        keywords=(
+            "ichimlik", "ichimliklar", "drinks", "напитки",
+            "yetkazib beruvchi", "qanday kompaniyalar",
+        ),
+    ),
+    PromptExample(
+        title="domestic drinks RETAILERS via strict OKED match — companion query to TN_VED",
+        sql=(
+            "SELECT company_name, district_name_cyr, oked_label_uz, address_raw "
+            "FROM v_companies "
+            "WHERE region_name_cyr LIKE '%Фарғона%' "
+            "AND (oked_label_uz LIKE '%ичимлик%' OR oked_label_ru LIKE '%напит%') "
+            "AND oked_label_uz NOT LIKE '%бошқа товарлар%' "
+            "AND oked_label_uz NOT LIKE '%boshqa tovarlar%' "
+            "AND oked_label_ru NOT LIKE '%прочие товары%' "
+            "LIMIT 20"
+        ),
+        views=("v_companies",),
+        tags=(TAG_BUSINESS_COMPANY, TAG_SAMPLE),
+        keywords=(
+            "ichimlik", "ichimliklar chakana", "drinks retailer",
+            "напитки магазин",
+        ),
+    ),
+    PromptExample(
         title="top districts by retail-trade company density",
         sql=(
             "SELECT region_name_cyr, district_name_cyr, company_count "
