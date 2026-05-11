@@ -406,9 +406,9 @@ EXAMPLES: tuple[PromptExample, ...] = (
         keywords=("faoliyat", "soha", "yo'nalish", "tadbirkorlik", "oked"),
     ),
     PromptExample(
-        title="search companies in a specific industry (restaurant) in a region",
+        title="search companies in a specific industry (restaurant) in a region — include address",
         sql=(
-            "SELECT company_name, district_name_cyr, oked_label_uz "
+            "SELECT company_name, district_name_cyr, oked_label_uz, address_raw "
             "FROM v_companies "
             "WHERE region_name_cyr LIKE '%Самарқанд%' "
             "AND (oked_label_ru LIKE '%ресторан%' OR oked_label_uz LIKE '%ресторан%') "
@@ -417,6 +417,22 @@ EXAMPLES: tuple[PromptExample, ...] = (
         views=("v_companies",),
         tags=(TAG_BUSINESS_COMPANY, TAG_SAMPLE),
         keywords=("restoran", "kafe", "ресторан", "samarqand", "samarkand"),
+    ),
+    PromptExample(
+        title="list suppliers in a region by OKED industry keyword — name + activity + address",
+        sql=(
+            "SELECT company_name, district_name_cyr, oked_label_uz, address_raw "
+            "FROM v_companies "
+            "WHERE region_name_cyr LIKE '%Тошкент%' "
+            "AND (oked_label_uz LIKE '%улгуржи%' OR oked_label_ru LIKE '%оптовая%') "
+            "LIMIT 20"
+        ),
+        views=("v_companies",),
+        tags=(TAG_BUSINESS_COMPANY, TAG_SAMPLE, TAG_ADVISORY),
+        keywords=(
+            "qaysi kompaniyalar", "kompaniyalar ro'yxati", "yetkazib beruvchi",
+            "supplier list", "korxonalar ro'yxati", "manzil", "address",
+        ),
     ),
     PromptExample(
         title="top districts by retail-trade company density",

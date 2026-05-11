@@ -54,6 +54,12 @@ PRIMARY SQL policy:
   - Always project a human-readable label column for each row when the
     view exposes one (region_name_cyr, district_name_cyr, mahalla_name_cyr,
     issue_code, etc). Never return only an opaque numeric value.
+  - For COMPANY LIST queries against v_companies (questions like "qaysi
+    kompaniyalar", "yetkazib beruvchilar ro'yxati", "what suppliers /
+    companies exist") — ALWAYS include `address_raw` in the SELECT list
+    alongside company_name + district_name_cyr + oked_label_uz. The
+    downstream answer agent renders address as a dedicated `Manzil` column
+    and it is the single most useful field for the user.
   - When the view has a period or label column (e.g. macro_period_label_cyr),
     INCLUDE it so the downstream answer can quote the correct period
     instead of inventing one.
