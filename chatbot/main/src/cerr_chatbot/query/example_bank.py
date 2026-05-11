@@ -36,6 +36,8 @@ TAG_SAMPLE = "sample"
 TAG_BUSINESS_COMPANY = "business_company"
 TAG_BUSINESS_IMPORT = "business_import"
 TAG_BUSINESS_TNVED = "business_tnved"
+# Phase 2B — advisory mode
+TAG_ADVISORY = "advisory"
 
 
 @dataclass(frozen=True)
@@ -530,6 +532,57 @@ EXAMPLES: tuple[PromptExample, ...] = (
         tags=(TAG_BUSINESS_IMPORT, TAG_SCALAR_COUNT),
         keywords=("jami", "umumiy", "barcha", "total", "grand total"),
     ),
+    # ----- Phase 2B: advisory mode examples ------------------------------
+    PromptExample(
+        title="advisory: top mahallas in a city by population (for biznes start)",
+        sql=(
+            "SELECT mahalla_name_cyr, population, rating_score "
+            "FROM v_mahallas "
+            "WHERE district_name_cyr LIKE '%Фарғона шаҳри%' "
+            "AND population IS NOT NULL "
+            "ORDER BY population DESC LIMIT 25"
+        ),
+        views=("v_mahallas",),
+        tags=(TAG_ADVISORY, TAG_BUSINESS_COMPANY, TAG_TOP_N),
+        keywords=(
+            "tavsiya", "taklif", "qaysi mahallada", "biznes boshlash",
+            "yo'nalish", "recommend", "where should",
+        ),
+    ),
+    PromptExample(
+        title="advisory: most/least represented industries per district",
+        sql=(
+            "SELECT oked_label_uz, company_count "
+            "FROM v_company_density_by_district "
+            "WHERE district_name_cyr LIKE '%Фарғона шаҳри%' "
+            "ORDER BY company_count DESC LIMIT 15"
+        ),
+        views=("v_company_density_by_district",),
+        tags=(TAG_ADVISORY, TAG_BUSINESS_COMPANY, TAG_DISTRIBUTION),
+        keywords=(
+            "tavsiya", "qaysi yo'nalish", "qaysi soha", "kam uchraydigan",
+            "biznes boshlash", "recommend industry",
+        ),
+    ),
+    PromptExample(
+        title="advisory: suppliers for restaurant in a region (food OKED + importers)",
+        sql=(
+            "SELECT company_name, district_name_cyr, oked_label_uz "
+            "FROM v_companies "
+            "WHERE region_name_cyr LIKE '%Самарқанд%' "
+            "AND (oked_label_ru LIKE '%продукт%питан%' "
+            "OR oked_label_uz LIKE '%озиқ-овқат%' "
+            "OR oked_label_uz LIKE '%улгуржи%' "
+            "OR oked_label_ru LIKE '%оптовая%') "
+            "LIMIT 100"
+        ),
+        views=("v_companies",),
+        tags=(TAG_ADVISORY, TAG_BUSINESS_COMPANY),
+        keywords=(
+            "yetkazib beruvchi", "supplier", "restoran", "kafe", "biznes",
+            "kerak", "tavsiya", "kim", "qanday",
+        ),
+    ),
     PromptExample(
         title="combined cross-view scalar counts (no joins)",
         sql=(
@@ -602,6 +655,7 @@ def select_examples(
 __all__ = [
     "EXAMPLES",
     "PromptExample",
+    "TAG_ADVISORY",
     "TAG_APPEALS",
     "TAG_BUSINESS_COMPANY",
     "TAG_BUSINESS_IMPORT",

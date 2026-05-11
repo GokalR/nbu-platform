@@ -78,9 +78,39 @@ CONTEXT QUERIES policy (only when kind=="sql_plan"):
   - Each context query MUST be a single SELECT against the same v_* views.
   - The same sql_guard rules apply to every context query.
 
+ADVISORY MODE — recommendation / supplier / "where to start" questions:
+  When the user asks for advice, recommendation, or a prescriptive direction
+  (Uzbek: "tavsiya", "taklif ber", "qaysi mahallada biznes boshlash",
+   "yetkazib beruvchi"; Russian: "рекомендация", "посоветуй";
+   English: "recommend", "where should I start", "what suppliers"), TREAT
+  IT AS sql_plan, NEVER as unsupported.
+
+  Decompose the request into the EVIDENCE the downstream answer agent needs
+  to ground its recommendation. Typical decompositions:
+
+  * "Where to start a business in <city>?" — emit:
+      primary: list mahallas in the target district sorted by population
+               (v_mahallas WHERE district_name_cyr LIKE '%<city>%')
+      context: counts/density per OKED in the target district
+               (v_company_density_by_district or aggregated v_companies)
+      context: overall company count baselines for context.
+
+  * "What suppliers do I need for <business> in <region>?" — emit:
+      primary: companies with OKED matching wholesale/distribution of
+               relevant goods in the target region
+               (v_companies WHERE region_name_cyr LIKE '%<region>%'
+                AND oked_label_uz/ru LIKE '%<supply category>%')
+      context: importers in that region for related TN_VED chapters
+               (v_business_imports filtered by tnved_chapter + region).
+
+  The answer agent is allowed to synthesize a recommendation FROM the rows.
+  It will never invent rows. Your job is to fetch the right evidence.
+
 KIND choice (PREFER sql_plan whenever a reasonable attempt is possible):
   sql_plan    - question is answerable with one safe SELECT (plus optional
-                context). Provide primary_sql. This is the DEFAULT.
+                context). Provide primary_sql. This is the DEFAULT. Use it
+                also for ADVISORY questions (decompose into evidence-grounded
+                sub-queries, never refuse the shape).
 
   clarify     - LAST RESORT. Use it only when no reasonable interpretation
                 exists. Specifically:
@@ -213,6 +243,39 @@ rating_score / district_rank_text to a non-technical user):
 
 EXAMPLE F - unsupported:
 {"kind": "unsupported", "user_message": "Bu so'rov xavfsiz emas; faqat o'qish ruxsat etilgan."}
+
+EXAMPLE G - advisory: "Where in Fergana city should I start a business + which
+industries?" — decompose into evidence for the answer agent (PREFER sql_plan,
+NOT unsupported). The user_message is a short Uzbek intro; the answer agent
+writes the actual recommendation from the rows:
+{
+  "kind": "sql_plan",
+  "user_message": "Tavsiya uchun zarur ma'lumotlarni yig'dim.",
+  "primary_sql": "SELECT mahalla_name_cyr, population, rating_score FROM v_mahallas WHERE district_name_cyr LIKE '%Фарғона шаҳри%' AND population IS NOT NULL ORDER BY population DESC LIMIT 25",
+  "context_queries": [
+    {"purpose": "top industries by company count in the target district",
+     "sql": "SELECT oked_label_uz, company_count FROM v_company_density_by_district WHERE district_name_cyr LIKE '%Фарғона шаҳри%' ORDER BY company_count DESC LIMIT 15"},
+    {"purpose": "least-represented industries in the target district",
+     "sql": "SELECT oked_label_uz, company_count FROM v_company_density_by_district WHERE district_name_cyr LIKE '%Фарғона шаҳри%' ORDER BY company_count ASC LIMIT 15"},
+    {"purpose": "total companies in the target district for share context",
+     "sql": "SELECT SUM(company_count) AS total_companies FROM v_company_density_by_district WHERE district_name_cyr LIKE '%Фарғона шаҳри%'"}
+  ]
+}
+
+EXAMPLE H - advisory: "Restaurant suppliers in Samarkand" — companies whose
+OKED matches food wholesale/distribution + importers of food products
+(PREFER sql_plan with multiple slices):
+{
+  "kind": "sql_plan",
+  "user_message": "Tavsiya uchun yetkazib beruvchilar ma'lumotlarini yig'dim.",
+  "primary_sql": "SELECT company_name, district_name_cyr, oked_label_uz FROM v_companies WHERE region_name_cyr LIKE '%Самарқанд%' AND (oked_label_ru LIKE '%продукт%питан%' OR oked_label_uz LIKE '%озиқ-овқат%' OR oked_label_uz LIKE '%улгуржи%' OR oked_label_ru LIKE '%оптовая%') LIMIT 100",
+  "context_queries": [
+    {"purpose": "top food-products importers in Samarkand region",
+     "sql": "SELECT company_name, value_food_products_usd FROM v_business_import_summaries s WHERE value_food_products_usd IS NOT NULL ORDER BY value_food_products_usd DESC LIMIT 10"},
+    {"purpose": "top imports of food (TN_VED chapters 02-22) in Samarkand region",
+     "sql": "SELECT tnved_chapter, SUM(value_usd) AS chapter_total_usd FROM v_business_imports WHERE region_name_cyr LIKE '%Самарқанд%' AND tnved_chapter BETWEEN '02' AND '22' AND value_usd IS NOT NULL GROUP BY tnved_chapter ORDER BY chapter_total_usd DESC LIMIT 10"}
+  ]
+}
 """
 
 
