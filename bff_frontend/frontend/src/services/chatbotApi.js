@@ -1,14 +1,18 @@
 import { BACKEND_URL } from './api'
 
-export async function sendChatMessage({ message, sessionId, maxRows = 10 }) {
-  const resp = await fetch(`${BACKEND_URL}/api/chatbot/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message,
-      session_id: sessionId || null,
-      max_rows: maxRows,
-    }),
+// Phase 2D-1: chat endpoints + session endpoints all require the same
+// Authorization: Bearer <edu_token> header that the rest of the platform uses.
+function authHeaders() {
+  const token = localStorage.getItem('edu_token')
+  const headers = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  return headers
+}
+
+async function _request(path, options = {}) {
+  const resp = await fetch(`${BACKEND_URL}${path}`, {
+    ...options,
+    headers: { ...authHeaders(), ...(options.headers || {}) },
   })
   if (!resp.ok) {
     let detail = ''
@@ -23,82 +27,128 @@ export async function sendChatMessage({ message, sessionId, maxRows = 10 }) {
   return resp.json()
 }
 
+// ---- Session management -----------------------------------------------
+
+export function listChatSessions() {
+  return _request('/api/chatbot/sessions', { method: 'GET' })
+}
+
+export function createChatSession() {
+  return _request('/api/chatbot/sessions', { method: 'POST' })
+}
+
+export function loadChatSession(sessionId) {
+  return _request(`/api/chatbot/sessions/${encodeURIComponent(sessionId)}`, { method: 'GET' })
+}
+
+export function deleteChatSession(sessionId) {
+  return _request(`/api/chatbot/sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' })
+}
+
+// ---- Sending messages -------------------------------------------------
+
+export async function sendChatMessage({ message, sessionId, maxRows = 10 }) {
+  return _request('/api/chatbot/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+      message,
+      session_id: sessionId,
+      max_rows: maxRows,
+    }),
+  })
+}
+
 /**
  * Open an SSE stream to the chatbot. The chatbot emits three event types:
  *   - status: { stage, message } — phase-of-pipeline progress updates
  *   - token:  { text }            — append to the rendered answer bubble
  *   - done:   { kind, answer, sql, row_count, columns, pipeline, ok }
  *
- * Returns an object with { close() }. The caller passes named handlers
- * (onStatus / onToken / onDone / onError) for each event family. Callers
- * MUST keep the returned object so they can close the connection on
- * component unmount, otherwise the EventSource leaks.
+ * EventSource cannot set Authorization headers, so we pass the token as a
+ * query param. The BFF accepts either Bearer header OR `token=` query — the
+ * existing /api/chatbot/chat/stream uses `require_auth(credentials=...)`
+ * which reads the Bearer header. To keep it simple, we tunnel the token via
+ * the URL's `Authorization` header… wait — EventSource doesn't allow that.
+ * Fallback: fetch + ReadableStream is used so we can set headers.
  */
 export function openChatStream(
   { message, sessionId, maxRows = 10 },
   { onStatus, onToken, onDone, onError } = {},
 ) {
-  const params = new URLSearchParams({
-    message,
-    max_rows: String(maxRows),
-  })
-  if (sessionId) params.set('session_id', sessionId)
-  const url = `${BACKEND_URL}/api/chatbot/chat/stream?${params.toString()}`
+  const url = new URL(`${BACKEND_URL || window.location.origin}/api/chatbot/chat/stream`)
+  url.searchParams.set('message', message)
+  url.searchParams.set('max_rows', String(maxRows))
+  if (sessionId) url.searchParams.set('session_id', sessionId)
 
-  const es = new EventSource(url)
+  const controller = new AbortController()
   let doneSeen = false
 
-  es.addEventListener('status', (ev) => {
+  ;(async () => {
     try {
-      onStatus?.(JSON.parse(ev.data))
-    } catch {
-      /* ignore malformed status frames */
-    }
-  })
-  es.addEventListener('token', (ev) => {
-    try {
-      const { text } = JSON.parse(ev.data)
-      if (typeof text === 'string' && text) onToken?.(text)
-    } catch {
-      /* ignore */
-    }
-  })
-  es.addEventListener('done', (ev) => {
-    doneSeen = true
-    try {
-      onDone?.(JSON.parse(ev.data))
-    } catch {
-      onDone?.({})
-    }
-    es.close()
-  })
-  es.addEventListener('error', (ev) => {
-    // EventSource fires onerror both on real failures AND on normal close.
-    // We treat absence of `done` as a real error.
-    if (!doneSeen) {
-      let detail = ''
-      try {
-        detail = JSON.parse(ev.data || '{}')?.error || ''
-      } catch {
-        detail = ''
+      const resp = await fetch(url.toString(), {
+        method: 'GET',
+        headers: authHeaders(),
+        signal: controller.signal,
+      })
+      if (!resp.ok) {
+        onError?.(`stream ${resp.status}`)
+        return
       }
-      onError?.(detail || 'stream connection lost')
+      const reader = resp.body.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let buf = ''
+      let currentEvent = 'message'
+
+      const handleFrame = (evt, data) => {
+        if (evt === 'status') {
+          try {
+            onStatus?.(JSON.parse(data))
+          } catch {}
+        } else if (evt === 'token') {
+          try {
+            const { text } = JSON.parse(data)
+            if (typeof text === 'string' && text) onToken?.(text)
+          } catch {}
+        } else if (evt === 'done') {
+          doneSeen = true
+          try {
+            onDone?.(JSON.parse(data))
+          } catch {
+            onDone?.({})
+          }
+        } else if (evt === 'error') {
+          let detail = ''
+          try {
+            detail = JSON.parse(data || '{}')?.error || ''
+          } catch {}
+          onError?.(detail || 'stream error')
+        }
+      }
+
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        let idx
+        while ((idx = buf.indexOf('\n\n')) !== -1) {
+          const frame = buf.slice(0, idx)
+          buf = buf.slice(idx + 2)
+          let evtName = 'message'
+          let dataPayload = ''
+          for (const line of frame.split('\n')) {
+            if (line.startsWith('event:')) evtName = line.slice(6).trim()
+            else if (line.startsWith('data:')) dataPayload = line.slice(5).trim()
+          }
+          if (dataPayload) handleFrame(evtName, dataPayload)
+        }
+      }
+      if (!doneSeen) onError?.('stream ended without done event')
+    } catch (err) {
+      if (err.name !== 'AbortError' && !doneSeen) {
+        onError?.(err?.message || 'stream error')
+      }
     }
-    es.close()
-  })
+  })()
 
-  return { close: () => es.close() }
-}
-
-export function ensureChatSessionId() {
-  const KEY = 'chatbot_session_id'
-  let id = sessionStorage.getItem(KEY)
-  if (!id) {
-    id =
-      typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `s_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    sessionStorage.setItem(KEY, id)
-  }
-  return id
+  return { close: () => controller.abort() }
 }

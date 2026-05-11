@@ -845,6 +845,10 @@
     "metaRows": "{n} ta yozuv asosida",
     "errorEmpty": "Javob qabul qilinmadi.",
     "errorNetwork": "Tizim bilan bogʻlanishda xatolik. Iltimos, qaytadan urinib koʻring.",
+    "newChat": "Yangi suhbat",
+    "noSessions": "Hali suhbatlaringiz yoʻq",
+    "untitled": "Nomsiz suhbat",
+    "deleteSession": "Suhbatni oʻchirish",
     "suggestions": {
       "title": "Tavsiya etilgan savollar",
       "q1": "Toshkent viloyatida nechta tuman bor?",

@@ -46,6 +46,7 @@ from . import models_rs_ref  # noqa: F401
 from . import models_gm  # noqa: F401  — registers Golden Mart tables
 from . import models_business_plan  # noqa: F401  — registers business_plan_submissions
 from . import models_sme_profile  # noqa: F401  — registers sme_profile_submissions
+from . import models_chatbot  # noqa: F401  — registers chatbot_sessions + chatbot_messages
 from .auth import hash_password
 from .models_education import User
 
