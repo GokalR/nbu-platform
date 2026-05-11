@@ -267,13 +267,15 @@ function formatSessionDate(iso) {
 </script>
 
 <template>
-  <section class="flex flex-col h-[calc(100vh-7rem)] p-6 lg:p-8 gap-6">
-    <header class="bg-surface-container-low p-6 rounded-xl">
-      <h1 class="text-3xl font-extrabold tracking-tight text-primary">{{ t('chatbot.title') }}</h1>
-      <p class="text-on-surface-variant text-sm mt-1">{{ t('chatbot.subtitle') }}</p>
+  <section class="flex flex-col h-[calc(100vh-5rem)] p-4 lg:p-6 gap-3">
+    <header class="bg-surface-container-low px-5 py-3 rounded-xl">
+      <h1 class="text-lg font-extrabold tracking-tight text-primary leading-tight">
+        {{ t('chatbot.title') }}
+      </h1>
+      <p class="text-on-surface-variant text-xs leading-tight">{{ t('chatbot.subtitle') }}</p>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6 flex-1 overflow-hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-4 flex-1 overflow-hidden">
       <!-- ============ Main chat area (left, takes remaining width) ============= -->
       <div
         class="bg-surface-container-lowest rounded-xl flex flex-col overflow-hidden shadow-sm order-1"
@@ -281,6 +283,7 @@ function formatSessionDate(iso) {
         <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-4">
           <div
             v-for="(m, i) in messages"
+            v-show="m.role === 'user' || m.error || m.text"
             :key="i"
             class="flex"
             :class="m.role === 'user' ? 'justify-end' : 'justify-start'"
