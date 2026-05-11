@@ -13,11 +13,11 @@ const routes = [
   { path: '/districts', redirect: '/regions-v2' },
   // CERR analytics service (cerr-v2) — native Vue port of the nbu_platform/
   // prototype, backed by /api/cerr/* (real big-JSON data, all 14 regions).
-  // Open reference data → public routes; no auth guard required.
+  // Auth required: every visit hits the login gate first.
   {
     path: '/regions-v2',
     component: () => import('@/views/cerr-v2/CerrV2Layout.vue'),
-    meta: { titleKey: 'nav.regionsAnalytics', public: true },
+    meta: { titleKey: 'nav.regionsAnalytics' },
     children: [
       {
         path: '',
