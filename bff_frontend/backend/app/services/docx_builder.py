@@ -73,6 +73,17 @@ L = {
         },
         "months": "мес.",
         "footer": "NBU AI Hub — Генератор бизнес-плана",
+        "disclaimer": {
+            "title": "Самодиагностика, не решение банка",
+            "body": (
+                "Этот документ и оценка кредитоспособности рассчитаны "
+                "автоматически на основе данных анкеты. Это не профессиональная "
+                "оценка кредитного аналитика и не итоговое решение банка. "
+                "Используйте его, чтобы лучше понять свои шансы на одобрение и "
+                "подготовиться к встрече в отделении НБУ — реальные условия и "
+                "одобрение определяются на основании полной заявки и проверки документов."
+            ),
+        },
     },
     "uz": {
         "title": "Biznes-reja",
@@ -131,6 +142,17 @@ L = {
         },
         "months": "oy",
         "footer": "NBU AI Hub — Biznes-reja generatori",
+        "disclaimer": {
+            "title": "Oʻz-oʻzini diagnostika, bank qarori emas",
+            "body": (
+                "Ushbu hujjat va kreditga layoqatlilik bahosi anketa "
+                "maʼlumotlari asosida avtomatik hisoblangan. Bu professional "
+                "kredit tahlilchisining bahosi yoki bankning yakuniy qarori emas. "
+                "Maʼqullanish ehtimolingizni yaxshiroq tushunish va NBU boʻlimida "
+                "uchrashuvga tayyorlanish uchun foydalaning — haqiqiy shartlar "
+                "va maʼqullash toʻliq ariza va hujjatlarni tekshirish asosida belgilanadi."
+            ),
+        },
     },
 }
 
@@ -389,6 +411,22 @@ def build_docx(
         for r in m.runs:
             r.font.size = Pt(10)
             r.font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
+
+    # Top disclaimer — placed right after the title block so readers see
+    # "this is a self-diagnostic, not a bank decision" before any numbers.
+    disclaimer = t.get("disclaimer")
+    if disclaimer:
+        doc.add_paragraph()
+        title_p = doc.add_paragraph()
+        title_run = title_p.add_run(disclaimer["title"])
+        title_run.font.size = Pt(11)
+        title_run.font.bold = True
+        title_run.font.color.rgb = RGBColor(0x1E, 0x40, 0xAF)
+        body_p = doc.add_paragraph()
+        body_run = body_p.add_run(disclaimer["body"])
+        body_run.font.size = Pt(10)
+        body_run.font.color.rgb = RGBColor(0x1E, 0x3A, 0x8A)
+        doc.add_paragraph()
 
     # Verdict
     verdict = plan.get("feasibilityVerdict", "medium")

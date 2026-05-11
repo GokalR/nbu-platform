@@ -73,6 +73,8 @@ const L = {
     address: 'Manzil',
     founder: 'Asoschisi',
     inn: 'INN',
+    disclaimerTitle: 'Oʻz-oʻzini diagnostika, bank qarori emas',
+    disclaimerBody: 'Ushbu hujjat va kreditga layoqatlilik bahosi anketa maʼlumotlari asosida avtomatik hisoblangan. Bu professional kredit tahlilchisining bahosi yoki bankning yakuniy qarori emas. Maʼqullanish ehtimolingizni yaxshiroq tushunish va NBU boʻlimida uchrashuvga tayyorlanish uchun foydalaning — haqiqiy shartlar va maʼqullash toʻliq ariza va hujjatlarni tekshirish asosida belgilanadi.',
   },
   ru: {
     title: 'Бизнес-план',
@@ -136,6 +138,8 @@ const L = {
     address: 'Адрес',
     founder: 'Учредитель',
     inn: 'ИНН',
+    disclaimerTitle: 'Самодиагностика, не решение банка',
+    disclaimerBody: 'Этот документ и оценка кредитоспособности рассчитаны автоматически на основе данных анкеты. Это не профессиональная оценка кредитного аналитика и не итоговое решение банка. Используйте его, чтобы лучше понять свои шансы на одобрение и подготовиться к встрече в отделении НБУ — реальные условия и одобрение определяются на основании полной заявки и проверки документов.',
   },
 }
 
@@ -213,6 +217,31 @@ body {
 .section p { margin: 0 0 8px 0; }
 .section ul, .section ol { margin: 0; padding-left: 22px; }
 .section li { padding-bottom: 4px; }
+
+/* Top disclaimer — appears right after the header so it's the first
+   thing readers see. */
+.disclaimer {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+.disclaimer-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: #2563eb; color: #fff;
+  display: grid; place-items: center;
+  font-family: Georgia, serif; font-weight: 700; font-style: italic; font-size: 18px;
+  flex-shrink: 0;
+}
+.disclaimer-body { flex: 1; }
+.disclaimer-body strong {
+  display: block; font-size: 13px; font-weight: 800; color: #1e40af;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px;
+}
+.disclaimer-body p { margin: 0; font-size: 13px; line-height: 1.55; color: #1e3a8a; }
 
 .verdict {
   display: flex; align-items: center; gap: 24px;
@@ -326,6 +355,14 @@ body {
     <span><strong>${escape(t.generatedAt)}:</strong> ${escape(date)}</span>
   </div>
 </header>
+
+<section class="disclaimer">
+  <div class="disclaimer-icon">i</div>
+  <div class="disclaimer-body">
+    <strong>${escape(t.disclaimerTitle)}</strong>
+    <p>${escape(t.disclaimerBody)}</p>
+  </div>
+</section>
 
 <section class="verdict">
   <div>

@@ -361,6 +361,18 @@ onMounted(load)
       </div>
 
       <div v-else-if="plan" class="bpr-content">
+        <!-- Top disclaimer: this is a self-diagnostic, not a bank decision.
+             Placed first so users see it before the score banner. -->
+        <section class="bpr-disclaimer" role="note">
+          <span class="bpr-disclaimer-icon" aria-hidden="true">
+            <AppIcon name="info" />
+          </span>
+          <div class="bpr-disclaimer-body">
+            <strong>{{ t('businessPlan.result.disclaimer.title') }}</strong>
+            <p>{{ t('businessPlan.result.disclaimer.body') }}</p>
+          </div>
+        </section>
+
         <!-- Verdict header -->
         <section class="bpr-verdict-card">
           <div class="bpr-verdict-left">
@@ -977,6 +989,46 @@ onMounted(load)
 }
 
 .bpr-content { display: flex; flex-direction: column; gap: 20px; }
+
+/* Top disclaimer banner — appears above the verdict so it's the first
+   thing users see. Muted-blue scheme to signal "informational, not warning". */
+.bpr-disclaimer {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.bpr-disclaimer-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25);
+}
+.bpr-disclaimer-body { flex: 1; min-width: 0; }
+.bpr-disclaimer-body strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e40af;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+.bpr-disclaimer-body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #1e3a8a;
+}
 
 /* Verdict */
 .bpr-verdict-card {

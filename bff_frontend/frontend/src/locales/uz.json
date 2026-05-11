@@ -1234,6 +1234,10 @@
       "retry": "Qayta urinish",
       "feasibility": "Loyiha amalga oshirish reytingi",
       "verdicts": { "high": "Yuqori", "medium": "Oʻrtacha", "low": "Past", "needs_rework": "Qayta ishlash kerak" },
+      "disclaimer": {
+        "title": "Oʻz-oʻzini diagnostika, bank qarori emas",
+        "body": "Ushbu hujjat va kreditga layoqatlilik bahosi anketa maʼlumotlaringiz asosida avtomatik hisoblangan. Bu professional kredit tahlilchisining bahosi yoki bankning yakuniy qarori emas. Maʼqullanish ehtimolingizni yaxshiroq tushunish va NBU boʻlimida uchrashuvga tayyorlanish uchun foydalaning — haqiqiy shartlar va maʼqullash toʻliq ariza va hujjatlarni tekshirish asosida belgilanadi."
+      },
       "executiveSummary": "Qisqacha xulosa",
       "marketContext": "Bozor konteksti",
       "monthlyRevenue": "Oylik daromad",
