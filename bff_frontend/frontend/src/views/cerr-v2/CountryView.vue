@@ -579,7 +579,11 @@ function colorize(f) {
 .cerr-v2-scope .hv2-meta-item { display: inline-flex; align-items: center; gap: 6px; }
 .cerr-v2-scope .hv2-meta-sep  { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.3); }
 
-.cerr-v2-scope .hero-v2-stats {
+/* Scoped to the country hero only (`hero-v2` without `mahalla-hero`).
+ * Otherwise this 4-column rule leaks onto the mahalla / region / district
+ * hero stats strip (which also has class `hero-v2-stats`) and the 6-tile
+ * layout wraps into 4 + 2 depending on cascade order. */
+.cerr-v2-scope .hero-v2:not(.mahalla-hero) .hero-v2-stats {
   /* Concentrated on the left — strip takes only what it needs (≈ 70 % of
    * the hero) instead of stretching to full width. The macro grid below
    * stays full-width as before. */
