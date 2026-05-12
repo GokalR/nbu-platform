@@ -57,7 +57,7 @@ const routes = [
     path: '/education',
     name: 'education',
     component: () => import('@/views/education/EduCoursesView.vue'),
-    meta: { layout: 'education', titleKey: 'nav.education' },
+    meta: { titleKey: 'nav.education' },
   },
   {
     path: '/partners',
@@ -69,13 +69,13 @@ const routes = [
     path: '/education/courses/:id',
     name: 'edu-course-detail',
     component: () => import('@/views/education/EduCourseDetailView.vue'),
-    meta: { layout: 'education', titleKey: 'nav.education' },
+    meta: { titleKey: 'nav.education' },
   },
   {
     path: '/education/courses/:courseId/learn/:videoId',
     name: 'edu-learn',
     component: () => import('@/views/education/EduLearningView.vue'),
-    meta: { layout: 'education', titleKey: 'nav.education' },
+    meta: { titleKey: 'nav.education' },
   },
   {
     path: '/tools/fincontrol',
@@ -159,19 +159,19 @@ const routes = [
     path: '/tools/business-plan',
     name: 'business-plan-wizard',
     component: () => import('@/views/businessPlan/BusinessPlanWizardView.vue'),
-    meta: { layout: 'blank', titleKey: 'businessPlan.title' },
+    meta: { titleKey: 'businessPlan.title' },
   },
   {
     path: '/tools/sme-profile',
     name: 'sme-profile-wizard',
     component: () => import('@/views/smeProfile/SmeProfileWizardView.vue'),
-    meta: { layout: 'blank', titleKey: 'smeProfile.title' },
+    meta: { titleKey: 'smeProfile.title' },
   },
   {
     path: '/tools/business-plan/result/:id',
     name: 'business-plan-result',
     component: () => import('@/views/businessPlan/BusinessPlanResultView.vue'),
-    meta: { layout: 'blank', titleKey: 'businessPlan.title' },
+    meta: { titleKey: 'businessPlan.title' },
   },
   {
     path: '/admin/business-plans',
