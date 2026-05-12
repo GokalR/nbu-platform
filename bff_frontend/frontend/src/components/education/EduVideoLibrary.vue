@@ -51,7 +51,16 @@ const activeLevel = ref('all')
 const activeVideo = ref(null)
 
 const titleFor = (v) => locale.value === 'ru' ? v.title_ru : v.title_uz
-const thumbFor = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
+
+// Branded template thumbnails: each category gets its own gradient + icon.
+// No reliance on YouTube's clickbait-y hqdefault images.
+const CATEGORY_STYLES = {
+  ai_courses:    { icon: 'neurology' },
+  banking:       { icon: 'account_balance' },
+  governance:    { icon: 'gavel' },
+  entrepreneurs: { icon: 'trending_up' },
+}
+const iconFor = (cat) => CATEGORY_STYLES[cat]?.icon || 'play_circle'
 
 const categories = computed(() => [
   { key: 'all',           label: t('education.videoLib.catAll') },
@@ -128,17 +137,19 @@ watch(activeVideo, (v) => {
         v-for="v in filteredVideos"
         :key="v.id"
         class="vid-card"
+        :class="`vid-card--${v.category}`"
         @click="openVideo(v)"
       >
         <div class="vid-card__thumb">
-          <img :src="thumbFor(v.id)" :alt="titleFor(v)" loading="lazy" />
-          <div class="vid-card__play">
+          <div class="vid-card__pattern" aria-hidden="true" />
+          <div class="vid-card__header">
+            <span class="material-symbols-outlined vid-card__icon">{{ iconFor(v.category) }}</span>
+            <span class="vid-card__cat">{{ $t('education.videoLib.cat_' + v.category) }}</span>
+          </div>
+          <h3 class="vid-card__title">{{ titleFor(v) }}</h3>
+          <div class="vid-card__play" aria-hidden="true">
             <span class="material-symbols-outlined">play_arrow</span>
           </div>
-          <span class="vid-card__cat">{{ $t('education.videoLib.cat_' + v.category) }}</span>
-        </div>
-        <div class="vid-card__body">
-          <h3 class="vid-card__title">{{ titleFor(v) }}</h3>
         </div>
       </article>
     </div>
@@ -250,57 +261,105 @@ watch(activeVideo, (v) => {
 .vid-card__thumb {
   position: relative;
   aspect-ratio: 16 / 9;
-  background: #0b1e3f;
   overflow: hidden;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Default (NBU navy) — overridden per category below */
+  background: linear-gradient(135deg, #001f3f 0%, #003d7c 55%, #0054a6 100%);
+  transition: filter 0.25s ease;
 }
-.vid-card__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  display: block;
-}
-.vid-card:hover .vid-card__thumb img { transform: scale(1.04); }
-.vid-card__play {
+
+/* Per-category gradients (still anchored on NBU navy for brand cohesion) */
+.vid-card--ai_courses    .vid-card__thumb { background: linear-gradient(135deg, #001f3f 0%, #1f3a8a 55%, #3b5fd6 100%); }
+.vid-card--banking       .vid-card__thumb { background: linear-gradient(135deg, #001f3f 0%, #0d4d63 55%, #1a7a8a 100%); }
+.vid-card--governance    .vid-card__thumb { background: linear-gradient(135deg, #001f3f 0%, #2f3568 55%, #5a4a90 100%); }
+.vid-card--entrepreneurs .vid-card__thumb { background: linear-gradient(135deg, #001f3f 0%, #6e3e1e 55%, #c4882e 100%); }
+
+/* Subtle decorative pattern — large soft orbs for depth */
+.vid-card__pattern {
   position: absolute;
   inset: 0;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.12) 0%, transparent 38%),
+    radial-gradient(circle at 12% 90%, rgba(0, 0, 0, 0.22) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.vid-card:hover .vid-card__thumb { filter: brightness(1.08); }
+
+.vid-card__header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vid-card__icon {
+  font-size: 22px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 6px;
+  line-height: 1;
+}
+.vid-card__cat {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vid-card__title {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-family: 'Manrope', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.32;
+  margin: 0;
+  padding-right: 44px; /* breathing room for play indicator */
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.vid-card__play {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
-.vid-card:hover .vid-card__play { opacity: 1; }
+.vid-card:hover .vid-card__play {
+  background: rgba(255, 255, 255, 0.95);
+  transform: scale(1.08);
+}
 .vid-card__play .material-symbols-outlined {
-  font-size: 40px;
+  font-size: 22px;
   color: #fff;
-  background: rgba(0, 84, 166, 0.92);
-  border-radius: 50%;
-  padding: 14px;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+  transition: color 0.2s ease;
 }
-.vid-card__cat {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(0, 61, 124, 0.9);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  backdrop-filter: blur(4px);
-}
-.vid-card__body { padding: 14px 16px 18px; }
-.vid-card__title {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--edu-text, #0f172a);
-  margin: 0;
+.vid-card:hover .vid-card__play .material-symbols-outlined { color: #003d7c; }
+
+@media (max-width: 480px) {
+  .vid-card__title { font-size: 16px; }
 }
 
 .vid-modal {
