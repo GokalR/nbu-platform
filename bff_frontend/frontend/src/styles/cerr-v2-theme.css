@@ -95,7 +95,12 @@
   --shadow-card: 0 1px 2px rgba(15,15,12,.04), 0 0 0 1px rgba(15,15,12,.02);
   --shadow-pop:  0 16px 36px -16px rgba(15, 15, 12, 0.18);
 
-  --font-ui: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Inter is primary. Manrope was the original design, but its Cyrillic
+   * subset doesn't include several Uzbek letters (қ ў ҳ ғ), and mixing
+   * Manrope + Inter per-glyph at 76px hero sizes shows visible metric
+   * mismatch. Inter has full Cyrillic-Extended coverage so every letter
+   * — including Uzbek ones — renders in the same font. */
+  --font-ui: 'Inter', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Fraunces', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 }
