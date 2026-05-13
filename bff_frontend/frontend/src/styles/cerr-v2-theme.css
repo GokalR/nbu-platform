@@ -17,7 +17,7 @@
  * letters (қ U+049B, ў U+045E, ҳ U+04B3, ғ U+0493) render at any weight.
  * Manrope is kept as a secondary face for body weights where its design
  * still wins; Inter takes over for headings where we hit the gap. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans:wght@100..900&display=swap');
 
 .cerr-v2-scope {
   /* Brand */
@@ -2135,11 +2135,18 @@
 
 
 /* ============== District page — bigger, bolder type ============== */
-/* Weight 800 (not 900): Google Fonts subsets per weight, and the Cyrillic-
- * Extended subset (қ ў ҳ ғ) isn't shipped at weight 900 for our fonts —
- * those letters silently fall back to a system font at 900, breaking the
- * hero. 800 is heavy enough at 76px and guaranteed to cover Uzbek. */
-.cerr-v2-scope .district-page .hero-title { font-size: 76px; font-weight: 800; letter-spacing: -0.025em; }
+/* Hero title uses Noto Sans (Google's universal-coverage face) so Uzbek
+ * Cyrillic (қ ў ҳ ғ) is guaranteed to render in the same font as the
+ * surrounding letters at heavy weight. Inter/Manrope kept for all other
+ * page text. font-variation-settings forces a true weight on the variable
+ * font (some browsers ignore font-weight 800+ for variable fallback). */
+.cerr-v2-scope .district-page .hero-title {
+  font-size: 76px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-family: 'Noto Sans', 'Inter', 'Manrope', -apple-system, sans-serif;
+  font-variation-settings: 'wght' 800;
+}
 .cerr-v2-scope .district-page .hero-sub { font-size: 17px; font-weight: 600; }
 .cerr-v2-scope .district-page .eyebrow { font-size: 13px; font-weight: 800; }
 .cerr-v2-scope .district-page .card-title { font-size: 17px; font-weight: 800; }
