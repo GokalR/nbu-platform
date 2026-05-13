@@ -24,6 +24,16 @@ const hover = ref(null)
 const tip = ref(null)
 const wrapRef = ref(null)
 
+// Skip anything that isn't a non-empty Polygon/MultiPolygon. Source data
+// occasionally ships districts with empty geometries (e.g. newly-split tumans
+// not yet covered by the ADM2 shapefile) — without this guard one bad feature
+// would crash bbox()/pathFor() and blank the whole region map.
+function isDrawable(geom) {
+  if (!geom) return false
+  if (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon') return false
+  return Array.isArray(geom.coordinates) && geom.coordinates.length > 0
+}
+
 function bbox(geo) {
   let xmin = Infinity, ymin = Infinity, xmax = -Infinity, ymax = -Infinity
   function s(c) {
@@ -34,13 +44,17 @@ function bbox(geo) {
     }
     for (const x of c) s(x)
   }
-  for (const f of geo.features) s(f.geometry.coordinates)
+  for (const f of geo.features) {
+    if (!isDrawable(f.geometry)) continue
+    s(f.geometry.coordinates)
+  }
   return { xmin, ymin, xmax, ymax }
 }
 
 const project = computed(() => {
   if (!props.geo) return null
   const b = bbox(props.geo)
+  if (!Number.isFinite(b.xmin) || !Number.isFinite(b.ymin)) return null
   // Detect coordinate system: WGS84 lon/lat have |x| ≤ 180; anything bigger is
   // already projected (Web Mercator EPSG:3857), use linear bbox scaling.
   const isProjected = Math.abs(b.xmax) > 360 || Math.abs(b.xmin) > 360
@@ -58,7 +72,7 @@ const project = computed(() => {
 
 function pathFor(geom) {
   const proj = project.value
-  if (!proj) return ''
+  if (!proj || !isDrawable(geom)) return ''
   const rings = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates
   let d = ''
   for (const poly of rings) {
@@ -75,6 +89,7 @@ function pathFor(geom) {
 
 function centroid(geom) {
   const proj = project.value
+  if (!proj || !isDrawable(geom)) return [0, 0]
   const rings = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates
   let bigArea = 0, bigCx = 0, bigCy = 0
   for (const poly of rings) {
@@ -131,6 +146,7 @@ function updateTip(e, f) {
 
 function labelFor(f) {
   if (!project.value) return null
+  if (!isDrawable(f.geometry)) return null
   const [cx, cy] = centroid(f.geometry)
   const isHi = highlightSet.value.has(props.getKey(f))
   // Cheap "too small to label" heuristic: bbox of this single feature in screen px.
@@ -164,6 +180,7 @@ function labelFor(f) {
       </defs>
       <template v-for="(f, i) in geo.features" :key="`p-${getKey(f)}-${i}`">
         <path
+          v-if="isDrawable(f.geometry)"
           :d="pathFor(f.geometry)"
           :fill="fillFor(f, highlightSet.has(getKey(f)))"
           :stroke="highlightSet.has(getKey(f)) ? '#001b3d' : (hover === getKey(f) ? '#0054A6' : '#ffffff')"
