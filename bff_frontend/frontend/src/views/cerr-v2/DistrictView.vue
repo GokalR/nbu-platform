@@ -120,6 +120,24 @@ const ratingPanel = computed(() => {
 const histogram = computed(() => overview.value?.rating_histogram || [])
 const macroThemes = computed(() => groupMacroByTheme(macro.value))
 
+/** True when at least one indicator has a point marked `highlighted: true`
+ *  (i.e. CERR's per-district comparison row for THIS district exists).
+ *  When false but the indicator skeleton still loads, every theme block
+ *  would render as "—"/"#— из N" — we replace that with a single empty-
+ *  state card instead. Affects ~12 newly-created/renamed tumans whose
+ *  CERR macro report doesn't yet include them. */
+const macroHasData = computed(() => {
+  const inds = macro.value?.indicators
+  if (!Array.isArray(inds) || inds.length === 0) return false
+  for (const ind of inds) {
+    const pts = ind.points || []
+    for (const p of pts) {
+      if (p && p.highlighted) return true
+    }
+  }
+  return false
+})
+
 /** Mahalla list for the rail — alphabetical (per user request). Rank/tier is
  *  still computed from rating_score (see mahallaTier) for the badge color. */
 const mahallaList = computed(() => {
@@ -305,12 +323,19 @@ function openTier(stir) {
         </div>
       </section>
 
-      <div v-if="macroThemes.length" class="section-h">
+      <div v-if="macroThemes.length && macroHasData" class="section-h">
         <span>{{ $t('cerrV2.macroSummary', { n: macro?.indicators?.length || 0, m: macroThemes.length }) }}</span>
       </div>
-      <div v-if="macroThemes.length" class="macro-themes">
+      <div v-if="macroThemes.length && macroHasData" class="macro-themes">
         <ThemeBlock v-for="t in macroThemes" :key="t.id" :theme="t" />
       </div>
+      <section v-else-if="macroThemes.length" class="card district-macro-empty">
+        <div class="dme-icon"><CerrIcon name="info" :size="20" /></div>
+        <div class="dme-text">
+          <div class="dme-title">{{ $t('cerrV2.district.macroNoData') }}</div>
+          <div class="dme-sub">{{ $t('cerrV2.district.macroNoDataSub') }}</div>
+        </div>
+      </section>
     </div>
 
     <SidebarRail
@@ -326,3 +351,35 @@ function openTier(stir) {
     </SidebarRail>
   </div>
 </template>
+
+<style>
+.cerr-v2-scope .district-macro-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.cerr-v2-scope .district-macro-empty .dme-icon {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 84, 166, 0.08);
+  color: var(--brand-navy-bright, #0054A6);
+}
+.cerr-v2-scope .district-macro-empty .dme-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--brand-navy-deep, #001b3d);
+}
+.cerr-v2-scope .district-macro-empty .dme-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text-soft, #5a6473);
+}
+</style>
