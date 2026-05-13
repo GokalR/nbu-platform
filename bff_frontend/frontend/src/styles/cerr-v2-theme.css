@@ -12,12 +12,12 @@
    Deltas: pill chips
    ======================================================================== */
 
-/* Manrope is the primary face. Inter is loaded as a per-glyph fallback for
- * Uzbek Cyrillic letters that Manrope's subset is missing (қ U+049B, ў
- * U+045E, ҳ U+04B3, ғ U+0493). Without it the browser would fall back to
- * Segoe UI on Windows, which renders those letters visibly smaller in
- * large headings (e.g. "Пайариқ тумани"). */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap');
+/* Inter is loaded as a VARIABLE font (wght@100..900) — single file covering
+ * every weight with full Cyrillic-Extended subset, guaranteeing Uzbek
+ * letters (қ U+049B, ў U+045E, ҳ U+04B3, ғ U+0493) render at any weight.
+ * Manrope is kept as a secondary face for body weights where its design
+ * still wins; Inter takes over for headings where we hit the gap. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 .cerr-v2-scope {
   /* Brand */
