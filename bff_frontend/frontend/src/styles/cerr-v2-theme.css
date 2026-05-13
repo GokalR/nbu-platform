@@ -2135,7 +2135,11 @@
 
 
 /* ============== District page — bigger, bolder type ============== */
-.cerr-v2-scope .district-page .hero-title { font-size: 76px; font-weight: 900; letter-spacing: -0.025em; }
+/* Weight 800 (not 900): Google Fonts subsets per weight, and the Cyrillic-
+ * Extended subset (қ ў ҳ ғ) isn't shipped at weight 900 for our fonts —
+ * those letters silently fall back to a system font at 900, breaking the
+ * hero. 800 is heavy enough at 76px and guaranteed to cover Uzbek. */
+.cerr-v2-scope .district-page .hero-title { font-size: 76px; font-weight: 800; letter-spacing: -0.025em; }
 .cerr-v2-scope .district-page .hero-sub { font-size: 17px; font-weight: 600; }
 .cerr-v2-scope .district-page .eyebrow { font-size: 13px; font-weight: 800; }
 .cerr-v2-scope .district-page .card-title { font-size: 17px; font-weight: 800; }
