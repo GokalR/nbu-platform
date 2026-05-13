@@ -101,6 +101,11 @@
    * mismatch. Inter has full Cyrillic-Extended coverage so every letter
    * — including Uzbek ones — renders in the same font. */
   --font-ui: 'Inter', 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Headings need guaranteed coverage at heavy weights. Inter's Cyrillic-
+   * Extended subset is missing some Uzbek letters at weight 800+ on
+   * Google Fonts, so all hero titles use Noto Sans (Google's universal-
+   * coverage font, ships every Unicode codepoint at every weight). */
+  --font-heading: 'Noto Sans', 'Inter', 'Manrope', -apple-system, sans-serif;
   --font-display: 'Fraunces', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 }
@@ -335,11 +340,12 @@
 }
 .cerr-v2-scope .hero-title {
   font-size: clamp(48px, 5.2vw, 68px);
-  font-weight: 900;
-  letter-spacing: -0.028em;
+  font-weight: 800;
   letter-spacing: -.032em;
   line-height: 1.0;
   margin: 18px 0 14px;
+  font-family: var(--font-heading);
+  font-variation-settings: 'wght' 800;
 }
 .cerr-v2-scope .hero-sub {
   font-size: 14px;
@@ -2135,18 +2141,9 @@
 
 
 /* ============== District page — bigger, bolder type ============== */
-/* Hero title uses Noto Sans (Google's universal-coverage face) so Uzbek
- * Cyrillic (қ ў ҳ ғ) is guaranteed to render in the same font as the
- * surrounding letters at heavy weight. Inter/Manrope kept for all other
- * page text. font-variation-settings forces a true weight on the variable
- * font (some browsers ignore font-weight 800+ for variable fallback). */
-.cerr-v2-scope .district-page .hero-title {
-  font-size: 76px;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  font-family: 'Noto Sans', 'Inter', 'Manrope', -apple-system, sans-serif;
-  font-variation-settings: 'wght' 800;
-}
+/* District page just overrides the size — font-family / weight already
+ * inherit from --font-heading via .hero-v2 .hero-title rule. */
+.cerr-v2-scope .district-page .hero-title { font-size: 76px; letter-spacing: -0.025em; }
 .cerr-v2-scope .district-page .hero-sub { font-size: 17px; font-weight: 600; }
 .cerr-v2-scope .district-page .eyebrow { font-size: 13px; font-weight: 800; }
 .cerr-v2-scope .district-page .card-title { font-size: 17px; font-weight: 800; }
@@ -2209,11 +2206,13 @@
 .cerr-v2-scope .hero-v2-l { min-width: 0; }
 .cerr-v2-scope .hero-v2 .hero-title {
   font-size: clamp(34px, 3.6vw, 46px);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -.032em;
   line-height: 1;
   margin: 0;
   color: #fff;
+  font-family: var(--font-heading);
+  font-variation-settings: 'wght' 800;
 }
 
 .cerr-v2-scope .hero-v2-meta {
