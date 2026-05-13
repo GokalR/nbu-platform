@@ -12,7 +12,12 @@
    Deltas: pill chips
    ======================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+/* Manrope is the primary face. Inter is loaded as a per-glyph fallback for
+ * Uzbek Cyrillic letters that Manrope's subset is missing (қ U+049B, ў
+ * U+045E, ҳ U+04B3, ғ U+0493). Without it the browser would fall back to
+ * Segoe UI on Windows, which renders those letters visibly smaller in
+ * large headings (e.g. "Пайариқ тумани"). */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 .cerr-v2-scope {
   /* Brand */
@@ -90,7 +95,7 @@
   --shadow-card: 0 1px 2px rgba(15,15,12,.04), 0 0 0 1px rgba(15,15,12,.02);
   --shadow-pop:  0 16px 36px -16px rgba(15, 15, 12, 0.18);
 
-  --font-ui: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-ui: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Fraunces', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 }
